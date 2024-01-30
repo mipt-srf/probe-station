@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import scipy
+import scipy  # type: ignore
 
 from probe_station.processor import get_half_cycle
 
@@ -23,8 +23,8 @@ def get_default_wakeup(
     metadata: dict,
     positive: bool = True,
     big_pad: bool = False,
-    plot_cycles=False,
-    plot_result=True,
+    plot_cycles: bool = False,
+    plot_result: bool = True,
 ):
     repetitions = metadata["Repetition"]
     polarizations = []

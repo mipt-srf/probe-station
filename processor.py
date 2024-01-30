@@ -6,7 +6,7 @@ def get_one_cycle(df: pd.DataFrame, metadata: dict, cycle: int, plot: bool = Fal
     steps_per_cycle = 2 * (int(metadata["Steps"]) - 1)
     df_cycle = df[cycle * steps_per_cycle : (cycle + 1) * steps_per_cycle]
     if plot:
-        df_cycle.plot("Voltages", y=["DiffCurrent"])
+        df_cycle.plot("Voltages", y=["DiffCurrent"])  # type: ignore
     return df
 
 

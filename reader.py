@@ -1,5 +1,5 @@
 import re
-from collections.abc import Iterable
+from collections.abc import Sequence
 from pathlib import Path
 from typing import TextIO
 
@@ -37,7 +37,7 @@ def parse_datafile(path: Path):
         line.strip().split() for line in lines[len(metadata.keys()) + 2 :]
     ]  # TODO: change to len + 1 + PQPUND for versatility, check other modes
     df = pd.DataFrame(data[1:]).iloc[:, :3].dropna(how="all")
-    df.columns = data[0]
+    df.columns = data[0]  # type: ignore
     dataframes = []
     while True:
         row = non_numeric_row(df)
@@ -61,7 +61,7 @@ def is_float(string: str):
         return False
 
 
-def yield_pairs(lst: Iterable):
+def yield_pairs(lst: Sequence):
     """Yield pairs of elems from iterable and subscriptable object"""
     for pair in zip(lst[::2], lst[1::2]):
         yield pair
