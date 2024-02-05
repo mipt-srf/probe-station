@@ -7,7 +7,7 @@ def get_cycle(df: pd.DataFrame, metadata: dict, cycle: int, plot: bool = False):
     df_cycle = df[cycle * steps_per_cycle : (cycle + 1) * steps_per_cycle]
     if plot:
         df_cycle.plot("Voltages", y=["DiffCurrent"])  # type: ignore
-    return df
+    return df_cycle
 
 
 def get_half_cycle(
