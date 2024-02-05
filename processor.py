@@ -2,7 +2,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 
 
-def get_one_cycle(df: pd.DataFrame, metadata: dict, cycle: int, plot: bool = False):
+def get_cycle(df: pd.DataFrame, metadata: dict, cycle: int, plot: bool = False):
     steps_per_cycle = 2 * (int(metadata["Steps"]) - 1)
     df_cycle = df[cycle * steps_per_cycle : (cycle + 1) * steps_per_cycle]
     if plot:
@@ -47,7 +47,7 @@ def get_data_from_range(
     right = left + points_number
     df1 = df[left:right]
     if plot_cycle:
-        _ = get_one_cycle(df, metadata, cycle, plot=plot_cycle)
+        _ = get_cycle(df, metadata, cycle, plot=plot_cycle)
         plot_point_on_data(df, left)
         plot_point_on_data(df, right)
     return df1
