@@ -27,12 +27,12 @@ def get_default_wakeup(
     plot_result: bool = True,
 ):
     repetitions = metadata["Repetition"]
-    polarizations = []
+    pols = []
     for i in range(repetitions):
         df_cycle = get_half_cycle(df, metadata, i, positive=positive, plot=plot_cycles)
         polarization = get_polarization(df_cycle, metadata, big_pad=big_pad)
-        polarizations.append(polarization)
-    polarizations = np.array(polarizations)
+        pols.append(polarization)
+    polarizations = np.array(pols)
     if not positive:
         polarizations *= -1
 
