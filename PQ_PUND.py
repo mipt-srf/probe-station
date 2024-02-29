@@ -16,7 +16,7 @@ class PQ_PUND:
         self.current_df["DiffCurrent"] = (
             self.current_df["CurrentP"]
             - self.current_df["CurrentC"]
-            + self.leakage_df["CurrentP"]
+            # + self.leakage_df["CurrentP"]
         )
 
     def _init_metadata(self):
@@ -84,7 +84,12 @@ class PQ_PUND:
             self.plot_point_on_data(right)
         return df1
 
-    def plot_wakeup(self, output_path: Path | str = ".", sample: str = ""):
+    def plot_wakeup(
+        self,
+        output_path: Path | str = ".",
+        sample: str = "",
+        ylim: tuple[float, float] | None = None,
+    ):
         repetitions = self.metadata["Repetition"]
 
         transparencies = np.logspace(-0.4, -0.01, repetitions)
@@ -100,11 +105,13 @@ class PQ_PUND:
                 color="b",
                 label=label,
             )
+            if ylim:
+                plt.ylim(ylim)
         plt.xlabel("Voltage, V")
         plt.ylabel("Current, A")
         plt.title(f"I-V curve {sample}")
-        plt.legend()
-        plt.savefig(Path(output_path, sample + " wakeup (pq).png"))
+        plt.legend(loc="upper left")
+        plt.savefig(Path(output_path, sample + " wakeup (pq).png"), bbox_inches="tight")
 
     def plot_point_on_data(
         self, point: int, xdata: str = "Voltages", ydata: str = "DiffCurrent"
