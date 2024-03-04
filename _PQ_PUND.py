@@ -85,7 +85,7 @@ class PQ_PUND:
             self.plot_point_on_data(right)
         return df1
 
-    def plot_wakeup(
+    def plot_iv_cycled(
         self,
         output_path: Path | str = ".",
         sample: str = "",

@@ -5,9 +5,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from probe_station.CV import CV
-from probe_station.DC_IV import DC_IV
-from probe_station.PQ_PUND import PQ_PUND
+from probe_station._CV import CV
+from probe_station._DC_IV import DC_IV
+from probe_station._PQ_PUND import PQ_PUND
 
 
 def is_float(string: str):
