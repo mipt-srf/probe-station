@@ -65,7 +65,7 @@ class PQ_PUND:
                     self.current_df["DiffCurrent"].min() * 1.05,
                     self.current_df["DiffCurrent"].max() * 1.05,
                 ),
-            )
+            )  # type: ignore
         return df1
 
     def get_data_from_range(
@@ -93,13 +93,11 @@ class PQ_PUND:
         sample: str = "",
         ylim: tuple[float, float] | None = None,
     ):
-        repetitions = self.metadata["Repetition"]
-
-        transparencies = np.logspace(-0.4, -0.01, repetitions)
+        transparencies = np.logspace(-0.4, -0.01, self.repetitions)
         for i, alpha in enumerate(transparencies):
             df_cycle = self.get_cycle(i, plot=False)
             label = None
-            if i == 0 or i == repetitions - 1:
+            if i == 0 or i == self.repetitions - 1:
                 label = f"cycle #{i+1}"
             plt.plot(
                 df_cycle["Voltages"],
@@ -126,7 +124,7 @@ class PQ_PUND:
     def get_polarization(
         self,
         cycle: int,
-        positive=True,
+        positive: bool = True,
         big_pad: bool = False,
         plot_cycle: bool = False,
     ):
@@ -140,16 +138,17 @@ class PQ_PUND:
         polarization = charge / area * 1e6
         return polarization
 
-    def get_default_wakeup(
+    def get_polarizations(
         self,
         positive: bool = True,
         big_pad: bool = False,
         plot_result: bool = True,
+        plot_cycles: bool = False,
     ):
         pols = []
         for i in range(self.repetitions):
             polarization = self.get_polarization(
-                cycle=i, positive=positive, big_pad=big_pad
+                cycle=i, positive=positive, big_pad=big_pad, plot_cycle=plot_cycles
             )
             pols.append(polarization)
         polarizations = np.array(pols)
@@ -163,6 +162,6 @@ class PQ_PUND:
             plt.plot(polarizations, ".-", label=rf"$P_{sign}$", color=color)
             plt.xlabel("Cycles")
             plt.ylabel(r"Polarization, $\mu C$/cm$^2$")
-            plt.legend()
+            plt.legend(loc="lower right")
             plt.gca().set_ylim(0, polarizations.max() * 1.05)
         return polarizations
