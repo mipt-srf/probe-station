@@ -165,3 +165,29 @@ class PQ_PUND:
             plt.legend(loc="lower right")
             plt.gca().set_ylim(0, polarizations.max() * 1.05)
         return polarizations
+
+    def plot_qv(self, cycle: int = -1, centered: bool = True, plot_cycle: bool = False):
+        if cycle == -1:
+            cycle = self.repetitions - 1
+        df_cycle = self.get_cycle(cycle)
+        time_step = self.wait_time + self.rump_time
+        times = np.array([time_step * i for i in range(df_cycle["Voltages"].size)])
+
+        voltages = df_cycle["Voltages"]
+        curr = df_cycle["DiffCurrent"]
+        area = (25e-4) ** 2
+        if self.big_pad:
+            area *= 16
+        polarizations = (
+            scipy.integrate.cumulative_trapezoid(curr, times, initial=0) / area * 1e6
+        )
+        if centered:
+            polarizations -= polarizations.mean()
+
+        plt.plot(
+            voltages, polarizations, label=f"cycle #{cycle}" if plot_cycle else None
+        )
+        plt.xlabel("Voltage, V")
+        plt.ylabel(r"Polarization, $\mu C$/cm$^2$")
+        if plot_cycle:
+            plt.legend(loc="lower right")
