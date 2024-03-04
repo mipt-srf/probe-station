@@ -31,7 +31,7 @@ def non_numeric_row(df: pd.DataFrame):
 
 
 class Dataset:
-    def __init__(self, path: Path):
+    def __init__(self, path: Path, big_pad: bool = False):
         self.path = path
         metadata, dataframes = self._parse_datafile()
         self.metadata = metadata
@@ -39,7 +39,7 @@ class Dataset:
 
         handlers = {"PQPUND": PQ_PUND, "DC IV": DC_IV, "CVS": CV}
         mode = metadata["Measurement type"]
-        self.handler = handlers[mode](metadata, dataframes)
+        self.handler = handlers[mode](metadata, dataframes, big_pad)
 
     def _parse_datafile(self):
         with open(self.path, "r") as file:

@@ -8,7 +8,10 @@ import scipy
 
 
 class PQ_PUND:
-    def __init__(self, metadata: dict, dataframes: Sequence[pd.DataFrame]) -> None:
+    def __init__(
+        self, metadata: dict, dataframes: Sequence[pd.DataFrame], big_pad: bool = False
+    ) -> None:
+        self.big_pad = big_pad
         self.current_df = dataframes[0]
         self.leakage_df = dataframes[1]
         self.qv_df = dataframes[2]
@@ -125,7 +128,6 @@ class PQ_PUND:
         self,
         cycle: int,
         positive: bool = True,
-        big_pad: bool = False,
         plot_cycle: bool = False,
     ):
         df_cycle = self.get_half_cycle(cycle, positive=positive, plot=plot_cycle)
@@ -133,7 +135,7 @@ class PQ_PUND:
         times = np.array([time_step * i for i in range(df_cycle["Voltages"].size)])
         charge = scipy.integrate.simpson(y=df_cycle["DiffCurrent"], x=times)
         area = (25e-4) ** 2
-        if big_pad:
+        if self.big_pad:
             area *= 16
         polarization = charge / area * 1e6
         return polarization
@@ -141,14 +143,13 @@ class PQ_PUND:
     def get_polarizations(
         self,
         positive: bool = True,
-        big_pad: bool = False,
         plot_result: bool = True,
         plot_cycles: bool = False,
     ):
         pols = []
         for i in range(self.repetitions):
             polarization = self.get_polarization(
-                cycle=i, positive=positive, big_pad=big_pad, plot_cycle=plot_cycles
+                cycle=i, positive=positive, plot_cycle=plot_cycles
             )
             pols.append(polarization)
         polarizations = np.array(pols)
