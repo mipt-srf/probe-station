@@ -4,6 +4,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import scipy
 
 
 class PQ_PUND:
@@ -119,3 +120,47 @@ class PQ_PUND:
         plt.plot(
             self.current_df[xdata].iloc[point], self.current_df[ydata].iloc[point], "x"
         )
+
+    def get_polarization(
+        self,
+        cycle: int,
+        positive=True,
+        big_pad: bool = False,
+        plot_cycle: bool = False,
+    ):
+        df_cycle = self.get_half_cycle(cycle, positive=positive, plot=plot_cycle)
+        time_step = self.wait_time + self.rump_time
+        times = np.array([time_step * i for i in range(df_cycle["Voltages"].size)])
+        charge = scipy.integrate.simpson(y=df_cycle["DiffCurrent"], x=times)
+        area = (25e-4) ** 2
+        if big_pad:
+            area *= 16
+        polarization = charge / area * 1e6
+        return polarization
+
+    def get_default_wakeup(
+        self,
+        positive: bool = True,
+        big_pad: bool = False,
+        plot_result: bool = True,
+    ):
+        pols = []
+        for i in range(self.repetitions):
+            polarization = self.get_polarization(
+                cycle=i, positive=positive, big_pad=big_pad
+            )
+            pols.append(polarization)
+        polarizations = np.array(pols)
+        if positive:
+            polarizations *= -1
+
+        if plot_result:
+            plt.rcParams.update({"font.size": 13})
+            sign = "+" if positive else "-"
+            color = "r" if positive else "b"
+            plt.plot(polarizations, ".-", label=rf"$P_{sign}$", color=color)
+            plt.xlabel("Cycles")
+            plt.ylabel(r"Polarization, $\mu C$/cm$^2$")
+            plt.legend()
+            plt.gca().set_ylim(0, polarizations.max() * 1.05)
+        return polarizations
