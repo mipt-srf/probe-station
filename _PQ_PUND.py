@@ -47,6 +47,8 @@ class PQ_PUND:
         positive: bool = True,
         plot: bool = False,
     ):
+        if self.first_bias > self.second_bias:  # consider direction of bias change
+            positive = not positive
         df1 = self.get_data_from_range(
             cycle, points_number=self.steps_per_cycle // 2, positive=positive
         )
@@ -151,7 +153,7 @@ class PQ_PUND:
             )
             pols.append(polarization)
         polarizations = np.array(pols)
-        if positive:
+        if not positive:
             polarizations *= -1
 
         if plot_result:
