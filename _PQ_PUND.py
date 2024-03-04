@@ -157,7 +157,6 @@ class PQ_PUND:
             polarizations *= -1
 
         if plot_result:
-            plt.rcParams.update({"font.size": 13})
             sign = "+" if positive else "-"
             color = "r" if positive else "b"
             plt.plot(polarizations, ".-", label=rf"$P_{sign}$", color=color)

@@ -4,6 +4,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from matplotlib import pyplot as plt
 
 from probe_station._CV import CV
 from probe_station._DC_IV import DC_IV
@@ -32,6 +33,7 @@ def non_numeric_row(df: pd.DataFrame):
 
 class Dataset:
     def __init__(self, path: Path, big_pad: bool = False):
+        plt.rcParams.update({"font.size": 13})
         self.path = path
         metadata, dataframes = self._parse_datafile()
         self.metadata = metadata
