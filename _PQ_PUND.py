@@ -165,7 +165,13 @@ class PQ_PUND:
             plt.gca().set_ylim(0, polarizations.max() * 1.05)
         return polarizations
 
-    def plot_qv(self, cycle: int = -1, centered: bool = True, plot_cycle: bool = False):
+    def plot_qv(
+        self,
+        cycle: int = -1,
+        centered: bool = True,
+        show_cycle: bool = False,
+        sample: str = "",
+    ):
         if cycle == -1:
             cycle = self.repetitions - 1
         df_cycle = self.get_cycle(cycle)
@@ -183,10 +189,10 @@ class PQ_PUND:
         if centered:
             polarizations -= polarizations.mean()
 
-        plt.plot(
-            voltages, polarizations, label=f"cycle #{cycle}" if plot_cycle else None
-        )
+        label = f"cycle #{cycle}" if show_cycle else None
+        label = label + (sample) if label else sample
+        plt.plot(voltages, polarizations, label=label)
         plt.xlabel("Voltage, V")
         plt.ylabel(r"Polarization, $\mu C$/cm$^2$")
-        if plot_cycle:
+        if show_cycle:
             plt.legend(loc="lower right")
