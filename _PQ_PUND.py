@@ -115,7 +115,6 @@ class PQ_PUND:
         plt.ylabel("Current, A")
         plt.title(f"I-V curve {sample}")
         plt.legend(loc="upper left")
-        plt.savefig(Path(output_path, sample + " wakeup (pq).png"), bbox_inches="tight")
 
     def plot_point_on_data(
         self, point: int, xdata: str = "Voltages", ydata: str = "DiffCurrent"
