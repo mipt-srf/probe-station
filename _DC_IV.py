@@ -22,7 +22,7 @@ class DC_IV:
         self.metadata = metadata
         self._init_metadata()
 
-    def _init_metadata(self):
+    def _init_metadata(self) -> None:
         """Helper function that initializes class members with metadata
         attributes.
         """

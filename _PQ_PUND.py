@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import scipy
+from numpy.typing import NDArray
 
 
 class PQ_PUND:
@@ -38,7 +39,7 @@ class PQ_PUND:
             # + self.leakage_df["CurrentP"]
         )
 
-    def _init_metadata(self):
+    def _init_metadata(self) -> None:
         """Helper function that initializes class members with metadata
         attributes.
         """
@@ -54,7 +55,7 @@ class PQ_PUND:
         self.wait_integration_time = self.metadata["Wait Integr Time"]
         self.steps_per_cycle = 2 * (self.steps - 1)
 
-    def get_cycle(self, cycle: int, plot: bool = False):
+    def get_cycle(self, cycle: int, plot: bool = False) -> pd.DataFrame:
         """Get a specific cycle data from the dataset.
 
         :param cycle: The cycle number for which to retrieve data.
@@ -74,7 +75,7 @@ class PQ_PUND:
         cycle: int,
         positive: bool = True,
         plot: bool = False,
-    ):
+    ) -> pd.DataFrame:
         """Get a specific half-cycle data from the dataset.
 
         :param cycle: The cycle number for which to retrieve data.
@@ -112,7 +113,7 @@ class PQ_PUND:
         start: int = 0,
         points_number: int = 50,
         plot_cycle: bool = False,
-    ):
+    ) -> pd.DataFrame:
         """Retrieves data from a specified steps range.
 
         :param cycle: The cycle number to retrieve data from.
@@ -142,7 +143,7 @@ class PQ_PUND:
         self,
         sample: str = "",
         ylim: tuple[float, float] | None = None,
-    ):
+    ) -> None:
         """Plot the cycled PQ static curve.
 
         :param sample: The sample name for labeling the plot title.
@@ -170,7 +171,7 @@ class PQ_PUND:
 
     def plot_point_on_data(
         self, point: int, xdata: str = "Voltages", ydata: str = "DiffCurrent"
-    ):
+    ) -> None:
         """Plot a point on the data graph.
 
         :param point: Index of the point to plot.
@@ -186,7 +187,7 @@ class PQ_PUND:
         cycle: int,
         positive: bool = True,
         plot_cycle: bool = False,
-    ):
+    ) -> float:
         """Calculate the polarization value for a given cycle.
 
         :param cycle: The cycle number for which to calculate the
@@ -212,7 +213,7 @@ class PQ_PUND:
         positive: bool = True,
         plot_result: bool = True,
         plot_cycles: bool = False,
-    ):
+    ) -> NDArray[np.float64]:
         """Calculate polarization for each cycle, and optionally plot
         the results (wake-up curve for polarization).
 
@@ -250,7 +251,7 @@ class PQ_PUND:
         centered: bool = True,
         show_cycle: bool = False,
         sample: str = "",
-    ):
+    ) -> None:
         """Generate a plot of the polarization versus voltage for a
         specific cycle (last by default).
 

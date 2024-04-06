@@ -8,6 +8,7 @@ are most typical to a particular measurement mode.
 import re
 from collections.abc import Sequence
 from pathlib import Path
+from typing import Any, Generator
 
 import numpy as np
 import pandas as pd
@@ -18,7 +19,7 @@ from probe_station._DC_IV import DC_IV
 from probe_station._PQ_PUND import PQ_PUND
 
 
-def is_float(string: str):
+def is_float(string: str) -> bool:
     """Returns ``True`` if string is convertible to `float`, ``False`` otherwise"""
     try:
         float(string)
@@ -27,13 +28,13 @@ def is_float(string: str):
         return False
 
 
-def yield_pairs(lst: Sequence):
+def yield_pairs(lst: Sequence) -> Generator[tuple[Any, Any], None, None]:
     """Yield pairs of elems from iterable and subscriptable object"""
     for pair in zip(lst[::2], lst[1::2]):
         yield pair
 
 
-def non_numeric_row(df: pd.DataFrame):
+def non_numeric_row(df: pd.DataFrame) -> np.intp:
     """Find index of first row with non-numerical values"""
     return np.argmin(df.map(is_float).all(axis=1))
 
@@ -41,7 +42,7 @@ def non_numeric_row(df: pd.DataFrame):
 class Dataset:
     """Class for reading probe station data files."""
 
-    def __init__(self, path: Path, big_pad: bool = False):
+    def __init__(self, path: Path, big_pad: bool = False) -> None:
         """Initializes the class instance with the given datafile path.
         Chooses the appropriate handler for data processing based on the
         measurement mode.
@@ -59,7 +60,7 @@ class Dataset:
         mode = metadata["Measurement type"]
         self.handler = handlers[mode](metadata, dataframes, big_pad)
 
-    def _parse_datafile(self):
+    def _parse_datafile(self) -> tuple[dict[str, Any], list[pd.DataFrame]]:
         """Parses the datafile and returns metadata and dataframes which
         are handled in a specific way in a particular mode handler.
 
@@ -95,7 +96,7 @@ class Dataset:
         row = non_numeric_row(df)
         return metadata, dataframes
 
-    def _parse_metadata(self, file):
+    def _parse_metadata(self, file) -> dict[str, Any]:
         """Helper function for parsing metadata from the datafile.
 
         :param file: File object to read metadata from.
