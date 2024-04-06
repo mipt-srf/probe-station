@@ -1,3 +1,10 @@
+"""
+Module for reading probe station data files.
+
+It also provides an interface to the various processing functions that
+are most typical to a particular measurement mode.
+"""
+
 import re
 from collections.abc import Sequence
 from pathlib import Path
@@ -12,7 +19,7 @@ from probe_station._PQ_PUND import PQ_PUND
 
 
 def is_float(string: str):
-    """Returns True if string is convertible to float, False otherwise"""
+    """Returns ``True`` if string is convertible to `float`, ``False`` otherwise"""
     try:
         float(string)
         return True
@@ -32,7 +39,16 @@ def non_numeric_row(df: pd.DataFrame):
 
 
 class Dataset:
+    """Class for reading probe station data files."""
+
     def __init__(self, path: Path, big_pad: bool = False):
+        """Initializes the class instance with the given datafile path.
+        Chooses the appropriate handler for data processing based on the
+        measurement mode.
+
+        :param path: Path to the datafile.
+        :param big_pad: ``True`` if the pad is 100um^2, ``False`` if 25um^2.
+        """
         plt.rcParams.update({"font.size": 13})
         self.path = path
         metadata, dataframes = self._parse_datafile()
@@ -44,6 +60,11 @@ class Dataset:
         self.handler = handlers[mode](metadata, dataframes, big_pad)
 
     def _parse_datafile(self):
+        """Parses the datafile and returns metadata and dataframes which
+        are handled in a specific way in a particular mode handler.
+
+        :return: Metadata and dataframes.
+        """
         with open(self.path, "r") as file:
             metadata = self._parse_metadata(file)
             lines = file.readlines()
@@ -75,6 +96,12 @@ class Dataset:
         return metadata, dataframes
 
     def _parse_metadata(self, file):
+        """Helper function for parsing metadata from the datafile.
+
+        :param file: File object to read metadata from.
+
+        :return: Metadata dictionary.
+        """
         lines = [line for line in file if not line.isspace()]  # drop empty lines
         metadata = {}
         for header_str, value_str in yield_pairs(lines):
