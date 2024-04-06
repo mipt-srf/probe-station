@@ -232,7 +232,7 @@ class PQ_PUND:
                 cycle=i, positive=positive, plot_cycle=plot_cycles
             )
             pols.append(polarization)
-        polarizations = np.array(pols)
+        polarizations = np.array(pols, dtype=np.float64)
         if not positive:
             polarizations *= -1
 
@@ -246,7 +246,7 @@ class PQ_PUND:
             plt.gca().set_ylim(0, polarizations.max() * 1.05)
         return polarizations
 
-    def plot_qv(
+    def plot_pv(
         self,
         cycle: int = -1,
         centered: bool = True,
