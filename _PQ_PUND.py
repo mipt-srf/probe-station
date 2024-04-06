@@ -36,7 +36,8 @@ class PQ_PUND:
         self.current_df["DiffCurrent"] = (
             self.current_df["CurrentP"]
             - self.current_df["CurrentC"]
-            # + self.leakage_df["CurrentP"]
+            + self.leakage_df["CurrentP"]
+            - self.leakage_df["CurrentC"]
         )
 
     def _init_metadata(self) -> None:
