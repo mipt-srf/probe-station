@@ -1,25 +1,37 @@
-"""
-Internal module containing the `PQ_PUND` class for handling quasistatic
-IV data. The class is designed to be used with the `Dataset` class from
+"""Internal module containing the `PQ_PUND` class for handling quasistatic IV data.
+
+The class is designed to be used with the `Dataset` class from
 the `dataset` module to parse, analyze, and visualize data from DC IV
 experiments.
-"""
+"""  # noqa: N999
 
-from collections.abc import Sequence
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 import scipy
-from numpy.typing import NDArray
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    import pandas as pd
+    from numpy.typing import NDArray
 
 
-class PQ_PUND:
+class PQ_PUND:  # noqa: N801
     def __init__(
-        self, metadata: dict, dataframes: Sequence[pd.DataFrame], big_pad: bool = False
+        self,
+        metadata: dict,
+        dataframes: Sequence[pd.DataFrame],
+        *,
+        big_pad: bool = False,
     ) -> None:
-        """Initializes the class instance with the given metadata and
-        dataframes extracted using `Dataset._parse_datafile()`.
+        """Initialize the class instance with the given metadata and dataframes.
+
+        Given metadata and dataframes are extracted using `Dataset._parse_datafile()`
+
 
         :param metadata: A dictionary containing metadata information.
         :param dataframes: A sequence of pandas DataFrames.
@@ -40,9 +52,7 @@ class PQ_PUND:
         )
 
     def _init_metadata(self) -> None:
-        """Helper function that initializes class members with metadata
-        attributes.
-        """
+        """Help to initialize class members with metadata attributes."""
         self.measurement = self.metadata["Measurement Number"]
         self.measurement_id = self.metadata["Measurement ID"]
         self.first_bias = self.metadata["First Bias"]
@@ -55,7 +65,7 @@ class PQ_PUND:
         self.wait_integration_time = self.metadata["Wait Integr Time"]
         self.steps_per_cycle = 2 * (self.steps - 1)
 
-    def get_cycle(self, cycle: int, plot: bool = False) -> pd.DataFrame:
+    def get_cycle(self, cycle: int, *, plot: bool = False) -> pd.DataFrame:
         """Get a specific cycle data from the dataset.
 
         :param cycle: The cycle number for which to retrieve data.
@@ -67,12 +77,13 @@ class PQ_PUND:
             cycle * self.steps_per_cycle : (cycle + 1) * self.steps_per_cycle
         ]
         if plot:
-            df_cycle.plot("Voltages", y=["DiffCurrent"])  # type: ignore
+            df_cycle.plot("Voltages", y=["DiffCurrent"])
         return df_cycle
 
     def get_half_cycle(
         self,
         cycle: int,
+        *,
         positive: bool = True,
         plot: bool = False,
     ) -> pd.DataFrame:
@@ -88,7 +99,9 @@ class PQ_PUND:
         if self.first_bias > self.second_bias:  # consider direction of bias change
             positive = not positive
         df1 = self.get_data_from_range(
-            cycle, points_number=self.steps_per_cycle // 2, positive=positive
+            cycle,
+            points_number=self.steps_per_cycle // 2,
+            positive=positive,
         )
 
         if plot:
@@ -103,18 +116,19 @@ class PQ_PUND:
                     self.current_df["DiffCurrent"].min() * 1.05,
                     self.current_df["DiffCurrent"].max() * 1.05,
                 ),
-            )  # type: ignore
+            )
         return df1
 
     def get_data_from_range(
         self,
         cycle: int,
+        *,
         positive: bool = True,
         start: int = 0,
         points_number: int = 50,
         plot_cycle: bool = False,
     ) -> pd.DataFrame:
-        """Retrieves data from a specified steps range.
+        """Retrieve data from a specified steps range.
 
         :param cycle: The cycle number to retrieve data from.
         :param positive: Whether to retrieve data from the half cycle
@@ -170,7 +184,10 @@ class PQ_PUND:
         plt.legend(loc="upper left")
 
     def plot_point_on_data(
-        self, point: int, xdata: str = "Voltages", ydata: str = "DiffCurrent"
+        self,
+        point: int,
+        xdata: str = "Voltages",
+        ydata: str = "DiffCurrent",
     ) -> None:
         """Plot a point on the data graph.
 
@@ -179,12 +196,15 @@ class PQ_PUND:
         :param ydata: Name of the y-axis data column.
         """
         plt.plot(
-            self.current_df[xdata].iloc[point], self.current_df[ydata].iloc[point], "x"
+            self.current_df[xdata].iloc[point],
+            self.current_df[ydata].iloc[point],
+            "x",
         )
 
     def get_polarization(
         self,
         cycle: int,
+        *,
         positive: bool = True,
         plot_cycle: bool = False,
     ) -> float:
@@ -205,17 +225,16 @@ class PQ_PUND:
         area = (25e-4) ** 2
         if self.big_pad:
             area *= 16
-        polarization = charge / area * 1e6
-        return polarization
+        return charge / area * 1e6
 
     def get_polarizations(
         self,
+        *,
         positive: bool = True,
         plot_result: bool = True,
         plot_cycles: bool = False,
     ) -> NDArray[np.float64]:
-        """Calculate polarization for each cycle, and optionally plot
-        the results (wake-up curve for polarization).
+        """Calculate polarization for each cycle, and optionally plot wake-up curve.
 
         :param positive: Whether to calculate positive or negative
             polarizations.
@@ -228,7 +247,9 @@ class PQ_PUND:
         pols = []
         for i in range(self.repetitions):
             polarization = self.get_polarization(
-                cycle=i, positive=positive, plot_cycle=plot_cycles
+                cycle=i,
+                positive=positive,
+                plot_cycle=plot_cycles,
             )
             pols.append(polarization)
         polarizations = np.array(pols, dtype=np.float64)
@@ -248,12 +269,12 @@ class PQ_PUND:
     def plot_pv(
         self,
         cycle: int = -1,
+        *,
         centered: bool = True,
         show_cycle: bool = False,
         sample: str = "",
     ) -> None:
-        """Generate a plot of the polarization versus voltage for a
-        specific cycle (last by default).
+        """Generate a plot of the polarization versus voltage for a specific cycle.
 
         :param cycle: The cycle number to plot. ``-1`` means the last cycle.
         :param centered: If ``True``, center the polarization values around zero.

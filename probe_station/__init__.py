@@ -1,3 +1,1 @@
-"""
-Package for convenient operation with probe station datafiles.
-"""
+"""Package for convenient operation with probe station datafiles."""

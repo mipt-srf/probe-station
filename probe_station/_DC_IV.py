@@ -1,19 +1,19 @@
-"""
-Internal module containing the `DC_IV` class for handling direct current
-IV data. The class is designed to be used with the `Dataset` class from
-the `dataset` module to parse, analyze, and visualize data from DC IV
-experiments.
-"""
+"""Internal module containing the `DC_IV` class for handling direct current IV data.
+
+The class is designed to be used with the `Dataset` class from the `dataset` module to
+parse, analyze, and visualize data from DC IV experiments.
+"""  # noqa: N999
 
 from collections.abc import Sequence
 
 import pandas as pd
 
 
-class DC_IV:
+class DC_IV:  # noqa: N801
     def __init__(self, metadata: dict, dataframes: Sequence[pd.DataFrame]) -> None:
-        """Initializes the class instance with the given metadata and
-        dataframes extracted using `Dataset._parse_datafile()`.
+        """Initialize the class instance with the given metadata and dataframes.
+
+        Given metadata and dataframes are extracted using `Dataset._parse_datafile()`
 
         :param metadata: A dictionary containing metadata information.
         :param dataframes: A sequence of pandas DataFrames.
@@ -23,9 +23,7 @@ class DC_IV:
         self._init_metadata()
 
     def _init_metadata(self) -> None:
-        """Helper function that initializes class members with metadata
-        attributes.
-        """
+        """Help to initialize class members with metadata attributes."""
         self.measurement = self.metadata["Measurement Number"]
         self.measurement_id = self.metadata["Measurement ID"]
         self.series_id = self.metadata["SeriesID"]

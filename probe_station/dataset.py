@@ -1,14 +1,14 @@
-"""
-Module for reading probe station data files.
+"""Module for reading probe station data files.
 
 It also provides an interface to the various processing functions that
 are most typical to a particular measurement mode.
 """
 
+from __future__ import annotations
+
 import re
-from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, Generator
+from typing import TYPE_CHECKING, Any, Generator, TextIO
 
 import numpy as np
 import pandas as pd
@@ -18,32 +18,36 @@ from probe_station._CV import CV
 from probe_station._DC_IV import DC_IV
 from probe_station._PQ_PUND import PQ_PUND
 
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
 
 def is_float(string: str) -> bool:
-    """Returns ``True`` if string is convertible to `float`, ``False`` otherwise"""
+    """Return ``True`` if string is convertible to `float`, ``False`` otherwise."""
     try:
         float(string)
-        return True
     except (ValueError, TypeError):  # str and None
         return False
+    else:
+        return True
 
 
 def yield_pairs(lst: Sequence) -> Generator[tuple[Any, Any], None, None]:
-    """Yield pairs of elems from iterable and subscriptable object"""
-    for pair in zip(lst[::2], lst[1::2]):
-        yield pair
+    """Yield pairs of elems from iterable and subscriptable object."""
+    yield from zip(lst[::2], lst[1::2])
 
 
 def non_numeric_row(df: pd.DataFrame) -> np.intp:
-    """Find index of first row with non-numerical values"""
+    """Find index of first row with non-numerical values."""
     return np.argmin(df.map(is_float).all(axis=1))
 
 
 class Dataset:
     """Class for reading probe station data files."""
 
-    def __init__(self, path: Path, big_pad: bool = False) -> None:
-        """Initializes the class instance with the given datafile path.
+    def __init__(self, path: Path, *, big_pad: bool = False) -> None:
+        """Initialize the class instance with the given datafile path.
+
         Chooses the appropriate handler for data processing based on the
         measurement mode.
 
@@ -61,12 +65,12 @@ class Dataset:
         self.handler = handlers[mode](metadata, dataframes, big_pad)
 
     def _parse_datafile(self) -> tuple[dict[str, Any], list[pd.DataFrame]]:
-        """Parses the datafile and returns metadata and dataframes which
-        are handled in a specific way in a particular mode handler.
+        """Parse the datafile and returns metadata and dataframes.
+
 
         :return: Metadata and dataframes.
         """
-        with open(self.path, "r") as file:
+        with Path.open(self.path) as file:
             metadata = self._parse_metadata(file)
             lines = file.readlines()
         mode = metadata["Measurement type"]
@@ -82,22 +86,22 @@ class Dataset:
             for line in lines[len(metadata.keys()) + 1 + additive :]
         ]
 
-        df = pd.DataFrame(data[1:]).iloc[:, :columns].dropna(how="all")
-        df.columns = data[0]  # type: ignore
+        data = pd.DataFrame(data[1:]).iloc[:, :columns].dropna(how="all")
+        data.columns = data[0]
         dataframes = []
         while True:
-            row = non_numeric_row(df)
+            row = non_numeric_row(data)
             if row == 0:
-                dataframes.append(df.map(float).reset_index(drop=True))
+                dataframes.append(data.map(float).reset_index(drop=True))
                 break
-            numeric_df = df.iloc[:row].map(float).reset_index(drop=True)
+            numeric_df = data.iloc[:row].map(float).reset_index(drop=True)
             dataframes.append(numeric_df)
-            df = df.iloc[row + 2 :].dropna(axis=1, how="all")
-        row = non_numeric_row(df)
+            data = data.iloc[row + 2 :].dropna(axis=1, how="all")
+        row = non_numeric_row(data)
         return metadata, dataframes
 
-    def _parse_metadata(self, file) -> dict[str, Any]:
-        """Helper function for parsing metadata from the datafile.
+    def _parse_metadata(self, file: TextIO) -> dict[str, Any]:
+        """Help to parse metadata from the datafile.
 
         :param file: File object to read metadata from.
 
@@ -118,7 +122,7 @@ class Dataset:
                 elif is_float(value):
                     values[i] = float(value)
 
-            metadata.update({key: value for key, value in zip(headers, values)})
+            metadata.update(dict(zip(headers, values)))
             file.seek(0)  # return cursor to the beginning
 
         return metadata
