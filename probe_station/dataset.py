@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Generator, TextIO
+from typing import TYPE_CHECKING, Any, TextIO
 
 import numpy as np
 import pandas as pd
@@ -19,7 +19,7 @@ from probe_station._DC_IV import DC_IV
 from probe_station._PQ_PUND import PQ_PUND
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Generator, Sequence
 
 
 def is_float(string: str) -> bool:
@@ -34,7 +34,7 @@ def is_float(string: str) -> bool:
 
 def yield_pairs(lst: Sequence) -> Generator[tuple[Any, Any], None, None]:
     """Yield pairs of elems from iterable and subscriptable object."""
-    yield from zip(lst[::2], lst[1::2])
+    yield from zip(lst[::2], lst[1::2], strict=False)
 
 
 def non_numeric_row(df: pd.DataFrame) -> np.intp:
@@ -66,7 +66,6 @@ class Dataset:
 
     def _parse_datafile(self) -> tuple[dict[str, Any], list[pd.DataFrame]]:
         """Parse the datafile and returns metadata and dataframes.
-
 
         :return: Metadata and dataframes.
         """
@@ -122,7 +121,7 @@ class Dataset:
                 elif is_float(value):
                     values[i] = float(value)
 
-            metadata.update(dict(zip(headers, values)))
+            metadata.update(dict(zip(headers, values, strict=False)))
             file.seek(0)  # return cursor to the beginning
 
         return metadata
