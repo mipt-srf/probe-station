@@ -1,6 +1,11 @@
 [project]
 requires-python = ">=3.12"
 
+[tool.ruff]
+exclude = [
+   "docs",
+]
+
 [tool.ruff.lint]
 select = ["ALL"]
 
