@@ -11,14 +11,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       # Build the docs.
       - uses: ammaraskar/sphinx-action@master
         with:
           build-command: "sphinx-build -b html source build"
           docs-folder: "docs/"
       # Create an artifact of the html output.
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v4
         with:
           name: DocumentationHTML
           path: docs/build/
