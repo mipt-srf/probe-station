@@ -13,11 +13,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       # Build the docs.
+      # - uses: ammaraskar/sphinx-action@master
+      #   with:
+      #     build-command: "sphinx-build -b html docs/source docs/build"
+      #     docs-folder: "docs/"
       - uses: ammaraskar/sphinx-action@master
         with:
-          build-command: "sphinx-build -b html docs/source docs/build"
           docs-folder: "docs/"
-      # Create an artifact of the html output.
+        # Create an artifact of the html output.
       - uses: actions/upload-artifact@v4
         with:
           name: DocumentationHTML
