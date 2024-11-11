@@ -10,7 +10,13 @@ import pandas as pd
 
 
 class CV:
-    def __init__(self, metadata: dict, dataframes: Sequence[pd.DataFrame]) -> None:
+    def __init__(
+        self,
+        metadata: dict,
+        dataframes: Sequence[pd.DataFrame],
+        *,
+        big_pad: bool = False,
+    ) -> None:
         """Initialize the class instance with the given metadata and dataframes`.
 
         Given metadata and dataframes are extracted using `Dataset._parse_datafile()`
@@ -18,6 +24,7 @@ class CV:
         :param metadata: A dictionary containing metadata information.
         :param dataframes: A sequence of pandas DataFrames.
         """
+        self.big_pad = big_pad
         self.data = dataframes[0]
         self.metadata = metadata
         self._init_metadata()

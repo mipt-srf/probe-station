@@ -62,7 +62,7 @@ class Dataset:
 
         handlers = {"PQPUND": PQ_PUND, "DC IV": DC_IV, "CVS": CV}
         mode = metadata["Measurement type"]
-        self.handler = handlers[mode](metadata, dataframes, big_pad)
+        self.handler = handlers[mode](metadata, dataframes, big_pad=big_pad)
 
     def _parse_datafile(self) -> tuple[dict[str, Any], list[pd.DataFrame]]:
         """Parse the datafile and returns metadata and dataframes.
@@ -80,13 +80,13 @@ class Dataset:
             columns = 5
         if mode == "DC IV":
             columns = 3
-        data = [
+        data_list = [
             line.strip().split()
             for line in lines[len(metadata.keys()) + 1 + additive :]
         ]
 
-        data = pd.DataFrame(data[1:]).iloc[:, :columns].dropna(how="all")
-        data.columns = data[0]
+        data = pd.DataFrame(data_list[1:]).iloc[:, :columns].dropna(how="all")
+        data.columns = data_list[0]  # type: ignore
         dataframes = []
         while True:
             row = non_numeric_row(data)
