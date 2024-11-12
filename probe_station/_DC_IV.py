@@ -6,7 +6,9 @@ parse, analyze, and visualize data from DC IV experiments.
 
 from collections.abc import Sequence
 
+import numpy as np
 import pandas as pd
+from matplotlib import pyplot as plt
 
 
 class DC_IV:  # noqa: N801
@@ -41,3 +43,20 @@ class DC_IV:  # noqa: N801
         self.pos_compliance = self.metadata["Positive compliance"]
         self.neg_compliance = self.metadata["Negative compliance"]
         self.steps = self.metadata["RealMeasuredPoints"]
+
+    def plot(self, color: str | None = None, alpha: float = 1.0) -> None:
+        """Plot the DC IV data.
+
+        :param color: The color of the plot line.
+        :param alpha: The transparency level of the plot line.
+        """
+        plt.plot(
+            self.data["Bias"],
+            np.abs(self.data["Current"]),
+            color=color,
+            alpha=alpha,
+        )
+        plt.xlabel("Drain-Source Voltage, V")
+        plt.ylabel("Drain Current, A")
+        plt.title(f"DC IV Measurement {self.measurement}")
+        plt.yscale("log")
