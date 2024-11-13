@@ -3,9 +3,12 @@ name = "probe-station"
 version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
+    "colour>=0.1.5",
+    "matplotlib-label-lines>=0.7.0",
     "matplotlib>=3.9.2",
     "numpy>=2.1.3",
     "pandas>=2.2.3",
+    "scienceplots>=2.1.1",
     "scipy>=1.14.1",
 ]
 
