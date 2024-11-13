@@ -45,7 +45,12 @@ class DC_IV:  # noqa: N801
         self.neg_compliance = self.metadata["Negative compliance"]
         self.steps = self.metadata["RealMeasuredPoints"]
 
-    def plot(self, color: str | None = None, alpha: float = 1.0, label=None) -> None:
+    def plot(
+        self,
+        color: str | None = None,
+        alpha: float = 1.0,
+        label: float | str | None = None,
+    ) -> None:
         """Plot the DC IV data.
 
         :param color: The color of the plot line.

@@ -86,7 +86,7 @@ class Dataset:
         ]
 
         data = pd.DataFrame(data_list[1:]).iloc[:, :columns].dropna(how="all")
-        data.columns = data_list[0]  # type: ignore
+        data.columns = data_list[0]
         dataframes = []
         while True:
             row = non_numeric_row(data)
