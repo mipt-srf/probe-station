@@ -4,6 +4,7 @@ The class is designed to be used with the `Dataset` class from the `dataset` mod
 parse, analyze, and visualize data from DC IV experiments.
 """  # noqa: N999
 
+import logging
 from collections.abc import Sequence
 
 import numpy as np
@@ -64,3 +65,27 @@ class DC_IV:  # noqa: N801
 
         plt.title(f"DC IV Measurement {self.measurement}")
         plt.yscale("log")
+
+    def get_current_at_voltage(self, voltage: float, tolerance: float = 5e-2) -> float:
+        """Return the current at the specified voltage.
+
+        :param voltage: The voltage at which to get the current.
+        :return: The current at the specified voltage.
+        """
+        idx = np.abs(self.data["Bias"] - voltage).idxmin()
+        closest_voltage = self.data["Bias"].iloc[idx]
+        if abs(closest_voltage - voltage) > tolerance:
+            logging.warning(
+                "Voltage %s not found in data. Closest is %s",
+                voltage,
+                closest_voltage,
+            )
+        return np.abs(self.data["Current"].iloc[idx])
+
+    def get_voltage_with_lowest_current(self) -> float:
+        """Return the voltage at which the current is the lowest.
+
+        :return: The voltage at which the current is the lowest.
+        """
+        idx = self.data["Current"].abs().idxmin()
+        return self.data["Bias"].iloc[idx]
