@@ -59,7 +59,8 @@ class DC_IV:  # noqa: N801
             alpha=alpha,
             label=label,
         )
-        plt.xlabel("Drain-Source Voltage, V")
-        plt.ylabel("Drain Current, A")
+        plt.xlabel("Drain-source voltage, V")
+        plt.ylabel("Drain current, A")
+
         plt.title(f"DC IV Measurement {self.measurement}")
         plt.yscale("log")
