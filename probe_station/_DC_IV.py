@@ -44,17 +44,20 @@ class DC_IV:  # noqa: N801
         self.neg_compliance = self.metadata["Negative compliance"]
         self.steps = self.metadata["RealMeasuredPoints"]
 
-    def plot(self, color: str | None = None, alpha: float = 1.0) -> None:
+    def plot(self, color: str | None = None, alpha: float = 1.0, label=None) -> None:
         """Plot the DC IV data.
 
         :param color: The color of the plot line.
         :param alpha: The transparency level of the plot line.
         """
+        if np.issubdtype(label, np.floating):
+            label = f"{label:.2f}"
         plt.plot(
             self.data["Bias"],
             np.abs(self.data["Current"]),
             color=color,
             alpha=alpha,
+            label=label,
         )
         plt.xlabel("Drain-Source Voltage, V")
         plt.ylabel("Drain Current, A")
