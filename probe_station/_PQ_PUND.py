@@ -26,19 +26,18 @@ class PQ_PUND:  # noqa: N801
         metadata: dict,
         dataframes: Sequence[pd.DataFrame],
         *,
-        big_pad: bool = False,
+        pad_size_um: float = 25.0,
     ) -> None:
         """Initialize the class instance with the given metadata and dataframes.
 
         Given metadata and dataframes are extracted using `Dataset._parse_datafile()`
 
-
         :param metadata: A dictionary containing metadata information.
         :param dataframes: A sequence of pandas DataFrames.
-        :param big_pad: ``True`` if the pad is 100um^2, ``False`` if 25um^2.
+        :param pad_size_um: The pad size in um.
             Used for correct polarization calculation.
         """
-        self.big_pad = big_pad
+        self.pad_size_um = pad_size_um
         self.current_df = dataframes[0]
         self.leakage_df = dataframes[1]
         self.qv_df = dataframes[2]
@@ -222,9 +221,7 @@ class PQ_PUND:  # noqa: N801
         time_step = self.wait_time + self.rump_time
         times = np.array([time_step * i for i in range(df_cycle["Voltages"].size)])
         charge = scipy.integrate.simpson(y=df_cycle["DiffCurrent"], x=times)
-        area = (25e-4) ** 2
-        if self.big_pad:
-            area *= 16
+        area = (self.pad_size_um * 1e-4) ** 2
         return charge / area * 1e6
 
     def get_polarizations(
@@ -289,9 +286,7 @@ class PQ_PUND:  # noqa: N801
 
         voltages = df_cycle["Voltages"]
         curr = df_cycle["DiffCurrent"]
-        area = (25e-4) ** 2
-        if self.big_pad:
-            area *= 16
+        area = (self.pad_size_um * 1e-4) ** 2
         polarizations = (
             scipy.integrate.cumulative_trapezoid(curr, times, initial=0) / area * 1e6
         )

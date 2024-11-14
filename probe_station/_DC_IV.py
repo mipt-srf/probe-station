@@ -18,7 +18,7 @@ class DC_IV:  # noqa: N801
         metadata: dict,
         dataframes: Sequence[pd.DataFrame],
         *,
-        big_pad: bool = False,
+        pad_size_um: float = 25.0,
     ) -> None:
         """Initialize the class instance with the given metadata and dataframes.
 
@@ -26,8 +26,9 @@ class DC_IV:  # noqa: N801
 
         :param metadata: A dictionary containing metadata information.
         :param dataframes: A sequence of pandas DataFrames.
+        :param pad_size_um: A float indicating the pad size in um.
         """
-        self.big_pad = big_pad
+        self.pad_size_um = pad_size_um
         self.data = dataframes[0]
         self.metadata = metadata
         self._init_metadata()

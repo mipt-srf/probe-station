@@ -45,14 +45,14 @@ def non_numeric_row(df: pd.DataFrame) -> np.intp:
 class Dataset:
     """Class for reading probe station data files."""
 
-    def __init__(self, path: Path, *, big_pad: bool = False) -> None:
+    def __init__(self, path: Path, *, pad_size_um: float = 25.0) -> None:
         """Initialize the class instance with the given datafile path.
 
         Chooses the appropriate handler for data processing based on the
         measurement mode.
 
         :param path: Path to the datafile.
-        :param big_pad: ``True`` if the pad is 100um^2, ``False`` if 25um^2.
+        :param pad_size_um: Size of the pad in um.
         """
         plt.rcParams.update({"font.size": 13})
         self.path = path
@@ -62,7 +62,7 @@ class Dataset:
 
         handlers = {"PQPUND": PQ_PUND, "DC IV": DC_IV, "CVS": CV}
         mode = metadata["Measurement type"]
-        self.handler = handlers[mode](metadata, dataframes, big_pad=big_pad)
+        self.handler = handlers[mode](metadata, dataframes, pad_size_um=pad_size_um)
 
     def _parse_datafile(self) -> tuple[dict[str, Any], list[pd.DataFrame]]:
         """Parse the datafile and returns metadata and dataframes.

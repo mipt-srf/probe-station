@@ -15,7 +15,7 @@ class CV:
         metadata: dict,
         dataframes: Sequence[pd.DataFrame],
         *,
-        big_pad: bool = False,
+        pad_size_um: float = 0.0,
     ) -> None:
         """Initialize the class instance with the given metadata and dataframes`.
 
@@ -23,8 +23,9 @@ class CV:
 
         :param metadata: A dictionary containing metadata information.
         :param dataframes: A sequence of pandas DataFrames.
+        :param pad_size_um: The size of the pad in micrometers.
         """
-        self.big_pad = big_pad
+        self.pad_size_um = pad_size_um
         self.data = dataframes[0]
         self.metadata = metadata
         self._init_metadata()
