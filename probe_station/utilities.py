@@ -112,3 +112,86 @@ def color_lines(from_color: str, to_color: str, sort_order_point: float = 0.1) -
     colors = get_color_gradient(from_color, to_color, len(lines))
     for line, color in zip(lines_sorted, colors, strict=True):
         line.set_color(color)
+
+
+def plot_input_curves(
+    path: Path | str,
+    drain_voltages: list[float],
+    v_gate: np.ndarray,
+    ignore: tuple = (),
+) -> None:
+    """Plot input curves for a given set of drain voltages."""
+    files = list(
+        get_files_in_folder(path, ignore=ignore),
+    )
+    fig, ax = plt.subplots()
+    data = {drain_voltage: np.zeros(len(files)) for drain_voltage in drain_voltages}
+    for i, datafile in enumerate(files):
+        handler = Dataset(datafile).handler
+        for drain_voltage in drain_voltages:
+            data[drain_voltage][i] = handler.get_current_at_voltage(drain_voltage)
+    for drain_voltage, current in data.items():
+        plt.plot(v_gate, current, "o-", label=f"{drain_voltage*1000:.0f} mV")
+
+    plt.legend(title=r"Drain-source voltage")
+    plt.xlabel("Gate voltage, V")
+    plt.ylabel("Drain-source current, I")
+    plt.yscale("log")
+
+
+def plot_threshold_curve(
+    path: Path | str,
+    v_gate: np.ndarray,
+    ignore: tuple = (),
+    cut: int = 10,
+) -> None:
+    """Plot threshold curve for a given set of gate voltages."""
+    files = list(
+        get_files_in_folder(path, ignore=ignore),
+    )
+    fig, ax = plt.subplots()
+    data = np.zeros(len(files))
+    for i, datafile in enumerate(files):
+        handler = Dataset(datafile).handler
+        data[i] = handler.get_voltage_with_lowest_current()
+    plt.plot(v_gate[:cut], data[:cut], "o-")
+    plt.xlabel("Gate voltage, V")
+    plt.ylabel("Drain-source current, I")
+    plt.title("Threshold curve")
+
+
+def characterize_transistor(
+    path: Path | str,
+    v_gate: np.ndarray,
+    files_to_ignore: tuple = (),
+    curves_with_label: tuple = (),
+    drain_voltages: tuple | None = None,
+    label_position: float = 0.15,
+    title_position: float = 1e-3,
+) -> None:
+    """Characterize a transistor using the given gate voltages."""
+    plot_in_folder(path, ignore=files_to_ignore, labels=v_gate)
+    plt.title("")
+    label_lines(
+        indexes=curves_with_label,
+        xpos=label_position,
+        color="black",
+        ypos=title_position,
+    )
+    color_lines(
+        "Blueviolet",
+        "Yellow",
+    )
+
+    if not drain_voltages:
+        datafile = list(get_files_in_folder(path, ignore=files_to_ignore))[-1]
+        handler = Dataset(datafile).handler
+        drain_voltages = np.arange(handler.first_bias, handler.second_bias, 0.1)
+    plot_input_curves(
+        path=path,
+        drain_voltages=drain_voltages,
+        v_gate=v_gate,
+        ignore=files_to_ignore,
+    )
+
+    plot_threshold_curve(path, v_gate, ignore=files_to_ignore)
