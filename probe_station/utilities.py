@@ -89,6 +89,7 @@ def label_lines(
     if indexes is None:
         indexes = range(len(plt.gca().get_lines()))
     lines = plt.gca().get_lines()
+    xvals = [xpos] * len(indexes)
     lines = [lines[i] for i in indexes]
     labelLines(lines, xvals=xvals, fontsize=10, align=True, color=color)
     plt.text(xpos / 15 * 9, ypos, "Gate voltage, V", fontsize=10, color=color)
