@@ -50,6 +50,7 @@ class DC_IV:  # noqa: N801
         color: str | None = None,
         alpha: float = 1.0,
         label: float | str | None = None,
+        linestyle: str = "-",
     ) -> None:
         """Plot the DC IV data.
 
@@ -64,6 +65,7 @@ class DC_IV:  # noqa: N801
             color=color,
             alpha=alpha,
             label=label,
+            linestyle=linestyle,
         )
         plt.xlabel("Drain-source voltage, V")
         plt.ylabel("Drain current, A")

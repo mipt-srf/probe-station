@@ -45,6 +45,10 @@ def plot_in_folder(
     path: str,
     ignore: tuple = (),
     labels: list[str] | None = None,
+    *,
+    new_figure: bool = True,
+    alpha: float = 0.5,
+    linestyle: str = "-",
 ) -> None:
     """Plot data files in a folder with a gradient color scheme.
 
@@ -56,7 +60,8 @@ def plot_in_folder(
     :param to_color: Ending color of the gradient.
     :param ignore: Tuple of file indexes to ignore.
     """
-    fig, ax = plt.subplots()
+    if new_figure:
+        fig, ax = plt.subplots()
     paths = list(get_files_in_folder(path, ignore))
 
     for datafile_path, label in zip(
@@ -65,14 +70,14 @@ def plot_in_folder(
         strict=False,
     ):
         ds = Dataset(datafile_path)
-        ds.handler.plot(alpha=0.5, label=label)
+        ds.handler.plot(alpha=alpha, label=label, linestyle=linestyle)
     logging.info("Plotted %d IV curves from %s", len(paths), path)
 
 
 def label_lines(
-    indexes: list[int],
     xpos: float,
     ypos: float,
+    indexes: list[int] | None = None,
     color: str = "auto",
 ) -> None:
     """Label lines on a plot at a specified x position.
@@ -81,7 +86,8 @@ def label_lines(
     :param xpos: X position to place the labels.
     :param color: Color of the labels.
     """
-    xvals = [xpos] * 33
+    if indexes is None:
+        indexes = range(len(plt.gca().get_lines()))
     lines = plt.gca().get_lines()
     lines = [lines[i] for i in indexes]
     labelLines(lines, xvals=xvals, fontsize=10, align=True, color=color)
