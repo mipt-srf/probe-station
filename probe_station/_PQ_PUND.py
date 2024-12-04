@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy
+from scipy.optimize import curve_fit
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -151,6 +152,70 @@ class PQ_PUND:  # noqa: N801
             self.plot_point_on_data(left)
             self.plot_point_on_data(right)
         return df1
+
+    def fit_leakage(self, from_positive, from_negative, plot=True) -> None:
+        """Fit the leakage current data."""
+
+        def leakage_current_model(V, I0, a):
+            return I0 * np.exp(a * V)
+
+        voltages = self.current_df["Voltages"]
+        currents = self.current_df["DiffCurrent"]
+
+        mask_positive = voltages > from_positive
+        fit_voltages_positive = voltages[mask_positive]
+        fit_currents_positive = currents[mask_positive]
+
+        mask_negative = voltages < from_negative
+        fit_voltages_negative = voltages[mask_negative]
+        fit_currents_negative = currents[mask_negative]
+
+        popt_positive, pcov_positive = curve_fit(
+            leakage_current_model,
+            fit_voltages_positive,
+            np.abs(fit_currents_positive),
+            p0=[1e-6, 1],
+        )
+
+        popt_negative, pcov_negative = curve_fit(
+            leakage_current_model,
+            fit_voltages_negative,
+            fit_currents_negative,
+            p0=[-1e-6, 1],
+        )
+
+        leakage_current_positive = leakage_current_model(
+            voltages,
+            *popt_positive,
+        )
+        leakage_current_negative = leakage_current_model(
+            voltages,
+            *popt_negative,
+        )
+        leakage_current = leakage_current_positive + leakage_current_negative
+        self.current_df["LeakageCurrent"] = leakage_current
+
+        if plot:
+            fig, axs = plt.subplots(2, 1)
+
+            axs[0].plot(
+                voltages,
+                currents,
+                label="Experimental Data",
+            )
+            axs[0].plot(
+                voltages,
+                leakage_current,
+                label="Leakage Current Fit",
+            )
+            axs[0].legend()
+
+            axs[1].plot(voltages, currents - leakage_current)
+
+            fig.suptitle("Leakage Current Fitting")
+            fig.supxlabel("Voltage, V")
+            fig.supylabel("Current, A")
+            plt.show()
 
     def plot_iv_cycled(
         self,
