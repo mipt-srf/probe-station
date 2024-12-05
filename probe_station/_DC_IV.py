@@ -58,7 +58,7 @@ class DC_IV:  # noqa: N801
         :param color: The color of the plot line.
         :param alpha: The transparency level of the plot line.
         """
-        if np.issubdtype(label, np.floating):
+        if np.issubdtype(type(label), np.floating):
             label = f"{label:.2f}"
         plt.plot(
             self.data["Bias"],
