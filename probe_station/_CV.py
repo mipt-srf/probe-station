@@ -6,7 +6,9 @@ parse, analyze, and visualize data from CV experiments.
 
 from collections.abc import Sequence
 
+import numpy as np
 import pandas as pd
+from matplotlib import pyplot as plt
 
 
 class CV:
@@ -42,3 +44,59 @@ class CV:
         self.sweep_mode = self.metadata["Sweep mode"]
         self.frequency = self.metadata["Frequency"]
         self.steps = self.metadata["RealMeasuredPoints"]
+
+    def calculate_capacitance(self, *, force_series: bool = False) -> None:
+        """Calculate the capacitance from the CV data according to Cs - Rs scheme."""
+        resistance = self.data["Resistance"]
+        reactance = self.data["Reactance"]
+        capacitance_series = -1 / (2 * np.pi * self.frequency * reactance)
+        if not force_series and self.check_resistance():
+            return capacitance_series / (1 + (resistance / reactance) ** 2)
+        return capacitance_series
+
+    def check_resistance(self) -> None:
+        resistance = self.data["Resistance"]
+        return all(resistance > 1)
+
+    def plot(
+        self,
+        color: str | None = None,
+        alpha: float = 1.0,
+        label: float | str | None = None,
+        linestyle: str = "-",
+    ) -> None:
+        """Plot the CV data.
+
+        :param color: The color of the plot line.
+        :param alpha: The transparency level of the plot line.
+        """
+        plt.plot(
+            self.data["Voltage"],
+            np.abs(self.calculate_capacitance()),
+            label=label,
+            color=color,
+        )
+        plt.yscale("log")
+        plt.ylabel("Capacitance, F")
+        plt.xlabel("Voltage, V")
+
+    def plot_epsilon(
+        self,
+        area: float,
+        thickness: float,
+        color: str | None = None,
+        alpha: float = 1.0,
+        label: float | str | None = None,
+        linestyle: str = "-",
+    ) -> None:
+        """Plot the CV data.
+
+        :param color: The color of the plot line.
+        :param alpha: The transparency level of the plot line.
+        """
+        capacitance = np.abs(self.calculate_capacitance())
+        epsilon0 = 8.854e-12
+        epsilon = capacitance / epsilon0 / area * thickness
+        plt.plot(self.data["Voltage"], epsilon, label=label, color=color)
+        plt.ylabel("Dielectric constant")
+        plt.xlabel("Voltage, V")
