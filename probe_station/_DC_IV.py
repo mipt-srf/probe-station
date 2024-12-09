@@ -52,6 +52,8 @@ class DC_IV:  # noqa: N801
         alpha: float = 1.0,
         label: float | str | None = None,
         linestyle: str = "-",
+        xlabel: str = "Voltage, V",
+        ylabel: str = "Current, A",
     ) -> None:
         """Plot the DC IV data.
 
@@ -68,8 +70,8 @@ class DC_IV:  # noqa: N801
             label=label,
             linestyle=linestyle,
         )
-        plt.xlabel("Drain-source voltage, V")
-        plt.ylabel("Drain current, A")
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
 
         plt.title(f"DC IV Measurement {self.measurement}")
         plt.yscale("log")
