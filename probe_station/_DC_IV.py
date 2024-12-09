@@ -97,3 +97,30 @@ class DC_IV:  # noqa: N801
         """
         idx = self.data["Current"].abs().idxmin()
         return self.data["Bias"].iloc[idx]
+
+    def measure_resistance_ratio(
+        self,
+        voltage: float,
+        tolerance: float = 5e-2,
+    ) -> float:
+        """Measure the resistance ratio at the specified voltage.
+
+        :param voltage: The voltage at which to measure the resistance ratio.
+        :return: The resistance ratio at the specified voltage.
+        """
+        voltages = self.data["Bias"]
+        current = self.data["Current"]
+        indexes = np.where(np.diff(np.sign(voltages - voltage)))[0]
+        if len(indexes) == 4:
+            index1, index2 = indexes[1:3]
+        else:
+            index1, index2 = indexes
+
+        voltage1 = voltages.iloc[index1]
+        voltage2 = voltages.iloc[index2]
+
+        current1 = current.iloc[index1]
+        current2 = current.iloc[index2]
+        ratio = np.abs((voltage1 / current1) / (voltage2 / current2))
+
+        return ratio if ratio > 1 else 1 / ratio
