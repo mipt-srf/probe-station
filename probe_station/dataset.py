@@ -74,6 +74,7 @@ class Dataset:
             lines = file.readlines()
         mode = metadata["Measurement type"]
         additive = 1 if mode == "PQPUND" else 0
+        additive1 = 4 if mode == "CVS" else 0
         if mode == "PQPUND":
             columns = 3
         if mode == "CVS":
@@ -82,7 +83,7 @@ class Dataset:
             columns = 3
         data_list = [
             line.strip().split()
-            for line in lines[len(metadata.keys()) + 1 + additive :]
+            for line in lines[len(metadata.keys()) + 1 + additive + additive1 :]
         ]
 
         data = pd.DataFrame(data_list[1:]).iloc[:, :columns].dropna(how="all")
@@ -120,6 +121,8 @@ class Dataset:
                     values[i] = int(value)
                 elif is_float(value):
                     values[i] = float(value)
+            if "Reactance" in headers:
+                break
 
             metadata.update(dict(zip(headers, values, strict=False)))
             file.seek(0)  # return cursor to the beginning
