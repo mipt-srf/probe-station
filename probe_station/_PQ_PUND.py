@@ -159,6 +159,9 @@ class PQ_PUND:  # noqa: N801
         def leakage_current_model(V, I0, a):
             return I0 * np.exp(a * V)
 
+        # def leakage_current_model(V, I0, b):
+        #     return I0 * V**2 * np.exp(b / V)
+
         voltages = self.current_df["Voltages"]
         currents = self.current_df["DiffCurrent"]
 
@@ -193,7 +196,6 @@ class PQ_PUND:  # noqa: N801
             *popt_negative,
         )
         leakage_current = leakage_current_positive + leakage_current_negative
-        self.current_df["LeakageCurrent"] = leakage_current
 
         if plot:
             fig, axs = plt.subplots(2, 1)
@@ -216,6 +218,28 @@ class PQ_PUND:  # noqa: N801
             fig.supxlabel("Voltage, V")
             fig.supylabel("Current, A")
             plt.show()
+        return leakage_current
+
+    def remove_leakage_current(self, from_positive, from_negative, plot=True) -> None:
+        """Remove leakage current from the data."""
+
+        leakage_current = self.fit_leakage(from_positive, from_negative, plot=plot)
+        self.current_df["DiffCurrent"] -= leakage_current
+
+    def substract_wait_current(self, from_positive=None) -> None:
+        """Subtract the wait current from the data."""
+        voltage = self.leakage_df["Voltages"]
+        voltage_filter = voltage > from_positive
+        self.current_df.loc[voltage_filter, "DiffCurrent"] -= self.leakage_df[
+            "CurrentC"
+        ][voltage_filter]
+
+    def shift_current(self, shift: float) -> None:
+        """Shift the current data by a given value.
+
+        :param shift: The value by which to shift the current data.
+        """
+        self.current_df["DiffCurrent"] += shift
 
     def plot_iv_cycled(
         self,
@@ -363,5 +387,6 @@ class PQ_PUND:  # noqa: N801
         plt.plot(voltages, polarizations, label=label)
         plt.xlabel("Voltage, V")
         plt.ylabel(r"Polarization, $\mu C$/cm$^2$")
+        plt.title("P-V curve")
         if show_cycle:
             plt.legend(loc="lower right")
