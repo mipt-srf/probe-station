@@ -54,6 +54,7 @@ class DC_IV:  # noqa: N801
         linestyle: str = "-",
         xlabel: str = "Voltage, V",
         ylabel: str = "Current, A",
+        ax: plt.Axes | None = None,
     ) -> None:
         """Plot the DC IV data.
 
@@ -62,7 +63,9 @@ class DC_IV:  # noqa: N801
         """
         if np.issubdtype(type(label), np.floating):
             label = f"{label:.2f}"
-        plt.plot(
+        if ax is None:
+            ax = plt.gca()
+        ax.plot(
             self.data["Bias"],
             np.abs(self.data["Current"]),
             color=color,
