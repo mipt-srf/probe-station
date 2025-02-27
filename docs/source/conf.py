@@ -1,33 +1,44 @@
+import datetime
 import pathlib
 import sys
 
-sys.path.insert(0, pathlib.Path(__file__).parents[2].resolve().as_posix())
+path = pathlib.Path(__file__).parents[2] / "src"
+sys.path.insert(0, path.resolve().as_posix())
 
-project = "probe-station"
-copyright = "2024, Sergey"
-author = "Sergey"
+project = "Probe Station"
+author = "Sergey Ilyev"
+copyright = f"{datetime.datetime.now().year}, {author}"
 release = "0.5"
+rst_prolog = f"""
+.. |name| replace:: {project}
+"""
 
 extensions = [
-    "sphinx.ext.autodoc",
-    "sphinx.ext.doctest",
-    "sphinx.ext.intersphinx",
-    "sphinx.ext.autosummary",
-    "sphinx_autodoc_typehints",
-    "sphinx_rtd_theme",
-    "sphinx_copybutton",
-    "sphinx.ext.todo",
-    "nbsphinx",
+    "sphinx.ext.autodoc",  # generate documentation from docstrings
+    "sphinx.ext.intersphinx",  # link to other projects' documentation
+    "sphinx.ext.doctest",  # test snippets in the documentation
+    "sphinx.ext.autosummary",  # create summaries for modules
+    "sphinx.ext.viewcode",  # add links to source code
+    "sphinx_copybutton",  # add copy buttons to code blocks
+    "sphinx_autodoc_typehints",  #  move typehints to descriptions
+    "sphinx_design",  # add tab elements
+    "sphinx_codeautolink",  # add intersphinx links in code blocks
+    # "nbsphinx",
 ]
 
-# typehints_use_signature = True
-typehints_defaults = "comma"
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "numpy": ("http://docs.scipy.org/doc/numpy/", None),
     "scipy": ("http://docs.scipy.org/doc/scipy/reference/", None),
-    "matplotlib": ("http://matplotlib.sourceforge.net/", None),
+    "matplotlib": ("https://matplotlib.org/stable/", None),
+    "pandas": ("http://pandas.pydata.org/pandas-docs/stable/", None),
 }
+
+copybutton_exclude = ".linenos, .gp"  # to exclude prompts ($, >>>, etc.) from copied code
+copybutton_prompt_text = " "  # to remove space in (.venv) $
+
+typehints_use_rtype = False
+typehints_defaults = "comma"
 
 templates_path = ["_templates"]
 exclude_patterns = []
@@ -39,5 +50,4 @@ html_last_updated_fmt = ""
 html_show_sphinx = False
 todo_include_todos = False
 
-html_theme = "sphinx_rtd_theme"
-html_static_path = ["_static"]
+html_theme = "furo"
