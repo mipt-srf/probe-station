@@ -1,18 +1,23 @@
 .. _index:
 
-Welcome to Probe Station package documentation!
-***********************************
+|name| scientific package
+=========================
 
-Documentation is current as of: |today|. Translation progress: |translation progress|.
+|name| is a scientific package for grain analysis for AFM and SEM images. Documentation
+is current as of: |today|.
 
-Check out the `usage` section for futher information.
+Check out the :doc:`getting_started` section for further information.
 
 .. toctree::
-   :glob:
-   :titlesonly:
-   :caption: Contents:
+    :glob:
+    :titlesonly:
+    :caption: Contents:
 
-   usage
-   *
+    getting_started
+    contribution
+    installation_editable
+    api
 
-
+.. note::
+   
+   This project is under active development.

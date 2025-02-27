@@ -8,7 +8,7 @@ Probe station
 _____
 
 `probe_station.dataset`
----------
+-----------------------
 
 .. automodule:: probe_station.dataset
     :members:
@@ -18,7 +18,7 @@ _____
 _____
 
 `probe_station._PQ_PUND`
-----------
+------------------------
 
 .. automodule:: probe_station._PQ_PUND
     :members:
@@ -28,7 +28,7 @@ _____
 _____
 
 `probe_station._DC_IV`
--------------
+----------------------
 
 .. automodule:: probe_station._DC_IV
     :members:
@@ -38,7 +38,7 @@ _____
 _____
 
 `probe_station._CV`
-----------
+-------------------
 
 .. automodule:: probe_station._CV
     :members:
