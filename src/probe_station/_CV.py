@@ -45,12 +45,12 @@ class CV:
         self.frequency = self.metadata["Frequency"]
         self.steps = self.metadata["RealMeasuredPoints"]
 
-    def calculate_capacitance(self, *, force_series: bool = False) -> None:
+    def calculate_capacitance(self, *, force_series: bool = False, force_parallel: bool = False) -> None:
         """Calculate the capacitance from the CV data according to Cs - Rs scheme."""
         resistance = self.data["Resistance"]
         reactance = self.data["Reactance"]
         capacitance_series = -1 / (2 * np.pi * self.frequency * reactance)
-        if not force_series and self.check_resistance():
+        if not force_series and self.check_resistance() or force_parallel:
             return capacitance_series / (1 + (resistance / reactance) ** 2)
         return capacitance_series
 
