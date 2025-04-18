@@ -17,6 +17,7 @@ from matplotlib import pyplot as plt
 from probe_station._CV import CV
 from probe_station._DC_IV import DC_IV
 from probe_station._PQ_PUND import PQ_PUND
+from probe_station._PUND_double import PUND_double
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Sequence
@@ -60,7 +61,12 @@ class Dataset:
         self.metadata = metadata
         self.dataframes = dataframes
 
-        handlers = {"PQPUND": PQ_PUND, "DC IV": DC_IV, "CVS": CV}
+        handlers = {
+            "PQPUND": PQ_PUND,
+            "DC IV": DC_IV,
+            "CVS": CV,
+            "PUNDD": PUND_double,
+        }
         mode = metadata["Measurement type"]
         self.handler = handlers[mode](metadata, dataframes, pad_size_um=pad_size_um)
 
@@ -73,15 +79,16 @@ class Dataset:
             metadata = self._parse_metadata(file)
             lines = file.readlines()
         mode = metadata["Measurement type"]
-        additive = 1 if mode == "PQPUND" else 0
-        additive1 = 4 if mode == "CVS" else 0
-        if mode == "PQPUND":
-            columns = 3
-        if mode == "CVS":
-            columns = 5
-        if mode == "DC IV":
-            columns = 3
-        data_list = [line.strip().split() for line in lines[len(metadata.keys()) + 1 + additive + additive1 :]]
+        mode_additives = {"PQPUND": 1, "CVS": 4, "DC IV": 0, "PUNDD": 3}
+        mode_columns = {
+            "PQPUND": 3,
+            "CVS": 5,
+            "DC IV": 3,
+            "PUNDD": 4,
+        }
+        additive = mode_additives[mode]
+        columns = mode_columns[mode]
+        data_list = [line.strip().split() for line in lines[len(metadata.keys()) + 1 + additive :]]
 
         data = pd.DataFrame(data_list[1:]).iloc[:, :columns].dropna(how="all")
         data.columns = data_list[0]
