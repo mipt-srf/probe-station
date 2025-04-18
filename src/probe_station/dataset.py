@@ -81,10 +81,7 @@ class Dataset:
             columns = 5
         if mode == "DC IV":
             columns = 3
-        data_list = [
-            line.strip().split()
-            for line in lines[len(metadata.keys()) + 1 + additive + additive1 :]
-        ]
+        data_list = [line.strip().split() for line in lines[len(metadata.keys()) + 1 + additive + additive1 :]]
 
         data = pd.DataFrame(data_list[1:]).iloc[:, :columns].dropna(how="all")
         data.columns = data_list[0]

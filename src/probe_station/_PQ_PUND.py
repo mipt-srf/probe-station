@@ -73,9 +73,7 @@ class PQ_PUND:  # noqa: N801
 
         :return: `Dataframe` containing the specific cycle data.
         """
-        df_cycle = self.current_df[
-            cycle * self.steps_per_cycle : (cycle + 1) * self.steps_per_cycle
-        ]
+        df_cycle = self.current_df[cycle * self.steps_per_cycle : (cycle + 1) * self.steps_per_cycle]
         if plot:
             df_cycle.plot("Voltages", y=["DiffCurrent"])
         return df_cycle
@@ -230,9 +228,7 @@ class PQ_PUND:  # noqa: N801
         """Subtract the wait current from the data."""
         voltage = self.leakage_df["Voltages"]
         voltage_filter = voltage > from_positive
-        self.current_df.loc[voltage_filter, "DiffCurrent"] -= self.leakage_df[
-            "CurrentC"
-        ][voltage_filter]
+        self.current_df.loc[voltage_filter, "DiffCurrent"] -= self.leakage_df["CurrentC"][voltage_filter]
 
     def shift_current(self, shift: float) -> None:
         """Shift the current data by a given value.
@@ -256,7 +252,7 @@ class PQ_PUND:  # noqa: N801
             df_cycle = self.get_cycle(i, plot=False)
             label = None
             if i == 0 or i == self.repetitions - 1:
-                label = f"cycle #{i+1}"
+                label = f"cycle #{i + 1}"
             plt.plot(
                 df_cycle["Voltages"],
                 df_cycle["DiffCurrent"],
@@ -376,9 +372,7 @@ class PQ_PUND:  # noqa: N801
         voltages = df_cycle["Voltages"]
         curr = df_cycle["DiffCurrent"]
         area = (self.pad_size_um * 1e-4) ** 2
-        polarizations = (
-            scipy.integrate.cumulative_trapezoid(curr, times, initial=0) / area * 1e6
-        )
+        polarizations = scipy.integrate.cumulative_trapezoid(curr, times, initial=0) / area * 1e6
         if centered:
             polarizations -= polarizations.mean()
 

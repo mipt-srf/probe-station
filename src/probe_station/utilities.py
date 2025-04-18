@@ -105,9 +105,7 @@ def color_lines(from_color: str, to_color: str, sort_order_point: float = 0.1) -
     lines = plt.gca().get_lines()
     lines_sorted = sorted(
         lines,
-        key=lambda line: line.get_ydata()[
-            np.argmin(np.abs(line.get_xdata() - sort_order_point))
-        ],
+        key=lambda line: line.get_ydata()[np.argmin(np.abs(line.get_xdata() - sort_order_point))],
     )
     colors = get_color_gradient(from_color, to_color, len(lines))
     for line, color in zip(lines_sorted, colors, strict=True):
@@ -131,7 +129,7 @@ def plot_input_curves(
         for drain_voltage in drain_voltages:
             data[drain_voltage][i] = handler.get_current_at_voltage(drain_voltage)
     for drain_voltage, current in data.items():
-        plt.plot(v_gate, current, "o-", label=f"{drain_voltage*1000:.0f} mV")
+        plt.plot(v_gate, current, "o-", label=f"{drain_voltage * 1000:.0f} mV")
 
     plt.legend(title=r"Drain-source voltage")
     plt.xlabel("Gate voltage, V")
