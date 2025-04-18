@@ -237,6 +237,9 @@ class PQ_PUND:  # noqa: N801
         """
         self.current_df["DiffCurrent"] += shift
 
+    def plot(self):
+        self.plot_iv_cycled()
+
     def plot_iv_cycled(
         self,
         sample: str = "",

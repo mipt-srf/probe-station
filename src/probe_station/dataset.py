@@ -125,3 +125,7 @@ class Dataset:
             file.seek(0)  # return cursor to the beginning
 
         return metadata
+
+    def plot(self):
+        """Plot the data using the appropriate handler."""
+        self.handler.plot()
