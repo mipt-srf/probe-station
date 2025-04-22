@@ -64,7 +64,7 @@ class PUND_double:  # noqa: N801
         ax.plot(polarization)
         ax.set_title(f"PUND Double Measurement {self.measurement}")
         plt.xlabel("Cycles")
-        plt.ylabel("Polarization, uC/cm^2")
+        plt.ylabel(r"Polarization, uC/cm$^2$")
         plt.ylim(np.min(polarization) * 0.5, np.max(polarization) * 1.05)
 
     def plot_charges(self, filtering_window=1) -> None:
@@ -78,4 +78,4 @@ class PUND_double:  # noqa: N801
 
         ax.set_title(f"PUND Double Measurement {self.measurement}")
         plt.xlabel("Cycles")
-        plt.ylabel("Polarization, uC/cm^2")
+        plt.ylabel("Charge, C")
