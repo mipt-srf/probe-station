@@ -11,13 +11,13 @@ from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import scipy
 from scipy.optimize import curve_fit
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    import pandas as pd
     from numpy.typing import NDArray
 
 
@@ -39,16 +39,28 @@ class PQ_PUND:  # noqa: N801
             Used for correct polarization calculation.
         """
         self.pad_size_um = pad_size_um
-        self.current_df = dataframes[0]
-        self.leakage_df = dataframes[1]
+        self.transition_current_df = dataframes[0].rename(
+            columns={"CurrentP": "Pos/Neg Current", "CurrentC": "Up/Down Current"}
+        )
+        self.plateau_current_df = dataframes[1].rename(
+            columns={"CurrentP": "Pos/Neg Current", "CurrentC": "Up/Down Current"}
+        )
         self.qv_df = dataframes[2]
         self.metadata = metadata
         self._init_metadata()
-        self.current_df["DiffCurrent"] = (
-            self.current_df["CurrentP"]
-            - self.current_df["CurrentC"]
-            + self.leakage_df["CurrentP"]
-            - self.leakage_df["CurrentC"]
+
+        self.transition_current_df["Polarization Current"] = (
+            self.transition_current_df["Pos/Neg Current"] - self.transition_current_df["Up/Down Current"]
+        )
+        self.plateau_current_df["Polarization Current"] = (
+            self.plateau_current_df["Pos/Neg Current"] - self.plateau_current_df["Up/Down Current"]
+        )
+        self.polarization_current_df = pd.DataFrame(
+            {
+                "Voltages": self.transition_current_df["Voltages"],
+                "Polarization Current": self.transition_current_df["Polarization Current"]
+                + self.plateau_current_df["Polarization Current"],
+            }
         )
 
     def _init_metadata(self) -> None:
@@ -73,9 +85,9 @@ class PQ_PUND:  # noqa: N801
 
         :return: `Dataframe` containing the specific cycle data.
         """
-        df_cycle = self.current_df[cycle * self.steps_per_cycle : (cycle + 1) * self.steps_per_cycle]
+        df_cycle = self.polarization_current_df[cycle * self.steps_per_cycle : (cycle + 1) * self.steps_per_cycle]
         if plot:
-            df_cycle.plot("Voltages", y=["DiffCurrent"])
+            df_cycle.plot("Voltages", y=["Polarization Current"])
         return df_cycle
 
     def get_half_cycle(
@@ -105,14 +117,14 @@ class PQ_PUND:  # noqa: N801
         if plot:
             df1.plot(
                 "Voltages",
-                y=["DiffCurrent"],
+                y=["Polarization Current"],
                 xlim=(
-                    self.current_df["Voltages"].min() * 1.05,
-                    self.current_df["Voltages"].max() * 1.05,
+                    self.polarization_current_df["Voltages"].min() * 1.05,
+                    self.polarization_current_df["Voltages"].max() * 1.05,
                 ),
                 ylim=(
-                    self.current_df["DiffCurrent"].min() * 1.05,
-                    self.current_df["DiffCurrent"].max() * 1.05,
+                    self.polarization_current_df["Polarization Current"].min() * 1.05,
+                    self.polarization_current_df["Polarization Current"].max() * 1.05,
                 ),
             )
         return df1
@@ -144,7 +156,7 @@ class PQ_PUND:  # noqa: N801
         shift_half_cycle = positive * 0.5
         left = int((cycle + shift_half_cycle) * steps_per_cycle) + start
         right = left + points_number
-        df1 = self.current_df[left:right]
+        df1 = self.polarization_current_df[left:right]
         if plot_cycle:
             _ = self.get_cycle(cycle, plot=plot_cycle)
             self.plot_point_on_data(left)
@@ -160,8 +172,8 @@ class PQ_PUND:  # noqa: N801
         # def leakage_current_model(V, I0, b):
         #     return I0 * V**2 * np.exp(b / V)
 
-        voltages = self.current_df["Voltages"]
-        currents = self.current_df["DiffCurrent"]
+        voltages = self.polarization_current_df["Voltages"]
+        currents = self.polarization_current_df["Polarization Current"]
 
         mask_positive = voltages > from_positive
         fit_voltages_positive = voltages[mask_positive]
@@ -222,20 +234,22 @@ class PQ_PUND:  # noqa: N801
         """Remove leakage current from the data."""
 
         leakage_current = self.fit_leakage(from_positive, from_negative, plot=plot)
-        self.current_df["DiffCurrent"] -= leakage_current
+        self.polarization_current_df["Polarization Current"] -= leakage_current
 
     def substract_wait_current(self, from_positive=None) -> None:
         """Subtract the wait current from the data."""
-        voltage = self.leakage_df["Voltages"]
+        voltage = self.plateau_current_df["Voltages"]
         voltage_filter = voltage > from_positive
-        self.current_df.loc[voltage_filter, "DiffCurrent"] -= self.leakage_df["CurrentC"][voltage_filter]
+        self.polarization_current_df.loc[voltage_filter, "Polarization Current"] -= self.plateau_current_df["CurrentC"][
+            voltage_filter
+        ]
 
     def shift_current(self, shift: float) -> None:
         """Shift the current data by a given value.
 
         :param shift: The value by which to shift the current data.
         """
-        self.current_df["DiffCurrent"] += shift
+        self.polarization_current_df["Polarization Current"] += shift
 
     def plot(self):
         self.plot_iv_cycled()
@@ -258,7 +272,7 @@ class PQ_PUND:  # noqa: N801
                 label = f"cycle #{i + 1}"
             plt.plot(
                 df_cycle["Voltages"],
-                df_cycle["DiffCurrent"],
+                df_cycle["Polarization Current"],
                 alpha=alpha,
                 color="b",
                 label=label,
@@ -274,7 +288,7 @@ class PQ_PUND:  # noqa: N801
         self,
         point: int,
         xdata: str = "Voltages",
-        ydata: str = "DiffCurrent",
+        ydata: str = "Polarization Current",
     ) -> None:
         """Plot a point on the data graph.
 
@@ -283,8 +297,8 @@ class PQ_PUND:  # noqa: N801
         :param ydata: Name of the y-axis data column.
         """
         plt.plot(
-            self.current_df[xdata].iloc[point],
-            self.current_df[ydata].iloc[point],
+            self.transition_current_df[xdata].iloc[point],
+            self.transition_current_df[ydata].iloc[point],
             "x",
         )
 
@@ -308,7 +322,7 @@ class PQ_PUND:  # noqa: N801
         df_cycle = self.get_half_cycle(cycle, positive=positive, plot=plot_cycle)
         time_step = self.wait_time + self.rump_time
         times = np.array([time_step * i for i in range(df_cycle["Voltages"].size)])
-        charge = scipy.integrate.simpson(y=df_cycle["DiffCurrent"], x=times)
+        charge = scipy.integrate.simpson(y=df_cycle["Polarization Current"], x=times)
         area = (self.pad_size_um * 1e-4) ** 2
         return charge / area * 1e6
 
@@ -373,7 +387,7 @@ class PQ_PUND:  # noqa: N801
         times = np.array([time_step * i for i in range(df_cycle["Voltages"].size)])
 
         voltages = df_cycle["Voltages"]
-        curr = df_cycle["DiffCurrent"]
+        curr = df_cycle["Polarization Current"]
         area = (self.pad_size_um * 1e-4) ** 2
         polarizations = scipy.integrate.cumulative_trapezoid(curr, times, initial=0) / area * 1e6
         if centered:

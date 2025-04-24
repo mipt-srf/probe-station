@@ -31,8 +31,8 @@ def test_PQ_PUND(dataset_loader):
     assert handler.rump_integration_time == 5e-6
     assert handler.wait_time == 1e-5
     assert handler.wait_integration_time == 5e-6
-    assert handler.current_df.shape == (1200, 4)
-    assert handler.leakage_df.shape == (1200, 3)
+    assert handler.transition_current_df.shape == (1200, 4)
+    assert handler.plateau_current_df.shape == (1200, 4)
     assert handler.qv_df.shape == (1200, 2)
 
 
