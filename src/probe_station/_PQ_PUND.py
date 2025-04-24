@@ -45,10 +45,10 @@ class PQ_PUND:  # noqa: N801
         self.metadata = metadata
         self._init_metadata()
         self.current_df["DiffCurrent"] = (
-            # self.current_df["CurrentP"]
-            # - self.current_df["CurrentC"]
-            +self.leakage_df["CurrentP"]
-            # - self.leakage_df["CurrentC"]
+            self.current_df["CurrentP"]
+            - self.current_df["CurrentC"]
+            + self.leakage_df["CurrentP"]
+            - self.leakage_df["CurrentC"]
         )
 
     def _init_metadata(self) -> None:
