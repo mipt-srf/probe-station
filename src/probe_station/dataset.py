@@ -133,6 +133,6 @@ class Dataset:
 
         return metadata
 
-    def plot(self):
+    def plot(self, **kwargs):
         """Plot the data using the appropriate handler."""
-        self.handler.plot()
+        self.handler.plot(**kwargs)
