@@ -15,6 +15,8 @@ import pandas as pd
 import scipy
 from scipy.optimize import curve_fit
 
+from probe_station.common import get_coercive_voltages, plot_vlines
+
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
@@ -374,31 +376,17 @@ class PQ_PUND:  # noqa: N801
             cycle = self.repetitions - 1
 
         df_cycle = self.get_cycle(cycle)
-        curr = df_cycle["Polarization Current"]
+        currents = df_cycle["Polarization Current"]
         voltages = df_cycle["Voltages"]
 
-        negative_peak_idx = curr.idxmin()
-        positive_peak_idx = curr.idxmax()
-
-        negative_coercive_field = voltages.loc[negative_peak_idx]
-        positive_coercive_field = voltages.loc[positive_peak_idx]
+        negative_coercive_field, positive_coercive_field = get_coercive_voltages(voltages, currents, plot=plot)
 
         if plot:
-            plt.plot(voltages, curr)
-            plt.axvline(
-                x=negative_coercive_field,
-                color="r",
-                linestyle="dashed",
-            )
-            plt.axvline(
-                x=positive_coercive_field,
-                color="r",
-                linestyle="dashed",
-                label=rf"$V_{{-}}={voltages.loc[negative_peak_idx]:.2f}$ V{'\n'}$V_{{+}}={voltages.loc[positive_peak_idx]:.2f}$ V",
-            )
+            plt.plot(voltages, currents)
             plt.xlabel("Voltage, V")
             plt.ylabel("Current, A")
             plt.title("Detected coercive fields")
+            plot_vlines([negative_coercive_field, positive_coercive_field])
             plt.legend()
 
         return negative_coercive_field, positive_coercive_field
