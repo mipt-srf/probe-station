@@ -10,6 +10,7 @@ from collections.abc import Sequence
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
+from scipy.interpolate import interp1d
 
 
 class DC_IV:  # noqa: N801
@@ -129,3 +130,43 @@ class DC_IV:  # noqa: N801
         ratio = np.abs((voltage1 / current1) / (voltage2 / current2))
 
         return ratio if ratio > 1 else 1 / ratio
+
+    def plot_difference_current(self) -> None:
+        """Plot the difference between 2 branches of current."""
+
+        bias = self.data.Bias
+        current = self.data.Current
+
+        mask = np.diff(bias)
+        # pad so mask has same length as bias
+        mask_dec = np.insert(mask < 0, 0, False)  # True whenever that point is followed by a decrease
+        mask_inc = np.insert(mask > 0, 0, False)  # True whenever that point is followed by an increase
+
+        # pick out four branches
+        b_neg_fwd = bias[mask_dec & (bias <= 0)]
+        I_neg_fwd = current[mask_dec & (bias <= 0)]
+
+        b_neg_rev = bias[mask_inc & (bias <= 0)]
+        I_neg_rev = current[mask_inc & (bias <= 0)]
+
+        b_pos_fwd = bias[mask_inc & (bias >= 0)]
+        I_pos_fwd = current[mask_inc & (bias >= 0)]
+
+        b_pos_rev = bias[mask_dec & (bias >= 0)]
+        I_pos_rev = current[mask_dec & (bias >= 0)]
+
+        # interpolate and get delta_I for neg and pos
+        interp_neg = interp1d(b_neg_rev, I_neg_rev, bounds_error=False, fill_value=np.nan)
+        delta_I_neg = I_neg_fwd - interp_neg(b_neg_fwd)
+
+        interp_pos = interp1d(b_pos_rev, I_pos_rev, bounds_error=False, fill_value=np.nan)
+        delta_I_pos = I_pos_fwd - interp_pos(b_pos_fwd)
+
+        plt.plot(b_neg_fwd, delta_I_neg, "s-", label="ΔI (negative branch)")
+        # plt.vlines(x=-2.8, ymin=-4e-10, ymax=6e-10)
+        plt.plot(b_pos_fwd, delta_I_pos, "o-", label="ΔI (positive branch)")
+        plt.axvline(0, color="gray", lw=0.5)
+        plt.xlabel("Bias (V)")
+        plt.ylabel("Current difference ΔI (A)")
+        plt.legend()
+        plt.tight_layout()
