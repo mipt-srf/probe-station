@@ -365,6 +365,44 @@ class PQ_PUND:  # noqa: N801
             plt.gca().set_ylim(0, polarizations.max() * 1.05)
         return polarizations
 
+    def get_coercive_voltages(self, cycle: int = -1, plot=False) -> tuple[float, float]:
+        """Get positive and negative coercive fields.
+
+        :return: Tuple containing positive and negative coercive fields.
+        """
+        if cycle == -1:
+            cycle = self.repetitions - 1
+
+        df_cycle = self.get_cycle(cycle)
+        curr = df_cycle["Polarization Current"]
+        voltages = df_cycle["Voltages"]
+
+        negative_peak_idx = curr.idxmin()
+        positive_peak_idx = curr.idxmax()
+
+        negative_coercive_field = voltages.loc[negative_peak_idx]
+        positive_coercive_field = voltages.loc[positive_peak_idx]
+
+        if plot:
+            plt.plot(voltages, curr)
+            plt.axvline(
+                x=negative_coercive_field,
+                color="r",
+                linestyle="dashed",
+            )
+            plt.axvline(
+                x=positive_coercive_field,
+                color="r",
+                linestyle="dashed",
+                label=rf"$V_{{-}}={voltages.loc[negative_peak_idx]:.2f}$ V{'\n'}$V_{{+}}={voltages.loc[positive_peak_idx]:.2f}$ V",
+            )
+            plt.xlabel("Voltage, V")
+            plt.ylabel("Current, A")
+            plt.title("Detected coercive fields")
+            plt.legend()
+
+        return negative_coercive_field, positive_coercive_field
+
     def plot_pv(
         self,
         cycle: int = -1,
