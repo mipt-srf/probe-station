@@ -4,6 +4,7 @@ import logging
 from collections.abc import Generator
 from pathlib import Path
 
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import scienceplots  # noqa: F401
@@ -39,6 +40,19 @@ def get_color_gradient(from_color: str, to_color: str, count: int) -> list[str]:
     from_color = Color(from_color)
     to_color = Color(to_color)
     yield from (color.hex for color in from_color.range_to(to_color, count))
+
+
+def get_colormap(from_color: str, to_color: str, count: int, name: str = "my_cmap") -> matplotlib.colors.ListedColormap:
+    """Get a colormap from `from_color` to `to_color` with `count` colors.
+
+    :param from_color: Starting color of the colormap.
+    :param to_color: Ending color of the colormap.
+    :param count: Number of colors in the colormap.
+    :return: A matplotlib colormap.
+    """
+    colors = list(get_color_gradient(from_color, to_color, count))
+
+    return matplotlib.colors.ListedColormap(colors, name=name)
 
 
 def plot_in_folder(
