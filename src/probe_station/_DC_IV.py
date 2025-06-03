@@ -33,6 +33,7 @@ class DC_IV:  # noqa: N801
         self.data = dataframes[0]
         self.metadata = metadata
         self._init_metadata()
+        self.dfs = self._split_data(self.data)
 
     def _init_metadata(self) -> None:
         """Help to initialize class members with metadata attributes."""
@@ -46,6 +47,25 @@ class DC_IV:  # noqa: N801
         self.pos_compliance = self.metadata["Positive compliance"]
         self.neg_compliance = self.metadata["Negative compliance"]
         self.steps = self.metadata["RealMeasuredPoints"]
+
+    def _split_data(self, df):
+        """
+        Splits the data into multiple dataframes that corresponds to different parts of the sweep.
+        """
+        df_first_sweep = df[: len(df) // 2]
+        df_second_sweep = df[len(df) // 2 :]
+
+        df_0_to_stop1_sweep = df_first_sweep[: len(df_first_sweep) // 2]
+        df_stop1_to_zero1_sweep = df_first_sweep[len(df_first_sweep) // 2 :]
+        df_zero2_to_stop2_sweep = df_second_sweep[: len(df_second_sweep) // 2]
+        df_stop2_to_zero3_sweep = df_second_sweep[len(df_second_sweep) // 2 :]
+
+        return [
+            df_0_to_stop1_sweep,
+            df_stop1_to_zero1_sweep,
+            df_zero2_to_stop2_sweep,
+            df_stop2_to_zero3_sweep,
+        ]
 
     def plot(
         self,
