@@ -10,6 +10,7 @@ import numpy as np
 import scienceplots  # noqa: F401
 from colour import Color
 from labellines import labelLines
+from scipy.interpolate import interp1d
 
 from probe_station.dataset import Dataset
 
@@ -53,6 +54,65 @@ def get_colormap(from_color: str, to_color: str, count: int, name: str = "my_cma
     colors = list(get_color_gradient(from_color, to_color, count))
 
     return matplotlib.colors.ListedColormap(colors, name=name)
+
+
+def plot_colored_line_by_param(
+    df,
+    x_col="Vgs",
+    y_col="Ids",
+    color_col="Vds",
+    cmap=None,
+    norm=None,  # <- added norm parameter
+    figsize=(8, 6),
+    linewidth=3,
+    xlabel=None,
+    ylabel=None,
+    colorbar_label=None,
+):
+    """Plot a line colored by a parameter from a DataFrame.
+
+    :param df: DataFrame containing the data.
+    :param x_col: Column name for x-axis.
+    :param y_col: Column name for y-axis.
+    :param color_col: Column name for coloring the line.
+    :param cmap: Matplotlib colormap or None. If None, uses viridis.
+    :param norm: A Normalize or LogNorm instance for color scaling.
+    :param figsize: Figure size (width, height).
+    :param linewidth: Width of the line.
+    :param xlabel: Label for x-axis.
+    :param ylabel: Label for y-axis.
+    :param colorbar_label: Label for the colorbar.
+
+    :return: Tuple containing (fig, ax) - the figure and axes objects.
+    """
+    x = df[x_col].values
+    y = df[y_col].values
+    c = df[color_col].values
+
+    points = np.array([x, y]).T.reshape(-1, 1, 2)
+    segments = np.concatenate([points[:-1], points[1:]], axis=1)
+
+    fig, ax = plt.subplots(figsize=figsize)
+
+    lc = matplotlib.collections.LineCollection(
+        segments,
+        cmap=cmap or "viridis",
+        norm=norm or plt.Normalize(c.min(), c.max()),  # <- use passed norm if given
+    )
+    lc.set_array(c[:-1])  # Color values for each segment
+    lc.set_linewidth(linewidth)
+
+    ax.add_collection(lc)
+    ax.autoscale_view()
+    ax.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
+
+    ax.set_xlabel(xlabel or x_col)
+    ax.set_ylabel(ylabel or y_col)
+
+    cbar = fig.colorbar(lc, ax=ax)
+    cbar.set_label(colorbar_label or color_col)
+
+    return fig, ax
 
 
 def plot_in_folder(
@@ -207,3 +267,78 @@ def characterize_transistor(
     )
 
     plot_threshold_curve(path, v_gate, ignore=files_to_ignore)
+
+
+def calculate_current_difference(voltages, currents):
+    """
+    Calculate the current difference between forward and reverse sweeps for a specific voltage.
+
+    Parameters:
+    ds (DataFrame): The dataset containing Ids and Vgs values.
+    voltage (float): The Vg_limit_second value to filter the dataset.
+
+    Returns:
+    tuple: (bias_forward, delta_I) - The bias values and current differences.
+    """
+    mask = np.diff(voltages)
+    # Pad so mask has same length as voltages
+    mask_dec = np.insert(mask < 0, 0, False)  # True whenever that point is followed by a decrease
+    mask_inc = np.insert(mask > 0, 0, False)  # True whenever that point is followed by an increase
+
+    # Pick out forward and reverse branches, considering all voltages
+    b_fwd = np.concatenate(
+        [
+            voltages[mask_dec & (voltages <= 0)],  # negative forward
+            voltages[mask_inc & (voltages >= 0)],  # positive forward
+        ]
+    )
+    I_fwd = np.concatenate(
+        [
+            currents[mask_dec & (voltages <= 0)],  # negative forward
+            currents[mask_inc & (voltages >= 0)],  # positive forward
+        ]
+    )
+
+    b_rev = np.concatenate(
+        [
+            voltages[mask_inc & (voltages <= 0)],  # negative reverse
+            voltages[mask_dec & (voltages >= 0)],  # positive reverse
+        ]
+    )
+    I_rev = np.concatenate(
+        [
+            currents[mask_inc & (voltages <= 0)],  # negative reverse
+            currents[mask_dec & (voltages >= 0)],  # positive reverse
+        ]
+    )
+
+    # Sort by bias voltage to ensure correct interpolation
+    sort_idx_fwd = np.argsort(b_fwd)
+    b_fwd = b_fwd[sort_idx_fwd]
+    I_fwd = I_fwd[sort_idx_fwd]
+
+    sort_idx_rev = np.argsort(b_rev)
+    b_rev = b_rev[sort_idx_rev]
+    I_rev = I_rev[sort_idx_rev]
+
+    # Interpolate reverse sweep to forward sweep bias values
+    interp = interp1d(b_rev, I_rev, bounds_error=False, fill_value=np.nan)
+    delta_I = I_fwd - interp(b_fwd)
+
+    return b_fwd, delta_I
+
+
+def get_memory_window(voltages, currents, target_current=0.00005, tolerance=0.05, print_voltages=True):
+    idxs = np.argsort(np.abs(currents - target_current))[:2]
+    closest_currents = currents.iloc[idxs]
+    if abs(closest_currents.iloc[1] - target_current) > tolerance * target_current:
+        logging.warning(
+            "Current %s not found in data. Closest is %s",
+            target_current,
+            closest_currents.iloc[0],
+        )
+        return None
+    closest_voltages = voltages.iloc[idxs]
+    if print_voltages:
+        print("Closest voltages:", closest_voltages.values)
+    return np.abs(np.diff(closest_voltages))[0]
