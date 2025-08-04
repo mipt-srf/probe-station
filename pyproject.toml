@@ -32,6 +32,10 @@ tests = [
     "pytest-cov>=5.0.0",
     "pytest>=8.3.5",
 ]
+measurements = [
+    "keysight-b1530a",
+    "waveform-generator",
+]
 
 [build-system]
 requires = [
@@ -50,3 +54,7 @@ dev-dependencies = [
     "ipykernel>=6.29.5",
     "ruff>=0.9.3",
 ]
+
+[tool.uv.sources]
+waveform-generator = { git = "https://github.com/ilev-sergey/waveform-generator.git" }
+keysight-b1530a = { git = "https://github.com/ilev-sergey/keysight-b1530a.git" }
