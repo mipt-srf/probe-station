@@ -3,7 +3,6 @@ import sys
 
 import numpy as np
 import scipy
-from click import group
 from keysight_b1530a._bindings.config import WGFMUChannel
 from keysight_b1530a._bindings.errors import get_error_summary
 from keysight_b1530a._bindings.initialization import clear, close_session, initialize, open_session
@@ -19,12 +18,9 @@ from pymeasure.experiment import (
     FloatParameter,
     IntegerParameter,
     ListParameter,
-    Measurable,
-    Metadata,
     Procedure,
 )
 
-import probe_station.measurements.voltage_sweeps.IV.WGFMU.script as script
 from probe_station.measurements.voltage_sweeps.IV.WGFMU.script import (
     get_data,
     get_pund_sequence,

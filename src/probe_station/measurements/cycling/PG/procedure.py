@@ -1,7 +1,5 @@
 import logging
-import random
 import sys
-import tempfile
 from datetime import datetime, timedelta
 from time import sleep
 
@@ -12,11 +10,8 @@ from pymeasure.experiment import (
     BooleanParameter,
     FloatParameter,
     IntegerParameter,
-    Parameter,
     Procedure,
-    Results,
 )
-from pymeasure.log import console_log
 
 from probe_station.measurements.cycling.PG.script import connect_instrument, run
 
@@ -24,7 +19,7 @@ log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-class RandomProcedure(Procedure):
+class PgCyclingProcedure(Procedure):
     repetitions = IntegerParameter("Number of cycles", default=10)
     amplitude = FloatParameter("Pulse amplitude", units="V", default=10.0)
     width = FloatParameter("Pulse width", units="s", default=0.1)
@@ -41,7 +36,7 @@ class RandomProcedure(Procedure):
 
     def startup(self):
         self.b1500 = connect_instrument()
-        self.b1500.reset()
+        # self.b1500.reset()
 
     def execute(self):
         log.info("Starting the loop of %d repetitions" % self.repetitions)
@@ -130,7 +125,7 @@ class MainWindow(ManagedWindowBase):
             "dc_channel",
         ]
         super().__init__(
-            procedure_class=RandomProcedure,
+            procedure_class=PgCyclingProcedure,
             inputs=settings,
             displays=settings,
             widget_list=widget_list,

@@ -1,5 +1,3 @@
-import time
-
 import numpy as np
 from matplotlib import pyplot as plt
 from pymeasure.instruments.agilent.agilentB1500 import (
@@ -9,7 +7,7 @@ from pymeasure.instruments.agilent.agilentB1500 import (
     PgSelectorPort,
 )
 
-from probe_station.measurements.common import check_all_errors, connect_instrument, get_smu_by_number, parse_data
+from probe_station.measurements.common import check_all_errors, connect_instrument, parse_data
 
 
 def run(b1500: AgilentB1500, plot=False):
