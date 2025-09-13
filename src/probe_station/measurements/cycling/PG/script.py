@@ -1,24 +1,18 @@
-import re
-
 from pymeasure.instruments.agilent import AgilentB1500
 from pymeasure.instruments.agilent.agilentB1500 import (
-    ADCType,
     ControlMode,
-    MeasMode,
-    MeasOpMode,
     PgSelectorConnectionStatus,
     PgSelectorPort,
     SPGUChannelOutputMode,
     SPGUOperationMode,
     SPGUOutputMode,
-    SweepMode,
 )
 
 
 def connect_instrument():
     """Connect to the Agilent B1500 instrument."""
     try:
-        b1500 = AgilentB1500("USB1::0x0957::0x0001::0001::0::INSTR")
+        b1500 = AgilentB1500("USB1::0x0957::0x0001::0001::0::INSTR", timeout=60000)
         # b1500.reset()
         b1500.initialize_all_smus()
         b1500.initialize_all_spgus()
@@ -38,24 +32,7 @@ def run(b1500, repetitions, amplitude, width, rise, tail, channel=102, bipolar=F
     rise *= 0.8
     tail *= 0.8
 
-    # b1500.write("ERMOD 1")
-    # b1500.write("SIM 0")
-    # b1500.write(f"SER {ch2},1000000.0")
-    # b1500.write(f"SPRM 1,{repetitions}")
-    # b1500.write("ERSSP 1, 2")
-    # b1500.write(f"CN {ch2}")
-    # b1500.write(f"SPPER {period}")
-    # b1500.write(f"SPV {ch2},1,0,{amplitude}")
-    # b1500.write(f"SPV {ch2},2,0,{-amplitude}")
-    # b1500.write(f"SPM {ch2},3")
-    # b1500.write(f"SPT {ch2},1,{delay_1st},{width + rise},{rise}")
-    # b1500.write(f"SPT {ch2},2,{delay_1st + width + rise + tail + delay_2nd},{width + rise},{rise}")
-    # b1500.write(f"SPUPD {ch2}")
-    # b1500.write("SRP")
-
     spgu = b1500.spgu1
-    # b1500.smu1.enable()
-    # b1500.smu1.force("voltage", 0, 20)
 
     pg = None
     for ch in [spgu.ch1, spgu.ch2]:
@@ -85,7 +62,10 @@ def run(b1500, repetitions, amplitude, width, rise, tail, channel=102, bipolar=F
     pg.output_mode = SPGUChannelOutputMode.SIGNAL_SOURCE_1_2
     pg.set_pulse_timings(source=1, delay=delay_1st, width=width + rise, rise_time=rise)
     pg.set_pulse_timings(
-        source=2, delay=delay_1st + width + rise + tail + delay_2nd, width=width + rise, rise_time=rise
+        source=2,
+        delay=delay_1st + width + rise + tail + delay_2nd,
+        width=width + rise,
+        rise_time=rise,
     )
 
     # TODO: 2 pulse_width distance between pulses in both modes, fix to 1
