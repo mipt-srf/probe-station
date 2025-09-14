@@ -34,18 +34,19 @@ from matplotlib import pyplot as plt
 from waveform_generator import PulseSequence, StaircaseSweep, TrapezoidalPulse
 
 
-def get_pund_sequence(staircase_time=1e-3, steps=100, max_voltage=2.2, min_voltage=-3):
-    time_step = staircase_time / steps
+def get_pund_sequence(staircase_time=1e-3, steps=100, max_voltage=2.2, min_voltage=-3, rise_to_hold_ratio=0.01):
+    time_step = staircase_time / steps / (1 + rise_to_hold_ratio)
+    edge_time = time_step * rise_to_hold_ratio
 
-    positive_rise = StaircaseSweep(end_voltage=max_voltage, time_step=time_step, steps=steps, edge_time=time_step / 100)
+    positive_rise = StaircaseSweep(end_voltage=max_voltage, time_step=time_step, steps=steps, edge_time=edge_time)
     positive_fall = StaircaseSweep(
-        start_voltage=max_voltage, end_voltage=0, time_step=time_step, steps=steps, edge_time=time_step / 100
+        start_voltage=max_voltage, end_voltage=0, time_step=time_step, steps=steps, edge_time=edge_time
     )
     positive = [positive_rise, positive_fall]
 
-    negative_rise = StaircaseSweep(end_voltage=min_voltage, time_step=time_step, steps=steps, edge_time=time_step / 100)
+    negative_rise = StaircaseSweep(end_voltage=min_voltage, time_step=time_step, steps=steps, edge_time=edge_time)
     negative_fall = StaircaseSweep(
-        start_voltage=min_voltage, end_voltage=0, time_step=time_step, steps=steps, edge_time=time_step / 100
+        start_voltage=min_voltage, end_voltage=0, time_step=time_step, steps=steps, edge_time=edge_time
     )
     negative = [negative_rise, negative_fall]
 

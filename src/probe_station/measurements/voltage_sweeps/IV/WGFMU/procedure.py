@@ -69,6 +69,8 @@ class RandomProcedure(Procedure):
 
     plot_points = IntegerParameter("Points to plot", default=200, group_by="advanced_config")
 
+    rise_to_hold_ratio = FloatParameter("Rise to hold time ratio", default=0.01, group_by="advanced_config")
+
     calculate_polarization = BooleanParameter("Calculate Polarization", default=False)
 
     pad_size = FloatParameter("Pad size", units="um", default=25, group_by="calculate_polarization")
@@ -92,13 +94,19 @@ class RandomProcedure(Procedure):
 
     def execute(self):
         pund = get_pund_sequence(
-            staircase_time=self.pulse_time, max_voltage=self.voltage_top_first, min_voltage=self.voltage_top_second
+            staircase_time=self.pulse_time,
+            max_voltage=self.voltage_top_first,
+            min_voltage=self.voltage_top_second,
+            steps=self.steps,
+            rise_to_hold_ratio=self.rise_to_hold_ratio,
         )
         if self.enable_bottom:
             pund_bottom = get_pund_sequence(
                 staircase_time=self.pulse_time,
                 max_voltage=self.voltage_bottom_first,
                 min_voltage=self.voltage_bottom_second,
+                steps=self.steps,
+                rise_to_hold_ratio=self.rise_to_hold_ratio,
             )
 
         set_waveform(
@@ -193,6 +201,7 @@ class MainWindow(ManagedWindowBase):
             "steps",
             "measure_points",
             "plot_points",
+            "rise_to_hold_ratio",
             "calculate_polarization",
             "pad_size",
         ]
