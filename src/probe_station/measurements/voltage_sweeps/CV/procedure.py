@@ -27,8 +27,7 @@ class CvSweepProcedure(Procedure):
     DATA_COLUMNS = ["Voltage", "Capacitance", "Resistance"]
 
     def startup(self):
-        self.b1500 = connect_instrument()
-        # self.b1500.reset()
+        self.b1500 = connect_instrument(reset=True)
 
     def execute(self):
         log.info(f"Starting the {self.__class__}")

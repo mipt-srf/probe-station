@@ -11,16 +11,21 @@ from pymeasure.instruments.agilent.agilentB1500 import (
     SweepMode,
 )
 
-from probe_station.measurements.common import check_all_errors, connect_instrument, get_smu_by_number, parse_data
+from probe_station.measurements.common import connect_instrument, get_smu_by_number, parse_data
 
 
-def run(b1500: AgilentB1500, start, end, steps, average=127, top=4, current_comp=0.001):
+def run(b1500: AgilentB1500, start, end, steps, average=127, top=4, bottom=3, current_comp=0.001):
     b1500.control_mode = ControlMode.SMU_PGU_SELECTOR
     b1500.set_port_connection(port=PgSelectorPort.OUTPUT_2_FIRST, status=PgSelectorConnectionStatus.SMU_ON)
     b1500.set_port_connection(port=PgSelectorPort.OUTPUT_1_FIRST, status=PgSelectorConnectionStatus.SMU_ON)
 
     smu = get_smu_by_number(b1500, top)
     smu.enable()
+    smu.force("voltage", 0, 0)
+
+    smu_bottom = get_smu_by_number(b1500, bottom)
+    smu_bottom.enable()
+    smu_bottom.force("voltage", 0, 0)
 
     b1500.time_stamp = True
     b1500.adc_averaging(10)
@@ -60,5 +65,6 @@ def get_data(b1500: AgilentB1500):
 
 
 if __name__ == "__main__":
-    b1500 = connect_instrument()
+    b1500 = connect_instrument(reset=True)
     run(b1500, start=-3, end=3, steps=100, top=4)
+    get_data(b1500)

@@ -38,7 +38,7 @@ def calculate_polarization(times, currents, pad_size_um):
     return charge / area * 1e6
 
 
-class RandomProcedure(Procedure):
+class IvSweepProcedure(Procedure):
     top = IntegerParameter("Top channel", default=2)
     bottom = IntegerParameter("Bottom channel", default=1, group_by="enable_bottom")
 
@@ -173,6 +173,8 @@ class RandomProcedure(Procedure):
             polarization = calculate_polarization(times, polarization_current, self.pad_size)
             log.info("Polarization (Pr): %s", polarization)
 
+        close_session()
+
 
 class MainWindow(ManagedWindowBase):
     def __init__(self):
@@ -183,7 +185,7 @@ class MainWindow(ManagedWindowBase):
             #     by_column=True,
             # ),
             LogWidget("Experiment Log"),
-            PlotWidget("Results Graph", RandomProcedure.DATA_COLUMNS),
+            PlotWidget("Results Graph", IvSweepProcedure.DATA_COLUMNS),
             # ImageWidget(name="Image", columns=RandomProcedure.DATA_COLUMNS, x_axis="1", y_axis="2"),
         )
 
@@ -207,7 +209,7 @@ class MainWindow(ManagedWindowBase):
         ]
 
         super().__init__(
-            procedure_class=RandomProcedure,
+            procedure_class=IvSweepProcedure,
             inputs=settings,
             displays=settings,
             widget_list=widget_list,

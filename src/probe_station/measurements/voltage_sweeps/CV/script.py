@@ -72,7 +72,7 @@ def get_results(b1500: AgilentB1500, plot=False):
 
 
 if __name__ == "__main__":
-    b1500 = connect_instrument()
+    b1500 = connect_instrument(reset=True)
     run(b1500, plot=True)
     check_all_errors(b1500)
     get_results(b1500, plot=True)

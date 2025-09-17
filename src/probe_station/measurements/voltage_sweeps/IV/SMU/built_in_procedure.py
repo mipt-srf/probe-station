@@ -7,7 +7,7 @@ from pymeasure.display.widgets import LogWidget, PlotWidget
 from pymeasure.display.windows import ManagedWindowBase
 from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter, Procedure
 
-from probe_station.measurements.common import connect_instrument, get_smu_by_number
+from probe_station.measurements.common import connect_instrument
 from probe_station.measurements.voltage_sweeps.IV.SMU.built_in_script import get_data, run
 
 log = logging.getLogger(__name__)
@@ -27,20 +27,10 @@ class IvSweepProcedure(Procedure):
     DATA_COLUMNS = ["Voltage", "Top electrode current", "Time"]
 
     def startup(self):
-        self.b1500 = connect_instrument(timeout=60000)
-        # self.b1500.reset()
+        self.b1500 = connect_instrument(timeout=60000, reset=True)
 
     def execute(self):
         log.info(f"Starting the {self.__class__}")
-
-        top_smu = get_smu_by_number(self.b1500, self.top_channel)
-        bottom_smu = get_smu_by_number(self.b1500, self.bottom_channel)
-
-        top_smu.enable()
-        bottom_smu.enable()
-
-        top_smu.force("voltage", 0, 0)
-        bottom_smu.force("voltage", 0, 0)
 
         run(
             self.b1500,
@@ -52,36 +42,15 @@ class IvSweepProcedure(Procedure):
             average=self.average,
         )
         times, voltages, currents = get_data(self.b1500)
+        print(f"len(times) = {len(times), len(voltages), len(currents)}")
+        print(voltages[:20])
 
-        self.emit("batch results", {"Time": times, "Voltage": voltages, "Top electrode current": np.abs(currents)})
-
-        # self.emit("progress", i / self.steps * 100)
-        # time, current, voltage = measure_at_voltage(
-        #     self.b1500, voltage, top=self.top_channel, bottom=self.bottom_channel
-        # )
-        # self.emit("results", {"Time": time, "Voltage": voltage, "Top electrode current": np.abs(current)})
-        # # sleep(0.01)
+        self.emit(
+            "batch results",
+            {"Time": times, "Voltage": voltages, "Top electrode current": np.abs(currents)},
+        )
 
         self.b1500.force_gnd()
-
-        # sec_per_step = 0.034
-        # for i in range(100):
-        #     sleep(sec_per_step * self.steps / 100)
-        #     self.emit("progress", i)
-        #     if self.should_stop():
-        #         log.warning("Caught the stop flag in the procedure")
-        #         self.b1500.abort()
-        #         self.b1500.force_gnd()
-        #         break
-        # else:
-        #     capacitance, resistance, ac, dc_measured, dc_forced = get_results(self.b1500)
-        #     self.emit(
-        #         "batch results",
-        #         {
-        #             "Voltage": dc_measured,
-        #             "Top electrode current": capacitance,
-        #         },
-        #     )
 
 
 class MainWindow(ManagedWindowBase):
