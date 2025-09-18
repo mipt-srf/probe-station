@@ -33,7 +33,7 @@ log.addHandler(logging.NullHandler())
 
 
 def calculate_polarization(times, currents, pad_size_um):
-    charge = scipy.integrate.simpson(y=currents, x=times)
+    charge = scipy.integrate.simpson(y=np.abs(currents), x=times)
     area = (pad_size_um * 1e-4) ** 2
     return charge / area * 1e6
 
@@ -82,6 +82,7 @@ class IvSweepProcedure(Procedure):
         "Bottom electrode voltage",
         "Bottom electrode current",
         "Polarization current",
+        "Filtered Polarization current",
     ]
 
     def startup(self):
@@ -142,13 +143,20 @@ class IvSweepProcedure(Procedure):
             clear()
             close_session()
 
-        polarization_positive = currents[: len(currents) // 4] - currents[len(currents) // 4 : len(currents) // 2]
-        polarization_negative = (
-            currents[len(currents) // 2 : 3 * len(currents) // 4] - currents[3 * len(currents) // 4 :]
+        polarization_positive = np.concatenate(
+            (
+                currents[: len(currents) // 4] - currents[len(currents) // 4 : len(currents) // 2],
+                np.zeros(len(currents) // 4),
+            )
         )
-        polarization_current = np.concatenate(
-            (polarization_positive, polarization_positive, polarization_negative, polarization_negative)
+        polarization_negative = np.concatenate(
+            (
+                currents[len(currents) // 2 : 3 * len(currents) // 4] - currents[3 * len(currents) // 4 :],
+                np.zeros(len(currents) // 4),
+            )
         )
+        polarization_current = np.concatenate((polarization_positive, polarization_negative))
+        filtered_polarization_current = scipy.ndimage.gaussian_filter1d(polarization_current, sigma=3)
         if self.enable_bottom:
             self.emit(
                 "batch results",
@@ -160,6 +168,7 @@ class IvSweepProcedure(Procedure):
                     "Bottom time": times_bottom,
                     "Bottom electrode current": currents_bottom,
                     "Polarization current": polarization_current,
+                    "Filtered Polarization current": filtered_polarization_current,
                 },
             )
         else:
@@ -170,10 +179,11 @@ class IvSweepProcedure(Procedure):
                     "Time": times,
                     "Top electrode Current": currents,
                     "Polarization current": polarization_current,
+                    "Filtered Polarization current": filtered_polarization_current,
                 },
             )
         if self.calculate_polarization:
-            polarization = calculate_polarization(times, polarization_current, self.pad_size)
+            polarization = calculate_polarization(times, filtered_polarization_current, self.pad_size)
             log.info("Polarization (Pr): %s", polarization)
 
         close_session()
@@ -230,4 +240,3 @@ if __name__ == "__main__":
     window = MainWindow()
     window.show()
     app.exec()
-    close_session()

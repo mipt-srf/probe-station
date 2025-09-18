@@ -50,7 +50,12 @@ def get_pund_sequence(staircase_time=1e-4, steps=250, max_voltage=4, min_voltage
     )
     negative = [negative_rise, negative_fall]
 
-    pund = PulseSequence(positive * 2 + negative * 2)
+    trapezoidal = TrapezoidalPulse(
+        amplitude=0.0, pulse_width=edge_time, rise_time=10 * edge_time, fall_time=edge_time
+    )  # fictional pulse to add delay at the end (otherwise last points are missed)
+
+    pund = PulseSequence(positive * 2 + negative * 2 + [trapezoidal])
+    pund.pulses[0].delay = time_step + edge_time
     # pund.plot()
     # (-pund).plot()
     # plt.show()
