@@ -34,7 +34,7 @@ from matplotlib import pyplot as plt
 from waveform_generator import PulseSequence, StaircaseSweep, TrapezoidalPulse
 
 
-def get_pund_sequence(staircase_time=1e-3, steps=100, max_voltage=2.2, min_voltage=-3, rise_to_hold_ratio=0.01):
+def get_pund_sequence(staircase_time=1e-4, steps=250, max_voltage=4, min_voltage=-4, rise_to_hold_ratio=0.01):
     time_step = staircase_time / steps / (1 + rise_to_hold_ratio)
     edge_time = time_step * rise_to_hold_ratio
 
@@ -62,7 +62,7 @@ def set_waveform(
     repetitions=1,
     channel=WGFMUChannel.CH1,
     measure=True,
-    measure_points=20_000,
+    measure_points=1600,
     pattern_name="sequence",
 ):
     pattern_name += f"_{channel.name.lower()}"
@@ -76,7 +76,7 @@ def set_waveform(
             event_name="event",
             points=measure_points,
             interval=seq_time / measure_points,
-            average=0,
+            average=seq_time / measure_points,
             mode=WGFMUMeasureEvent.AVERAGED,
         )
     add_sequence(pattern_name, repetitions, channel=channel)
@@ -120,6 +120,7 @@ if __name__ == "__main__":
     clear()
     ch1 = WGFMUChannel.CH1
     ch2 = WGFMUChannel.CH2
+    open_session()
     pund = get_pund_sequence()
     set_waveform(sequence=pund, repetitions=repetitions, channel=ch2)
     set_waveform(sequence=-pund, repetitions=repetitions, channel=ch1)

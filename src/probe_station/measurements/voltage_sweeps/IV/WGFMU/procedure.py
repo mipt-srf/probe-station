@@ -42,8 +42,8 @@ class IvSweepProcedure(Procedure):
     top = IntegerParameter("Top channel", default=2)
     bottom = IntegerParameter("Bottom channel", default=1, group_by="enable_bottom")
 
-    voltage_top_first = FloatParameter("Top electrode voltage (first)", units="V", default=5.0)
-    voltage_top_second = FloatParameter("Top electrode voltage (second)", units="V", default=-5.0)
+    voltage_top_first = FloatParameter("Top electrode voltage (first)", units="V", default=4.0)
+    voltage_top_second = FloatParameter("Top electrode voltage (second)", units="V", default=-4.0)
 
     current_range = ListParameter(
         "Current range",
@@ -60,16 +60,16 @@ class IvSweepProcedure(Procedure):
         "Bottom electrode voltage (second)", units="V", default=5.0, group_by="enable_bottom"
     )
 
-    pulse_time = FloatParameter("Pulse time", units="s", default=0.1)
+    pulse_time = FloatParameter("Pulse time", units="s", default=0.001)
 
     advanced_config = BooleanParameter("Advanced config", default=False)
 
     steps = IntegerParameter("Steps per staircase", default=100, group_by="advanced_config")
     measure_points = IntegerParameter("Points to measure", default=20_000, group_by="advanced_config")
 
-    plot_points = IntegerParameter("Points to plot", default=200, group_by="advanced_config")
+    plot_points = IntegerParameter("Points to plot", default=1000, group_by="advanced_config")
 
-    rise_to_hold_ratio = FloatParameter("Rise to hold time ratio", default=0.01, group_by="advanced_config")
+    rise_to_hold_ratio = FloatParameter("Rise to hold time ratio", default=100, group_by="advanced_config")
 
     calculate_polarization = BooleanParameter("Calculate Polarization", default=False)
 
@@ -77,9 +77,9 @@ class IvSweepProcedure(Procedure):
 
     DATA_COLUMNS = [
         "Top electrode voltage",
-        "Bottom electrode voltage",
-        "Time",
         "Top electrode Current",
+        "Time",
+        "Bottom electrode voltage",
         "Bottom electrode current",
         "Polarization current",
     ]
@@ -110,14 +110,17 @@ class IvSweepProcedure(Procedure):
             )
 
         set_waveform(
-            sequence=pund, repetitions=2, channel=WGFMUChannel(self.top + 200), measure_points=self.measure_points
+            sequence=pund,
+            repetitions=2,
+            channel=WGFMUChannel(self.top + 200),
+            measure_points=self.plot_points,
         )
         if self.enable_bottom:
             set_waveform(
                 sequence=pund_bottom,
                 repetitions=2,
                 channel=WGFMUChannel(self.bottom + 200),
-                measure_points=self.measure_points,
+                measure_points=self.plot_points,
             )
 
         try:
@@ -151,10 +154,10 @@ class IvSweepProcedure(Procedure):
                 "batch results",
                 {
                     "Top electrode voltage": voltages,
-                    "Bottom electrode voltage": voltages_bottom,
-                    "Time": times,
-                    "Bottom time": times_bottom,
                     "Top electrode Current": currents,
+                    "Time": times,
+                    "Bottom electrode voltage": voltages_bottom,
+                    "Bottom time": times_bottom,
                     "Bottom electrode current": currents_bottom,
                     "Polarization current": polarization_current,
                 },
