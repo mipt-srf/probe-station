@@ -4,13 +4,14 @@ The class is designed to be used with the `Dataset` class from the `dataset` mod
 parse, analyze, and visualize data from DC IV experiments.
 """  # noqa: N999
 
-import logging
 from collections.abc import Sequence
 
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 from scipy.interpolate import interp1d
+
+from .analysis.common import find_x_at_min_y, get_x_at_y
 
 
 class DC_IV:  # noqa: N801
@@ -104,25 +105,17 @@ class DC_IV:  # noqa: N801
         """Return the current at the specified voltage.
 
         :param voltage: The voltage at which to get the current.
+        :param tolerance: Maximum allowed difference between target and actual voltage.
         :return: The current at the specified voltage.
         """
-        idx = np.abs(self.data["Bias"] - voltage).idxmin()
-        closest_voltage = self.data["Bias"].iloc[idx]
-        if abs(closest_voltage - voltage) > tolerance:
-            logging.warning(
-                "Voltage %s not found in data. Closest is %s",
-                voltage,
-                closest_voltage,
-            )
-        return np.abs(self.data["Current"].iloc[idx])
+        return get_x_at_y(self.data["Bias"], self.data["Current"], voltage, tolerance)
 
     def get_voltage_with_lowest_current(self) -> float:
         """Return the voltage at which the current is the lowest.
 
         :return: The voltage at which the current is the lowest.
         """
-        idx = self.data["Current"].abs().idxmin()
-        return self.data["Bias"].iloc[idx]
+        return find_x_at_min_y(self.data["Bias"], self.data["Current"])
 
     def measure_resistance_ratio(
         self,
@@ -159,12 +152,8 @@ class DC_IV:  # noqa: N801
 
         mask = np.diff(bias)
         # pad so mask has same length as bias
-        mask_dec = np.insert(
-            mask < 0, 0, False
-        )  # True whenever that point is followed by a decrease
-        mask_inc = np.insert(
-            mask > 0, 0, False
-        )  # True whenever that point is followed by an increase
+        mask_dec = np.insert(mask < 0, 0, False)  # True whenever that point is followed by a decrease
+        mask_inc = np.insert(mask > 0, 0, False)  # True whenever that point is followed by an increase
 
         # pick out four branches
         b_neg_fwd = bias[mask_dec & (bias <= 0)]
@@ -180,14 +169,10 @@ class DC_IV:  # noqa: N801
         I_pos_rev = current[mask_dec & (bias >= 0)]
 
         # interpolate and get delta_I for neg and pos
-        interp_neg = interp1d(
-            b_neg_rev, I_neg_rev, bounds_error=False, fill_value=np.nan
-        )
+        interp_neg = interp1d(b_neg_rev, I_neg_rev, bounds_error=False, fill_value=np.nan)
         delta_I_neg = I_neg_fwd - interp_neg(b_neg_fwd)
 
-        interp_pos = interp1d(
-            b_pos_rev, I_pos_rev, bounds_error=False, fill_value=np.nan
-        )
+        interp_pos = interp1d(b_pos_rev, I_pos_rev, bounds_error=False, fill_value=np.nan)
         delta_I_pos = I_pos_fwd - interp_pos(b_pos_fwd)
 
         plt.plot(b_neg_fwd, delta_I_neg, "s-", label="ΔI (negative branch)")
