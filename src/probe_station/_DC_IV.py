@@ -37,16 +37,16 @@ class DC_IV:  # noqa: N801
 
     def _init_metadata(self) -> None:
         """Help to initialize class members with metadata attributes."""
-        self.measurement = self.metadata["Measurement Number"]
-        self.measurement_id = self.metadata["Measurement ID"]
-        self.series_id = self.metadata["SeriesID"]
-        self.mode = self.metadata["MeasureMode"]
-        self.first_bias = self.metadata["Bias1"]
-        self.second_bias = self.metadata["Bias2"]
-        self.step = self.metadata["Step"]
-        self.pos_compliance = self.metadata["Positive compliance"]
-        self.neg_compliance = self.metadata["Negative compliance"]
-        self.steps = self.metadata["RealMeasuredPoints"]
+        self.measurement = self.metadata.get("Measurement Number")
+        self.measurement_id = self.metadata.get("Measurement ID")
+        self.series_id = self.metadata.get("SeriesID")
+        self.mode = self.metadata.get("MeasureMode")
+        self.first_bias = self.metadata.get("Bias1")
+        self.second_bias = self.metadata.get("Bias2")
+        self.step = self.metadata.get("Step")
+        self.pos_compliance = self.metadata.get("Positive compliance")
+        self.neg_compliance = self.metadata.get("Negative compliance")
+        self.steps = self.metadata.get("RealMeasuredPoints")
 
     def _split_data(self, df):
         """
@@ -159,8 +159,12 @@ class DC_IV:  # noqa: N801
 
         mask = np.diff(bias)
         # pad so mask has same length as bias
-        mask_dec = np.insert(mask < 0, 0, False)  # True whenever that point is followed by a decrease
-        mask_inc = np.insert(mask > 0, 0, False)  # True whenever that point is followed by an increase
+        mask_dec = np.insert(
+            mask < 0, 0, False
+        )  # True whenever that point is followed by a decrease
+        mask_inc = np.insert(
+            mask > 0, 0, False
+        )  # True whenever that point is followed by an increase
 
         # pick out four branches
         b_neg_fwd = bias[mask_dec & (bias <= 0)]
@@ -176,10 +180,14 @@ class DC_IV:  # noqa: N801
         I_pos_rev = current[mask_dec & (bias >= 0)]
 
         # interpolate and get delta_I for neg and pos
-        interp_neg = interp1d(b_neg_rev, I_neg_rev, bounds_error=False, fill_value=np.nan)
+        interp_neg = interp1d(
+            b_neg_rev, I_neg_rev, bounds_error=False, fill_value=np.nan
+        )
         delta_I_neg = I_neg_fwd - interp_neg(b_neg_fwd)
 
-        interp_pos = interp1d(b_pos_rev, I_pos_rev, bounds_error=False, fill_value=np.nan)
+        interp_pos = interp1d(
+            b_pos_rev, I_pos_rev, bounds_error=False, fill_value=np.nan
+        )
         delta_I_pos = I_pos_fwd - interp_pos(b_pos_fwd)
 
         plt.plot(b_neg_fwd, delta_I_neg, "s-", label="ΔI (negative branch)")

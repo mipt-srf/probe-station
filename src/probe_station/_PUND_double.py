@@ -41,14 +41,14 @@ class PUND_double:  # noqa: N801
 
     def _init_metadata(self) -> None:
         """Help to initialize class members with metadata attributes."""
-        self.measurement = self.metadata["Measurement Number"]
-        self.measurement_id = self.metadata["Measurement ID"]
-        self.first_bias = self.metadata["Voltage High"]
-        self.second_bias = self.metadata["Voltage Low"]
-        self.repetitions = self.metadata["Repetitions"]
-        self.pulse_width = self.metadata["Pulse Width"]
-        self.pulse_separation = self.metadata["Pulse Separation"]
-        self.slope_time = self.metadata["Trails"]
+        self.measurement = self.metadata.get("Measurement Number")
+        self.measurement_id = self.metadata.get("Measurement ID")
+        self.first_bias = self.metadata.get("Voltage High")
+        self.second_bias = self.metadata.get("Voltage Low")
+        self.repetitions = self.metadata.get("Repetitions")
+        self.pulse_width = self.metadata.get("Pulse Width")
+        self.pulse_separation = self.metadata.get("Pulse Separation")
+        self.slope_time = self.metadata.get("Trails")
 
     def plot(self, filtering_window=1) -> None:
         """Plot the polarization vs cycles."""

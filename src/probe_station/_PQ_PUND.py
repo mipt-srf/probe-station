@@ -68,16 +68,16 @@ class PQ_PUND:  # noqa: N801
 
     def _init_metadata(self) -> None:
         """Help to initialize class members with metadata attributes."""
-        self.measurement = self.metadata["Measurement Number"]
-        self.measurement_id = self.metadata["Measurement ID"]
-        self.first_bias = self.metadata["First Bias"]
-        self.second_bias = self.metadata["Second Bias"]
-        self.steps = self.metadata["Steps"]
-        self.repetitions = self.metadata["Repetition"]
-        self.rump_time = self.metadata["Rump time"]
-        self.rump_integration_time = self.metadata["Rump Interg time"]
-        self.wait_time = self.metadata["Wait Time"]
-        self.wait_integration_time = self.metadata["Wait Integr Time"]
+        self.measurement = self.metadata.get("Measurement Number")
+        self.measurement_id = self.metadata.get("Measurement ID")
+        self.first_bias = self.metadata.get("First Bias")
+        self.second_bias = self.metadata.get("Second Bias")
+        self.steps = self.metadata.get("Steps")
+        self.repetitions = self.metadata.get("Repetition")
+        self.rump_time = self.metadata.get("Rump time")
+        self.rump_integration_time = self.metadata.get("Rump Interg time")
+        self.wait_time = self.metadata.get("Wait Time")
+        self.wait_integration_time = self.metadata.get("Wait Integr Time")
         self.steps_per_cycle = 2 * (self.steps - 1)
 
     def get_cycle(self, cycle: int, *, plot: bool = False) -> pd.DataFrame:

@@ -34,16 +34,16 @@ class CV:
 
     def _init_metadata(self) -> None:
         """Help to initialize class members with metadata attributes."""
-        self.measurement = self.metadata["Measurement Number"]
-        self.measurement_id = self.metadata["Measurement ID"]
-        self.series_id = self.metadata["SeriesID"]
-        self.mode = self.metadata["MeasureMode"]
-        self.first_bias = self.metadata["Start"]
-        self.second_bias = self.metadata["Stop"]
-        self.step = self.metadata["Step"]
-        self.sweep_mode = self.metadata["Sweep mode"]
-        self.frequency = self.metadata["Frequency"]
-        self.steps = self.metadata["RealMeasuredPoints"]
+        self.measurement = self.metadata.get("Measurement Number")
+        self.measurement_id = self.metadata.get("Measurement ID")
+        self.series_id = self.metadata.get("SeriesID")
+        self.mode = self.metadata.get("MeasureMode")
+        self.first_bias = self.metadata.get("Start")
+        self.second_bias = self.metadata.get("Stop")
+        self.step = self.metadata.get("Step")
+        self.sweep_mode = self.metadata.get("Sweep mode")
+        self.frequency = self.metadata.get("Frequency")
+        self.steps = self.metadata.get("RealMeasuredPoints")
 
     def calculate_capacitance(self, *, force_series: bool = False, force_parallel: bool = False) -> None:
         """Calculate the capacitance from the CV data according to Cs - Rs scheme."""
