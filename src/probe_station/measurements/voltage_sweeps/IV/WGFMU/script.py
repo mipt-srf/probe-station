@@ -6,8 +6,6 @@ from keysight_b1530a._bindings.errors import get_error_summary
 from keysight_b1530a._bindings.event_setup import set_measure_event
 from keysight_b1530a._bindings.initialization import (
     clear,
-    get_channel_ids,
-    initialize,
     open_session,
 )
 from keysight_b1530a._bindings.measurement import (
@@ -22,7 +20,6 @@ from keysight_b1530a._bindings.pattern_setup import (
     create_pattern,
 )
 from keysight_b1530a._bindings.sequence_setup import add_sequence
-from keysight_b1530a._ffi import ffi, lib
 from keysight_b1530a.enums import (
     WGFMUMeasureCurrentRange,
     WGFMUMeasureEvent,
@@ -30,7 +27,6 @@ from keysight_b1530a.enums import (
     WGFMUOperationMode,
 )
 from keysight_b1530a.errors import WGFMUError
-from matplotlib import pyplot as plt
 from waveform_generator import PulseSequence, StaircaseSweep, TrapezoidalPulse
 
 

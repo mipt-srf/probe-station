@@ -23,7 +23,7 @@ def run(b1500: AgilentB1500, first_bias=-3, second_bias=3, avg_per_point=1, plot
     b1500.write(f"FC {i},1e4")  # freq
 
     measure_points = PLOT_POINTS * avg_per_point
-    b1500.write(f"WTDCV 0,0")  # hold, delay time
+    b1500.write("WTDCV 0,0")  # hold, delay time
     b1500.write(f"WDCV {i},3,{first_bias},{second_bias},{measure_points}")  # sweep settings (0 to 1, 10 steps)
 
     b1500.write("LMN 1")  # enable monitor, doesn't work

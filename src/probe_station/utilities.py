@@ -30,13 +30,13 @@ def get_files_in_folder(path: str, ignore: tuple = ()) -> Generator[Path, None, 
     yield from (Path(path) / f"{df_index}.data" for df_index in indexes)
 
 
-def get_color_gradient(from_color: str, to_color: str, count: int) -> list[str]:
+def get_color_gradient(from_color: str, to_color: str, count: int) -> Generator[str, None, None]:
     """Get a color gradient from `from_color` to `to_color` with `count` colors.
 
     :param from_color: Starting color of the gradient.
     :param to_color: Ending color of the gradient.
     :param count: Number of colors in the gradient.
-    :return: List of colors in the gradient.
+    :return: Generator of colors in the gradient.
     """
     from_color = Color(from_color)
     to_color = Color(to_color)

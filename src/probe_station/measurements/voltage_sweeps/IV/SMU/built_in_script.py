@@ -1,4 +1,3 @@
-import numpy as np
 from pymeasure.instruments.agilent.agilentB1500 import (
     ADCMode,
     ADCType,

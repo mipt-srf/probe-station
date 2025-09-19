@@ -1,9 +1,7 @@
 import logging
 import sys
-from time import sleep
 
 import numpy as np
-from numpy import void
 from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget, PlotWidget
 from pymeasure.display.windows import ManagedWindowBase

@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from time import sleep
 
 from pymeasure.display.Qt import QtWidgets
-from pymeasure.display.widgets import LogWidget, PlotWidget, TableWidget
+from pymeasure.display.widgets import LogWidget
 from pymeasure.display.windows import ManagedWindowBase
 from pymeasure.experiment import (
     BooleanParameter,
@@ -64,8 +64,6 @@ class PgCyclingProcedure(Procedure):
         )
         delay_2nd = 2 * self.width
         period = (delay_2nd + (self.rise + self.width + self.tail) * 2) + delay_2nd
-        duration = self.repetitions * period
-        # sleep(duration)  # Wait for the instrument to finish the procedure
         for i in range(self.repetitions):
             # data = {"Cycle": i, "Random Number": random.random()}
             # self.emit("results", data)
