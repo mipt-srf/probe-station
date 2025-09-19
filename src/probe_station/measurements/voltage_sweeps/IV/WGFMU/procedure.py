@@ -33,7 +33,7 @@ log.addHandler(logging.NullHandler())
 
 
 def calculate_polarization(times, currents, pad_size_um):
-    charge = scipy.integrate.simpson(y=currents, x=times)
+    charge = scipy.integrate.simpson(y=np.abs(currents), x=times)
     area = (pad_size_um * 1e-4) ** 2
     return charge / area * 1e6
 
@@ -42,8 +42,8 @@ class IvSweepProcedure(Procedure):
     top = IntegerParameter("Top channel", default=2)
     bottom = IntegerParameter("Bottom channel", default=1, group_by="enable_bottom")
 
-    voltage_top_first = FloatParameter("Top electrode voltage (first)", units="V", default=5.0)
-    voltage_top_second = FloatParameter("Top electrode voltage (second)", units="V", default=-5.0)
+    voltage_top_first = FloatParameter("Top electrode voltage (first)", units="V", default=4.0)
+    voltage_top_second = FloatParameter("Top electrode voltage (second)", units="V", default=-4.0)
 
     current_range = ListParameter(
         "Current range",
@@ -60,16 +60,16 @@ class IvSweepProcedure(Procedure):
         "Bottom electrode voltage (second)", units="V", default=5.0, group_by="enable_bottom"
     )
 
-    pulse_time = FloatParameter("Pulse time", units="s", default=0.1)
+    pulse_time = FloatParameter("Pulse time", units="s", default=0.001)
 
     advanced_config = BooleanParameter("Advanced config", default=False)
 
     steps = IntegerParameter("Steps per staircase", default=100, group_by="advanced_config")
     measure_points = IntegerParameter("Points to measure", default=20_000, group_by="advanced_config")
 
-    plot_points = IntegerParameter("Points to plot", default=200, group_by="advanced_config")
+    plot_points = IntegerParameter("Points to plot", default=1000, group_by="advanced_config")
 
-    rise_to_hold_ratio = FloatParameter("Rise to hold time ratio", default=0.01, group_by="advanced_config")
+    rise_to_hold_ratio = FloatParameter("Rise to hold time ratio", default=100, group_by="advanced_config")
 
     calculate_polarization = BooleanParameter("Calculate Polarization", default=False)
 
@@ -77,11 +77,12 @@ class IvSweepProcedure(Procedure):
 
     DATA_COLUMNS = [
         "Top electrode voltage",
-        "Bottom electrode voltage",
-        "Time",
         "Top electrode Current",
+        "Time",
+        "Bottom electrode voltage",
         "Bottom electrode current",
         "Polarization current",
+        "Filtered Polarization current",
     ]
 
     def startup(self):
@@ -110,14 +111,17 @@ class IvSweepProcedure(Procedure):
             )
 
         set_waveform(
-            sequence=pund, repetitions=2, channel=WGFMUChannel(self.top + 200), measure_points=self.measure_points
+            sequence=pund,
+            repetitions=2,
+            channel=WGFMUChannel(self.top + 200),
+            measure_points=self.plot_points,
         )
         if self.enable_bottom:
             set_waveform(
                 sequence=pund_bottom,
                 repetitions=2,
                 channel=WGFMUChannel(self.bottom + 200),
-                measure_points=self.measure_points,
+                measure_points=self.plot_points,
             )
 
         try:
@@ -139,24 +143,32 @@ class IvSweepProcedure(Procedure):
             clear()
             close_session()
 
-        polarization_positive = currents[: len(currents) // 4] - currents[len(currents) // 4 : len(currents) // 2]
-        polarization_negative = (
-            currents[len(currents) // 2 : 3 * len(currents) // 4] - currents[3 * len(currents) // 4 :]
+        polarization_positive = np.concatenate(
+            (
+                currents[: len(currents) // 4] - currents[len(currents) // 4 : len(currents) // 2],
+                np.zeros(len(currents) // 4),
+            )
         )
-        polarization_current = np.concatenate(
-            (polarization_positive, polarization_positive, polarization_negative, polarization_negative)
+        polarization_negative = np.concatenate(
+            (
+                currents[len(currents) // 2 : 3 * len(currents) // 4] - currents[3 * len(currents) // 4 :],
+                np.zeros(len(currents) // 4),
+            )
         )
+        polarization_current = np.concatenate((polarization_positive, polarization_negative))
+        filtered_polarization_current = scipy.ndimage.gaussian_filter1d(polarization_current, sigma=3)
         if self.enable_bottom:
             self.emit(
                 "batch results",
                 {
                     "Top electrode voltage": voltages,
-                    "Bottom electrode voltage": voltages_bottom,
-                    "Time": times,
-                    "Bottom time": times_bottom,
                     "Top electrode Current": currents,
+                    "Time": times,
+                    "Bottom electrode voltage": voltages_bottom,
+                    "Bottom time": times_bottom,
                     "Bottom electrode current": currents_bottom,
                     "Polarization current": polarization_current,
+                    "Filtered Polarization current": filtered_polarization_current,
                 },
             )
         else:
@@ -167,10 +179,11 @@ class IvSweepProcedure(Procedure):
                     "Time": times,
                     "Top electrode Current": currents,
                     "Polarization current": polarization_current,
+                    "Filtered Polarization current": filtered_polarization_current,
                 },
             )
         if self.calculate_polarization:
-            polarization = calculate_polarization(times, polarization_current, self.pad_size)
+            polarization = calculate_polarization(times, filtered_polarization_current, self.pad_size)
             log.info("Polarization (Pr): %s", polarization)
 
         close_session()
@@ -227,4 +240,3 @@ if __name__ == "__main__":
     window = MainWindow()
     window.show()
     app.exec()
-    close_session()
