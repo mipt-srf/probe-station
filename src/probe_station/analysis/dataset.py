@@ -42,6 +42,10 @@ class Dataset(Results):
 
         self.handler = self.handler_cls(parent=self)
 
+    def __getattr__(self, name):
+        if hasattr(self, "handler") and hasattr(self.handler, name):
+            return getattr(self.handler, name)
+        raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
 
     def _convert_parameters(self, params):
         return {"Bias": params.get("first_voltage").value}
