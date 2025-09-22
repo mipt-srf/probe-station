@@ -38,7 +38,7 @@ def calculate_polarization(times, currents, pad_size_um):
     return charge / area * 1e6
 
 
-class IvSweepProcedure(Procedure):
+class WgfmuIvSweepProcedure(Procedure):
     top = IntegerParameter("Top channel", default=2)
     bottom = IntegerParameter("Bottom channel", default=1, group_by="enable_bottom")
 
@@ -198,7 +198,7 @@ class MainWindow(ManagedWindowBase):
             #     by_column=True,
             # ),
             LogWidget("Experiment Log"),
-            PlotWidget("Results Graph", IvSweepProcedure.DATA_COLUMNS),
+            PlotWidget("Results Graph", WgfmuIvSweepProcedure.DATA_COLUMNS),
             # ImageWidget(name="Image", columns=RandomProcedure.DATA_COLUMNS, x_axis="1", y_axis="2"),
         )
 
@@ -222,7 +222,7 @@ class MainWindow(ManagedWindowBase):
         ]
 
         super().__init__(
-            procedure_class=IvSweepProcedure,
+            procedure_class=WgfmuIvSweepProcedure,
             inputs=settings,
             displays=settings,
             widget_list=widget_list,
