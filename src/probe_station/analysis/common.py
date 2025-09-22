@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 
-def get_x_at_y(
+def get_y_at_x(
     x_data: np.ndarray | pd.Series, y_data: np.ndarray | pd.Series, target_x: float, tolerance: float = 5e-2
 ) -> float:
     """Return the y value at the specified x value by interpolation.
@@ -34,4 +34,15 @@ def find_x_at_min_y(x_data: np.ndarray | pd.Series, y_data: np.ndarray | pd.Seri
     :return: The x value at which the y value is minimum.
     """
     idx = np.abs(y_data).argmin()
+    return x_data[idx]
+
+
+def find_x_at_max_y(x_data: np.ndarray | pd.Series, y_data: np.ndarray | pd.Series) -> float:
+    """Return the x value at which the y value is maximum.
+
+    :param x_data: Array containing the x values (numpy array or pandas Series).
+    :param y_data: Array containing the y values (numpy array or pandas Series).
+    :return: The x value at which the y value is maximum.
+    """
+    idx = np.abs(y_data).argmax()
     return x_data[idx]

@@ -11,7 +11,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from scipy.interpolate import interp1d
 
-from .analysis.common import find_x_at_min_y, get_x_at_y
+from .analysis.common import find_x_at_min_y, get_y_at_x
 
 
 class DC_IV:  # noqa: N801
@@ -108,7 +108,10 @@ class DC_IV:  # noqa: N801
         :param tolerance: Maximum allowed difference between target and actual voltage.
         :return: The current at the specified voltage.
         """
-        return get_x_at_y(self.data["Bias"], self.data["Current"], voltage, tolerance)
+        first_branch, second_branch = self.split_data()
+        first_current = get_y_at_x(first_branch["Bias"], first_branch["Current"], voltage, tolerance)
+        second_current = get_y_at_x(second_branch["Bias"], second_branch["Current"], voltage, tolerance)
+        return first_current, second_current
 
     def get_voltage_with_lowest_current(self) -> float:
         """Return the voltage at which the current is the lowest.

@@ -32,3 +32,13 @@ class BaseHandler:
         plt.ylabel(ylabel)
         if label:
             plt.legend()
+
+    def split_data(self) -> tuple[pd.DataFrame, pd.DataFrame]:
+        """Split the data into forward and reverse sweeps.
+
+        :return: A tuple containing the forward and reverse DataFrames.
+        """
+        mid_idx = len(self.data) // 2
+        forward = self.data.iloc[:mid_idx].reset_index(drop=True)
+        reverse = self.data.iloc[mid_idx:].reset_index(drop=True)
+        return forward, reverse
