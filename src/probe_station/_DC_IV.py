@@ -108,7 +108,9 @@ class DC_IV:  # noqa: N801
         :param tolerance: Maximum allowed difference between target and actual voltage.
         :return: The current at the specified voltage.
         """
-        first_branch, second_branch = self.split_data()
+        midpoint = len(self.data) // 2
+        first_branch = self.data[:midpoint].reset_index(drop=True)
+        second_branch = self.data[midpoint:].reset_index(drop=True)
         first_current = get_y_at_x(first_branch["Bias"], first_branch["Current"], voltage, tolerance)
         second_current = get_y_at_x(second_branch["Bias"], second_branch["Current"], voltage, tolerance)
         return first_current, second_current
