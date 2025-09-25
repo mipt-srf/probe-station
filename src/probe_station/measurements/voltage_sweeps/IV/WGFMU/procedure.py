@@ -1,5 +1,6 @@
 import logging
 import sys
+from enum import Enum
 
 import numpy as np
 import scipy
@@ -23,7 +24,7 @@ from pymeasure.experiment import (
 
 from probe_station.measurements.voltage_sweeps.IV.WGFMU.script import (
     get_data,
-    get_pund_sequence,
+    get_sequence,
     run,
     set_waveform,
 )
@@ -38,7 +39,14 @@ def calculate_polarization(times, currents, pad_size_um):
     return charge / area * 1e6
 
 
+class SweepMode(Enum):
+    DEFAULT = "default"
+    PUND = "pund"
+
+
 class WgfmuIvSweepProcedure(Procedure):
+    mode = ListParameter("Mode", default=SweepMode.PUND.name, choices=[e.name for e in SweepMode])
+
     top = IntegerParameter("Top channel", default=2)
     bottom = IntegerParameter("Bottom channel", default=1, group_by="enable_bottom")
 
@@ -94,7 +102,8 @@ class WgfmuIvSweepProcedure(Procedure):
         initialize()
 
     def execute(self):
-        pund = get_pund_sequence(
+        seq = get_sequence(
+            sequence_type=self.mode,
             staircase_time=self.pulse_time,
             max_voltage=self.voltage_top_first,
             min_voltage=self.voltage_top_second,
@@ -102,7 +111,8 @@ class WgfmuIvSweepProcedure(Procedure):
             rise_to_hold_ratio=self.rise_to_hold_ratio,
         )
         if self.enable_bottom:
-            pund_bottom = get_pund_sequence(
+            seq_bottom = get_sequence(
+                sequence_type=self.mode,
                 staircase_time=self.pulse_time,
                 max_voltage=self.voltage_bottom_first,
                 min_voltage=self.voltage_bottom_second,
@@ -111,14 +121,14 @@ class WgfmuIvSweepProcedure(Procedure):
             )
 
         set_waveform(
-            sequence=pund,
+            sequence=seq,
             repetitions=2,
             channel=WGFMUChannel(self.top + 200),
             measure_points=self.plot_points,
         )
         if self.enable_bottom:
             set_waveform(
-                sequence=pund_bottom,
+                sequence=seq_bottom,
                 repetitions=2,
                 channel=WGFMUChannel(self.bottom + 200),
                 measure_points=self.plot_points,
@@ -197,12 +207,13 @@ class MainWindow(ManagedWindowBase):
             #     RandomProcedure.DATA_COLUMNS,
             #     by_column=True,
             # ),
-            LogWidget("Experiment Log"),
             PlotWidget("Results Graph", WgfmuIvSweepProcedure.DATA_COLUMNS),
+            LogWidget("Experiment Log"),
             # ImageWidget(name="Image", columns=RandomProcedure.DATA_COLUMNS, x_axis="1", y_axis="2"),
         )
 
         settings = [
+            "mode",
             "pulse_time",
             "voltage_top_first",
             "voltage_top_second",
@@ -227,7 +238,7 @@ class MainWindow(ManagedWindowBase):
             displays=settings,
             widget_list=widget_list,
         )
-        logging.getLogger().addHandler(widget_list[0].handler)
+        logging.getLogger().addHandler(widget_list[1].handler)
         log.setLevel(self.log_level)
         log.info("ManagedWindow connected to logging")
         self.setWindowTitle("WGFMU IV (10 V)")

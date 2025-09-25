@@ -30,7 +30,9 @@ from keysight_b1530a.errors import WGFMUError
 from waveform_generator import PulseSequence, StaircaseSweep, TrapezoidalPulse
 
 
-def get_pund_sequence(staircase_time=1e-4, steps=250, max_voltage=4, min_voltage=-4, rise_to_hold_ratio=0.01):
+def get_sequence(
+    sequence_type="pund", staircase_time=1e-4, steps=250, max_voltage=4, min_voltage=-4, rise_to_hold_ratio=0.01
+):
     time_step = staircase_time / steps / (1 + rise_to_hold_ratio)
     edge_time = time_step * rise_to_hold_ratio
 
@@ -50,12 +52,13 @@ def get_pund_sequence(staircase_time=1e-4, steps=250, max_voltage=4, min_voltage
         amplitude=0.0, pulse_width=edge_time, rise_time=10 * edge_time, fall_time=edge_time
     )  # fictional pulse to add delay at the end (otherwise last points are missed)
 
-    pund = PulseSequence(positive * 2 + negative * 2 + [trapezoidal])
-    pund.pulses[0].delay = time_step + edge_time
-    # pund.plot()
-    # (-pund).plot()
-    # plt.show()
-    return pund
+    if sequence_type == "pund":
+        sequence = PulseSequence(positive * 2 + negative * 2 + [trapezoidal])
+    else:  # default
+        sequence = PulseSequence(positive + negative + [trapezoidal])
+
+    sequence.pulses[0].delay = time_step + edge_time
+    return sequence
 
 
 def set_waveform(
@@ -122,7 +125,7 @@ if __name__ == "__main__":
     ch1 = WGFMUChannel.CH1
     ch2 = WGFMUChannel.CH2
     open_session()
-    pund = get_pund_sequence()
+    pund = get_sequence(sequence_type="pund")
     set_waveform(sequence=pund, repetitions=repetitions, channel=ch2)
     set_waveform(sequence=-pund, repetitions=repetitions, channel=ch1)
     try:
