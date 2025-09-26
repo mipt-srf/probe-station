@@ -27,6 +27,7 @@ class PgCyclingProcedure(Procedure):
     tail = FloatParameter("Pulse tail time", units="s", default=100e-9)
     channel = IntegerParameter("Channel", default=2)
     bipolar_pulses = BooleanParameter("Bipolar Pulses", default=False)
+    pulse_separation = BooleanParameter("Pulse separation", default=True)
 
     dc_bias = BooleanParameter("Enable DC bias", default=False)
     dc_channel = IntegerParameter("DC bias channel", default=1, group_by="dc_bias")
@@ -61,6 +62,7 @@ class PgCyclingProcedure(Procedure):
             tail=self.tail,
             channel=self.channel + 100,
             bipolar=self.bipolar_pulses,
+            pulse_separation=self.pulse_separation,
         )
         delay_2nd = 2 * self.width
         period = (delay_2nd + (self.rise + self.width + self.tail) * 2) + delay_2nd
@@ -118,6 +120,7 @@ class MainWindow(ManagedWindowBase):
             "tail",
             "channel",
             "bipolar_pulses",
+            "pulse_separation",
             "dc_bias",
             "dc_bias_value",
             "dc_channel",

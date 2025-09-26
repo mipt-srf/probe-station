@@ -1,3 +1,5 @@
+from time import sleep
+
 from pymeasure.instruments.agilent import AgilentB1500
 from pymeasure.instruments.agilent.agilentB1500 import (
     ControlMode,
@@ -14,6 +16,7 @@ def connect_instrument():
     try:
         b1500 = AgilentB1500("USB1::0x0957::0x0001::0001::0::INSTR", timeout=60000)
         b1500.reset()
+        sleep(3)
         b1500.initialize_all_smus()
         b1500.initialize_all_spgus()
         b1500.data_format(1, mode=1)  # 21 for new, 1 for old (?)
@@ -24,13 +27,16 @@ def connect_instrument():
         return None
 
 
-def run(b1500, repetitions, amplitude, width, rise, tail, channel=102, bipolar=False):
+def run(b1500, repetitions, amplitude, width, rise, tail, channel=102, bipolar=False, pulse_separation=True):
+    if pulse_separation:
+        delay_2nd = width
+    else:
+        delay_2nd = tail / 4
     delay_1st = 0
-    delay_2nd = 2 * width
-    period = (delay_2nd + (rise + width + tail) * 2) + delay_2nd  # up + down
     # width /= 0.85
     rise *= 0.8
     tail *= 0.8
+    period = (delay_1st + (rise + width + tail) * 2) + delay_2nd * 2  # up + down
 
     spgu = b1500.spgu1
 
@@ -60,12 +66,9 @@ def run(b1500, repetitions, amplitude, width, rise, tail, channel=102, bipolar=F
     pg.set_output_voltage(source=1, peak_voltage=amplitude)
 
     pg.output_mode = SPGUChannelOutputMode.SIGNAL_SOURCE_1_2
-    pg.set_pulse_timings(source=1, delay=delay_1st, width=width + rise, rise_time=rise)
+    pg.set_pulse_timings(source=1, delay=delay_1st, width=width + rise, rise_time=rise, fall_time=tail)
     pg.set_pulse_timings(
-        source=2,
-        delay=delay_1st + width + rise + tail + delay_2nd,
-        width=width + rise,
-        rise_time=rise,
+        source=2, delay=delay_1st + rise + width + tail + delay_2nd, width=width + rise, rise_time=rise, fall_time=tail
     )
 
     # TODO: 2 pulse_width distance between pulses in both modes, fix to 1
