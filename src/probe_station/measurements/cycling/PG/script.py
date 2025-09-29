@@ -56,7 +56,10 @@ def run(b1500, repetitions, amplitude, width, rise, tail, channel=102, bipolar=F
         b1500.set_port_connection(port=PgSelectorPort.OUTPUT_1_FIRST, status=PgSelectorConnectionStatus.PGU_ON)
 
     spgu.operation_mode = SPGUOperationMode.PG
-    spgu.set_output_mode(mode=SPGUOutputMode.COUNT, condition=repetitions)
+    if repetitions < 1e6:
+        spgu.set_output_mode(mode=SPGUOutputMode.COUNT, condition=repetitions)
+    else:
+        spgu.set_output_mode(mode=SPGUOutputMode.DURATION, condition=period * repetitions)
     # print(b1500._spgu_names, b1500._spgu_references)
     # print(b1500.get_spgu_output())
     # b1500.write(f"ODSW {ch2},0")
