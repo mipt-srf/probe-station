@@ -13,7 +13,7 @@ PLOT_POINTS = 100
 
 
 def run(b1500: AgilentB1500, first_bias=-3, second_bias=3, avg_per_point=1, plot=False):
-    b1500.control_mode = ControlMode.SMU_PGU_SELECTOR
+    b1500.io_control_mode = ControlMode.SMU_PGU_SELECTOR
     b1500.set_port_connection(port=PgSelectorPort.OUTPUT_2_FIRST, status=PgSelectorConnectionStatus.SMU_ON)
     b1500.set_port_connection(port=PgSelectorPort.OUTPUT_1_FIRST, status=PgSelectorConnectionStatus.SMU_ON)
     i = 901

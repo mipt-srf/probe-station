@@ -47,17 +47,17 @@ def run(b1500, repetitions, amplitude, width, rise, tail, channel=102, bipolar=F
 
     pg = None
     for ch in [spgu.ch1, spgu.ch2]:
-        if ch.channel == channel:
+        if ch.id == channel:
             pg = ch
             break
     if pg is None:
         raise ValueError(f"Channel {channel} not found in SPGU channels.")
-    pg.enable()
+    pg.enabled = True
 
-    b1500.control_mode = ControlMode.SMU_PGU_SELECTOR
-    if pg.channel == 102:
+    b1500.io_control_mode = ControlMode.SMU_PGU_SELECTOR
+    if pg.id == 102:
         b1500.set_port_connection(port=PgSelectorPort.OUTPUT_2_FIRST, status=PgSelectorConnectionStatus.PGU_ON)
-    elif pg.channel == 101:
+    elif pg.id == 101:
         b1500.set_port_connection(port=PgSelectorPort.OUTPUT_1_FIRST, status=PgSelectorConnectionStatus.PGU_ON)
 
     spgu.operation_mode = SPGUOperationMode.PG
@@ -85,7 +85,7 @@ def run(b1500, repetitions, amplitude, width, rise, tail, channel=102, bipolar=F
 
     # pg2.load_impedance = 1
     pg.apply_setup()
-    spgu.start_output()
+    spgu.output = True
     print("finished")
 
     while True:

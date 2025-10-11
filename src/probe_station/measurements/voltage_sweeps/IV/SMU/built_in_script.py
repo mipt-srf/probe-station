@@ -14,7 +14,7 @@ from probe_station.measurements.common import connect_instrument, get_smu_by_num
 
 
 def run(b1500: AgilentB1500, start, end, steps, average=127, top=4, bottom=3, current_comp=0.001):
-    b1500.control_mode = ControlMode.SMU_PGU_SELECTOR
+    b1500.io_control_mode = ControlMode.SMU_PGU_SELECTOR
     b1500.set_port_connection(port=PgSelectorPort.OUTPUT_2_FIRST, status=PgSelectorConnectionStatus.SMU_ON)
     b1500.set_port_connection(port=PgSelectorPort.OUTPUT_1_FIRST, status=PgSelectorConnectionStatus.SMU_ON)
 

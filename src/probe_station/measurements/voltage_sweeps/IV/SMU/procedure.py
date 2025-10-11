@@ -39,7 +39,7 @@ class IvSweepProcedure(Procedure):
     def execute(self):
         log.info(f"Starting the {self.__class__}")
 
-        self.b1500.control_mode = ControlMode.SMU_PGU_SELECTOR
+        self.b1500.io_control_mode = ControlMode.SMU_PGU_SELECTOR
         self.b1500.set_port_connection(port=PgSelectorPort.OUTPUT_2_FIRST, status=PgSelectorConnectionStatus.SMU_ON)
         self.b1500.set_port_connection(port=PgSelectorPort.OUTPUT_1_FIRST, status=PgSelectorConnectionStatus.SMU_ON)
 
