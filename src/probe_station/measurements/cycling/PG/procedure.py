@@ -15,7 +15,7 @@ log.addHandler(logging.NullHandler())
 
 
 class PgCyclingProcedure(Procedure):
-    repetitions = IntegerParameter("Number of cycles", default=10)
+    repetitions = IntegerParameter("Number of cycles", default=10, maximum=2147483647)
     amplitude = FloatParameter("Pulse amplitude", units="V", default=10.0)
     width = FloatParameter("Pulse width", units="s", default=0.1)
     rise = FloatParameter("Pulse rise time", units="s", default=100e-9)
