@@ -36,7 +36,12 @@ def run(b1500, repetitions, amplitude, width, rise, tail, channel=102, bipolar=F
     # width /= 0.85
     rise *= 0.8
     tail *= 0.8
-    period = (delay_1st + (rise + width + tail) * 2) + delay_2nd * 2  # up + down
+    rise = min(rise, 1e-7)
+    tail = min(tail, 1e-7)
+    period = delay_1st + rise + width + tail / 0.8 + delay_2nd + width + rise + rise + tail / 0.8  # up + down
+    period *= 1.025
+    print(period, delay_1st + rise + width + tail / 0.8, rise, tail)
+    print(period, delay_1st + rise + width + tail + delay_2nd + width + rise + rise + tail / 0.8)
 
     spgu = b1500.spgu1
 
