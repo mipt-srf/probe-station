@@ -6,12 +6,7 @@ from time import sleep
 from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget
 from pymeasure.display.windows import ManagedWindowBase
-from pymeasure.experiment import (
-    BooleanParameter,
-    FloatParameter,
-    IntegerParameter,
-    Procedure,
-)
+from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter, Metadata, Procedure
 
 from probe_station.measurements.cycling.PG.script import connect_instrument, run
 
@@ -33,10 +28,13 @@ class PgCyclingProcedure(Procedure):
     dc_channel = IntegerParameter("DC bias channel", default=1, group_by="dc_bias")
     dc_bias_value = FloatParameter("DC bias", default=0.0, group_by="dc_bias")
 
+    start_time = Metadata("Start time", default=0)
+
     DATA_COLUMNS = ["Cycle", "Random Number"]
 
     def startup(self):
         self.b1500 = connect_instrument()
+        self.start_time = datetime.now()
         # self.b1500.reset()
 
     def execute(self):
