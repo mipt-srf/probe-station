@@ -55,9 +55,9 @@ def get_sequence(
     if sequence_type == "pund":
         sequence = PulseSequence(positive * 2 + negative * 2 + [trapezoidal])
     else:  # default
-        sequence = PulseSequence(positive + negative + [trapezoidal])
+        sequence = PulseSequence(positive + negative)
 
-    sequence.pulses[0].delay = time_step + edge_time
+    # sequence.pulses[0].delay = time_step + edge_time
     return sequence
 
 
