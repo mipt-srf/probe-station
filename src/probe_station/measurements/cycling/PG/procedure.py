@@ -63,31 +63,31 @@ class PgCyclingProcedure(Procedure):
             pulse_separation=self.pulse_separation,
         )
 
-        delay_2nd = self.width * self.pulse_separation
-        period = (delay_2nd + (self.rise + self.width + self.tail) * 2) + delay_2nd
+        # delay_2nd = self.width * self.pulse_separation
+        # period = (delay_2nd + (self.rise + self.width + self.tail) * 2) + delay_2nd
         # delay_2nd = 2 * self.width
         # period = (delay_2nd + (self.rise + self.width + self.tail) * 2) + delay_2nd
-        print(period)
-        duration = period * self.repetitions
-        print(duration)
-        if period < 0.5 and duration < 20:
-            sleep(duration)
-        elif period < 0.5 and duration >= 20:
-            for i in range(100):
-                self.emit("progress", i)
-                sleep(duration / 100)
-                if self.should_stop():
-                    log.warning("Caught the stop flag in the procedure")
-                    self.b1500.spgu1.stop_output()
-                    break
-        else:
-            for i in range(self.repetitions):
-                self.emit("progress", 100 * i / (self.repetitions))
-                sleep(period)
-                if self.should_stop():
-                    log.warning("Caught the stop flag in the procedure")
-                    self.b1500.spgu1.stop_output()
-                    break
+        # print(period)
+        # duration = period * self.repetitions
+        # print(duration)
+        # if period < 0.5 and duration < 20:
+        #     sleep(duration)
+        # elif period < 0.5 and duration >= 20:
+        #     for i in range(100):
+        #         self.emit("progress", i)
+        #         sleep(duration / 100)
+        #         if self.should_stop():
+        #             log.warning("Caught the stop flag in the procedure")
+        #             self.b1500.spgu1.stop_output()
+        #             break
+        # else:
+        #     for i in range(self.repetitions):
+        #         self.emit("progress", 100 * i / (self.repetitions))
+        #         sleep(period)
+        #         if self.should_stop():
+        #             log.warning("Caught the stop flag in the procedure")
+        #             self.b1500.spgu1.stop_output()
+        #             break
 
         # for i in range(self.repetitions):
         #     # data = {"Cycle": i, "Random Number": random.random()}

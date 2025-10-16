@@ -15,8 +15,8 @@ def connect_instrument():
     """Connect to the Agilent B1500 instrument."""
     try:
         b1500 = AgilentB1500("USB1::0x0957::0x0001::0001::0::INSTR", timeout=60000)
-        b1500.reset()
-        sleep(3)
+        # b1500.reset()
+        # sleep(3)
         b1500.initialize_all_smus()
         b1500.initialize_all_spgus()
         b1500.data_format(1, mode=1)  # 21 for new, 1 for old (?)
@@ -86,7 +86,13 @@ def run(b1500, repetitions, amplitude, width, rise, tail, channel=102, bipolar=F
     # pg2.load_impedance = 1
     pg.apply_setup()
     spgu.output = True
-    print("finished")
+    elapsed = 0
+    while True:
+        if spgu.complete:
+            break
+        sleep(0.5)
+        elapsed += 0.5
+    print(f"Elapsed: {elapsed:.1f}s / {period * repetitions:.1f}s", end="\r")
 
     while True:
         try:
