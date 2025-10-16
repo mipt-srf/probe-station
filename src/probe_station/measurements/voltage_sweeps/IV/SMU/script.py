@@ -1,18 +1,21 @@
 import numpy as np
 from pymeasure.instruments.agilent.agilentB1500 import (
     AgilentB1500,
-    ControlMode,
-    PgSelectorConnectionStatus,
-    PgSelectorPort,
 )
 
-from probe_station.measurements.common import connect_instrument, get_smu_by_number, parse_data
+from probe_station.measurements.common import (
+    RSU,
+    RSUOutputMode,
+    connect_instrument,
+    get_smu_by_number,
+    parse_data,
+    setup_rsu_output,
+)
 
 
 def run(b1500: AgilentB1500, start, end, steps, top=4, bottom=3):
-    b1500.io_control_mode = ControlMode.SMU_PGU_SELECTOR
-    b1500.set_port_connection(port=PgSelectorPort.OUTPUT_2_FIRST, status=PgSelectorConnectionStatus.SMU_ON)
-    b1500.set_port_connection(port=PgSelectorPort.OUTPUT_1_FIRST, status=PgSelectorConnectionStatus.SMU_ON)
+    setup_rsu_output(b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
+    setup_rsu_output(b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
 
     voltages_forced = np.linspace(start, end, steps)
 

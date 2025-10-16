@@ -2,20 +2,23 @@ import numpy as np
 from matplotlib import pyplot as plt
 from pymeasure.instruments.agilent.agilentB1500 import (
     AgilentB1500,
-    ControlMode,
-    PgSelectorConnectionStatus,
-    PgSelectorPort,
 )
 
-from probe_station.measurements.common import check_all_errors, connect_instrument, parse_data
+from probe_station.measurements.common import (
+    RSU,
+    RSUOutputMode,
+    check_all_errors,
+    connect_instrument,
+    parse_data,
+    setup_rsu_output,
+)
 
 PLOT_POINTS = 100
 
 
 def run(b1500: AgilentB1500, first_bias=-3, second_bias=3, avg_per_point=1, plot=False):
-    b1500.io_control_mode = ControlMode.SMU_PGU_SELECTOR
-    b1500.set_port_connection(port=PgSelectorPort.OUTPUT_2_FIRST, status=PgSelectorConnectionStatus.SMU_ON)
-    b1500.set_port_connection(port=PgSelectorPort.OUTPUT_1_FIRST, status=PgSelectorConnectionStatus.SMU_ON)
+    setup_rsu_output(b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
+    setup_rsu_output(b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
     i = 901
     b1500.write(f"CN {i}")
     b1500.write("IMP 103")  # Cp-Rp measurement

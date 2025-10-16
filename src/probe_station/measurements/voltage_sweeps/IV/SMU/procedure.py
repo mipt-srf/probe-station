@@ -10,13 +10,14 @@ from pymeasure.experiment import (
     IntegerParameter,
     Procedure,
 )
-from pymeasure.instruments.agilent.agilentB1500 import (
-    ControlMode,
-    PgSelectorConnectionStatus,
-    PgSelectorPort,
-)
 
-from probe_station.measurements.common import connect_instrument, get_smu_by_number
+from probe_station.measurements.common import (
+    RSU,
+    RSUOutputMode,
+    connect_instrument,
+    get_smu_by_number,
+    setup_rsu_output,
+)
 from probe_station.measurements.voltage_sweeps.IV.SMU.script import measure_at_voltage
 
 log = logging.getLogger(__name__)
@@ -39,18 +40,17 @@ class IvSweepProcedure(Procedure):
     def execute(self):
         log.info(f"Starting the {self.__class__}")
 
-        self.b1500.io_control_mode = ControlMode.SMU_PGU_SELECTOR
-        self.b1500.set_port_connection(port=PgSelectorPort.OUTPUT_2_FIRST, status=PgSelectorConnectionStatus.SMU_ON)
-        self.b1500.set_port_connection(port=PgSelectorPort.OUTPUT_1_FIRST, status=PgSelectorConnectionStatus.SMU_ON)
+        setup_rsu_output(self.b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
+        setup_rsu_output(self.b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
 
         top_smu = get_smu_by_number(self.b1500, self.top_channel)
         bottom_smu = get_smu_by_number(self.b1500, self.bottom_channel)
 
-        top_smu.force("voltage", 0, 0)
-        bottom_smu.force("voltage", 0, 0)
-
         top_smu.enable()
         bottom_smu.enable()
+
+        top_smu.force("voltage", 0, 0)
+        bottom_smu.force("voltage", 0, 0)
 
         voltages_forced = np.linspace(self.first_voltage, self.second_voltage, self.steps)
 

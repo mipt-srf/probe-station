@@ -16,7 +16,13 @@ from pymeasure.instruments.agilent.agilentB1500 import (
     PgSelectorPort,
 )
 
-from probe_station.measurements.common import connect_instrument, get_smu_by_number
+from probe_station.measurements.common import (
+    RSU,
+    RSUOutputMode,
+    connect_instrument,
+    get_smu_by_number,
+    setup_rsu_output,
+)
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -31,9 +37,8 @@ class DcProcedure(Procedure):
 
     def startup(self):
         self.b1500 = connect_instrument()
-        self.b1500.io_control_mode = ControlMode.SMU_PGU_SELECTOR
-        self.b1500.set_port_connection(port=PgSelectorPort.OUTPUT_2_FIRST, status=PgSelectorConnectionStatus.SMU_ON)
-        self.b1500.set_port_connection(port=PgSelectorPort.OUTPUT_1_FIRST, status=PgSelectorConnectionStatus.SMU_ON)
+        setup_rsu_output(self.b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
+        setup_rsu_output(self.b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
 
     def execute(self):
         log.info(f"Starting the {self.__class__}")

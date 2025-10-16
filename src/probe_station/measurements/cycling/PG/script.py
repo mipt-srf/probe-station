@@ -10,6 +10,8 @@ from pymeasure.instruments.agilent.agilentB1500 import (
     SPGUOutputMode,
 )
 
+from probe_station.measurements.common import RSU, RSUOutputMode, setup_rsu_output
+
 
 def connect_instrument():
     """Connect to the Agilent B1500 instrument."""
@@ -54,11 +56,8 @@ def run(b1500, repetitions, amplitude, width, rise, tail, channel=102, bipolar=F
         raise ValueError(f"Channel {channel} not found in SPGU channels.")
     pg.enabled = True
 
-    b1500.io_control_mode = ControlMode.SMU_PGU_SELECTOR
-    if pg.id == 102:
-        b1500.set_port_connection(port=PgSelectorPort.OUTPUT_2_FIRST, status=PgSelectorConnectionStatus.PGU_ON)
-    elif pg.id == 101:
-        b1500.set_port_connection(port=PgSelectorPort.OUTPUT_1_FIRST, status=PgSelectorConnectionStatus.PGU_ON)
+    setup_rsu_output(b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SPGU)
+    setup_rsu_output(b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SPGU)
 
     spgu.operation_mode = SPGUOperationMode.PG
     if repetitions < 1e6:
