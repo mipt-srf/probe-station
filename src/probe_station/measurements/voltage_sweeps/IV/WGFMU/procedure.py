@@ -50,12 +50,12 @@ class WgfmuIvSweepProcedure(Procedure):
     top = IntegerParameter("Top channel", default=2)
     bottom = IntegerParameter("Bottom channel", default=1, group_by="enable_bottom")
 
-    voltage_top_first = FloatParameter("Top electrode voltage (first)", units="V", default=4.0)
-    voltage_top_second = FloatParameter("Top electrode voltage (second)", units="V", default=-4.0)
+    voltage_top_first = FloatParameter("Top electrode voltage (first)", units="V", default=5.0)
+    voltage_top_second = FloatParameter("Top electrode voltage (second)", units="V", default=-5.0)
 
     current_range = ListParameter(
         "Current range",
-        default=WGFMUMeasureCurrentRange.RANGE_1_UA.name,
+        default=WGFMUMeasureCurrentRange.RANGE_100_UA.name,
         choices=[e.name for e in WGFMUMeasureCurrentRange],
     )
 
@@ -68,7 +68,7 @@ class WgfmuIvSweepProcedure(Procedure):
         "Bottom electrode voltage (second)", units="V", default=5.0, group_by="enable_bottom"
     )
 
-    pulse_time = FloatParameter("Pulse time", units="s", default=0.001)
+    pulse_time = FloatParameter("Pulse time", units="s", default=0.0001)
 
     advanced_config = BooleanParameter("Advanced config", default=False)
 
@@ -103,7 +103,7 @@ class WgfmuIvSweepProcedure(Procedure):
 
     def execute(self):
         seq = get_sequence(
-            sequence_type=self.mode,
+            sequence_type=self.mode.lower(),
             staircase_time=self.pulse_time,
             max_voltage=self.voltage_top_first,
             min_voltage=self.voltage_top_second,
@@ -112,7 +112,7 @@ class WgfmuIvSweepProcedure(Procedure):
         )
         if self.enable_bottom:
             seq_bottom = get_sequence(
-                sequence_type=self.mode,
+                sequence_type=self.mode.lower(),
                 staircase_time=self.pulse_time,
                 max_voltage=self.voltage_bottom_first,
                 min_voltage=self.voltage_bottom_second,
