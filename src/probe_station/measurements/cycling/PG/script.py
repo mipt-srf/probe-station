@@ -1,32 +1,17 @@
 from time import sleep
 
-from pymeasure.instruments.agilent import AgilentB1500
+from probe_station.measurements.common import (
+    RSU,
+    RSUOutputMode,
+    check_all_errors,
+    connect_instrument,
+    setup_rsu_output,
+)
 from pymeasure.instruments.agilent.agilentB1500 import (
-    ControlMode,
-    PgSelectorConnectionStatus,
-    PgSelectorPort,
     SPGUChannelOutputMode,
     SPGUOperationMode,
     SPGUOutputMode,
 )
-
-from probe_station.measurements.common import RSU, RSUOutputMode, setup_rsu_output
-
-
-def connect_instrument():
-    """Connect to the Agilent B1500 instrument."""
-    try:
-        b1500 = AgilentB1500("USB1::0x0957::0x0001::0001::0::INSTR", timeout=60000)
-        # b1500.reset()
-        # sleep(3)
-        b1500.initialize_all_smus()
-        b1500.initialize_all_spgus()
-        b1500.data_format(1, mode=1)  # 21 for new, 1 for old (?)
-
-        return b1500
-    except Exception as e:
-        print(f"Error connecting to instrument: {e}")
-        return None
 
 
 def run(b1500, repetitions, amplitude, width, rise, tail, channel=102, bipolar=False, pulse_separation=True):
@@ -42,8 +27,6 @@ def run(b1500, repetitions, amplitude, width, rise, tail, channel=102, bipolar=F
     tail = min(tail, 1e-7)
     period = delay_1st + rise + width + tail / 0.8 + delay_2nd + width + rise + rise + tail / 0.8  # up + down
     period *= 1.025
-    print(period, delay_1st + rise + width + tail / 0.8, rise, tail)
-    print(period, delay_1st + rise + width + tail + delay_2nd + width + rise + rise + tail / 0.8)
 
     spgu = b1500.spgu1
 
@@ -64,9 +47,6 @@ def run(b1500, repetitions, amplitude, width, rise, tail, channel=102, bipolar=F
         spgu.set_output_mode(mode=SPGUOutputMode.COUNT, condition=repetitions)
     else:
         spgu.set_output_mode(mode=SPGUOutputMode.DURATION, condition=period * repetitions)
-    # print(b1500._spgu_names, b1500._spgu_references)
-    # print(b1500.get_spgu_output())
-    # b1500.write(f"ODSW {ch2},0")
     pg.load_impedance = 1e6
     spgu.period = period
 
@@ -82,7 +62,6 @@ def run(b1500, repetitions, amplitude, width, rise, tail, channel=102, bipolar=F
     peak_voltage_2 = -amplitude if bipolar else amplitude
     pg.set_output_voltage(source=2, peak_voltage=peak_voltage_2)
 
-    # pg2.load_impedance = 1
     pg.apply_setup()
     spgu.output = True
     elapsed = 0
@@ -93,13 +72,7 @@ def run(b1500, repetitions, amplitude, width, rise, tail, channel=102, bipolar=F
         elapsed += 0.5
     print(f"Elapsed: {elapsed:.1f}s / {period * repetitions:.1f}s", end="\r")
 
-    while True:
-        try:
-            b1500.check_errors()
-        except Exception as e:
-            print(e)
-        else:
-            break
+    check_all_errors(b1500)
 
 
 if __name__ == "__main__":

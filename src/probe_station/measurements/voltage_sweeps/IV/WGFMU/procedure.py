@@ -202,14 +202,8 @@ class WgfmuIvSweepProcedure(Procedure):
 class MainWindow(ManagedWindowBase):
     def __init__(self):
         widget_list = (
-            # TableWidget(
-            #     "Experiment Table",
-            #     RandomProcedure.DATA_COLUMNS,
-            #     by_column=True,
-            # ),
             PlotWidget("Results Graph", WgfmuIvSweepProcedure.DATA_COLUMNS),
             LogWidget("Experiment Log"),
-            # ImageWidget(name="Image", columns=RandomProcedure.DATA_COLUMNS, x_axis="1", y_axis="2"),
         )
 
         settings = [
@@ -241,9 +235,8 @@ class MainWindow(ManagedWindowBase):
         logging.getLogger().addHandler(widget_list[1].handler)
         log.setLevel(self.log_level)
         log.info("ManagedWindow connected to logging")
-        self.setWindowTitle("WGFMU IV (10 V)")
+        self.setWindowTitle(f"{self.procedure_class.__name__}")
         self.store_measurement = False
-        # self.filename = "voltage_ds={Drain-source voltage}"
 
 
 if __name__ == "__main__":

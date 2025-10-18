@@ -1,7 +1,6 @@
 import logging
 import sys
 from datetime import datetime, timedelta
-from time import sleep
 
 from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget
@@ -35,7 +34,6 @@ class PgCyclingProcedure(Procedure):
     def startup(self):
         self.b1500 = connect_instrument()
         self.start_time = datetime.now()
-        # self.b1500.reset()
 
     def execute(self):
         log.info("Starting the loop of %d repetitions" % self.repetitions)
@@ -63,48 +61,6 @@ class PgCyclingProcedure(Procedure):
             pulse_separation=self.pulse_separation,
         )
 
-        # delay_2nd = self.width * self.pulse_separation
-        # period = (delay_2nd + (self.rise + self.width + self.tail) * 2) + delay_2nd
-        # delay_2nd = 2 * self.width
-        # period = (delay_2nd + (self.rise + self.width + self.tail) * 2) + delay_2nd
-        # print(period)
-        # duration = period * self.repetitions
-        # print(duration)
-        # if period < 0.5 and duration < 20:
-        #     sleep(duration)
-        # elif period < 0.5 and duration >= 20:
-        #     for i in range(100):
-        #         self.emit("progress", i)
-        #         sleep(duration / 100)
-        #         if self.should_stop():
-        #             log.warning("Caught the stop flag in the procedure")
-        #             self.b1500.spgu1.stop_output()
-        #             break
-        # else:
-        #     for i in range(self.repetitions):
-        #         self.emit("progress", 100 * i / (self.repetitions))
-        #         sleep(period)
-        #         if self.should_stop():
-        #             log.warning("Caught the stop flag in the procedure")
-        #             self.b1500.spgu1.stop_output()
-        #             break
-
-        # for i in range(self.repetitions):
-        #     # data = {"Cycle": i, "Random Number": random.random()}
-        #     # self.emit("results", data)
-        #     # log.debug("Emitting results: %s" % data)
-        #     self.emit("progress", 100 * i / (self.repetitions))
-        #         sleep(period)
-        #     if self.should_stop():
-        #         log.warning("Caught the stop flag in the procedure")
-        #         self.b1500.spgu1.stop_output()
-        #         break
-        # self.emit("progress", i * 5)
-        # sleep(duration / 20)
-        # else:
-        #     if self.dc_bias:
-        #         dc_smu.force_gnd()
-
         if self.dc_bias:
             dc_smu.force_gnd()
 
@@ -128,15 +84,7 @@ class PgCyclingProcedure(Procedure):
 
 class MainWindow(ManagedWindowBase):
     def __init__(self):
-        widget_list = (
-            # TableWidget(
-            #     "Experiment Table",
-            #     RandomProcedure.DATA_COLUMNS,
-            #     by_column=True,
-            # ),
-            LogWidget("Experiment Log"),
-            # PlotWidget("Results Graph", RandomProcedure.DATA_COLUMNS),
-        )
+        widget_list = (LogWidget("Experiment Log"),)
         settings = [
             "repetitions",
             "amplitude",

@@ -10,11 +10,6 @@ from pymeasure.experiment import (
     IntegerParameter,
     Procedure,
 )
-from pymeasure.instruments.agilent.agilentB1500 import (
-    ControlMode,
-    PgSelectorConnectionStatus,
-    PgSelectorPort,
-)
 
 from probe_station.measurements.common import (
     RSU,
