@@ -2,7 +2,6 @@ from enum import Enum
 
 from keysight_b1530a._bindings.config import WGFMUChannel
 from keysight_b1530a._bindings.configuration import set_operation_mode
-from keysight_b1530a._bindings.initialization import close_session, open_session
 from keysight_b1530a.enums import WGFMUOperationMode
 from pymeasure.instruments.agilent.agilentB1500 import (
     AgilentB1500,
@@ -45,7 +44,6 @@ def setup_rsu_output(b1500: AgilentB1500, rsu: RSU = RSU.RSU2, mode: RSUOutputMo
             set_operation_mode(mode=WGFMUOperationMode.SMU, channel=WGFMUChannel.CH1)
         if mode == RSUOutputMode.WGFMU:
             set_operation_mode(mode=WGFMUOperationMode.WGFMU, channel=WGFMUChannel.CH1)
-    close_session()
 
 
 def connect_instrument(timeout=60000, reset=False):

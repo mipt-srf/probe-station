@@ -2,6 +2,7 @@ import logging
 import sys
 from datetime import datetime, timedelta
 
+from keysight_b1530a._bindings.initialization import open_session
 from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget
 from pymeasure.display.windows import ManagedWindowBase
@@ -33,6 +34,7 @@ class PgCyclingProcedure(Procedure):
 
     def startup(self):
         self.b1500 = connect_instrument()
+        open_session()
         self.start_time = datetime.now()
 
     def execute(self):

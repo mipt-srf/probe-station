@@ -2,6 +2,7 @@ import logging
 import sys
 
 import numpy as np
+from keysight_b1530a._bindings.initialization import open_session
 from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget, PlotWidget
 from pymeasure.display.windows import ManagedWindowBase
@@ -28,6 +29,7 @@ class IvSweepProcedure(Procedure):
 
     def startup(self):
         self.b1500 = connect_instrument(timeout=60000, reset=True)
+        open_session()
 
     def execute(self):
         log.info(f"Starting the {self.__class__}")
