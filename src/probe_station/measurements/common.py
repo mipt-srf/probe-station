@@ -25,7 +25,6 @@ class RSU(Enum):
 def setup_rsu_output(b1500: AgilentB1500, rsu: RSU = RSU.RSU2, mode: RSUOutputMode = RSUOutputMode.SMU):
     if not b1500.io_control_mode == ControlMode.SMU_PGU_SELECTOR:
         b1500.io_control_mode = ControlMode.SMU_PGU_SELECTOR
-    open_session()
     if rsu == RSU.RSU1:
         if mode == RSUOutputMode.SMU:
             b1500.set_port_connection(port=PgSelectorPort.OUTPUT_1_FIRST, status=PgSelectorConnectionStatus.SMU_ON)

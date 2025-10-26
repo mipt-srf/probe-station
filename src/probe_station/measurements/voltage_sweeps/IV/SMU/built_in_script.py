@@ -17,7 +17,7 @@ from probe_station.measurements.common import (
 )
 
 
-def run(b1500: AgilentB1500, start, end, steps, average=127, top=4, bottom=3, current_comp=0.001):
+def run(b1500: AgilentB1500, start, end, steps, average=127, top=4, bottom=3, current_comp=0.1):
     setup_rsu_output(b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
     setup_rsu_output(b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
 

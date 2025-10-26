@@ -23,12 +23,12 @@ class IvSweepProcedure(Procedure):
     average = IntegerParameter("Intergration coefficient", default=127, minimum=1, maximum=127)
     advanced_config = BooleanParameter("Advanced config", default=False)
     steps = IntegerParameter("Steps", default=100, group_by="advanced_config")
-    compliance = FloatParameter("Current compliance", units="A", default=0.001, group_by="advanced_config")
+    compliance = FloatParameter("Current compliance", units="A", default=0.1, group_by="advanced_config")
 
     DATA_COLUMNS = ["Voltage", "Top electrode current", "Time"]
 
     def startup(self):
-        self.b1500 = connect_instrument(timeout=60000, reset=True)
+        self.b1500 = connect_instrument(timeout=60000, reset=False)
         open_session()
 
     def execute(self):
