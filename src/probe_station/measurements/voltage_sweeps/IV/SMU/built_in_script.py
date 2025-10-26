@@ -23,11 +23,11 @@ def run(b1500: AgilentB1500, start, end, steps, average=127, top=4, bottom=3, cu
 
     smu = get_smu_by_number(b1500, top)
     smu.enable()
-    smu.force("voltage", 0, 0)
+    smu.force("voltage", 0, 0, 1e-1)
 
     smu_bottom = get_smu_by_number(b1500, bottom)
     smu_bottom.enable()
-    smu_bottom.force("voltage", 0, 0)
+    smu_bottom.force("voltage", 0, 0, 1e-1)
 
     b1500.time_stamp = True
     b1500.adc_averaging(10)
