@@ -45,8 +45,7 @@ class DcProcedure(Procedure):
         for i in range(100):
             sleep(self.time / 100)
             self.emit("progress", i + 1)
-        top_smu.force_gnd()
-
+        top_smu.force("voltage", 0, 0)
 
 class MainWindow(ManagedWindowBase):
     def __init__(self):

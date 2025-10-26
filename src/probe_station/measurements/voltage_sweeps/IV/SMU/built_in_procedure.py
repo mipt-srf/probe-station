@@ -52,8 +52,6 @@ class IvSweepProcedure(Procedure):
             {"Time": times, "Voltage": voltages, "Top electrode current": np.abs(currents)},
         )
 
-        self.b1500.force_gnd()
-
 
 class MainWindow(ManagedWindowBase):
     def __init__(self):

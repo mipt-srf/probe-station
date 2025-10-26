@@ -53,7 +53,7 @@ def run(b1500: AgilentB1500, start, end, steps, average=127, top=4, bottom=3, cu
 
     b1500.send_trigger()
 
-    b1500.force_gnd()
+    smu.force("voltage", 0, 0, 1e-1)
 
 
 def get_data(b1500: AgilentB1500):
