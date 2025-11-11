@@ -49,8 +49,10 @@ def measure_at_voltage(b1500: AgilentB1500, voltage, top=4, bottom=3):
         time, current, voltage_measured = parse_data(b1500.ask("TTIV 8, 11, 0"))
     elif top == 3:
         time, current, voltage_measured = parse_data(b1500.ask("TTIV 7, 11,0 "))
-    else:
-        raise ValueError("Top electrode must be 3 or 4 (for now)")
+    elif top == 2:
+        time, current, voltage_measured = parse_data(b1500.ask("TTIV 6, 11,0 "))
+    elif top == 1:
+        time, current, voltage_measured = parse_data(b1500.ask("TTIV 4, 11,0 "))
 
     return time, current, voltage_measured
 

@@ -1,3 +1,4 @@
+import logging
 from enum import Enum
 
 from keysight_b1530a._bindings.config import WGFMUChannel
@@ -10,6 +11,8 @@ from pymeasure.instruments.agilent.agilentB1500 import (
     PgSelectorPort,
 )
 
+log = logging.getLogger(__name__)
+log.addHandler(logging.NullHandler())
 
 class RSUOutputMode(Enum):
     SMU = 0
@@ -44,13 +47,24 @@ def setup_rsu_output(b1500: AgilentB1500, rsu: RSU = RSU.RSU2, mode: RSUOutputMo
         if mode == RSUOutputMode.WGFMU:
             set_operation_mode(mode=WGFMUOperationMode.WGFMU, channel=WGFMUChannel.CH1)
 
+def set_smu_compliances(b1500, current_comp=0.1):
+    for smu in b1500.smu_references:
+        smu.enable()
+        smu.force("Voltage", 0, 0, 1e-1)
+
+
+def enable_all_smus(b1500):
+    for smu in b1500.smu_references:
+        smu.enable()
 
 def connect_instrument(timeout=60000, reset=False):
     """Connect to the Agilent B1500 instrument."""
     try:
         b1500 = AgilentB1500("USB1::0x0957::0x0001::0001::0::INSTR", timeout=timeout)
+        log.info("Connected to Agilent B1500")
         if reset:
             b1500.reset()
+            log.info("Agilent B1500 is reset")
         b1500.initialize_all_smus()
         b1500.initialize_all_spgus()
         b1500.data_format(1, mode=1)  # 21 for new, 1 for old (?)

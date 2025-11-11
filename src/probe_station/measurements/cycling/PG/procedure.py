@@ -58,7 +58,7 @@ class PgCyclingProcedure(Procedure):
             width=self.width,
             rise=self.rise,
             tail=self.tail,
-            channel=self.channel + 100,
+            channel=self.channel + 100 if self.channel < 10 else self.channel,
             bipolar=self.bipolar_pulses,
             pulse_separation=self.pulse_separation,
         )

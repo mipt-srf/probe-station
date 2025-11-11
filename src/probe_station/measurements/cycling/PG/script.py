@@ -1,4 +1,12 @@
+import logging
+import time
 from time import sleep
+
+from pymeasure.instruments.agilent.agilentB1500 import (
+    SPGUChannelOutputMode,
+    SPGUOperationMode,
+    SPGUOutputMode,
+)
 
 from probe_station.measurements.common import (
     RSU,
@@ -7,12 +15,9 @@ from probe_station.measurements.common import (
     connect_instrument,
     setup_rsu_output,
 )
-from pymeasure.instruments.agilent.agilentB1500 import (
-    SPGUChannelOutputMode,
-    SPGUOperationMode,
-    SPGUOutputMode,
-)
 
+log = logging.getLogger(__name__)
+log.addHandler(logging.NullHandler())
 
 def run(b1500, repetitions, amplitude, width, rise, tail, channel=102, bipolar=False, pulse_separation=True):
     if pulse_separation:
@@ -65,11 +70,11 @@ def run(b1500, repetitions, amplitude, width, rise, tail, channel=102, bipolar=F
     pg.apply_setup()
     spgu.output = True
     elapsed = 0
+    start_time = time.perf_counter()
     while True:
         if spgu.complete:
             break
-        sleep(0.5)
-        elapsed += 0.5
+        elapsed = time.perf_counter() - start_time
     print(f"Elapsed: {elapsed:.1f}s / {period * repetitions:.1f}s", end="\r")
 
     check_all_errors(b1500)
