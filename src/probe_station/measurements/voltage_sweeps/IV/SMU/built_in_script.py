@@ -1,3 +1,4 @@
+from keysight_b1530a._bindings.initialization import close_session, open_session
 from pymeasure.instruments.agilent.agilentB1500 import (
     ADCMode,
     ADCType,
@@ -39,7 +40,7 @@ def run(b1500: AgilentB1500, start, end, steps, average=127, top=4, bottom=3):
     b1500.adc_setup(ADCType.HRADC, ADCMode.MANUAL, average)
     # smu.sweep_timing()
 
-    if smu.name.endswith("3") or smu.name.endswith("4"):
+    if smu.channel in [3, 4]:
         max_voltage = max(abs(start), abs(end))
         if max_voltage <= 20:
             compliance = 100e-3
@@ -49,6 +50,8 @@ def run(b1500: AgilentB1500, start, end, steps, average=127, top=4, bottom=3):
             compliance = 20e-3
         else:
             raise ValueError(f"Voltages higher than 100 V are not suported by {smu.name}")
+    else:
+        compliance = 20e-3  # temp fix for other smus
 
     smu.staircase_sweep_source(
         source_type="Voltage",
@@ -80,5 +83,7 @@ def get_data(b1500: AgilentB1500):
 
 if __name__ == "__main__":
     b1500 = connect_instrument(reset=True)
+    open_session()
     run(b1500, start=-3, end=3, steps=100, top=4)
     get_data(b1500)
+    close_session()

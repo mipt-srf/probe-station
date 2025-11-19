@@ -2,7 +2,7 @@ import logging
 import sys
 from datetime import datetime, timedelta
 
-from keysight_b1530a._bindings.initialization import open_session
+from keysight_b1530a._bindings.initialization import close_session, open_session
 from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget
 from pymeasure.display.windows import ManagedWindowBase
@@ -65,6 +65,8 @@ class PgCyclingProcedure(Procedure):
 
         if self.dc_bias:
             dc_smu.force("Voltage", 0, 0)
+
+        close_session()
 
     def get_estimates(self, sequence_length=None, sequence=None):
         delay_2nd = 2 * self.width
