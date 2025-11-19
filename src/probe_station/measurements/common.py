@@ -36,7 +36,7 @@ def setup_rsu_output(b1500: AgilentB1500, rsu: RSU = RSU.RSU2, mode: RSUOutputMo
             b1500.set_port_connection(port=PgSelectorPort.OUTPUT_1_FIRST, status=PgSelectorConnectionStatus.PGU_ON)
             set_operation_mode(mode=WGFMUOperationMode.SMU, channel=WGFMUChannel.CH2)
         if mode == RSUOutputMode.WGFMU:
-            set_operation_mode(mode=WGFMUOperationMode.WGFMU, channel=WGFMUChannel.CH2)
+            set_operation_mode(mode=WGFMUOperationMode.FASTIV, channel=WGFMUChannel.CH2)
     elif rsu == RSU.RSU2:
         if mode == RSUOutputMode.SMU:
             b1500.set_port_connection(port=PgSelectorPort.OUTPUT_2_FIRST, status=PgSelectorConnectionStatus.SMU_ON)
@@ -45,7 +45,7 @@ def setup_rsu_output(b1500: AgilentB1500, rsu: RSU = RSU.RSU2, mode: RSUOutputMo
             b1500.set_port_connection(port=PgSelectorPort.OUTPUT_2_FIRST, status=PgSelectorConnectionStatus.PGU_ON)
             set_operation_mode(mode=WGFMUOperationMode.SMU, channel=WGFMUChannel.CH1)
         if mode == RSUOutputMode.WGFMU:
-            set_operation_mode(mode=WGFMUOperationMode.WGFMU, channel=WGFMUChannel.CH1)
+            set_operation_mode(mode=WGFMUOperationMode.FASTIV, channel=WGFMUChannel.CH1)
 
 def set_smu_compliances(b1500, current_comp=0.1):
     for smu in b1500.smu_references:
