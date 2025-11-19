@@ -39,16 +39,12 @@ class RandomProcedure(Procedure):
         self.b1500 = connect_instrument()
 
     def execute(self):
-        for key, smu_name in self.b1500._smu_names.items():
-            if smu_name == f"SMU{self.source}":
-                self.smu_source = self.b1500._smu_references[key]
-                self.smu_source.enable()
-            elif smu_name == f"SMU{self.drain}":
-                self.smu_drain = self.b1500._smu_references[key]
-                self.smu_drain.enable()
-            elif smu_name == f"SMU{self.gate}":
-                self.smu_gate = self.b1500._smu_references[key]
-                self.smu_gate.enable()
+        self.smu_source = self.b1500.smus[self.source]
+        self.smu_source.enable()
+        self.smu_drain = self.b1500.smus[self.drain]
+        self.smu_drain.enable()
+        self.smu_gate = self.b1500.smus[self.gate]
+        self.smu_gate.enable()
 
         self.b1500.clear_timer()
 
