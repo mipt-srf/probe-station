@@ -32,9 +32,9 @@ def run(b1500: AgilentB1500, first_bias=-3, second_bias=3, avg_per_point=1, plot
     b1500.write("LMN 1")  # enable monitor, doesn't work
 
     b1500.write(f"MM 18,{i}")
-    b1500.write("XE")
+    b1500.send_trigger()
 
-    b1500.force_gnd()
+    b1500.write(f"DCV {i},0")
 
 
 def get_results(b1500: AgilentB1500, plot=False):
