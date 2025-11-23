@@ -2,12 +2,7 @@ import logging
 import sys
 from time import sleep
 
-from probe_station.measurements.common import connect_instrument
-from probe_station.measurements.voltage_sweeps.CV.script import (
-    PLOT_POINTS,
-    get_results,
-    run,
-)
+from keysight_b1530a._bindings.initialization import close_session, open_session
 from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget, PlotWidget
 from pymeasure.display.windows import ManagedWindowBase
@@ -17,7 +12,12 @@ from pymeasure.experiment import (
     Procedure,
 )
 
-from keysight_b1530a._bindings.initialization import close_session, open_session
+from probe_station.measurements.common import connect_instrument
+from probe_station.measurements.voltage_sweeps.CV.script import (
+    PLOT_POINTS,
+    get_results,
+    run,
+)
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -32,7 +32,7 @@ class CvSweepProcedure(Procedure):
     DATA_COLUMNS = ["Voltage", "Capacitance", "Resistance"]
 
     def startup(self):
-        self.b1500 = connect_instrument(reset=True)
+        self.b1500 = connect_instrument(reset=False)
         open_session()
 
     def execute(self):

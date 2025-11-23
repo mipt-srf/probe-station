@@ -1,4 +1,5 @@
 import numpy as np
+from keysight_b1530a._bindings.initialization import close_session, open_session
 from matplotlib import pyplot as plt
 from pymeasure.instruments.agilent.agilentB1500 import (
     AgilentB1500,
@@ -20,6 +21,7 @@ def run(b1500: AgilentB1500, first_bias=-3, second_bias=3, avg_per_point=1, plot
     setup_rsu_output(b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
     setup_rsu_output(b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
     i = 901
+    b1500.time_stamp = True
     b1500.write(f"CN {i}")
     b1500.write("IMP 103")  # Cp-Rp measurement
     b1500.write(f"ACV {i},0.1")  # amplitude (0.25 max)
@@ -41,11 +43,12 @@ def get_results(b1500: AgilentB1500, plot=False):
     res = b1500.read()
     parsed = parse_data(res)
 
-    Cp = np.array(parsed[::5])
-    Rp = np.array(parsed[1::5])
-    ac = np.array(parsed[2::5])
-    dc_measured = np.array(parsed[3::5])
-    dc_forced = np.array(parsed[4::5])
+    _ = np.array(parsed[::6])
+    Cp = np.array(parsed[1::6])
+    Rp = np.array(parsed[2::6])
+    ac = np.array(parsed[3::6])
+    dc_measured = np.array(parsed[4::6])
+    dc_forced = np.array(parsed[5::6])
     measure_points = int(len(Cp) / 2)  # forward and backward
 
     Cp = np.mean(Cp.reshape(-1, measure_points // PLOT_POINTS), axis=1)
@@ -76,6 +79,8 @@ def get_results(b1500: AgilentB1500, plot=False):
 
 if __name__ == "__main__":
     b1500 = connect_instrument(reset=True)
+    open_session()
     run(b1500, plot=True)
     check_all_errors(b1500)
     get_results(b1500, plot=True)
+    close_session()
