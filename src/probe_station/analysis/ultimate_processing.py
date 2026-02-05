@@ -332,6 +332,9 @@ class WgfmuBatchProcessing:
             polarizations.append(polarization)
         plt.plot(self.cycles, polarizations, "o", color=color, label=self.exp.folder)
         plt.ylim(0)
+        plt.xscale("log")
+        plt.xlabel("Cycles")
+        plt.ylabel(r"Polarization 2$P_r$ ($\mu C/cm^2$)")
         return polarizations
 
     def filter(self, mode="PUND", top_voltage=5.0):
