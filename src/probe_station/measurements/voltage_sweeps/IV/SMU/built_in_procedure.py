@@ -7,6 +7,7 @@ from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget, PlotWidget
 from pymeasure.display.windows import ManagedWindowBase
 from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter, Procedure
+from PyQt5.QtCore import QLocale
 
 from probe_station.measurements.common import connect_instrument
 from probe_station.measurements.voltage_sweeps.IV.SMU.built_in_script import get_data, run
@@ -82,6 +83,7 @@ class MainWindow(ManagedWindowBase):
 
 
 if __name__ == "__main__":
+    QLocale.setDefault(QLocale(QLocale.English, QLocale.UnitedStates))
     app = QtWidgets.QApplication(sys.argv)
     window = MainWindow()
     window.show()
