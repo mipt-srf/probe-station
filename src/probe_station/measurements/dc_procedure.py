@@ -10,6 +10,7 @@ from pymeasure.experiment import (
     IntegerParameter,
     Procedure,
 )
+from PyQt5.QtCore import QLocale
 
 from probe_station.measurements.common import (
     RSU,
@@ -68,6 +69,7 @@ class MainWindow(ManagedWindowBase):
 
 
 if __name__ == "__main__":
+    QLocale.setDefault(QLocale(QLocale.English, QLocale.UnitedStates))
     app = QtWidgets.QApplication(sys.argv)
     window = MainWindow()
     window.show()
