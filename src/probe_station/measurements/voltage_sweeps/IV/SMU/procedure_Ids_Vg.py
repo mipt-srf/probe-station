@@ -56,6 +56,7 @@ class RandomProcedure(Procedure):
             ),
         )
         if self.smu_source.name.endswith("3") or self.smu_source.name.endswith("4"):
+            compliance = 20e-3
             if abs(self.voltage_ds) <= 20:
                 compliance = 100e-3
             elif 20 < abs(self.voltage_ds) <= 40:
@@ -68,7 +69,7 @@ class RandomProcedure(Procedure):
 
         self.smu_source.force("voltage", 0, self.voltage_ds, compliance)
         for voltage in voltages:
-
+            gate_compliance = 20e-3
             if self.smu_gate.name.endswith("1"):
                 if max(abs(self.voltage_gate_first), abs(self.voltage_gate_second)) > 100:
                     gate_compliance = 50e-3
