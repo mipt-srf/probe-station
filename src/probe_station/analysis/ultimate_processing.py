@@ -3,7 +3,6 @@ from pathlib import Path
 
 from matplotlib import pyplot as plt
 from numpy import sqrt
-
 from probe_station.analysis.dataset import Dataset
 from probe_station.measurements.voltage_sweeps.IV.WGFMU.procedure import (
     calculate_polarization,
@@ -24,7 +23,7 @@ class CyclingExperiment:
         csvs = list(Path(self.folder).glob("*.csv"))
         csvs = sorted(csvs, key=lambda x: int(x.name.split("_")[0]))  # sort by number
 
-        if "PgCycling" in csvs[-1].name:  # drop last if exp was interrupted and no data is measured
+        if "Cycling" in csvs[-1].name:  # drop last if exp was interrupted and no data is measured
             csvs = csvs[:-1]
         return csvs
 
