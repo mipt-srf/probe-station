@@ -67,7 +67,7 @@ class PgCyclingProcedure(Procedure):
         if self.dc_bias:
             dc_smu.force("Voltage", 0, 0)
 
-        close_session()
+        # close_session()
 
     def get_estimates(self, sequence_length=None, sequence=None):
         delay_2nd = 2 * self.width

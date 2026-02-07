@@ -22,6 +22,7 @@ def run(b1500: AgilentB1500, first_bias=-3, second_bias=3, avg_per_point=1, plot
     setup_rsu_output(b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
     i = 901
     b1500.time_stamp = True
+    b1500.write("SSP 9,4")
     b1500.write(f"CN {i}")
     b1500.write("IMP 103")  # Cp-Rp measurement
     b1500.write(f"ACV {i},0.1")  # amplitude (0.25 max)
