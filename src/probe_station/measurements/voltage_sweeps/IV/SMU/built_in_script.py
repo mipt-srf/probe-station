@@ -18,18 +18,21 @@ from probe_station.measurements.common import (
 )
 
 
-def run(b1500: AgilentB1500, start, end, steps, average=127, top=4, bottom=3):
+def run(b1500: AgilentB1500, start, end, steps, average=127, top=4, bottom=3, mode=1):
+    # b1500.reset()
     setup_rsu_output(b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
     setup_rsu_output(b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
 
     smu = get_smu_by_number(b1500, top)
     smu.enable()
-    smu.force("voltage", 0, 0)
+    smu.force("voltage", 0, 0, 1e-1)
 
     smu_bottom = get_smu_by_number(b1500, bottom)
     smu_bottom.enable()
-    smu_bottom.force("voltage", 0, 0)
+    smu_bottom.force("voltage", 0, 0, 1e-1)
 
+    # b1500.write("SSP 9,3")
+    # b1500.adc_auto_zero = True
     b1500.time_stamp = True
     b1500.adc_averaging(10)
     b1500.meas_mode(MeasMode.STAIRCASE_SWEEP, smu)  # drain
@@ -53,18 +56,44 @@ def run(b1500: AgilentB1500, start, end, steps, average=127, top=4, bottom=3):
     else:
         compliance = 20e-3  # temp fix for other smus
 
-    smu.staircase_sweep_source(
-        source_type="Voltage",
-        mode=SweepMode.LINEAR_DOUBLE,
-        source_range=0,
-        start=start,
-        stop=end,
-        steps=steps,
-        comp=compliance,
-        # Pcomp=0.03,
-    )
+    if mode == 1:
+        smu.staircase_sweep_source(
+            source_type="Voltage",
+            mode=SweepMode.LINEAR_DOUBLE,
+            source_range=0,
+            start=start,
+            stop=end,
+            steps=steps,
+            comp=compliance,
+            # Pcomp=0.03,
+        )
+    elif mode == 2:
+        smu.staircase_sweep_source(
+            source_type="Voltage",
+            mode=SweepMode.LINEAR_DOUBLE,
+            source_range=0,
+            start=0,
+            stop=start,
+            steps=steps // 2,  # fix steps num
+            comp=compliance,
+            # Pcomp=0.03,
+        )
 
     b1500.clear_timer()
+
+    b1500.send_trigger()
+
+    if mode == 2:
+        smu.staircase_sweep_source(
+            source_type="Voltage",
+            mode=SweepMode.LINEAR_DOUBLE,
+            source_range=0,
+            start=0,
+            stop=end,  # fix steps
+            steps=steps // 2,
+            comp=compliance,
+            # Pcomp=0.03,
+        )
 
     b1500.send_trigger()
 

@@ -24,6 +24,7 @@ class IvSweepProcedure(Procedure):
     average = IntegerParameter("Intergration coefficient", default=127, minimum=1, maximum=127)
     advanced_config = BooleanParameter("Advanced config", default=False)
     steps = IntegerParameter("Steps", default=100, group_by="advanced_config")
+    mode = IntegerParameter("Mode", default=1, group_by="advanced_config")
     # compliance = FloatParameter("Current compliance", units="A", default=0.1, group_by="advanced_config")
 
     DATA_COLUMNS = ["Voltage", "Top electrode current", "Time"]
@@ -43,10 +44,20 @@ class IvSweepProcedure(Procedure):
             top=self.top_channel,
             # current_comp=self.compliance,
             average=self.average,
+            mode=self.mode,
         )
         times, voltages, currents = get_data(self.b1500)
-        print(f"len(times) = {len(times), len(voltages), len(currents)}")
-        print(voltages[:20])
+        # print(f"len(times) = {len(times), len(voltages), len(currents)}")
+        # print(voltages[:20])
+
+        self.emit(
+            "batch results",
+            {"Time": times, "Voltage": voltages, "Top electrode current": np.abs(currents)},
+        )
+
+        times, voltages, currents = get_data(self.b1500)
+        # print(f"len(times) = {len(times), len(voltages), len(currents)}")
+        # print(voltages[:20])
 
         self.emit(
             "batch results",
@@ -68,6 +79,7 @@ class MainWindow(ManagedWindowBase):
             "average",
             "advanced_config",
             "steps",
+            "mode",
             # "compliance",
         ]
         super().__init__(
