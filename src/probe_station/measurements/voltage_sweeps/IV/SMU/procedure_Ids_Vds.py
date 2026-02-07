@@ -97,7 +97,7 @@ class MainWindow(ManagedWindowBase):
         logging.getLogger().addHandler(widget_list[1].handler)
         log.setLevel(self.log_level)
         log.info("ManagedWindow connected to logging")
-        self.setWindowTitle(f"{self.procedure_class.__name__}")
+        self.setWindowTitle("Ids (Vds)")
 
 
 if __name__ == "__main__":
