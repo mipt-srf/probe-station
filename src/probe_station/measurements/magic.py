@@ -1,3 +1,5 @@
+"""Quick-start script: connect instrument, configure RSUs, set compliances, and close."""
+
 import logging
 
 from keysight_b1530a._bindings.initialization import close_session, open_session
@@ -13,7 +15,6 @@ from probe_station.measurements.common import (
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
-
 
 
 if __name__ == "__main__":

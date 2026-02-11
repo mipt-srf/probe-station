@@ -1,3 +1,5 @@
+"""Common analysis helper functions for finding values in data arrays."""
+
 import logging
 
 import numpy as np

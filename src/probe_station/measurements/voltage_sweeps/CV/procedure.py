@@ -25,6 +25,8 @@ log.addHandler(logging.NullHandler())
 
 
 class CvSweepProcedure(Procedure):
+    """Capacitance-voltage sweep procedure using the B1500 built-in CV measurement."""
+
     first_voltage = FloatParameter("First voltage", units="V", default=-3)
     second_voltage = FloatParameter("Second voltage", units="V", default=3)
     avg_per_point = IntegerParameter("Averages per point", default=1)

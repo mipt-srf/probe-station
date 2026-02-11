@@ -2,7 +2,7 @@ import logging
 import sys
 from datetime import datetime, timedelta
 
-from keysight_b1530a._bindings.initialization import close_session, open_session
+from keysight_b1530a._bindings.initialization import open_session
 from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget
 from pymeasure.display.windows import ManagedWindowBase
@@ -16,6 +16,12 @@ log.addHandler(logging.NullHandler())
 
 
 class PgCyclingProcedure(Procedure):
+    """Pulse-generator cycling procedure for fatigue/wake-up experiments.
+
+    Sends bipolar or unipolar voltage pulses via the B1500 SPGU and
+    records cycle count metadata.
+    """
+
     repetitions = IntegerParameter("Number of cycles", default=10, maximum=2147483647)
     amplitude = FloatParameter("Pulse amplitude", units="V", default=10.0)
     width = FloatParameter("Pulse width", units="s", default=0.1)

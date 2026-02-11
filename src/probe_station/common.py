@@ -1,3 +1,5 @@
+"""Shared helper functions for legacy data handlers (coercive voltage extraction, plotting)."""
+
 from matplotlib import pyplot as plt
 
 

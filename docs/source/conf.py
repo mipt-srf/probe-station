@@ -8,7 +8,7 @@ sys.path.insert(0, path.resolve().as_posix())
 project = "Probe Station"
 author = "Sergey Ilyev"
 copyright = f"{datetime.datetime.now().year}, {author}"
-release = "0.5"
+release = "0.6"
 rst_prolog = f"""
 .. |name| replace:: {project}
 """

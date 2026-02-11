@@ -1,3 +1,5 @@
+"""Batch processing of cycling experiment folders (CV, SMU IV, WGFMU IV)."""
+
 import itertools
 from pathlib import Path
 
@@ -10,6 +12,16 @@ from probe_station.measurements.voltage_sweeps.IV.WGFMU.procedure import (
 
 
 class CyclingExperiment:
+    """Represent a cycling experiment stored as numbered CSV files in a folder.
+
+    Provides access to CV, SMU IV, and WGFMU IV datasets together with
+    their corresponding cycle counts.
+
+    :param folder: Path to the experiment results folder.
+    :param area: Pad area in m².
+    :param thickness: Film thickness in m.
+    """
+
     def __init__(self, folder, area, thickness):
         self.folder = folder
         self.area = area
@@ -50,16 +62,32 @@ class CyclingExperiment:
         return cycles
 
     def cvs(self, drop_below=None):
+        """Return a :class:`CvBatchProcessing` helper for all CV datasets.
+
+        :param drop_below: Drop curves whose permittivity falls below this value.
+        """
         return CvBatchProcessing(self, drop_below=drop_below)
 
     def smu_ivs(self, drop_below=None, drop_above=None):
+        """Return a :class:`SmuBatchProcessing` helper for all SMU IV datasets.
+
+        :param drop_below: Drop curves with any current below this value.
+        :param drop_above: Drop curves with any current above this value.
+        """
         return SmuBatchProcessing(self, drop_below=drop_below, drop_above=drop_above)
 
     def wgfmu_ivs(self, drop_below=None, drop_above=None):
+        """Return a :class:`WgfmuBatchProcessing` helper for all WGFMU IV datasets.
+
+        :param drop_below: Drop curves with any current below this value.
+        :param drop_above: Drop curves with any current above this value.
+        """
         return WgfmuBatchProcessing(self, drop_below=drop_below, drop_above=drop_above)
 
 
 class CvBatchProcessing:
+    """Batch processing of CV sweep datasets within a cycling experiment."""
+
     def __init__(self, experiment, drop_below=None):
         self.exp = experiment
         self.drop_below = drop_below
@@ -130,6 +158,8 @@ class CvBatchProcessing:
 
 
 class SmuBatchProcessing:
+    """Batch processing of SMU IV sweep datasets within a cycling experiment."""
+
     def __init__(self, experiment, drop_below=None, drop_above=None):
         self.exp = experiment
         self.drop_below = drop_below
@@ -217,6 +247,8 @@ class SmuBatchProcessing:
 
 
 class WgfmuBatchProcessing:
+    """Batch processing of WGFMU IV sweep datasets within a cycling experiment."""
+
     def __init__(self, experiment, drop_below=None, drop_above=None):
         self.exp = experiment
         self.drop_below = drop_below

@@ -50,8 +50,17 @@ class DC_IV:  # noqa: N801
         self.steps = self.metadata.get("RealMeasuredPoints")
 
     def _split_data(self, df):
-        """
-        Splits the data into multiple dataframes that corresponds to different parts of the sweep.
+        """Split the IV data into four segments corresponding to each sweep leg.
+
+        The four segments are:
+
+        1. 0 → stop1 (first forward sweep)
+        2. stop1 → 0 (first reverse sweep)
+        3. 0 → stop2 (second forward sweep)
+        4. stop2 → 0 (second reverse sweep)
+
+        :param df: Full IV DataFrame.
+        :return: List of four DataFrames.
         """
         df_first_sweep = df[: len(df) // 2]
         df_second_sweep = df[len(df) // 2 :]

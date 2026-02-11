@@ -18,6 +18,12 @@ if TYPE_CHECKING:
 
 
 class PUND_double:  # noqa: N801
+    """Handler for PUND double-pulse measurement ``.data`` files.
+
+    Computes switchable polarisation from the P, U, N, D charge columns
+    and provides plotting of polarisation and individual charges vs cycles.
+    """
+
     def __init__(
         self,
         metadata: dict,

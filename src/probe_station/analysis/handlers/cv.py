@@ -1,8 +1,16 @@
+"""Handler for capacitance-voltage (CV) sweep result analysis."""
+
 from probe_station.analysis.common import find_x_at_max_y, get_y_at_x
 from probe_station.analysis.handlers.base import BaseHandler
 
 
 class Cv(BaseHandler):
+    """Handler for capacitance-voltage sweep analysis.
+
+    Provides methods for calculating dielectric constant, extracting
+    permittivity at specific voltages, and plotting CV curves.
+    """
+
     def calculate_epsilon(self) -> float:
         """Calculate dielectric constant. If area/thickness are not provided, use stored geometry set via set_geometry()."""
         epsilon0 = 8.854e-12

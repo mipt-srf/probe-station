@@ -1,3 +1,5 @@
+"""Dataset wrapper around PyMeasure Results for analysis of new-format CSV files."""
+
 from pymeasure.experiment import Results
 
 from probe_station._DC_IV import DC_IV
@@ -9,12 +11,27 @@ from probe_station.measurements.voltage_sweeps.IV.WGFMU.procedure import WgfmuIv
 
 
 class Dataset(Results):
+    """Load a PyMeasure CSV result file and attach the appropriate analysis handler.
+
+    The handler is chosen automatically based on the procedure class stored in
+    the CSV metadata.  Attribute look-ups are forwarded to the handler, so
+    ``ds.plot()`` works directly.
+    """
+
     def __new__(cls, filename):
+        """Create a new Dataset by loading a PyMeasure CSV file.
+
+        :param filename: Path to the ``.csv`` result file.
+        """
         instance = Results.load(filename)
         instance.__class__ = cls  # Change the class to Dataset
         return instance
 
     def __init__(self, data_filename):
+        """Initialise handler based on the procedure that produced the data.
+
+        :param data_filename: Path to the ``.csv`` result file.
+        """
         self.data_cut = self.data[200:] if len(self.data) > 300 else self.data
         # Reset index for data_cut
         self.data_cut = self.data_cut.reset_index(drop=True)

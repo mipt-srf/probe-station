@@ -1,3 +1,5 @@
+"""Common utilities for instrument connection and RSU/SMU configuration."""
+
 import logging
 from enum import Enum
 
@@ -14,18 +16,29 @@ from pymeasure.instruments.agilent.agilentB1500 import (
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
+
 class RSUOutputMode(Enum):
+    """Output routing mode of the Remote-Sense and Switch Unit (RSU)."""
+
     SMU = 0
     SPGU = 1
     WGFMU = 2
 
 
 class RSU(Enum):
+    """Identifier for the RSU unit (RSU1 or RSU2)."""
+
     RSU1 = 1
     RSU2 = 2
 
 
 def setup_rsu_output(b1500: AgilentB1500, rsu: RSU = RSU.RSU2, mode: RSUOutputMode = RSUOutputMode.SMU):
+    """Configure the RSU output routing for the specified mode.
+
+    :param b1500: Connected ``AgilentB1500`` instance.
+    :param rsu: Which RSU to configure.
+    :param mode: Desired output mode (SMU, SPGU, or WGFMU).
+    """
     if not b1500.io_control_mode == ControlMode.SMU_PGU_SELECTOR:
         b1500.io_control_mode = ControlMode.SMU_PGU_SELECTOR
     if rsu == RSU.RSU1:
@@ -47,15 +60,26 @@ def setup_rsu_output(b1500: AgilentB1500, rsu: RSU = RSU.RSU2, mode: RSUOutputMo
         if mode == RSUOutputMode.WGFMU:
             set_operation_mode(mode=WGFMUOperationMode.FASTIV, channel=WGFMUChannel.CH1)
 
+
 def set_smu_compliances(b1500, current_comp=0.1):
+    """Enable all SMUs and set a uniform current compliance.
+
+    :param b1500: Connected ``AgilentB1500`` instance.
+    :param current_comp: Current compliance value in amperes.
+    """
     for smu in b1500.smu_references:
         smu.enable()
         smu.force("Voltage", 0, 0, 1e-1)
 
 
 def enable_all_smus(b1500):
+    """Enable every SMU channel on the instrument.
+
+    :param b1500: Connected ``AgilentB1500`` instance.
+    """
     for smu in b1500.smu_references:
         smu.enable()
+
 
 def connect_instrument(timeout=60000, reset=False):
     """Connect to the Agilent B1500 instrument."""
@@ -75,6 +99,10 @@ def connect_instrument(timeout=60000, reset=False):
 
 
 def check_all_errors(b1500):
+    """Query and print all pending instrument errors until the queue is empty.
+
+    :param b1500: Connected ``AgilentB1500`` instance.
+    """
     while True:
         try:
             b1500.check_errors()
@@ -85,6 +113,13 @@ def check_all_errors(b1500):
 
 
 def get_smu_by_number(b1500, smu_number):
+    """Return the SMU reference matching the given channel number.
+
+    :param b1500: Connected ``AgilentB1500`` instance.
+    :param smu_number: Channel number (e.g. 1, 2, 3, 4).
+    :return: The matching SMU object.
+    :raises ValueError: If the SMU is not found.
+    """
     target_name = f"SMU{smu_number}"
 
     for smu in b1500.smu_references:
@@ -95,6 +130,11 @@ def get_smu_by_number(b1500, smu_number):
 
 
 def parse_data(string):
+    """Parse a comma-separated measurement data string into a list of floats.
+
+    :param string: Raw data string from the instrument (e.g. ``"NCI+1.234E-05,NCI+5.678E-06"``).
+    :return: List of parsed float values.
+    """
     value_strings = string.split(",")
     values = [float(value_str[3:]) for value_str in value_strings]
     return values

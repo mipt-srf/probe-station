@@ -12,6 +12,8 @@ from matplotlib import pyplot as plt
 
 
 class CV:
+    """Handler for legacy capacitance-voltage (CV) ``.data`` files."""
+
     def __init__(
         self,
         metadata: dict,
@@ -55,6 +57,10 @@ class CV:
         return capacitance_series
 
     def check_resistance(self) -> None:
+        """Check whether all resistance values exceed 1 Ω, indicating a parallel model is appropriate.
+
+        :return: ``True`` if all resistance values are greater than 1.
+        """
         resistance = self.data["Resistance"]
         return all(resistance > 1)
 

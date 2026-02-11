@@ -5,7 +5,11 @@ from pathlib import Path
 from time import sleep
 
 import numpy as np
+from keysight_b1530a.enums import WGFMUMeasureCurrentRange
 from matplotlib import pyplot as plt
+from pymeasure.experiment import Results
+from pymeasure.experiment.workers import Worker
+
 from probe_station.measurements.cycling.PG.procedure import PgCyclingProcedure
 from probe_station.measurements.voltage_sweeps.CV.procedure import CvSweepProcedure
 from probe_station.measurements.voltage_sweeps.IV.SMU.built_in_procedure import (
@@ -14,10 +18,6 @@ from probe_station.measurements.voltage_sweeps.IV.SMU.built_in_procedure import 
 from probe_station.measurements.voltage_sweeps.IV.WGFMU.procedure import (
     WgfmuIvSweepProcedure,
 )
-from pymeasure.experiment import Results
-from pymeasure.experiment.workers import Worker
-
-from keysight_b1530a.enums import WGFMUMeasureCurrentRange
 
 logging.basicConfig(level=logging.INFO)
 folder = "results"
@@ -34,12 +34,13 @@ console_handler.setLevel(logging.INFO)
 
 # File handler (detailed format)
 log_filename = f"{folder}/experiment.log"
-file_handler = logging.FileHandler(log_filename, mode='w', encoding='utf-8')
+file_handler = logging.FileHandler(log_filename, mode="w", encoding="utf-8")
 file_handler.setLevel(logging.DEBUG)  # Can log more details to file
 
 # Add handlers to logger
 logger.addHandler(console_handler)
 logger.addHandler(file_handler)
+
 
 def run_cv():
     exp_num = next(experiment_counter)
@@ -102,15 +103,14 @@ def run_cycling(cycles=1000, width=1e-5):
     worker = Worker(results)
     worker.start()
 
-    delay_2nd = 2 * proc.width
-    period = (delay_2nd + (proc.rise + proc.width + proc.tail) * 2) + delay_2nd
-    duration = proc.repetitions * period
-
+    # delay_2nd = 2 * proc.width
+    # period = (delay_2nd + (proc.rise + proc.width + proc.tail) * 2) + delay_2nd
+    # duration = proc.repetitions * period
     # sleep(duration * 1.5)
+
     sleep(5)
 
     worker.join(timeout=60 * 60 * 24 * 3)
-
 
 
 def log_points(start, stop, per_decade=5):
@@ -150,9 +150,7 @@ def log_points(start, stop, per_decade=5):
             mant_rounded = 8
         else:
             mant_rounded = 10
-        return int(
-            round(mant_rounded * 10**exp, -exp + 1)
-        )  # zero out digits after first two
+        return int(round(mant_rounded * 10**exp, -exp + 1))  # zero out digits after first two
 
     # Iterate through decades
     for i in range(len(decade_points) - 1):
@@ -170,7 +168,6 @@ def log_points(start, stop, per_decade=5):
             cumsum_final.append(cumsum_final[-1] + s)
 
     return np.array([start] + rounded_steps).astype(int)
-
 
 
 # log_points(10, 1000, per_decade=2) # From 10 to 1000, with 2 additional points per decade (so 3 points: 10, p1, p2, 100,)
@@ -258,6 +255,5 @@ for cycles in [
     run_iv_sweep(mode="DEFAULT", voltage_first=5, voltage_second=-5)
     run_dc_iv()
     run_cv()
-    
-    
+
     #!!!!!!!!!!!!!!!!! bipolar false

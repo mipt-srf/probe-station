@@ -1,6 +1,5 @@
 import logging
 import time
-from time import sleep
 
 from pymeasure.instruments.agilent.agilentB1500 import (
     SPGUChannelOutputMode,
@@ -18,6 +17,7 @@ from probe_station.measurements.common import (
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
+
 
 def run(b1500, repetitions, amplitude, width, rise, tail, channel=102, bipolar=False, pulse_separation=True):
     if pulse_separation:

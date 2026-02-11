@@ -1,7 +1,9 @@
+"""PyMeasure procedure for measuring FET drain and gate currents at fixed bias."""
+
 import logging
 import sys
 
-from keysight_b1530a._bindings.initialization import close_session, open_session
+from keysight_b1530a._bindings.initialization import open_session
 from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget
 from pymeasure.display.windows import ManagedWindowBase
@@ -27,6 +29,8 @@ log.addHandler(logging.NullHandler())
 
 
 class FetCurrentMeasurementProcedure(Procedure):
+    """Measure drain and gate current of a FET at specified bias voltages."""
+
     gate_voltage = FloatParameter("Gate voltage", units="V", default=10.0)
     drain_voltage = FloatParameter("Drain voltage", units="V", default=10.0)
     source_voltage = FloatParameter("Source voltage", units="V", default=0.0, group_by="advanced_config")
@@ -55,7 +59,7 @@ class FetCurrentMeasurementProcedure(Procedure):
         drain_smu = get_smu_by_number(self.b1500, self.drain_channel)
         source_smu = get_smu_by_number(self.b1500, self.source_channel)
         base_smu = get_smu_by_number(self.b1500, self.base_channel)
-        
+
         self.b1500.adc_averaging = self.averaging
         drain_smu.adc_type = ADCType.HSADC
 
