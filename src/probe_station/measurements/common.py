@@ -91,6 +91,7 @@ def connect_instrument(timeout=60000, reset=False):
             log.info("Agilent B1500 is reset")
         b1500.initialize_all_smus()
         b1500.initialize_all_spgus()
+        b1500.initialize_cmu()
         b1500.data_format(1, mode=1)  # 21 for new, 1 for old (?)
 
         return b1500

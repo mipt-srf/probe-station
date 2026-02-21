@@ -3,6 +3,10 @@ from keysight_b1530a._bindings.initialization import close_session, open_session
 from matplotlib import pyplot as plt
 from pymeasure.instruments.agilent.agilentB1500 import (
     AgilentB1500,
+    MeasMode,
+    MFCMUMeasurementMode,
+    SCUUPath,
+    SweepMode,
 )
 
 from probe_station.measurements.common import (
@@ -20,24 +24,24 @@ PLOT_POINTS = 100
 def run(b1500: AgilentB1500, first_bias=-3, second_bias=3, avg_per_point=1, plot=False):
     setup_rsu_output(b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
     setup_rsu_output(b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
-    i = 901
+    cmu = b1500.cmu
     b1500.time_stamp = True
-    b1500.write("SSP 9,4")
-    b1500.write(f"CN {i}")
-    b1500.write("IMP 103")  # Cp-Rp measurement
-    b1500.write(f"ACV {i},0.1")  # amplitude (0.25 max)
-    b1500.write(f"FC {i},1e4")  # freq
+    cmu.set_scuu_path(SCUUPath.CMU)
+    cmu.enabled = True
+    cmu.set_measurement_mode(MFCMUMeasurementMode.CP_RP)
+    cmu.voltage_ac = 0.1
+    cmu.frequency_ac = 1e4
 
     measure_points = PLOT_POINTS * avg_per_point
-    b1500.write("WTDCV 0,0")  # hold, delay time
-    b1500.write(f"WDCV {i},3,{first_bias},{second_bias},{measure_points}")  # sweep settings (0 to 1, 10 steps)
+    cmu.set_cv_timings(hold_time=0, delay_time=0)
+    cmu.set_cv_parameters(mode=SweepMode.LINEAR_DOUBLE, start=first_bias, stop=second_bias, steps=measure_points)
 
     b1500.write("LMN 1")  # enable monitor, doesn't work
-
-    b1500.write(f"MM 18,{i}")
+    b1500.meas_mode(MeasMode.CV_SWEEP, cmu)
+    b1500.clear_timer()
     b1500.send_trigger()
 
-    b1500.write(f"DCV {i},0")
+    cmu.force_dc_bias(0)
 
 
 def get_results(b1500: AgilentB1500, plot=False):

@@ -69,8 +69,8 @@ class CvSweepProcedure(Procedure):
                 },
             )
 
-    def shutdown(self):
-        close_session()
+    # def shutdown(self):
+    #     close_session()
 
 
 class MainWindow(ManagedWindowBase):
