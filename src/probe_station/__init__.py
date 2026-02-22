@@ -10,6 +10,7 @@ Provides:
 """
 
 from .dataset import Dataset
+from .measurements.b1500 import B1500
 from .measurements.common import connect_instrument
 
-__all__ = ["Dataset", "connect_instrument"]
+__all__ = ["Dataset", "connect_instrument", "B1500"]
