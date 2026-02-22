@@ -1,7 +1,6 @@
 import logging
 import sys
 from enum import Enum
-from time import sleep
 
 import numpy as np
 import scipy
@@ -109,7 +108,7 @@ class CyclingProcedure(Procedure):
             staircase_time=self.pulse_time,
             max_voltage=self.voltage_top_first,
             min_voltage=self.voltage_top_second,
-            steps=self.steps//2,
+            steps=self.steps // 2,
             rise_to_hold_ratio=self.rise_to_hold_ratio,
         )
         if self.enable_bottom:
@@ -118,12 +117,18 @@ class CyclingProcedure(Procedure):
                 staircase_time=self.pulse_time,
                 max_voltage=self.voltage_bottom_first,
                 min_voltage=self.voltage_bottom_second,
-                steps=self.steps//2,
+                steps=self.steps // 2,
                 rise_to_hold_ratio=self.rise_to_hold_ratio,
             )
 
-        if self.enable_bottom and max(abs(self.voltage_top_first - self.voltage_top_second), abs(self.voltage_bottom_first - self.voltage_bottom_second)) > 10:
-
+        if (
+            self.enable_bottom
+            and max(
+                abs(self.voltage_top_first - self.voltage_top_second),
+                abs(self.voltage_bottom_first - self.voltage_bottom_second),
+            )
+            > 10
+        ):
             seq_pu = PulseSequence(seq.pulses[:4])
             seq_nd = PulseSequence(seq.pulses[4:])
 
@@ -134,26 +139,26 @@ class CyclingProcedure(Procedure):
                 sequence=seq_pu,
                 repetitions=1,
                 channel=WGFMUChannel(self.top + 200),
-                measure_points=self.steps*2,
+                measure_points=self.steps * 2,
                 pattern_name="top_pu",
             )
             set_waveform(
-                    sequence=seq_bottom_pu,
-                    repetitions=1,
-                    channel=WGFMUChannel(self.bottom + 200),
-                    measure_points=self.steps*2,
-                    pattern_name="bottom_pu",
-                )
-            
+                sequence=seq_bottom_pu,
+                repetitions=1,
+                channel=WGFMUChannel(self.bottom + 200),
+                measure_points=self.steps * 2,
+                pattern_name="bottom_pu",
+            )
+
             try:
                 run(channels=[self.ch1, self.ch2], range=WGFMUMeasureCurrentRange[self.current_range])
 
                 times, voltages, currents = get_data(
-                    repetitions=1, ch=WGFMUChannel(self.top + 200), points=self.steps*2
+                    repetitions=1, ch=WGFMUChannel(self.top + 200), points=self.steps * 2
                 )
                 times_bottom, voltages_bottom, currents_bottom = get_data(
-                        repetitions=1, ch=WGFMUChannel(self.bottom + 200), points=self.steps*4
-                    )
+                    repetitions=1, ch=WGFMUChannel(self.bottom + 200), points=self.steps * 4
+                )
 
             except WGFMUError:
                 print(get_error_summary())
@@ -166,27 +171,26 @@ class CyclingProcedure(Procedure):
                 sequence=seq_nd,
                 repetitions=1,
                 channel=WGFMUChannel(self.top + 200),
-                measure_points=self.steps*2,
+                measure_points=self.steps * 2,
                 pattern_name="top_nd",
             )
             set_waveform(
-                    sequence=seq_bottom_nd,
-                    repetitions=1,
-                    channel=WGFMUChannel(self.bottom + 200),
-                    measure_points=self.steps*2,
-                    pattern_name="bottom_nd",
-                )
-            
+                sequence=seq_bottom_nd,
+                repetitions=1,
+                channel=WGFMUChannel(self.bottom + 200),
+                measure_points=self.steps * 2,
+                pattern_name="bottom_nd",
+            )
+
             try:
                 run(channels=[self.ch1, self.ch2], range=WGFMUMeasureCurrentRange[self.current_range])
 
                 times_nd, voltages_nd, currents_nd = get_data(
-                    repetitions=1, ch=WGFMUChannel(self.top + 200), points=self.steps*2
+                    repetitions=1, ch=WGFMUChannel(self.top + 200), points=self.steps * 2
                 )
                 times_bottom_nd, voltages_bottom_nd, currents_bottom_nd = get_data(
-                        repetitions=1, ch=WGFMUChannel(self.bottom + 200), points=self.steps*4
-                    )
-                
+                    repetitions=1, ch=WGFMUChannel(self.bottom + 200), points=self.steps * 4
+                )
 
             except WGFMUError:
                 print(get_error_summary())
@@ -201,30 +205,30 @@ class CyclingProcedure(Procedure):
             times_bottom = np.concatenate((times_bottom, times_bottom_nd))
 
             self.emit(
-                    "batch results",
-                    {
-                        "Top electrode voltage": voltages,
-                        "Top electrode Current": currents,
-                        "Time": times,
-                        "Bottom electrode voltage": voltages_bottom,
-                        "Bottom time": times_bottom,
-                        "Bottom electrode current": currents_bottom,
-                    },
-                )
+                "batch results",
+                {
+                    "Top electrode voltage": voltages,
+                    "Top electrode Current": currents,
+                    "Time": times,
+                    "Bottom electrode voltage": voltages_bottom,
+                    "Bottom time": times_bottom,
+                    "Bottom electrode current": currents_bottom,
+                },
+            )
 
         else:
             set_waveform(
                 sequence=seq,
                 repetitions=self.repetitions,
                 channel=WGFMUChannel(self.top + 200),
-                measure_points=self.steps*4,
+                measure_points=self.steps * 4,
             )
             if self.enable_bottom:
                 set_waveform(
                     sequence=seq_bottom,
                     repetitions=self.repetitions,
                     channel=WGFMUChannel(self.bottom + 200),
-                    measure_points=self.steps*4,
+                    measure_points=self.steps * 4,
                 )
 
             try:

@@ -1,15 +1,11 @@
-import numpy as np
 from keysight_b1530a._bindings.config import WGFMUChannel
 from keysight_b1530a._bindings.configuration import set_operation_mode
 from keysight_b1530a._bindings.data_retrieval import get_measurement_data, get_voltage_data
-from keysight_b1530a._bindings.errors import get_error_summary
 from keysight_b1530a._bindings.event_setup import set_measure_event
 from keysight_b1530a._bindings.initialization import clear, close_session, open_session
 from keysight_b1530a._bindings.measurement import (
     connect,
     execute,
-    set_measure_current_range,
-    set_measure_mode,
     wait_until_completed,
 )
 from keysight_b1530a._bindings.pattern_setup import (
@@ -20,11 +16,9 @@ from keysight_b1530a._bindings.sequence_setup import add_sequence
 from keysight_b1530a.enums import (
     WGFMUMeasureCurrentRange,
     WGFMUMeasureEvent,
-    WGFMUMeasureMode,
     WGFMUOperationMode,
 )
-from keysight_b1530a.errors import WGFMUError
-from waveform_generator import PulseSequence, StaircaseSweep, TrapezoidalPulse
+from waveform_generator import PulseSequence, StaircaseSweep
 
 
 def get_sequence(
@@ -45,9 +39,9 @@ def get_sequence(
     )
     negative = [negative_rise, negative_fall]
 
-    trapezoidal = TrapezoidalPulse(
-        amplitude=0.0, pulse_width=edge_time, rise_time=10 * edge_time, fall_time=edge_time
-    )  # fictional pulse to add delay at the end (otherwise last points are missed)
+    # trapezoidal = TrapezoidalPulse(
+    #     amplitude=0.0, pulse_width=edge_time, rise_time=10 * edge_time, fall_time=edge_time
+    # )  # fictional pulse to add delay at the end (otherwise last points are missed)
 
     if sequence_type == "pund":
         # sequence = PulseSequence(positive * 2 + negative * 2 + [trapezoidal])
@@ -78,7 +72,7 @@ def set_waveform(
             pattern_name=pattern_name,
             event_name="event",
             points=measure_points,
-            interval=seq_time / measure_points *1.02,
+            interval=seq_time / measure_points * 1.02,
             average=seq_time / measure_points,
             mode=WGFMUMeasureEvent.AVERAGED,
         )

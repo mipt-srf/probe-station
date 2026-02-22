@@ -48,7 +48,7 @@ class IvSweepProcedure(Procedure):
             average=self.average,
             mode=self.mode,
             gate=self.gate_channel,
-            gate_voltage=self.gate_voltage
+            gate_voltage=self.gate_voltage,
         )
         times, voltages, currents = get_data(self.b1500)
         # print(f"len(times) = {len(times), len(voltages), len(currents)}")
@@ -85,7 +85,7 @@ class MainWindow(ManagedWindowBase):
             "steps",
             "mode",
             "gate_channel",
-            "gate_voltage"
+            "gate_voltage",
             # "compliance",
         ]
         super().__init__(

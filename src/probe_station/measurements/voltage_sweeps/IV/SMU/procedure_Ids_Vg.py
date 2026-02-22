@@ -67,7 +67,6 @@ class RandomProcedure(Procedure):
             else:
                 raise ValueError(f"Voltages higher than 100 V are not suported by {self.smu_source.name}")
 
-
         self.smu_source.force("voltage", 0, self.voltage_ds, compliance)
         for voltage in voltages:
             gate_compliance = 20e-3
