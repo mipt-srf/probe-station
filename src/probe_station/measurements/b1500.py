@@ -22,11 +22,11 @@ class B1500(AgilentB1500):
         """Initialize the WGFMU channels."""
         self.open_wgfmu_session()
         channel_ids = self.query_wgfmu_channels()
-        self.wgfmus = []
-        for channel_id in channel_ids:
+        self.wgfmus = {}
+        for i, channel_id in enumerate(channel_ids, start=1):
             wgfmu = WGFMU(id=channel_id)
-            setattr(self, f"wgfmu{channel_id}", wgfmu)
-            self.wgfmus.append(wgfmu)
+            setattr(self, f"wgfmu{i}", wgfmu)
+            self.wgfmus[i] = wgfmu
 
     def open_wgfmu_session(self):
         """Open a session to the WGFMU module."""
