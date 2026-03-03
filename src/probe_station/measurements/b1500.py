@@ -31,13 +31,13 @@ class B1500(AgilentB1500):
     def open_wgfmu_session(self):
         """Open a session to the WGFMU module."""
         if not self._wgfmu_session_opened:
-            open_session(self.adapter)
+            open_session(self.adapter.resource_name)
             self._wgfmu_session_opened = True
 
     def close_wgfmu_session(self):
         """Close the session to the WGFMU module."""
         if self._wgfmu_session_opened:
-            close_session(self.adapter)  # Note: will cause the error if the session was closed already from outside
+            close_session()  # Note: will cause the error if the session was closed already from outside
             self._wgfmu_session_opened = False
 
     def query_wgfmu_channels(self):
