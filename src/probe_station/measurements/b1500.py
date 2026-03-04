@@ -21,7 +21,7 @@ from pymeasure.instruments.agilent.agilentB1500 import AgilentB1500
 class B1500(AgilentB1500):
     """Subclass of the AgilentB1500 to add WGFMU support and some custom methods."""
 
-    def __init__(self, adapter, **kwargs):
+    def __init__(self, adapter="USB1::0x0957::0x0001::0001::0::INSTR", **kwargs):
         super().__init__(adapter, **kwargs)
         self._wgfmu_session_opened = False
         self.initialize_all_smus()
@@ -53,7 +53,6 @@ class B1500(AgilentB1500):
 
     @wraps(get_channel_ids)
     def query_wgfmu_channels(self):
-        """Query the available WGFMU channel IDs."""
         return get_channel_ids()
 
     @wraps(execute)
