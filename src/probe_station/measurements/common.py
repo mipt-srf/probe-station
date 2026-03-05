@@ -13,6 +13,8 @@ from pymeasure.instruments.agilent.agilentB1500 import (
     PgSelectorPort,
 )
 
+from probe_station import B1500
+
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
@@ -84,14 +86,11 @@ def enable_all_smus(b1500):
 def connect_instrument(timeout=60000, reset=False):
     """Connect to the Agilent B1500 instrument."""
     try:
-        b1500 = AgilentB1500("USB1::0x0957::0x0001::0001::0::INSTR", timeout=timeout)
+        b1500 = B1500(timeout=timeout)
         log.info("Connected to Agilent B1500")
         if reset:
             b1500.reset()
             log.info("Agilent B1500 is reset")
-        b1500.initialize_all_smus()
-        b1500.initialize_all_spgus()
-        b1500.initialize_cmu()
         b1500.data_format(1, mode=1)  # 21 for new, 1 for old (?)
 
         return b1500

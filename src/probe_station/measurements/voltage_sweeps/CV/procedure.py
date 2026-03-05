@@ -2,7 +2,6 @@ import logging
 import sys
 from time import sleep
 
-from keysight_b1530a._bindings.initialization import open_session
 from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget, PlotWidget
 from pymeasure.display.windows import ManagedWindowBase
@@ -36,7 +35,6 @@ class CvSweepProcedure(Procedure):
 
     def startup(self):
         self.b1500 = connect_instrument(reset=False)
-        open_session()
 
     def execute(self):
         log.info(f"Starting the {self.__class__}")

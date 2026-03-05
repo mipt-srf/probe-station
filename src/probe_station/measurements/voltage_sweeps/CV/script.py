@@ -1,14 +1,13 @@
 import numpy as np
-from keysight_b1530a._bindings.initialization import close_session, open_session
 from matplotlib import pyplot as plt
 from pymeasure.instruments.agilent.agilentB1500 import (
-    AgilentB1500,
     MeasMode,
     MFCMUMeasurementMode,
     SCUUPath,
     SweepMode,
 )
 
+from probe_station.measurements.b1500 import B1500
 from probe_station.measurements.common import (
     RSU,
     RSUOutputMode,
@@ -21,7 +20,7 @@ from probe_station.measurements.common import (
 PLOT_POINTS = 100
 
 
-def run(b1500: AgilentB1500, first_bias=-3, second_bias=3, avg_per_point=1, plot=False):
+def run(b1500: B1500, first_bias=-3, second_bias=3, avg_per_point=1, plot=False):
     setup_rsu_output(b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
     setup_rsu_output(b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
     cmu = b1500.cmu
@@ -44,7 +43,7 @@ def run(b1500: AgilentB1500, first_bias=-3, second_bias=3, avg_per_point=1, plot
     cmu.force_dc_bias(0)
 
 
-def get_results(b1500: AgilentB1500, plot=False):
+def get_results(b1500: B1500, plot=False):
     res = b1500.read()
     parsed = parse_data(res)
 
@@ -84,8 +83,7 @@ def get_results(b1500: AgilentB1500, plot=False):
 
 if __name__ == "__main__":
     b1500 = connect_instrument(reset=True)
-    open_session()
     run(b1500, plot=True)
     check_all_errors(b1500)
     get_results(b1500, plot=True)
-    close_session()
+    b1500.close_wgfmu_session()

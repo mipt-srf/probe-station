@@ -14,7 +14,12 @@ from keysight_b1530a import (
     set_measure_event,
     wait_until_completed,
 )
-from keysight_b1530a.enums import WGFMUMeasureEvent
+from keysight_b1530a.enums import (  # noqa: F401
+    WGFMUMeasureCurrentRange,
+    WGFMUMeasureEvent,
+    WGFMUMeasureMode,
+    WGFMUOperationMode,
+)
 from pymeasure.instruments.agilent.agilentB1500 import AgilentB1500
 
 
@@ -33,7 +38,7 @@ class B1500(AgilentB1500):
         """Initialize the WGFMU channels."""
         self.open_wgfmu_session()
         channel_ids = self.query_wgfmu_channels()
-        self.wgfmus = {}
+        self.wgfmus: dict[int, WGFMU] = {}
         for i, channel_id in enumerate(channel_ids, start=1):
             wgfmu = WGFMU(id=channel_id)
             setattr(self, f"wgfmu{i}", wgfmu)

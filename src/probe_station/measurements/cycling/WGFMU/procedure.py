@@ -6,7 +6,6 @@ import numpy as np
 import scipy
 from keysight_b1530a._bindings.config import WGFMUChannel
 from keysight_b1530a._bindings.errors import get_error_summary
-from keysight_b1530a._bindings.initialization import clear, close_session, initialize, open_session
 from keysight_b1530a.enums import (
     WGFMUMeasureCurrentRange,
 )
@@ -24,6 +23,7 @@ from pymeasure.experiment import (
 from PyQt5.QtCore import QLocale
 from waveform_generator import PulseSequence
 
+from probe_station.measurements.common import connect_instrument
 from probe_station.measurements.cycling.WGFMU.script import (
     get_data,
     get_sequence,
@@ -95,12 +95,12 @@ class CyclingProcedure(Procedure):
     ]
 
     def startup(self):
-        clear()
+        self.b1500 = connect_instrument(timeout=60000, reset=False)
+        self.b1500.clear_wgfmu()
         self.ch1 = WGFMUChannel.CH1
         self.ch2 = WGFMUChannel.CH2
         self.channels = [self.ch1, self.ch2]
-        open_session("USB1::0x0957::0x0001::0001::0::INSTR")
-        initialize()
+        self.b1500.initialize_wgfmu()
 
     def execute(self):
         seq = get_sequence(
@@ -136,6 +136,7 @@ class CyclingProcedure(Procedure):
             seq_bottom_nd = PulseSequence(seq_bottom.pulses[4:])
 
             set_waveform(
+                b1500=self.b1500,
                 sequence=seq_pu,
                 repetitions=1,
                 channel=WGFMUChannel(self.top + 200),
@@ -143,6 +144,7 @@ class CyclingProcedure(Procedure):
                 pattern_name="top_pu",
             )
             set_waveform(
+                b1500=self.b1500,
                 sequence=seq_bottom_pu,
                 repetitions=1,
                 channel=WGFMUChannel(self.bottom + 200),
@@ -151,21 +153,21 @@ class CyclingProcedure(Procedure):
             )
 
             try:
-                run(channels=[self.ch1, self.ch2], range=WGFMUMeasureCurrentRange[self.current_range])
+                run(b1500=self.b1500, channels=[self.ch1, self.ch2], range=WGFMUMeasureCurrentRange[self.current_range])
 
                 times, voltages, currents = get_data(
-                    repetitions=1, ch=WGFMUChannel(self.top + 200), points=self.steps * 2
+                    b1500=self.b1500, repetitions=1, ch=WGFMUChannel(self.top + 200), points=self.steps * 2
                 )
                 times_bottom, voltages_bottom, currents_bottom = get_data(
-                    repetitions=1, ch=WGFMUChannel(self.bottom + 200), points=self.steps * 4
+                    b1500=self.b1500, repetitions=1, ch=WGFMUChannel(self.bottom + 200), points=self.steps * 4
                 )
 
             except WGFMUError:
                 print(get_error_summary())
-                clear()
-                close_session()
+                self.b1500.clear_wgfmu()
+                self.b1500.close_wgfmu_session()
 
-            clear()
+            self.b1500.clear_wgfmu()
 
             set_waveform(
                 sequence=seq_nd,
@@ -183,19 +185,19 @@ class CyclingProcedure(Procedure):
             )
 
             try:
-                run(channels=[self.ch1, self.ch2], range=WGFMUMeasureCurrentRange[self.current_range])
+                run(b1500=self.b1500, channels=[self.ch1, self.ch2], range=WGFMUMeasureCurrentRange[self.current_range])
 
                 times_nd, voltages_nd, currents_nd = get_data(
-                    repetitions=1, ch=WGFMUChannel(self.top + 200), points=self.steps * 2
+                    b1500=self.b1500, repetitions=1, ch=WGFMUChannel(self.top + 200), points=self.steps * 2
                 )
                 times_bottom_nd, voltages_bottom_nd, currents_bottom_nd = get_data(
-                    repetitions=1, ch=WGFMUChannel(self.bottom + 200), points=self.steps * 4
+                    b1500=self.b1500, repetitions=1, ch=WGFMUChannel(self.bottom + 200), points=self.steps * 4
                 )
 
             except WGFMUError:
                 print(get_error_summary())
-                clear()
-                close_session()
+                self.b1500.clear_wgfmu()
+                self.b1500.close_wgfmu_session()
 
             voltages = np.concatenate((voltages, voltages_nd))
             currents = np.concatenate((currents, currents_nd))
@@ -238,17 +240,17 @@ class CyclingProcedure(Procedure):
                     run(channels=[WGFMUChannel(self.top + 200)], range=WGFMUMeasureCurrentRange[self.current_range])
 
                 # times, voltages, currents = get_data(
-                #     repetitions=1, ch=WGFMUChannel(self.top + 200), points=self.steps*4
+                #     b1500=self.b1500, repetitions=1, ch=WGFMUChannel(self.top + 200), points=self.steps*4
                 # )
                 # if self.enable_bottom:
                 #     times_bottom, voltages_bottom, currents_bottom = get_data(
-                #         repetitions=1, ch=WGFMUChannel(self.bottom + 200), points=self.steps*4
+                #         b1500=self.b1500, repetitions=1, ch=WGFMUChannel(self.bottom + 200), points=self.steps*4
                 #     )
 
             except WGFMUError:
                 print(get_error_summary())
-                clear()
-                close_session()
+                self.b1500.clear_wgfmu()
+                self.b1500.close_wgfmu_session()
 
             # polarization_positive = np.concatenate(
             #     (
@@ -293,7 +295,7 @@ class CyclingProcedure(Procedure):
             #     polarization = calculate_polarization(times, filtered_polarization_current, self.pad_size)
             #     log.info("Polarization (Pr): %s", polarization)
 
-        close_session()
+        self.b1500.close_wgfmu_session()
 
 
 class MainWindow(ManagedWindowBase):

@@ -1,13 +1,12 @@
-from keysight_b1530a._bindings.initialization import close_session, open_session
 from pymeasure.instruments.agilent.agilentB1500 import (
     ADCMode,
     ADCType,
-    AgilentB1500,
     MeasMode,
     MeasOpMode,
     SweepMode,
 )
 
+from probe_station.measurements.b1500 import B1500
 from probe_station.measurements.common import (
     RSU,
     RSUOutputMode,
@@ -18,7 +17,7 @@ from probe_station.measurements.common import (
 )
 
 
-def run(b1500: AgilentB1500, start, end, steps, average=127, top=4, bottom=3, mode=1):
+def run(b1500: B1500, start, end, steps, average=127, top=4, bottom=3, mode=1):
     # b1500.reset()
     setup_rsu_output(b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
     setup_rsu_output(b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
@@ -100,7 +99,7 @@ def run(b1500: AgilentB1500, start, end, steps, average=127, top=4, bottom=3, mo
     smu.force("voltage", 0, 0)
 
 
-def get_data(b1500: AgilentB1500):
+def get_data(b1500: B1500):
     data = parse_data(b1500.read())
 
     times = data[::3]
@@ -112,7 +111,6 @@ def get_data(b1500: AgilentB1500):
 
 if __name__ == "__main__":
     b1500 = connect_instrument(reset=True)
-    open_session()
     run(b1500, start=-3, end=3, steps=100, top=4)
     get_data(b1500)
-    close_session()
+    b1500.close_wgfmu_session()

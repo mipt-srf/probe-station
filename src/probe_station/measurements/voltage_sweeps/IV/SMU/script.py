@@ -1,8 +1,6 @@
 import numpy as np
-from pymeasure.instruments.agilent.agilentB1500 import (
-    AgilentB1500,
-)
 
+from probe_station.measurements.b1500 import B1500
 from probe_station.measurements.common import (
     RSU,
     RSUOutputMode,
@@ -13,7 +11,7 @@ from probe_station.measurements.common import (
 )
 
 
-def run(b1500: AgilentB1500, start, end, steps, top=4, bottom=3):
+def run(b1500: B1500, start, end, steps, top=4, bottom=3):
     setup_rsu_output(b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
     setup_rsu_output(b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
 
@@ -42,7 +40,7 @@ def run(b1500: AgilentB1500, start, end, steps, top=4, bottom=3):
     b1500.force_gnd()
 
 
-def measure_at_voltage(b1500: AgilentB1500, voltage, top=4, bottom=3):
+def measure_at_voltage(b1500: B1500, voltage, top=4, bottom=3):
     top_smu = get_smu_by_number(b1500, top)
     top_smu.force("voltage", 0, voltage)  # 4 ms between steps, 10 ms with measuring
     if top == 4:

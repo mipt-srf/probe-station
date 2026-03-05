@@ -3,7 +3,6 @@
 import logging
 import sys
 
-from keysight_b1530a._bindings.initialization import open_session
 from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget
 from pymeasure.display.windows import ManagedWindowBase
@@ -48,7 +47,6 @@ class FetCurrentMeasurementProcedure(Procedure):
 
     def startup(self):
         self.b1500 = connect_instrument()
-        open_session()
         setup_rsu_output(self.b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
         setup_rsu_output(self.b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
 

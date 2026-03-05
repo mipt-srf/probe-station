@@ -1,33 +1,17 @@
 import numpy as np
 from keysight_b1530a._bindings.config import WGFMUChannel
-from keysight_b1530a._bindings.configuration import set_operation_mode
-from keysight_b1530a._bindings.data_retrieval import get_measurement_data, get_voltage_data
 from keysight_b1530a._bindings.errors import get_error_summary
-from keysight_b1530a._bindings.event_setup import set_measure_event
-from keysight_b1530a._bindings.initialization import (
-    clear,
-    open_session,
-)
-from keysight_b1530a._bindings.measurement import (
-    connect,
-    execute,
-    set_measure_current_range,
-    set_measure_mode,
-    wait_until_completed,
-)
-from keysight_b1530a._bindings.pattern_setup import (
-    add_vectors,
-    create_pattern,
-)
-from keysight_b1530a._bindings.sequence_setup import add_sequence
-from keysight_b1530a.enums import (
+from keysight_b1530a.errors import WGFMUError
+from waveform_generator import PulseSequence, StaircaseSweep, TrapezoidalPulse
+
+from probe_station.measurements.b1500 import (
+    B1500,
     WGFMUMeasureCurrentRange,
     WGFMUMeasureEvent,
     WGFMUMeasureMode,
     WGFMUOperationMode,
 )
-from keysight_b1530a.errors import WGFMUError
-from waveform_generator import PulseSequence, StaircaseSweep, TrapezoidalPulse
+from probe_station.measurements.common import connect_instrument
 
 
 def get_sequence(
@@ -62,6 +46,7 @@ def get_sequence(
 
 
 def set_waveform(
+    b1500: B1500,
     sequence,
     repetitions=1,
     channel=WGFMUChannel.CH1,
@@ -70,12 +55,12 @@ def set_waveform(
     pattern_name="sequence",
 ):
     pattern_name += f"_{channel.name.lower()}"
-    create_pattern(pattern_name, sequence.pulses[0].dc_bias)
+    b1500.create_wgfmu_pattern(pattern_name, sequence.pulses[0].dc_bias)
     times, voltages = sequence.to_vectors()
-    add_vectors(pattern_name, times, voltages)
+    b1500.add_vectors_to_wgfmu_pattern(pattern_name, times, voltages)
     seq_time = sequence.total_duration
     if measure:
-        set_measure_event(
+        b1500.set_wgfmu_measure_event(
             pattern_name=pattern_name,
             event_name="event",
             points=measure_points,
@@ -83,22 +68,27 @@ def set_waveform(
             average=seq_time / measure_points,
             mode=WGFMUMeasureEvent.AVERAGED,
         )
-    add_sequence(pattern_name, repetitions, channel=channel)
+    wgfmu = b1500.wgfmus[channel - 200]
+    wgfmu.add_sequence(pattern_name, repetitions=repetitions)
 
 
-def run(channels=[WGFMUChannel.CH2], mode=WGFMUOperationMode.FASTIV, range=WGFMUMeasureCurrentRange.RANGE_1_UA):
+def run(
+    b1500: B1500, channels=[WGFMUChannel.CH2], mode=WGFMUOperationMode.FASTIV, range=WGFMUMeasureCurrentRange.RANGE_1_UA
+):
     for channel in channels:
-        set_operation_mode(channel, mode)
-        set_measure_mode(channel, WGFMUMeasureMode.CURRENT)
-        set_measure_current_range(channel, range)
-        connect(channel)
-    execute()
-    wait_until_completed()
+        channel -= 200  # convert from 201, 202...
+        wgfmu = b1500.wgfmus[channel]
+        wgfmu.set_operation_mode(mode)
+        wgfmu.set_measure_mode(WGFMUMeasureMode.CURRENT)
+        wgfmu.set_measure_current_range(range)
+        wgfmu.enable()
+    b1500.run_wgfmu_measurement()
 
 
-def get_data(repetitions, ch=WGFMUChannel.CH2, points=100):
-    times, currents = get_measurement_data(ch)
-    voltages = get_voltage_data(ch)
+def get_data(b1500: B1500, repetitions, ch=WGFMUChannel.CH2, points=100):
+    wgfmu = b1500.wgfmus[ch - 200]
+    times, currents = wgfmu.get_measurement_data()
+    voltages = wgfmu.get_voltage_data()
 
     # drop all except last rep
     times = np.split(np.array(times), repetitions)[-1]
@@ -121,15 +111,16 @@ def get_data(repetitions, ch=WGFMUChannel.CH2, points=100):
 
 if __name__ == "__main__":
     repetitions = 2
-    clear()
+    b1500 = connect_instrument(reset=True)
+    b1500.clear()
     ch1 = WGFMUChannel.CH1
     ch2 = WGFMUChannel.CH2
-    open_session()
+    b1500.open_wgfmu_session()
     pund = get_sequence(sequence_type="pund")
-    set_waveform(sequence=pund, repetitions=repetitions, channel=ch2)
-    set_waveform(sequence=-pund, repetitions=repetitions, channel=ch1)
+    set_waveform(b1500, sequence=pund, repetitions=repetitions, channel=ch2)
+    set_waveform(b1500, sequence=-pund, repetitions=repetitions, channel=ch1)
     try:
-        run(channels=[ch1, ch2])
+        run(b1500, channels=[ch1, ch2])
     except WGFMUError:
         print(get_error_summary())
-        clear()
+        b1500.clear()

@@ -6,7 +6,6 @@ import numpy as np
 import scipy
 from keysight_b1530a._bindings.config import WGFMUChannel
 from keysight_b1530a._bindings.errors import get_error_summary
-from keysight_b1530a._bindings.initialization import clear, close_session, initialize, open_session
 from keysight_b1530a.enums import (
     WGFMUMeasureCurrentRange,
 )
@@ -23,6 +22,7 @@ from pymeasure.experiment import (
 )
 from PyQt5.QtCore import QLocale
 
+from probe_station.measurements.common import connect_instrument
 from probe_station.measurements.voltage_sweeps.IV.WGFMU.script import (
     get_data,
     get_sequence,
@@ -95,12 +95,12 @@ class WgfmuIvSweepProcedure(Procedure):
     ]
 
     def startup(self):
-        clear()
+        self.b1500 = connect_instrument()
+        self.b1500.clear_wgfmu()
         self.ch1 = WGFMUChannel.CH1
         self.ch2 = WGFMUChannel.CH2
         self.channels = [self.ch1, self.ch2]
-        open_session("USB1::0x0957::0x0001::0001::0::INSTR")
-        initialize()
+        self.b1500.initialize_wgfmu()
 
     def execute(self):
         seq = get_sequence(
@@ -122,6 +122,7 @@ class WgfmuIvSweepProcedure(Procedure):
             )
 
         set_waveform(
+            b1500=self.b1500,
             sequence=seq,
             repetitions=2,
             channel=WGFMUChannel(self.top + 200),
@@ -129,6 +130,7 @@ class WgfmuIvSweepProcedure(Procedure):
         )
         if self.enable_bottom:
             set_waveform(
+                b1500=self.b1500,
                 sequence=seq_bottom,
                 repetitions=2,
                 channel=WGFMUChannel(self.bottom + 200),
@@ -137,22 +139,26 @@ class WgfmuIvSweepProcedure(Procedure):
 
         try:
             if self.enable_bottom:
-                run(channels=[self.ch1, self.ch2], range=WGFMUMeasureCurrentRange[self.current_range])
+                run(b1500=self.b1500, channels=[self.ch1, self.ch2], range=WGFMUMeasureCurrentRange[self.current_range])
             else:
-                run(channels=[WGFMUChannel(self.top + 200)], range=WGFMUMeasureCurrentRange[self.current_range])
+                run(
+                    b1500=self.b1500,
+                    channels=[WGFMUChannel(self.top + 200)],
+                    range=WGFMUMeasureCurrentRange[self.current_range],
+                )
 
             times, voltages, currents = get_data(
-                repetitions=2, ch=WGFMUChannel(self.top + 200), points=self.plot_points
+                b1500=self.b1500, repetitions=2, ch=WGFMUChannel(self.top + 200), points=self.plot_points
             )
             if self.enable_bottom:
                 times_bottom, voltages_bottom, currents_bottom = get_data(
-                    repetitions=2, ch=WGFMUChannel(self.bottom + 200), points=self.plot_points
+                    b1500=self.b1500, repetitions=2, ch=WGFMUChannel(self.bottom + 200), points=self.plot_points
                 )
 
         except WGFMUError:
             print(get_error_summary())
-            clear()
-            close_session()
+            self.b1500.clear_wgfmu()
+            self.b1500.close_wgfmu_session()
 
         polarization_positive = np.concatenate(
             (
@@ -197,7 +203,7 @@ class WgfmuIvSweepProcedure(Procedure):
             polarization = calculate_polarization(times, filtered_polarization_current, self.pad_size)
             log.info("Polarization (Pr): %s", polarization)
 
-        close_session()
+        self.b1500.close_wgfmu_session()
 
 
 class MainWindow(ManagedWindowBase):
