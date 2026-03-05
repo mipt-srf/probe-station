@@ -12,7 +12,7 @@ from pymeasure.experiment import (
 )
 from PyQt5.QtCore import QLocale
 
-from probe_station.measurements.common import connect_instrument
+from probe_station.measurements.common import connect_instrument, get_smu_by_number
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -40,11 +40,16 @@ class RandomProcedure(Procedure):
         self.b1500 = connect_instrument()
 
     def execute(self):
-        self.smu_source = self.b1500.smus[self.source]
+        # self.smu_source = self.b1500.smus[self.source]
+        self.smu_source = get_smu_by_number(self.b1500, self.source)  # temp fix, while SMU rework is not merged
         self.smu_source.enable()
-        self.smu_drain = self.b1500.smus[self.drain]
+
+        # self.smu_drain = self.b1500.smus[self.drain]
+        self.smu_drain = get_smu_by_number(self.b1500, self.drain)  # temp fix, while SMU rework is not merged
         self.smu_drain.enable()
-        self.smu_gate = self.b1500.smus[self.gate]
+
+        # self.smu_gate = self.b1500.smus[self.gate]
+        self.smu_gate = get_smu_by_number(self.b1500, self.gate)  # temp fix, while SMU rework is not merged
         self.smu_gate.enable()
 
         self.b1500.clear_timer()
