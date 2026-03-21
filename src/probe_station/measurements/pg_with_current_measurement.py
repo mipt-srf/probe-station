@@ -1,6 +1,7 @@
 import logging
 import time
 
+import pandas
 from keysight_b1530a import close_session
 from matplotlib import pyplot as plt
 from pymeasure.instruments.agilent.agilentB1500 import (
@@ -8,6 +9,7 @@ from pymeasure.instruments.agilent.agilentB1500 import (
     SPGU,
     ALWGPattern,
     MeasMode,
+    SPGUChannel,
     SPGUOperationMode,
     SPGUOutputMode,
 )
@@ -17,6 +19,7 @@ from probe_station.measurements.common import (
     RSU,
     RSUOutputMode,
     connect_instrument,
+    get_smu_by_number,
     setup_rsu_output,
 )
 
@@ -24,21 +27,18 @@ log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-def run(b1500: B1500, repetitions, amplitude, width, rise, tail, channel=102, bipolar=False, pulse_separation=True):
-    if pulse_separation:
-        delay_2nd = width
-    else:
-        delay_2nd = tail / 4
+def run(
+    b1500: B1500, repetitions, amplitude, width, rise, tail, channel=102, smu_ch=1, bipolar=False, pulse_separation=True
+):
     # Total duration of one two-pulse sequence (used for DURATION output mode)
-    period = 2 * (rise + width + tail) + delay_2nd
-    period *= 1.025
+    period = 2 * (rise + tail)
 
     spgu: SPGU = b1500.spgu1
 
     pg = None
     for ch in [spgu.ch1, spgu.ch2]:
         if ch.id == channel:
-            pg = ch
+            pg: SPGUChannel = ch
             break
     if pg is None:
         raise ValueError(f"Channel {channel} not found in SPGU channels.")
@@ -75,13 +75,18 @@ def run(b1500: B1500, repetitions, amplitude, width, rise, tail, channel=102, bi
 
     pg.apply_setup()
 
-    smu: SMU = b1500.smu3
+    smu: SMU = get_smu_by_number(b1500, smu_ch)
     b1500.meas_mode(MeasMode.SAMPLING, smu)
-    points = 1000
-    b1500.sampling_timing(0, interval=2e-3, number=points)
+    # points = 1000
+    interval = 2e-3
+    points = int(period * repetitions / interval)
+    b1500.sampling_timing(0, interval=interval, number=points)
     # print(b1500.read_data(1))
 
-    spgu.output = True
+    b1500.write("MCC")
+    b1500.check_errors()
+    # spgu.output = True
+    b1500.write(f"MSP {pg.id}")
     b1500.send_trigger()
 
     elapsed = 0
@@ -93,11 +98,10 @@ def run(b1500: B1500, repetitions, amplitude, width, rise, tail, channel=102, bi
     print(
         f"Elapsed: {elapsed:.1f}s / {period * repetitions:.1f}s",
     )
-    import pandas
 
     df: pandas.DataFrame = b1500.read_data(points)
     print(df)
-    df.plot(y="SMU3 Current (A)")
+    df.plot(y=f"SMU{smu_ch} Current (A)")
     # print(b1500.check_errors())
     plt.show()
     close_session()
