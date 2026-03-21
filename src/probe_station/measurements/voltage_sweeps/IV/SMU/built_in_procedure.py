@@ -53,14 +53,15 @@ class IvSweepProcedure(Procedure):
             {"Time": times, "Voltage": voltages, "Top electrode current": np.abs(currents)},
         )
 
-        times, voltages, currents = get_data(self.b1500)
-        # print(f"len(times) = {len(times), len(voltages), len(currents)}")
-        # print(voltages[:20])
+        if self.mode == 2:
+            times, voltages, currents = get_data(self.b1500)
+            # print(f"len(times) = {len(times), len(voltages), len(currents)}")
+            # print(voltages[:20])
 
-        self.emit(
-            "batch results",
-            {"Time": times, "Voltage": voltages, "Top electrode current": np.abs(currents)},
-        )
+            self.emit(
+                "batch results",
+                {"Time": times, "Voltage": voltages, "Top electrode current": np.abs(currents)},
+            )
 
 
 class MainWindow(ManagedWindowBase):

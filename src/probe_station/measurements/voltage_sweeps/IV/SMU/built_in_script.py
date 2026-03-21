@@ -94,7 +94,7 @@ def run(b1500: B1500, start, end, steps, average=127, top=4, bottom=3, mode=1):
             # Pcomp=0.03,
         )
 
-    b1500.send_trigger()
+        b1500.send_trigger()
 
     smu.force("voltage", 0, 0)
 
