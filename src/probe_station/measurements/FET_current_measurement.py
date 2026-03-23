@@ -73,11 +73,11 @@ class FetCurrentMeasurementProcedure(BaseProcedure):
         base_smu.force("voltage", 0, self.base_voltage)
 
         tuples = drain_smu.measure_point()
-        print(tuples)
+        log.debug(f"Drain SMU measurement: {tuples}")
         drain_current = tuples[1][1]
 
         tuples = gate_smu.measure_point()
-        print(tuples)
+        log.debug(f"Gate SMU measurement: {tuples}")
         gate_current = tuples[1][1]
 
         self.emit("results", {"Drain Current": drain_current, "Gate Current": gate_current})

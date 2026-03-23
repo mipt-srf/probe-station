@@ -29,6 +29,7 @@ from probe_station.measurements.cycling.WGFMU.script import (
     run,
     set_waveform,
 )
+from probe_station.utilities import setup_file_logging
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -163,7 +164,7 @@ class CyclingProcedure(BaseProcedure):
                 )
 
             except WGFMUError:
-                print(get_error_summary())
+                log.error(f"{get_error_summary()}")
                 self.b1500.clear_wgfmu()
                 self.b1500.close_wgfmu_session()
 
@@ -195,7 +196,7 @@ class CyclingProcedure(BaseProcedure):
                 )
 
             except WGFMUError:
-                print(get_error_summary())
+                log.error(f"{get_error_summary()}")
                 self.b1500.clear_wgfmu()
                 self.b1500.close_wgfmu_session()
 
@@ -248,7 +249,7 @@ class CyclingProcedure(BaseProcedure):
                 #     )
 
             except WGFMUError:
-                print(get_error_summary())
+                log.error(f"{get_error_summary()}")
                 self.b1500.clear_wgfmu()
                 self.b1500.close_wgfmu_session()
 
@@ -338,6 +339,7 @@ class MainWindow(ManagedWindowBase):
 
 
 if __name__ == "__main__":
+    setup_file_logging()
     QLocale.setDefault(QLocale(QLocale.English, QLocale.UnitedStates))
     app = QtWidgets.QApplication(sys.argv)
     window = MainWindow()

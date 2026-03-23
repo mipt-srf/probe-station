@@ -123,7 +123,7 @@ def check_all_errors(b1500):
         try:
             b1500.check_errors()
         except Exception as e:
-            print(e)
+            log.error(f"{e}")
         else:
             break
 

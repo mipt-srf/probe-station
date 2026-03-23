@@ -1,14 +1,19 @@
 """Batch processing of cycling experiment folders (CV, SMU IV, WGFMU IV)."""
 
 import itertools
+import logging
 from pathlib import Path
 
 from matplotlib import pyplot as plt
 from numpy import sqrt
+
 from probe_station.analysis.dataset import Dataset
 from probe_station.measurements.voltage_sweeps.IV.WGFMU.procedure import (
     calculate_polarization,
 )
+
+log = logging.getLogger(__name__)
+log.addHandler(logging.NullHandler())
 
 
 class CyclingExperiment:
@@ -125,7 +130,7 @@ class CvBatchProcessing:
 
         self.cycles = cycles_to_keep
         self.datasets = datasets_to_keep
-        print(f"Dropped cycles: {dropped_cycles}")
+        log.info(f"Dropped cycles: {dropped_cycles}")
 
     def plot_eps_v(self, drop_below=None):
         for cycle, ds in zip(self.cycles, self.datasets):
@@ -134,18 +139,18 @@ class CvBatchProcessing:
                 # ds.plot_epsilon(color="blue", alpha=0.2, label=cycle)
                 ds.plot_epsilon(label=cycle)
             except Exception as e:
-                print(f"Error in plot_eps_v: {e}, {ds}")
+                log.error(f"Error in plot_eps_v: {e}, {ds}")
 
     def plot_eps_cycles(self, voltage, color=None):
         if self.datasets == []:
-            print("No datasets to plot.")
+            log.warning("No datasets to plot.")
             return
         epsilons = []
         for cycle, ds in zip(self.cycles, self.datasets):
             ds.handler.set_geometry(area=self.exp.area, thickness=self.exp.thickness)
             epsilon = ds.handler.get_epsilons_at_voltage(voltage)[1]
             epsilons.append(epsilon)
-        print(self.exp.folder, self.exp.folder[-5:])
+        log.debug(f"Plotting experiment folder: {self.exp.folder} (suffix: {self.exp.folder[-5:]})")
         plt.plot(self.cycles, epsilons, "o", label=self.exp.folder, color=color)
 
     def plot_coercive_cycles(self, drop_below=None):
@@ -196,7 +201,7 @@ class SmuBatchProcessing:
 
         self.cycles = cycles_to_keep
         self.datasets = datasets_to_keep
-        print(f"Dropped cycles: {dropped_cycles}")
+        log.info(f"Dropped cycles: {dropped_cycles}")
 
     def drop_above_outlier_curves(self):
         cycles_to_keep = []
@@ -218,7 +223,7 @@ class SmuBatchProcessing:
 
         self.cycles = cycles_to_keep
         self.datasets = datasets_to_keep
-        print(f"Dropped cycles: {dropped_cycles}")
+        log.info(f"Dropped cycles: {dropped_cycles}")
 
     def plot_current_v(self, indexes=None, drop_below=None):
         if not indexes:
@@ -226,7 +231,7 @@ class SmuBatchProcessing:
                 for cycle, ds in zip(self.cycles, self.datasets):
                     ds.plot(color="blue", alpha=0.2)
             except Exception as e:
-                print(f"Error in plot_current_v: {e}, {ds}")
+                log.error(f"Error in plot_current_v: {e}, {ds}")
             finally:
                 return
 
@@ -285,7 +290,7 @@ class WgfmuBatchProcessing:
 
         self.cycles = cycles_to_keep
         self.datasets = datasets_to_keep
-        print(f"Dropped cycles: {dropped_cycles}")
+        log.info(f"Dropped cycles: {dropped_cycles}")
 
     def drop_outlier_curves(self):
         cycles_to_keep = []
@@ -310,7 +315,7 @@ class WgfmuBatchProcessing:
 
         self.cycles = cycles_to_keep
         self.datasets = datasets_to_keep
-        print(f"Dropped cycles: {dropped_cycles}")
+        log.info(f"Dropped cycles: {dropped_cycles}")
 
     def drop_above_outlier_curves(self):
         cycles_to_keep = []
@@ -332,7 +337,7 @@ class WgfmuBatchProcessing:
 
         self.cycles = cycles_to_keep
         self.datasets = datasets_to_keep
-        print(f"Dropped cycles: {dropped_cycles}")
+        log.info(f"Dropped cycles: {dropped_cycles}")
 
     def plot_iv(self, indexes=None):
         if indexes is None:
@@ -352,10 +357,10 @@ class WgfmuBatchProcessing:
 
     def plot_polarization_cycles(self, color=None):
         polarizations = []
-        print(len(self.cycles), len(self.datasets))
+        log.debug(f"Cycles: {len(self.cycles)}, datasets: {len(self.datasets)}")
         for cycle, ds in zip(self.cycles, self.datasets):
             if (filtered_polarization := ds.data.get("Filtered Polarization current")) is None:
-                print(11)
+                log.debug("'Filtered Polarization current' column not found, falling back to 'Polarization current'")
                 filtered_polarization = ds.data["Polarization current"]
             polarization = calculate_polarization(
                 ds.data["Time"], filtered_polarization, pad_size_um=sqrt(self.exp.area / 1e-12)

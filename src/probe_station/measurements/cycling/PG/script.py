@@ -75,7 +75,7 @@ def run(b1500, repetitions, amplitude, width, rise, tail, channel=102, bipolar=F
         if spgu.complete:
             break
         elapsed = time.perf_counter() - start_time
-    print(f"Elapsed: {elapsed:.1f}s / {period * repetitions:.1f}s", end="\r")
+    log.debug(f"Elapsed: {elapsed:.1f}s / {period * repetitions:.1f}s")
 
     check_all_errors(b1500)
 

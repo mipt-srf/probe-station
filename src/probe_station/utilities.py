@@ -2,6 +2,8 @@
 
 import logging
 from collections.abc import Generator
+from datetime import datetime
+from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
 import matplotlib
@@ -15,7 +17,43 @@ from scipy.interpolate import interp1d
 from probe_station.dataset import Dataset
 
 plt.style.use(["science", "no-latex", "notebook"])
-logging.basicConfig(level=logging.INFO)
+
+_logging_configured = False
+
+
+def setup_file_logging(log_dir: str | Path = "logs") -> None:
+    """Configure the root logger with a rotating file handler and a console handler.
+
+    Call this once at application startup before any other logging occurs.
+    Subsequent calls are no-ops.
+
+    :param log_dir: Directory for log files. Created if it does not exist.
+                    Defaults to ``logs/`` in the current working directory.
+    """
+    global _logging_configured
+    if _logging_configured:
+        return
+    _logging_configured = True
+
+    log_dir = Path(log_dir)
+    log_dir.mkdir(parents=True, exist_ok=True)
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    log_file = log_dir / f"probe_station_{timestamp}.log"
+
+    root = logging.getLogger()
+    root.setLevel(logging.DEBUG)
+
+    file_handler = RotatingFileHandler(log_file, maxBytes=5_000_000, backupCount=5, encoding="utf-8")
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s"))
+
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
+
+    root.addHandler(file_handler)
+    root.addHandler(console_handler)
 
 
 def get_files_in_folder(path: str, ignore: tuple = ()) -> Generator[Path, None, None]:
@@ -340,5 +378,5 @@ def get_memory_window(voltages, currents, target_current=0.00005, tolerance=0.05
         return None
     closest_voltages = voltages.iloc[idxs]
     if print_voltages:
-        print("Closest voltages:", closest_voltages.values)
+        logging.getLogger(__name__).debug(f"Closest voltages: {closest_voltages.values}")
     return np.abs(np.diff(closest_voltages))[0]
