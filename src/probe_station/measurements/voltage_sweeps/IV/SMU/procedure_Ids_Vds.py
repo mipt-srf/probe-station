@@ -5,17 +5,17 @@ import numpy as np
 from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget, PlotWidget
 from pymeasure.display.windows import ManagedWindowBase
-from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter, Procedure
+from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter
 from PyQt5.QtCore import QLocale
 
-from probe_station.measurements.common import connect_instrument
+from probe_station.measurements.common import BaseProcedure, connect_instrument
 from probe_station.measurements.voltage_sweeps.IV.SMU.script_Ids_Vds import get_data, run
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-class IvSweepProcedure(Procedure):
+class IvSweepProcedure(BaseProcedure):
     first_voltage = FloatParameter("First voltage", units="V", default=-3)
     second_voltage = FloatParameter("Second voltage", units="V", default=3)
     gate_voltage = FloatParameter("Gate voltage", units="V", default=0)
@@ -31,6 +31,7 @@ class IvSweepProcedure(Procedure):
     DATA_COLUMNS = ["Voltage", "Source electrode current", "Time"]
 
     def startup(self):
+        super().startup()
         self.b1500 = connect_instrument(timeout=60000, reset=False)
 
     def execute(self):

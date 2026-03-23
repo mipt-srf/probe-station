@@ -18,11 +18,10 @@ from pymeasure.experiment import (
     FloatParameter,
     IntegerParameter,
     ListParameter,
-    Procedure,
 )
 from PyQt5.QtCore import QLocale
 
-from probe_station.measurements.common import connect_instrument
+from probe_station.measurements.common import BaseProcedure, connect_instrument
 from probe_station.measurements.voltage_sweeps.IV.WGFMU.script import (
     get_data,
     get_sequence,
@@ -45,7 +44,7 @@ class SweepMode(Enum):
     PUND = "pund"
 
 
-class WgfmuIvSweepProcedure(Procedure):
+class WgfmuIvSweepProcedure(BaseProcedure):
     mode = ListParameter("Mode", default=SweepMode.PUND.name, choices=[e.name for e in SweepMode])
 
     top = IntegerParameter("Top channel", default=2)
@@ -95,6 +94,7 @@ class WgfmuIvSweepProcedure(Procedure):
     ]
 
     def startup(self):
+        super().startup()
         self.b1500 = connect_instrument()
         self.b1500.clear_wgfmu()
         self.ch1 = WGFMUChannel.CH1

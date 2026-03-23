@@ -8,11 +8,11 @@ from pymeasure.display.windows import ManagedWindowBase
 from pymeasure.experiment import (
     FloatParameter,
     IntegerParameter,
-    Procedure,
 )
 from PyQt5.QtCore import QLocale
 
 from probe_station.measurements.common import (
+    BaseProcedure,
     RSU,
     RSUOutputMode,
     connect_instrument,
@@ -25,7 +25,7 @@ log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-class IvSweepProcedure(Procedure):
+class IvSweepProcedure(BaseProcedure):
     first_voltage = FloatParameter("First voltage", units="V", default=-3)
     second_voltage = FloatParameter("Second voltage", units="V", default=3)
     top_channel = IntegerParameter("Top channel", default=4)
@@ -35,6 +35,7 @@ class IvSweepProcedure(Procedure):
     DATA_COLUMNS = ["Time", "Voltage", "Top electrode current"]
 
     def startup(self):
+        super().startup()
         self.b1500 = connect_instrument(timeout=10000)
         # self.b1500.reset()
 

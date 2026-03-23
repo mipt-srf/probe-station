@@ -18,12 +18,11 @@ from pymeasure.experiment import (
     FloatParameter,
     IntegerParameter,
     ListParameter,
-    Procedure,
 )
 from PyQt5.QtCore import QLocale
 from waveform_generator import PulseSequence
 
-from probe_station.measurements.common import connect_instrument
+from probe_station.measurements.common import BaseProcedure, connect_instrument
 from probe_station.measurements.cycling.WGFMU.script import (
     get_data,
     get_sequence,
@@ -46,7 +45,7 @@ class SweepMode(Enum):
     PUND = "pund"
 
 
-class CyclingProcedure(Procedure):
+class CyclingProcedure(BaseProcedure):
     mode = ListParameter("Mode", default=SweepMode.DEFAULT.name, choices=[e.name for e in SweepMode])
 
     top = IntegerParameter("Top channel", default=2)
@@ -95,6 +94,7 @@ class CyclingProcedure(Procedure):
     ]
 
     def startup(self):
+        super().startup()
         self.b1500 = connect_instrument(timeout=60000, reset=False)
         self.b1500.clear_wgfmu()
         self.ch1 = WGFMUChannel.CH1

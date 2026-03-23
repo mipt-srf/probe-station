@@ -8,11 +8,10 @@ from pymeasure.display.windows import ManagedWindowBase
 from pymeasure.experiment import (
     FloatParameter,
     IntegerParameter,
-    Procedure,
 )
 from PyQt5.QtCore import QLocale
 
-from probe_station.measurements.common import connect_instrument
+from probe_station.measurements.common import BaseProcedure, connect_instrument
 from probe_station.measurements.voltage_sweeps.CV.script import (
     PLOT_POINTS,
     get_results,
@@ -23,7 +22,7 @@ log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-class CvSweepProcedure(Procedure):
+class CvSweepProcedure(BaseProcedure):
     """Capacitance-voltage sweep procedure using the B1500 built-in CV measurement."""
 
     first_voltage = FloatParameter("First voltage", units="V", default=-3)
@@ -34,6 +33,7 @@ class CvSweepProcedure(Procedure):
     DATA_COLUMNS = ["Voltage", "Capacitance", "Resistance"]
 
     def startup(self):
+        super().startup()
         self.b1500 = connect_instrument(reset=False)
 
     def execute(self):
