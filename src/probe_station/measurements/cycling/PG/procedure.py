@@ -6,16 +6,17 @@ from keysight_b1530a._bindings.initialization import open_session
 from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget
 from pymeasure.display.windows import ManagedWindowBase
-from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter, Metadata, Procedure
+from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter
 from PyQt5.QtCore import QLocale
 
+from probe_station.measurements.common import BaseProcedure
 from probe_station.measurements.cycling.PG.script import connect_instrument, run
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-class PgCyclingProcedure(Procedure):
+class PgCyclingProcedure(BaseProcedure):
     """Pulse-generator cycling procedure for fatigue/wake-up experiments.
 
     Sends bipolar or unipolar voltage pulses via the B1500 SPGU and
@@ -35,14 +36,12 @@ class PgCyclingProcedure(Procedure):
     dc_channel = IntegerParameter("DC bias channel", default=1, group_by="dc_bias")
     dc_bias_value = FloatParameter("DC bias", default=0.0, group_by="dc_bias")
 
-    start_time = Metadata("Start time", default=0)
-
     DATA_COLUMNS = ["Cycle", "Random Number"]
 
     def startup(self):
+        super().startup()
         self.b1500 = connect_instrument()
         open_session()
-        self.start_time = datetime.now()
 
     def execute(self):
         log.info("Starting the loop of %d repetitions" % self.repetitions)

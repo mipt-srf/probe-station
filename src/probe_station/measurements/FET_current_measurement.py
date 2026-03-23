@@ -10,12 +10,12 @@ from pymeasure.experiment import (
     BooleanParameter,
     FloatParameter,
     IntegerParameter,
-    Procedure,
 )
 from pymeasure.instruments.agilent.agilentB1500 import ADCType
 from PyQt5.QtCore import QLocale
 
 from probe_station.measurements.common import (
+    BaseProcedure,
     RSU,
     RSUOutputMode,
     connect_instrument,
@@ -27,7 +27,7 @@ log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-class FetCurrentMeasurementProcedure(Procedure):
+class FetCurrentMeasurementProcedure(BaseProcedure):
     """Measure drain and gate current of a FET at specified bias voltages."""
 
     gate_voltage = FloatParameter("Gate voltage", units="V", default=10.0)
@@ -46,6 +46,7 @@ class FetCurrentMeasurementProcedure(Procedure):
     DATA_COLUMNS = ["Drain Current", "Gate Current"]
 
     def startup(self):
+        super().startup()
         self.b1500 = connect_instrument()
         setup_rsu_output(self.b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
         setup_rsu_output(self.b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)

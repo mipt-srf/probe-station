@@ -8,11 +8,10 @@ from pymeasure.display.windows import ManagedWindowBase
 from pymeasure.experiment import (
     FloatParameter,
     IntegerParameter,
-    Procedure,
 )
 from PyQt5.QtCore import QLocale
 
-from probe_station.measurements.common import connect_instrument, get_smu_by_number
+from probe_station.measurements.common import BaseProcedure, connect_instrument, get_smu_by_number
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -24,7 +23,7 @@ def parse(string):
     return values
 
 
-class RandomProcedure(Procedure):
+class RandomProcedure(BaseProcedure):
     source = IntegerParameter("Source channel", default=4)
     drain = IntegerParameter("Drain channel", default=3)
     gate = IntegerParameter("Gate channel", default=1)
@@ -37,6 +36,7 @@ class RandomProcedure(Procedure):
     DATA_COLUMNS = ["Gate Voltage", "Drain-Source Current", "Gate Current"]
 
     def startup(self):
+        super().startup()
         self.b1500 = connect_instrument()
 
     def execute(self):

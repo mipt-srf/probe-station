@@ -10,11 +10,11 @@ from pymeasure.display.windows import ManagedWindowBase
 from pymeasure.experiment import (
     FloatParameter,
     IntegerParameter,
-    Procedure,
 )
 from PyQt5.QtCore import QLocale
 
 from probe_station.measurements.common import (
+    BaseProcedure,
     RSU,
     RSUOutputMode,
     connect_instrument,
@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-class DcProcedure(Procedure):
+class DcProcedure(BaseProcedure):
     """Apply a constant DC voltage on a selected SMU channel for a given duration."""
 
     voltage = FloatParameter("Voltage", units="V", default=10.0)
@@ -36,6 +36,7 @@ class DcProcedure(Procedure):
     DATA_COLUMNS = []
 
     def startup(self):
+        super().startup()
         self.b1500 = connect_instrument()
         setup_rsu_output(self.b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
         setup_rsu_output(self.b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)

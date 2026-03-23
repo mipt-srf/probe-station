@@ -1,6 +1,7 @@
 """Common utilities for instrument connection and RSU/SMU configuration."""
 
 import logging
+from datetime import datetime
 from enum import Enum
 
 from keysight_b1530a._bindings.config import WGFMUChannel
@@ -12,11 +13,26 @@ from pymeasure.instruments.agilent.agilentB1500 import (
     PgSelectorConnectionStatus,
     PgSelectorPort,
 )
+from pymeasure.experiment import Metadata, Procedure
 
 from probe_station import B1500
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
+
+
+class BaseProcedure(Procedure):
+    """Base class for all probe-station procedures.
+
+    Adds a ``start_time`` metadata field that is automatically recorded in
+    the CSV header when a measurement begins.
+    """
+
+    start_time = Metadata("Start time", default=0)
+
+    def startup(self):
+        super().startup()
+        self.start_time = datetime.now()
 
 
 class RSUOutputMode(Enum):
