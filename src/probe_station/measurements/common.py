@@ -31,6 +31,7 @@ class BaseProcedure(Procedure):
     start_time = Metadata("Start time", default=0)
 
     def startup(self):
+        super().startup()
         self.start_time = datetime.now()
 
 
