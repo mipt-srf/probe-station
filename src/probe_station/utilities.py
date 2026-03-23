@@ -1,6 +1,7 @@
 """Module contains utility functions for the probe station project."""
 
 import logging
+import os
 from collections.abc import Generator
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
@@ -35,30 +36,25 @@ def setup_file_logging(log_dir: str | Path = "logs") -> None:
         return
 
     log_dir = Path(log_dir)
+    log_dir.mkdir(parents=True, exist_ok=True)
 
-    try:
-        log_dir.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    log_file = log_dir / f"probe_station_{timestamp}_{os.getpid()}.log"
 
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        log_file = log_dir / f"probe_station_{timestamp}.log"
+    root = logging.getLogger()
+    root.setLevel(logging.DEBUG)
 
-        root = logging.getLogger()
-        root.setLevel(logging.DEBUG)
+    file_handler = RotatingFileHandler(log_file, maxBytes=5_000_000, backupCount=5, encoding="utf-8")
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s"))
 
-        file_handler = RotatingFileHandler(log_file, maxBytes=5_000_000, backupCount=5, encoding="utf-8")
-        file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s"))
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
 
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.INFO)
-        console_handler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
-
-        root.addHandler(file_handler)
-        root.addHandler(console_handler)
-    except Exception:
-        raise
-    else:
-        _logging_configured = True
+    root.addHandler(file_handler)
+    root.addHandler(console_handler)
+    _logging_configured = True
 
 
 def get_files_in_folder(path: str, ignore: tuple = ()) -> Generator[Path, None, None]:
