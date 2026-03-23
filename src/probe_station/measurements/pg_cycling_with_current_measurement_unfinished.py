@@ -92,7 +92,8 @@ def run(b1500: B1500, repetitions, amplitude, width, rise, tail, channel=102, bi
     import pandas
 
     df: pandas.DataFrame = b1500.read_data(points)
-    log.debug(f"Measurement data:\n{df}")
+    if log.isEnabledFor(logging.DEBUG):
+        log.debug(f"Measurement data (shape={df.shape}):\n{df.head()}")
     df.plot(y="SMU3 Current (A)")
     plt.show()
     close_session()

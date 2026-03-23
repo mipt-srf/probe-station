@@ -43,7 +43,7 @@ class ScriptRunner(QThread):
             else:
                 subprocess.Popen([sys.executable, "-m", self.script_module])
         except Exception as e:
-            log.error(f"Error running {self.script_module}: {e}")
+            log.exception(f"Error running {self.script_module}: {e}")
 
 
 class ModernButton(QPushButton):

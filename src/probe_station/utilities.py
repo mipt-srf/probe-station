@@ -33,27 +33,32 @@ def setup_file_logging(log_dir: str | Path = "logs") -> None:
     global _logging_configured
     if _logging_configured:
         return
-    _logging_configured = True
 
     log_dir = Path(log_dir)
-    log_dir.mkdir(parents=True, exist_ok=True)
 
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    log_file = log_dir / f"probe_station_{timestamp}.log"
+    try:
+        log_dir.mkdir(parents=True, exist_ok=True)
 
-    root = logging.getLogger()
-    root.setLevel(logging.DEBUG)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        log_file = log_dir / f"probe_station_{timestamp}.log"
 
-    file_handler = RotatingFileHandler(log_file, maxBytes=5_000_000, backupCount=5, encoding="utf-8")
-    file_handler.setLevel(logging.DEBUG)
-    file_handler.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s"))
+        root = logging.getLogger()
+        root.setLevel(logging.DEBUG)
 
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.INFO)
-    console_handler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
+        file_handler = RotatingFileHandler(log_file, maxBytes=5_000_000, backupCount=5, encoding="utf-8")
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s"))
 
-    root.addHandler(file_handler)
-    root.addHandler(console_handler)
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(logging.INFO)
+        console_handler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
+
+        root.addHandler(file_handler)
+        root.addHandler(console_handler)
+    except Exception:
+        raise
+    else:
+        _logging_configured = True
 
 
 def get_files_in_folder(path: str, ignore: tuple = ()) -> Generator[Path, None, None]:

@@ -98,7 +98,8 @@ def run(
     log.info(f"Elapsed: {elapsed:.1f}s / {period * repetitions:.1f}s")
 
     df: pandas.DataFrame = b1500.read_data(points)
-    log.debug(f"Measurement data:\n{df}")
+    if log.isEnabledFor(logging.DEBUG):
+        log.debug(f"Measurement data (shape={df.shape}):\n{df.head()}")
     df.plot(y=f"SMU{smu_ch} Current (A)")
     # print(b1500.check_errors())
     plt.show()

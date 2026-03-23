@@ -22,8 +22,6 @@ from probe_station.measurements.voltage_sweeps.IV.WGFMU.procedure import (
 )
 
 folder = "results"
-Path(folder).mkdir(exist_ok=True)
-setup_file_logging(folder)
 experiment_counter = itertools.count(1)
 
 logger = logging.getLogger(__name__)
@@ -167,6 +165,10 @@ def log_points(start, stop, per_decade=5):
 
 # run_cv()
 
+
+if __name__ == "__main__":
+    Path(folder).mkdir(exist_ok=True)
+    setup_file_logging(folder)
 
 experiment_counter = itertools.count(1)
 run_iv_sweep()

@@ -139,7 +139,7 @@ class CvBatchProcessing:
                 # ds.plot_epsilon(color="blue", alpha=0.2, label=cycle)
                 ds.plot_epsilon(label=cycle)
             except Exception as e:
-                log.error(f"Error in plot_eps_v: {e}, {ds}")
+                log.exception(f"Error in plot_eps_v: {e}, {ds}")
 
     def plot_eps_cycles(self, voltage, color=None):
         if self.datasets == []:
@@ -231,7 +231,7 @@ class SmuBatchProcessing:
                 for cycle, ds in zip(self.cycles, self.datasets):
                     ds.plot(color="blue", alpha=0.2)
             except Exception as e:
-                log.error(f"Error in plot_current_v: {e}, {ds}")
+                log.exception(f"Error in plot_current_v: {e}, {ds}")
             finally:
                 return
 
