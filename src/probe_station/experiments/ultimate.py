@@ -158,91 +158,90 @@ def log_points(start, stop, per_decade=5):
 # log_points(10, 1000, per_decade=2) # From 10 to 1000, with 2 additional points per decade (so 3 points: 10, p1, p2, 100,)
 
 
-# run_cycling(100)
-# run_iv_sweep()
-
-# run_dc_iv()
-
-# run_cv()
-
-
 if __name__ == "__main__":
     Path(folder).mkdir(exist_ok=True)
     setup_file_logging(folder)
 
-experiment_counter = itertools.count(1)
-run_iv_sweep()
-sleep(3)
-plt.figure(figsize=(10, 6))
-ds = Results.load(f"{folder}/{1}_WgfmuIvSweepProcedure.csv")
-plt.plot(
-    ds.data["Top electrode voltage"],
-    ds.data["Top electrode Current"],
-)
+    # run_cycling(100)
+    # run_iv_sweep()
 
-plt.xlabel("Voltage")
-plt.ylabel("Top electrode current")
-plt.legend()
-plt.grid(True)
-plt.show()
-sleep(3)
+    # run_dc_iv()
 
-run_dc_iv()
+    # run_cv()
 
-plt.figure(figsize=(10, 6))
-ds = Results.load(f"{folder}/{2}_IvSweepProcedure.csv")
-plt.plot(
-    ds.data["Voltage"],
-    ds.data["Top electrode current"],
-)
-
-plt.xlabel("Voltage")
-plt.ylabel("Top electrode current")
-plt.legend()
-plt.grid(True)
-plt.show()
-sleep(3)
-
-run_cv()
-
-plt.figure(figsize=(10, 6))
-ds = Results.load(f"{folder}/{3}_CvSweepProcedure.csv")
-plt.plot(
-    ds.data["Voltage"],
-    ds.data["Capacitance"],
-)
-
-plt.xlabel("Voltage")
-plt.ylabel("Top electrode current")
-plt.legend()
-plt.grid(True)
-plt.show()
-sleep(3)
-total = 0
-for cycles in [
-    # *[25] * 4,
-    # *[100] * 9,
-    # *[1000] * 9,
-    # *[10000] * 9,
-    # *[100_000] * 9,
-    # *[1_000_000] * 999,
-    # *log_points(10, 1e6, per_decade=4).tolist(),
-    *log_points(10, 1e10, per_decade=10).tolist()[:],
-    # *[1_000_000] * 999,
-    # *[1_000_000] * 1000,
-    # *[10**7] * 100
-]:
-    cycles = int(cycles)
-    total += cycles
-    logger.info(
-        f"Total cycles (start): {total} || {datetime.now()} || {datetime.now() + timedelta(seconds=cycles * 1e-5 * 3)}"
+    experiment_counter = itertools.count(1)
+    run_iv_sweep()
+    sleep(3)
+    plt.figure(figsize=(10, 6))
+    ds = Results.load(f"{folder}/{1}_WgfmuIvSweepProcedure.csv")
+    plt.plot(
+        ds.data["Top electrode voltage"],
+        ds.data["Top electrode Current"],
     )
-    run_cycling(cycles)
-    run_iv_sweep(voltage_first=2.6, voltage_second=-2.6)
-    run_iv_sweep(mode="DEFAULT", voltage_first=2.6, voltage_second=-2.6)
-    run_iv_sweep(voltage_first=5, voltage_second=-5)
-    run_iv_sweep(mode="DEFAULT", voltage_first=5, voltage_second=-5)
+
+    plt.xlabel("Voltage")
+    plt.ylabel("Top electrode current")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+    sleep(3)
+
     run_dc_iv()
+
+    plt.figure(figsize=(10, 6))
+    ds = Results.load(f"{folder}/{2}_IvSweepProcedure.csv")
+    plt.plot(
+        ds.data["Voltage"],
+        ds.data["Top electrode current"],
+    )
+
+    plt.xlabel("Voltage")
+    plt.ylabel("Top electrode current")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+    sleep(3)
+
     run_cv()
 
-    #!!!!!!!!!!!!!!!!! bipolar false
+    plt.figure(figsize=(10, 6))
+    ds = Results.load(f"{folder}/{3}_CvSweepProcedure.csv")
+    plt.plot(
+        ds.data["Voltage"],
+        ds.data["Capacitance"],
+    )
+
+    plt.xlabel("Voltage")
+    plt.ylabel("Top electrode current")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+    sleep(3)
+    total = 0
+    for cycles in [
+        # *[25] * 4,
+        # *[100] * 9,
+        # *[1000] * 9,
+        # *[10000] * 9,
+        # *[100_000] * 9,
+        # *[1_000_000] * 999,
+        # *log_points(10, 1e6, per_decade=4).tolist(),
+        *log_points(10, 1e10, per_decade=10).tolist()[:],
+        # *[1_000_000] * 999,
+        # *[1_000_000] * 1000,
+        # *[10**7] * 100
+    ]:
+        cycles = int(cycles)
+        total += cycles
+        logger.info(
+            f"Total cycles (start): {total} || {datetime.now()} || {datetime.now() + timedelta(seconds=cycles * 1e-5 * 3)}"
+        )
+        run_cycling(cycles)
+        run_iv_sweep(voltage_first=2.6, voltage_second=-2.6)
+        run_iv_sweep(mode="DEFAULT", voltage_first=2.6, voltage_second=-2.6)
+        run_iv_sweep(voltage_first=5, voltage_second=-5)
+        run_iv_sweep(mode="DEFAULT", voltage_first=5, voltage_second=-5)
+        run_dc_iv()
+        run_cv()
+
+        #!!!!!!!!!!!!!!!!! bipolar false
