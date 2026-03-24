@@ -2,8 +2,8 @@
 
 import logging
 from datetime import datetime
-from pathlib import Path
 from enum import Enum
+from pathlib import Path
 
 from keysight_b1530a._bindings.config import WGFMUChannel
 from keysight_b1530a._bindings.configuration import set_operation_mode
@@ -50,15 +50,24 @@ class BaseProcedure(Procedure):
         """
         from PyQt5.QtWidgets import QApplication
 
+        app = QApplication.instance()
+        if app is None:
+            log.warning("Screenshot skipped: no QApplication instance")
+            return None
+
         dest = Path(directory) / f"{self.start_time:%Y%m%d_%H%M%S}_screenshot.png"
         try:
-            app = QApplication.instance()
             if full_screen:
                 pixmap = app.primaryScreen().grabWindow(0)
             else:
-                window = next(w for w in app.topLevelWidgets() if w.isVisible())
+                window = next((w for w in app.topLevelWidgets() if w.isVisible()), None)
+                if window is None:
+                    log.warning("Screenshot skipped: no visible top-level window")
+                    return None
                 pixmap = window.grab()
-            pixmap.save(str(dest), "PNG")
+            if not pixmap.save(dest, "PNG"):
+                log.warning("Screenshot failed: could not save to %s", dest)
+                return None
             log.info("Screenshot saved: %s", dest)
             return dest
         except Exception as e:
