@@ -47,9 +47,13 @@ class IvSweepProcedure(BaseProcedure):
         )
 
         # mode 1: one LINEAR_DOUBLE sweep → 2*steps output points
-        # mode 2: two LINEAR_DOUBLE half-sweeps → steps output points each
-        steps_per_sweep = self.steps if self.mode == 2 else 2 * self.steps
-        num_sweeps = 2 if self.mode == 2 else 1
+        # mode 2: two LINEAR_DOUBLE half-sweeps, each configured with steps//2 and LINEAR_DOUBLE
+        if self.mode == 2:
+            steps_per_sweep = 2 * (self.steps // 2)
+            num_sweeps = 2
+        else:
+            steps_per_sweep = 2 * self.steps
+            num_sweeps = 1
         total_steps = num_sweeps * steps_per_sweep
 
         emitted = 0
@@ -57,12 +61,12 @@ class IvSweepProcedure(BaseProcedure):
             gen = iter_sweep_data(self.b1500, steps_per_sweep)
             try:
                 for time, voltage, current in gen:
+                    emitted += 1
                     self.emit("progress", emitted / total_steps * 100)
                     self.emit(
                         "results",
                         {"Time": time, "Voltage": voltage, "Top electrode current": np.abs(current)},
                     )
-                    emitted += 1
                     if self.should_stop():
                         log.warning("Caught the stop flag in the procedure")
                         self.b1500.abort()

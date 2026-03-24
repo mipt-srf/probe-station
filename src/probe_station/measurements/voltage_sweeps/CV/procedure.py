@@ -60,7 +60,7 @@ class CvSweepProcedure(BaseProcedure):
                 buf_Rp.append(Rp)
                 buf_dc_forced.append(dc_forced)
                 if len(buf_Cp) == self.avg_per_point:
-                    step = i // self.avg_per_point
+                    step = (i + 1) // self.avg_per_point
                     self.emit("progress", step / displayed_steps * 100)
                     self.emit(
                         "results",
