@@ -54,7 +54,7 @@ class BaseProcedure(Procedure):
         dest = Path(directory) / f"{self.start_time:%Y%m%d_%H%M%S}_screenshot.png"
         try:
             if full_screen:
-                pixmap = app.primaryScreen().grabWindow(app.desktop().winId())
+                pixmap = app.primaryScreen().grabWindow(0)
             else:
                 window = next((w for w in app.topLevelWidgets() if w.isVisible()), None)
                 if window is None:
