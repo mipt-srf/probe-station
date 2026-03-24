@@ -53,7 +53,7 @@ class IvSweepProcedure(BaseProcedure):
         total_steps = num_sweeps * steps_per_sweep
 
         emitted = 0
-        for sweep in range(num_sweeps):
+        for _ in range(num_sweeps):
             gen = iter_sweep_data(self.b1500, steps_per_sweep)
             try:
                 for time, voltage, current in gen:

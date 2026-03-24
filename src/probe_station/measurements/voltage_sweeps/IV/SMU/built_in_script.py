@@ -108,13 +108,14 @@ def iter_sweep_data(b1500: B1500, total_steps: int):
     Yields (time, voltage, current) for each sweep step.
     """
     resource = b1500.adapter.connection
+    original_termination = resource.read_termination
     resource.read_termination = ","
     total_values = total_steps * 3  # time, current, voltage per step
     try:
         buf = []
         for i in range(total_values):
             if i == total_values - 1:
-                resource.read_termination = "\n"
+                resource.read_termination = original_termination
             raw = resource.read().strip()
             buf.append(float(raw[3:]))
             if len(buf) == 3:
@@ -122,7 +123,7 @@ def iter_sweep_data(b1500: B1500, total_steps: int):
                 buf = []
                 yield time, voltage, current
     finally:
-        resource.read_termination = "\n"
+        resource.read_termination = original_termination
 
 
 def get_data(b1500: B1500):

@@ -30,13 +30,14 @@ def iter_sweep_results(b1500: B1500, total_steps: int):
     Yields (Cp, Rp, dc_measured, dc_forced) for each sweep step.
     """
     resource = b1500.adapter.connection
+    original_termination = resource.read_termination
     resource.read_termination = ","
     total_values = total_steps * _VALUES_PER_CV_STEP
     try:
         buf = []
         for i in range(total_values):
             if i == total_values - 1:
-                resource.read_termination = "\n"
+                resource.read_termination = original_termination
             raw = resource.read().strip()
             buf.append(float(raw[3:]))
             if len(buf) == _VALUES_PER_CV_STEP:
@@ -44,7 +45,7 @@ def iter_sweep_results(b1500: B1500, total_steps: int):
                 buf = []
                 yield Cp, Rp, dc_measured, dc_forced
     finally:
-        resource.read_termination = "\n"
+        resource.read_termination = original_termination
 
 
 def run(b1500: B1500, first_bias=-3, second_bias=3, avg_per_point=1, plot=False):
