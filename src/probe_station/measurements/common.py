@@ -37,7 +37,7 @@ class BaseProcedure(Procedure):
 
     def has_gui(self) -> bool:
         """Return True if a Qt GUI is currently running."""
-        from PyQt6.QtWidgets import QApplication
+        from PyQt5.QtWidgets import QApplication
 
         return QApplication.instance() is not None
 
@@ -48,13 +48,13 @@ class BaseProcedure(Procedure):
         :param full_screen: If True, capture the entire screen instead of the window.
         :returns: Path to the saved screenshot, or None if capture failed.
         """
-        from PyQt6.QtWidgets import QApplication
+        from PyQt5.QtWidgets import QApplication
 
         app = QApplication.instance()
         dest = Path(directory) / f"{self.start_time:%Y%m%d_%H%M%S}_screenshot.png"
         try:
             if full_screen:
-                pixmap = app.primaryScreen().grabWindow(0)
+                pixmap = app.primaryScreen().grabWindow(app.desktop().winId())
             else:
                 window = next((w for w in app.topLevelWidgets() if w.isVisible()), None)
                 if window is None:
