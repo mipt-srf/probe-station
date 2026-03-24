@@ -37,9 +37,12 @@ class BaseProcedure(Procedure):
 
     def has_gui(self) -> bool:
         """Return True if a Qt GUI is currently running."""
-        from PyQt5.QtWidgets import QApplication
+        try:
+            from pymeasure.display.Qt import QtWidgets
 
-        return QApplication.instance() is not None
+            return QtWidgets.QApplication.instance() is not None
+        except ImportError:
+            return False
 
     def take_screenshot(self, directory: str | Path, full_screen: bool = False) -> Path | None:
         """Capture the PyMeasure GUI window and save it into the results directory.
@@ -48,9 +51,9 @@ class BaseProcedure(Procedure):
         :param full_screen: If True, capture the entire screen instead of the window.
         :returns: Path to the saved screenshot, or None if capture failed.
         """
-        from PyQt5.QtWidgets import QApplication
+        from pymeasure.display.Qt import QtWidgets
 
-        app = QApplication.instance()
+        app = QtWidgets.QApplication.instance()
         dest = Path(directory) / f"{self.start_time:%Y%m%d_%H%M%S}_screenshot.png"
         try:
             if full_screen:
