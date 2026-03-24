@@ -2,6 +2,7 @@
 
 import logging
 from datetime import datetime
+from pathlib import Path
 from enum import Enum
 
 from keysight_b1530a._bindings.config import WGFMUChannel
@@ -33,6 +34,36 @@ class BaseProcedure(Procedure):
     def startup(self):
         super().startup()
         self.start_time = datetime.now()
+
+    def has_gui(self) -> bool:
+        """Return True if a Qt GUI is currently running."""
+        from PyQt5.QtWidgets import QApplication
+
+        return QApplication.instance() is not None
+
+    def take_screenshot(self, directory: str | Path, full_screen: bool = False) -> Path | None:
+        """Capture the PyMeasure GUI window and save it into the results directory.
+
+        :param directory: Directory where the measurement results are saved.
+        :param full_screen: If True, capture the entire screen instead of the window.
+        :returns: Path to the saved screenshot, or None if capture failed.
+        """
+        from PyQt5.QtWidgets import QApplication
+
+        dest = Path(directory) / f"{self.start_time:%Y%m%d_%H%M%S}_screenshot.png"
+        try:
+            app = QApplication.instance()
+            if full_screen:
+                pixmap = app.primaryScreen().grabWindow(0)
+            else:
+                window = next(w for w in app.topLevelWidgets() if w.isVisible())
+                pixmap = window.grab()
+            pixmap.save(str(dest), "PNG")
+            log.info("Screenshot saved: %s", dest)
+            return dest
+        except Exception as e:
+            log.warning("Screenshot failed: %s", e)
+            return None
 
 
 class RSUOutputMode(Enum):
