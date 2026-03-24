@@ -1,6 +1,5 @@
 import logging
 import sys
-from time import sleep
 
 from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget, PlotWidget
@@ -14,7 +13,7 @@ from PyQt5.QtCore import QLocale
 from probe_station.measurements.common import BaseProcedure, connect_instrument
 from probe_station.measurements.voltage_sweeps.CV.script import (
     PLOT_POINTS,
-    get_results,
+    iter_sweep_results,
     run,
 )
 
@@ -46,26 +45,20 @@ class CvSweepProcedure(BaseProcedure):
             avg_per_point=self.avg_per_point,
         )
         measure_points = self.avg_per_point * PLOT_POINTS
-        sec_per_point = 32 / 200
-        sec_per_percent = sec_per_point * measure_points / 100
-        for i in range(100):
-            sleep(sec_per_percent)
-            self.emit("progress", i)
-            if self.should_stop():
-                log.warning("Caught the stop flag in the procedure")
-                self.b1500.abort()
-                self.b1500.force_gnd()
-                break
-        else:
-            capacitance, resistance, ac, dc_measured, dc_forced = get_results(self.b1500)
-            self.emit(
-                "batch results",
-                {
-                    "Voltage": dc_measured,
-                    "Capacitance": capacitance,
-                    "Resistance": resistance,
-                },
-            )
+        total_steps = 2 * measure_points  # LINEAR_DOUBLE sweep: forward + backward
+
+        gen = iter_sweep_results(self.b1500, total_steps)
+        try:
+            for i, (Cp, Rp, dc_measured, dc_forced) in enumerate(gen):
+                self.emit("progress", i / total_steps * 100)
+                self.emit("results", {"Voltage": dc_forced, "Capacitance": Cp, "Resistance": Rp})
+                if self.should_stop():
+                    log.warning("Caught the stop flag in the procedure")
+                    self.b1500.abort()
+                    self.b1500.force_gnd()
+                    return
+        finally:
+            gen.close()
 
     # def shutdown(self):
     #     close_session()

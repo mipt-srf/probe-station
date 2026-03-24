@@ -9,7 +9,7 @@ from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParame
 from PyQt5.QtCore import QLocale
 
 from probe_station.measurements.common import BaseProcedure, connect_instrument
-from probe_station.measurements.voltage_sweeps.IV.SMU.built_in_script import get_data, run
+from probe_station.measurements.voltage_sweeps.IV.SMU.built_in_script import iter_sweep_data, run
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -45,24 +45,31 @@ class IvSweepProcedure(BaseProcedure):
             average=self.average,
             mode=self.mode,
         )
-        times, voltages, currents = get_data(self.b1500)
-        # print(f"len(times) = {len(times), len(voltages), len(currents)}")
-        # print(voltages[:20])
 
-        self.emit(
-            "batch results",
-            {"Time": times, "Voltage": voltages, "Top electrode current": np.abs(currents)},
-        )
+        # mode 1: one LINEAR_DOUBLE sweep → 2*steps output points
+        # mode 2: two LINEAR_DOUBLE half-sweeps → steps output points each
+        steps_per_sweep = self.steps if self.mode == 2 else 2 * self.steps
+        num_sweeps = 2 if self.mode == 2 else 1
+        total_steps = num_sweeps * steps_per_sweep
 
-        if self.mode == 2:
-            times, voltages, currents = get_data(self.b1500)
-            # print(f"len(times) = {len(times), len(voltages), len(currents)}")
-            # print(voltages[:20])
-
-            self.emit(
-                "batch results",
-                {"Time": times, "Voltage": voltages, "Top electrode current": np.abs(currents)},
-            )
+        emitted = 0
+        for sweep in range(num_sweeps):
+            gen = iter_sweep_data(self.b1500, steps_per_sweep)
+            try:
+                for time, voltage, current in gen:
+                    self.emit("progress", emitted / total_steps * 100)
+                    self.emit(
+                        "results",
+                        {"Time": time, "Voltage": voltage, "Top electrode current": np.abs(current)},
+                    )
+                    emitted += 1
+                    if self.should_stop():
+                        log.warning("Caught the stop flag in the procedure")
+                        self.b1500.abort()
+                        self.b1500.force_gnd()
+                        return
+            finally:
+                gen.close()
 
 
 class MainWindow(ManagedWindowBase):
