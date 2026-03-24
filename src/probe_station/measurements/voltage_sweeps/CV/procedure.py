@@ -1,7 +1,6 @@
 import logging
 import sys
 
-import numpy as np
 from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget, PlotWidget
 from pymeasure.display.windows import ManagedWindowBase
@@ -48,29 +47,11 @@ class CvSweepProcedure(BaseProcedure):
         measure_points = self.avg_per_point * PLOT_POINTS
         total_steps = 2 * measure_points  # LINEAR_DOUBLE sweep: forward + backward
 
-        displayed_steps = total_steps // self.avg_per_point
-        buf_Cp: list[float] = []
-        buf_Rp: list[float] = []
-        buf_dc_forced: list[float] = []
-
         gen = iter_sweep_results(self.b1500, total_steps)
         try:
-            for i, (Cp, Rp, _dc_measured, dc_forced) in enumerate(gen):
-                buf_Cp.append(Cp)
-                buf_Rp.append(Rp)
-                buf_dc_forced.append(dc_forced)
-                if len(buf_Cp) == self.avg_per_point:
-                    step = (i + 1) // self.avg_per_point
-                    self.emit("progress", step / displayed_steps * 100)
-                    self.emit(
-                        "results",
-                        {
-                            "Voltage": np.mean(buf_dc_forced),
-                            "Capacitance": np.mean(buf_Cp),
-                            "Resistance": np.mean(buf_Rp),
-                        },
-                    )
-                    buf_Cp, buf_Rp, buf_dc_forced = [], [], []
+            for i, (Cp, Rp, dc_measured, dc_forced) in enumerate(gen):
+                self.emit("progress", i / total_steps * 100)
+                self.emit("results", {"Voltage": dc_forced, "Capacitance": Cp, "Resistance": Rp})
                 if self.should_stop():
                     log.warning("Caught the stop flag in the procedure")
                     self.b1500.abort()
