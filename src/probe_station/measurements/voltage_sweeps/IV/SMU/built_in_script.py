@@ -1,3 +1,5 @@
+import numpy as np
+from matplotlib import pyplot as plt
 from pymeasure.instruments.agilent.agilentB1500 import (
     ADCMode,
     ADCType,
@@ -100,5 +102,19 @@ def run(b1500: B1500, start, end, steps, average=127, top=4, bottom=3, mode=1):
 
 if __name__ == "__main__":
     b1500 = connect_instrument(reset=True)
-    run(b1500, start=-3, end=3, steps=100, top=4)
+    steps = 100
+    run(b1500, start=-3, end=3, steps=steps, top=4)
+    times, currents, voltages = zip(*b1500.iter_output(2 * steps, 3))
+    times = np.array(times)
+    currents = np.array(currents)
+    voltages = np.array(voltages)
+
+    plt.figure()
+    plt.plot(voltages, np.abs(currents))
+    plt.xlabel("Voltage (V)")
+    plt.ylabel("Current (A)")
+    plt.yscale("log")
+    plt.tight_layout()
+    plt.show()
+
     b1500.close_wgfmu_session()
