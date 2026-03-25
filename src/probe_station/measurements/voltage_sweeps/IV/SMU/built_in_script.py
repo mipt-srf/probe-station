@@ -100,30 +100,12 @@ def run(b1500: B1500, start, end, steps, average=127, top=4, bottom=3, mode=1):
 
 
 def iter_sweep_data(b1500: B1500, total_steps: int):
-    """Read IV sweep data step-by-step as each point completes (B1500 guide section 1-19).
-
-    Uses comma as VISA termination character to read one value at a time from the
-    instrument output buffer as the sweep progresses. Call after run() has sent the trigger.
+    """Read IV sweep data step-by-step as each point completes.
 
     Yields (time, voltage, current) for each sweep step.
     """
-    resource = b1500.adapter.connection
-    original_termination = resource.read_termination
-    resource.read_termination = ","
-    total_values = total_steps * 3  # time, current, voltage per step
-    try:
-        buf = []
-        for i in range(total_values):
-            if i == total_values - 1:
-                resource.read_termination = original_termination
-            raw = resource.read().strip()
-            buf.append(float(raw[3:]))
-            if len(buf) == 3:
-                time, current, voltage = buf
-                buf = []
-                yield time, voltage, current
-    finally:
-        resource.read_termination = original_termination
+    for time, current, voltage in b1500.iter_output(total_steps, 3):
+        yield time, voltage, current
 
 
 def get_data(b1500: B1500):
