@@ -11,11 +11,7 @@ from pymeasure.experiment import (
 from PyQt5.QtCore import QLocale
 
 from probe_station.measurements.common import BaseProcedure, connect_instrument
-from probe_station.measurements.voltage_sweeps.CV.script import (
-    PLOT_POINTS,
-    iter_sweep_results,
-    run,
-)
+from probe_station.measurements.voltage_sweeps.CV.script import PLOT_POINTS, run
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -47,18 +43,14 @@ class CvSweepProcedure(BaseProcedure):
         measure_points = self.avg_per_point * PLOT_POINTS
         total_steps = 2 * measure_points  # LINEAR_DOUBLE sweep: forward + backward
 
-        gen = iter_sweep_results(self.b1500, total_steps)
-        try:
-            for i, (Cp, Rp, dc_measured, dc_forced) in enumerate(gen):
-                self.emit("progress", (i + 1) / total_steps * 100)
-                self.emit("results", {"Voltage": dc_measured, "Capacitance": Cp, "Resistance": Rp})
-                if self.should_stop():
-                    log.warning("Caught the stop flag in the procedure")
-                    self.b1500.abort()
-                    self.b1500.force_gnd()
-                    return
-        finally:
-            gen.close()
+        for i, (_, Cp, Rp, _ac, dc_measured, _dc_forced) in enumerate(self.b1500.iter_output(total_steps, 6)):
+            self.emit("progress", (i + 1) / total_steps * 100)
+            self.emit("results", {"Voltage": dc_measured, "Capacitance": Cp, "Resistance": Rp})
+            if self.should_stop():
+                log.warning("Caught the stop flag in the procedure")
+                self.b1500.abort()
+                self.b1500.force_gnd()
+                return
 
     # def shutdown(self):
     #     close_session()

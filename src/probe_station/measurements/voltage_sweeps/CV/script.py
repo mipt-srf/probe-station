@@ -20,15 +20,6 @@ from probe_station.measurements.common import (
 PLOT_POINTS = 100
 
 
-def iter_sweep_results(b1500: B1500, total_steps: int):
-    """Read CV sweep data step-by-step as each point completes.
-
-    Yields (Cp, Rp, dc_measured, dc_forced) for each sweep step.
-    """
-    for _, Cp, Rp, _ac, dc_measured, dc_forced in b1500.iter_output(total_steps, 6):
-        yield Cp, Rp, dc_measured, dc_forced
-
-
 def run(b1500: B1500, first_bias=-3, second_bias=3, avg_per_point=1, plot=False):
     setup_rsu_output(b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
     setup_rsu_output(b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)

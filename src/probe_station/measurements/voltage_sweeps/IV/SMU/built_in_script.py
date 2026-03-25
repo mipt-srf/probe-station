@@ -12,7 +12,6 @@ from probe_station.measurements.common import (
     RSUOutputMode,
     connect_instrument,
     get_smu_by_number,
-    parse_data,
     setup_rsu_output,
 )
 
@@ -99,18 +98,7 @@ def run(b1500: B1500, start, end, steps, average=127, top=4, bottom=3, mode=1):
     smu.force("voltage", 0, 0)
 
 
-def get_data(b1500: B1500):
-    data = parse_data(b1500.read())
-
-    times = data[::3]
-    currents = data[1::3]
-    voltages = data[2::3]
-
-    return times, currents, voltages
-
-
 if __name__ == "__main__":
     b1500 = connect_instrument(reset=True)
     run(b1500, start=-3, end=3, steps=100, top=4)
-    get_data(b1500)
     b1500.close_wgfmu_session()
