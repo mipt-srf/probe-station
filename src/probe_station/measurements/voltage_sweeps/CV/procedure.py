@@ -49,9 +49,9 @@ class CvSweepProcedure(BaseProcedure):
 
         gen = iter_sweep_results(self.b1500, total_steps)
         try:
-            for i, (Cp, Rp, _dc_measured, dc_forced) in enumerate(gen):
-                self.emit("progress", i / total_steps * 100)
-                self.emit("results", {"Voltage": dc_forced, "Capacitance": Cp, "Resistance": Rp})
+            for i, (Cp, Rp, dc_measured, dc_forced) in enumerate(gen):
+                self.emit("progress", (i + 1) / total_steps * 100)
+                self.emit("results", {"Voltage": dc_measured, "Capacitance": Cp, "Resistance": Rp})
                 if self.should_stop():
                     log.warning("Caught the stop flag in the procedure")
                     self.b1500.abort()

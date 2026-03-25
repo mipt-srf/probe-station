@@ -9,7 +9,7 @@ from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParame
 from PyQt5.QtCore import QLocale
 
 from probe_station.measurements.common import BaseProcedure, connect_instrument
-from probe_station.measurements.voltage_sweeps.IV.SMU.built_in_script import iter_sweep_data, run
+from probe_station.measurements.voltage_sweeps.IV.SMU.built_in_script import run
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -49,7 +49,7 @@ class IvSweepProcedure(BaseProcedure):
         # mode 1: one LINEAR_DOUBLE sweep → 2*steps output points
         # mode 2: two LINEAR_DOUBLE half-sweeps, each configured with steps//2 and LINEAR_DOUBLE
         if self.mode == 2:
-            steps_per_sweep = 2 * (self.steps // 2)
+            steps_per_sweep = self.steps
             num_sweeps = 2
         else:
             steps_per_sweep = 2 * self.steps
@@ -58,22 +58,18 @@ class IvSweepProcedure(BaseProcedure):
 
         emitted = 0
         for _ in range(num_sweeps):
-            gen = iter_sweep_data(self.b1500, steps_per_sweep)
-            try:
-                for time, voltage, current in gen:
-                    emitted += 1
-                    self.emit("progress", emitted / total_steps * 100)
-                    self.emit(
-                        "results",
-                        {"Time": time, "Voltage": voltage, "Top electrode current": np.abs(current)},
-                    )
-                    if self.should_stop():
-                        log.warning("Caught the stop flag in the procedure")
-                        self.b1500.abort()
-                        self.b1500.force_gnd()
-                        return
-            finally:
-                gen.close()
+            for time, current, voltage in self.b1500.iter_output(steps_per_sweep, 3):
+                emitted += 1
+                self.emit("progress", emitted / total_steps * 100)
+                self.emit(
+                    "results",
+                    {"Time": time, "Voltage": voltage, "Top electrode current": np.abs(current)},
+                )
+                if self.should_stop():
+                    log.warning("Caught the stop flag in the procedure")
+                    self.b1500.abort()
+                    self.b1500.force_gnd()
+                    return
 
 
 class MainWindow(ManagedWindowBase):
