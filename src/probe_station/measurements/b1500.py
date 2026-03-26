@@ -99,23 +99,15 @@ class B1500(AgilentB1500):
         clear()
 
     def iter_output(self, total_steps: int, values_per_step: int):
-        """Read sweep output step-by-step using comma termination (B1500 guide section 1-19).
+        """Read sweep output step-by-step using fixed-size byte reads (B1500 guide section 1-19).
 
         Yields tuples of `values_per_step` floats, one tuple per sweep step.
         Call after send_trigger() has been issued.
+
+        Uses read_bytes instead of read() to avoid blocking until end-of-message (EOM),
+        allowing real-time per-step readout when FMT mode 1 is active.
+        Requires data_format() to have been called to set _data_format.
         """
-        resource = self.adapter.connection
-        original_termination = resource.read_termination
-        resource.read_termination = ","
-        total_values = total_steps * values_per_step
-        try:
-            buf = []
-            for i in range(total_values):
-                if i == total_values - 1:
-                    resource.read_termination = original_termination
-                buf.append(float(resource.read().strip()[3:]))
-                if len(buf) == values_per_step:
-                    yield tuple(buf)
-                    buf = []
-        finally:
-            resource.read_termination = original_termination
+        for _ in range(total_steps):
+            channels = self.read_channels(values_per_step)
+            yield tuple(item[3] for item in channels)
