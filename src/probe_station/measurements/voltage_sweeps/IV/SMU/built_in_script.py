@@ -97,14 +97,13 @@ def run(b1500: B1500, start, end, steps, average=127, top=4, bottom=3, mode=1):
 
         b1500.send_trigger()
 
-    smu.force("voltage", 0, 0)
-
 
 if __name__ == "__main__":
     b1500 = connect_instrument(reset=True)
     steps = 100
     run(b1500, start=-3, end=3, steps=steps, top=4)
     times, currents, voltages = zip(*b1500.iter_output(2 * steps, 3))
+    b1500.force_gnd()
     times = np.array(times)
     currents = np.array(currents)
     voltages = np.array(voltages)

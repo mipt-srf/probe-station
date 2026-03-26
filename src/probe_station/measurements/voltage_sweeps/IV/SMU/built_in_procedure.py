@@ -71,6 +71,8 @@ class IvSweepProcedure(BaseProcedure):
                     self.b1500.force_gnd()
                     return
 
+        self.b1500.force_gnd()
+
 
 class MainWindow(ManagedWindowBase):
     def __init__(self):
