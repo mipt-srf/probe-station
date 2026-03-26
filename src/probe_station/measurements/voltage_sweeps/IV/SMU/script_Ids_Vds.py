@@ -32,7 +32,20 @@ def run(b1500: B1500, start, end, steps, average=127, top=4, bottom=3, mode=1, g
 
     gate_smu = get_smu_by_number(b1500, gate)
     gate_smu.enable()
-    gate_smu.force("voltage", 0, gate_voltage, 20e-3)
+
+    if abs(gate_voltage) <= 100:
+        gate_compliance = 125e-3
+    else:
+        gate_compliance = 50e-3
+
+    gate_smu.multi_channel_sweep_source(
+        n=2,
+        source_type="Voltage",
+        source_range=0,
+        start=gate_voltage,
+        stop=gate_voltage,
+        comp=gate_compliance,
+    )
 
     # b1500.write("SSP 9,3")
     # b1500.adc_auto_zero = True

@@ -18,7 +18,9 @@ log.addHandler(logging.NullHandler())
 class IvSweepProcedure(BaseProcedure):
     first_voltage = FloatParameter("First voltage", units="V", default=-3)
     second_voltage = FloatParameter("Second voltage", units="V", default=3)
-    gate_voltage = FloatParameter("Gate voltage", units="V", default=0)
+    vg_start = FloatParameter("Vg start", units="V", default=-20)
+    vg_stop = FloatParameter("Vg stop", units="V", default=20)
+    vg_steps = IntegerParameter("Vg steps", default=5, minimum=1)
     source_channel = IntegerParameter("Source channel", default=4)
     drain_channel = IntegerParameter("Drain channel", default=3)
     gate_channel = IntegerParameter("Gate channel", default=1)
@@ -26,9 +28,8 @@ class IvSweepProcedure(BaseProcedure):
     advanced_config = BooleanParameter("Advanced config", default=False)
     steps = IntegerParameter("Steps", default=100, group_by="advanced_config")
     mode = IntegerParameter("Mode", default=1, group_by="advanced_config")
-    # compliance = FloatParameter("Current compliance", units="A", default=0.1, group_by="advanced_config")
 
-    DATA_COLUMNS = ["Voltage", "Source electrode current", "Time"]
+    DATA_COLUMNS = ["Vg", "Voltage", "Source electrode current", "Time"]
 
     def startup(self):
         super().startup()
@@ -37,55 +38,51 @@ class IvSweepProcedure(BaseProcedure):
     def execute(self):
         log.info(f"Starting the {self.__class__}")
 
-        run(
-            self.b1500,
-            self.first_voltage,
-            self.second_voltage,
-            self.steps,
-            top=self.source_channel,
-            # current_comp=self.compliance,
-            average=self.average,
-            mode=self.mode,
-            gate=self.gate_channel,
-            gate_voltage=self.gate_voltage,
-        )
-        times, voltages, currents = get_data(self.b1500)
-        # print(f"len(times) = {len(times), len(voltages), len(currents)}")
-        # print(voltages[:20])
-
-        self.emit(
-            "batch results",
-            {"Time": times, "Voltage": voltages, "Source electrode current": np.abs(currents)},
-        )
-
-        times, voltages, currents = get_data(self.b1500)
-        # print(f"len(times) = {len(times), len(voltages), len(currents)}")
-        # print(currents[:20])
-
-        self.emit(
-            "batch results",
-            {"Time": times, "Voltage": voltages, "Source electrode current": np.abs(currents)},
-        )
+        vg_values = np.linspace(self.vg_start, self.vg_stop, self.vg_steps)
+        for vg in vg_values:
+            run(
+                self.b1500,
+                self.first_voltage,
+                self.second_voltage,
+                self.steps,
+                average=self.average,
+                top=self.source_channel,
+                bottom=self.drain_channel,
+                mode=self.mode,
+                gate=self.gate_channel,
+                gate_voltage=vg,
+            )
+            times, voltages, currents = get_data(self.b1500)
+            self.emit(
+                "batch results",
+                {
+                    "Vg": np.full(len(voltages), vg),
+                    "Voltage": voltages,
+                    "Source electrode current": np.abs(currents),
+                    "Time": times,
+                },
+            )
 
 
 class MainWindow(ManagedWindowBase):
     def __init__(self):
         widget_list = (
-            PlotWidget("Results Graph", IvSweepProcedure.DATA_COLUMNS),
+            PlotWidget("Results Graph", IvSweepProcedure.DATA_COLUMNS, x_axis="Voltage"),
             LogWidget("Experiment Log"),
         )
         settings = [
             "first_voltage",
             "second_voltage",
+            "vg_start",
+            "vg_stop",
+            "vg_steps",
             "source_channel",
             "drain_channel",
+            "gate_channel",
             "average",
             "advanced_config",
             "steps",
             "mode",
-            "gate_channel",
-            "gate_voltage",
-            # "compliance",
         ]
         super().__init__(
             procedure_class=IvSweepProcedure,
@@ -96,7 +93,7 @@ class MainWindow(ManagedWindowBase):
         logging.getLogger().addHandler(widget_list[1].handler)
         log.setLevel(self.log_level)
         log.info("ManagedWindow connected to logging")
-        self.setWindowTitle("Ids (Vds)")
+        self.setWindowTitle("Ids (Vg, Vds)")
 
 
 if __name__ == "__main__":
