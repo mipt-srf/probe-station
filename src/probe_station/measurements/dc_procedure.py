@@ -6,7 +6,7 @@ from time import sleep
 
 from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget
-from pymeasure.display.windows import ManagedWindowBase
+from probe_station.measurements.common import BaseWindow
 from pymeasure.experiment import (
     FloatParameter,
     IntegerParameter,
@@ -54,7 +54,7 @@ class DcProcedure(BaseProcedure):
         top_smu.force("voltage", 0, 0)
 
 
-class MainWindow(ManagedWindowBase):
+class MainWindow(BaseWindow):
     def __init__(self):
         widget_list = (LogWidget("Experiment Log"),)
         settings = [

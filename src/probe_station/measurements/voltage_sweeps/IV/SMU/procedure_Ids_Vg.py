@@ -4,7 +4,7 @@ import sys
 import numpy as np
 from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget, PlotWidget
-from pymeasure.display.windows import ManagedWindowBase
+from probe_station.measurements.common import BaseWindow
 from pymeasure.experiment import (
     FloatParameter,
     IntegerParameter,
@@ -100,7 +100,7 @@ class RandomProcedure(BaseProcedure):
         self.smu_gate.force("voltage", 0, 0)
 
 
-class MainWindow(ManagedWindowBase):
+class MainWindow(BaseWindow):
     def __init__(self):
         widget_list = (
             PlotWidget("Results Graph", RandomProcedure.DATA_COLUMNS),
