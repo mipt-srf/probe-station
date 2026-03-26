@@ -4,7 +4,7 @@ import sys
 import numpy as np
 from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget, PlotWidget
-from pymeasure.display.windows import ManagedWindowBase
+from probe_station.measurements.common import BaseWindow
 from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter
 from PyQt5.QtCore import QLocale
 
@@ -65,7 +65,7 @@ class IvSweepProcedure(BaseProcedure):
             )
 
 
-class MainWindow(ManagedWindowBase):
+class MainWindow(BaseWindow):
     def __init__(self):
         widget_list = (
             PlotWidget("Results Graph", IvSweepProcedure.DATA_COLUMNS),

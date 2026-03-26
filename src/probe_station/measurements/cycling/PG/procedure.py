@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from keysight_b1530a._bindings.initialization import open_session
 from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget
-from pymeasure.display.windows import ManagedWindowBase
+from probe_station.measurements.common import BaseWindow
 from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter
 from PyQt5.QtCore import QLocale
 
@@ -92,7 +92,7 @@ class PgCyclingProcedure(BaseProcedure):
         return estimates
 
 
-class MainWindow(ManagedWindowBase):
+class MainWindow(BaseWindow):
     def __init__(self):
         widget_list = (LogWidget("Experiment Log"),)
         settings = [
