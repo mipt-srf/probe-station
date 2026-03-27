@@ -93,6 +93,7 @@ def run(b1500: B1500, start, end, steps, average=127, top=4, bottom=3, mode=1, g
     b1500.send_trigger()
 
     smu.force("voltage", 0, 0)
+    gate_smu.force("voltage", 0, 0)
 
 
 def get_data(b1500: B1500):
