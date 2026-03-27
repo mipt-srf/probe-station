@@ -28,7 +28,7 @@ class IvSweepProcedure(BaseProcedure):
     mode = IntegerParameter("Mode", default=1, group_by="advanced_config")
     # compliance = FloatParameter("Current compliance", units="A", default=0.1, group_by="advanced_config")
 
-    DATA_COLUMNS = ["Vg", "Voltage", "Source electrode current", "Gate current", "Time"]
+    DATA_COLUMNS = ["Voltage", "Source electrode current", "Gate current", "Time"]
 
     def startup(self):
         super().startup()
@@ -53,7 +53,6 @@ class IvSweepProcedure(BaseProcedure):
         self.emit(
             "batch results",
             {
-                "Vg": np.full(len(voltages), self.gate_voltage),
                 "Voltage": voltages,
                 "Source electrode current": np.abs(currents),
                 "Gate current": gate_currents,
