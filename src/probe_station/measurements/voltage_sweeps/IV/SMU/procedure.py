@@ -17,6 +17,7 @@ from probe_station.measurements.common import (
     RSUOutputMode,
     connect_instrument,
     get_smu_by_number,
+    max_compliance,
     setup_rsu_output,
 )
 from probe_station.measurements.voltage_sweeps.IV.SMU.script import measure_at_voltage
@@ -51,8 +52,9 @@ class IvSweepProcedure(BaseProcedure):
         top_smu.enable()
         bottom_smu.enable()
 
-        top_smu.force("voltage", 0, 0)
-        bottom_smu.force("voltage", 0, 0)
+        peak = max(abs(self.first_voltage), abs(self.second_voltage))
+        top_smu.force("voltage", 0, 0, max_compliance(top_smu, peak))
+        bottom_smu.force("voltage", 0, 0, max_compliance(bottom_smu, 0))
 
         voltages_forced = np.linspace(self.first_voltage, self.second_voltage, self.steps)
 

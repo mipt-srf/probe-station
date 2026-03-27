@@ -9,7 +9,7 @@ from pymeasure.display.windows import ManagedWindowBase
 from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter
 from PyQt5.QtCore import QLocale
 
-from probe_station.measurements.common import BaseProcedure
+from probe_station.measurements.common import BaseProcedure, max_compliance
 from probe_station.measurements.cycling.PG.script import connect_instrument, run
 
 log = logging.getLogger(__name__)
@@ -53,7 +53,7 @@ class PgCyclingProcedure(BaseProcedure):
                 if str(self.dc_channel) == smu.name[-1]:
                     dc_smu = smu
             dc_smu.enable()
-            dc_smu.force("voltage", 0, self.dc_bias_value)
+            dc_smu.force("voltage", 0, self.dc_bias_value, max_compliance(dc_smu, abs(self.dc_bias_value)))
 
             log.info("Starting output of %f V at %d", self.dc_bias_value, self.dc_channel)
 

@@ -11,12 +11,13 @@ from pymeasure.experiment import (
 )
 from PyQt5.QtCore import QLocale
 
-from probe_station.measurements.common import BaseProcedure, connect_instrument, get_smu_by_number
+from probe_station.measurements.common import BaseProcedure, connect_instrument, get_smu_by_number, max_compliance
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
+# TODO: replace with parse_data from common
 def parse(string):
     value_strings = string.split(",")
     values = [float(value_str[3:]) for value_str in value_strings]
@@ -61,26 +62,11 @@ class RandomProcedure(BaseProcedure):
                 np.linspace(self.voltage_gate_second, 0, self.points // 3),
             ),
         )
-        if self.smu_source.name.endswith("3") or self.smu_source.name.endswith("4"):
-            compliance = 20e-3
-            if abs(self.voltage_ds) <= 20:
-                compliance = 100e-3
-            elif 20 < abs(self.voltage_ds) <= 40:
-                compliance = 50e-3
-            elif 40 < abs(self.voltage_ds) <= 100:
-                compliance = 20e-3
-            else:
-                raise ValueError(f"Voltages higher than 100 V are not suported by {self.smu_source.name}")
-
-        self.smu_source.force("voltage", 0, self.voltage_ds, compliance)
+        self.smu_source.force("voltage", 0, self.voltage_ds, max_compliance(self.smu_source, abs(self.voltage_ds)))
+        gate_peak = max(abs(self.voltage_gate_first), abs(self.voltage_gate_second))
+        self.smu_gate.force("voltage", 0, 0, max_compliance(self.smu_gate, gate_peak))
         for voltage in voltages:
-            gate_compliance = 20e-3
-            if self.smu_gate.name.endswith("1"):
-                if max(abs(self.voltage_gate_first), abs(self.voltage_gate_second)) > 100:
-                    gate_compliance = 50e-3
-                else:
-                    gate_compliance = 125e-3
-            self.smu_gate.force("voltage", 0, voltage, gate_compliance)  # 4 ms between steps, 10 ms with measuring
+            self.smu_gate.force("voltage", 0, voltage)  # 4 ms between steps, 10 ms with measuring
             time, current, voltage_meas = parse(self.b1500.ask(f"TTIV {self.smu_source.channel}, 0, 0"))
             # sleep(0.05)
             # time, gate_current, voltage_meas = parse(
