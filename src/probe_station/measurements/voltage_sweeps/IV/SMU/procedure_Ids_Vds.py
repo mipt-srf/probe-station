@@ -28,7 +28,7 @@ class IvSweepProcedure(BaseProcedure):
     mode = IntegerParameter("Mode", default=1, group_by="advanced_config")
     # compliance = FloatParameter("Current compliance", units="A", default=0.1, group_by="advanced_config")
 
-    DATA_COLUMNS = ["Voltage", "Source electrode current", "Time"]
+    DATA_COLUMNS = ["Voltage", "Source electrode current", "Gate current", "Time"]
 
     def startup(self):
         super().startup()
@@ -42,36 +42,29 @@ class IvSweepProcedure(BaseProcedure):
             self.first_voltage,
             self.second_voltage,
             self.steps,
-            top=self.source_channel,
-            # current_comp=self.compliance,
             average=self.average,
+            top=self.source_channel,
+            bottom=self.drain_channel,
             mode=self.mode,
             gate=self.gate_channel,
             gate_voltage=self.gate_voltage,
         )
-        times, voltages, currents = get_data(self.b1500)
-        # print(f"len(times) = {len(times), len(voltages), len(currents)}")
-        # print(voltages[:20])
-
+        times, voltages, currents, gate_currents = get_data(self.b1500)
         self.emit(
             "batch results",
-            {"Time": times, "Voltage": voltages, "Source electrode current": np.abs(currents)},
-        )
-
-        times, voltages, currents = get_data(self.b1500)
-        # print(f"len(times) = {len(times), len(voltages), len(currents)}")
-        # print(currents[:20])
-
-        self.emit(
-            "batch results",
-            {"Time": times, "Voltage": voltages, "Source electrode current": np.abs(currents)},
+            {
+                "Voltage": voltages,
+                "Source electrode current": np.abs(currents),
+                "Gate current": gate_currents,
+                "Time": times,
+            },
         )
 
 
 class MainWindow(BaseWindow):
     def __init__(self):
         widget_list = (
-            PlotWidget("Results Graph", IvSweepProcedure.DATA_COLUMNS),
+            PlotWidget("Results Graph", IvSweepProcedure.DATA_COLUMNS, x_axis="Voltage", y_axis="Source electrode current"),
             LogWidget("Experiment Log"),
         )
         settings = [

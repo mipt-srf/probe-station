@@ -32,14 +32,21 @@ def run(b1500: B1500, start, end, steps, average=127, top=4, bottom=3, mode=1, g
 
     gate_smu = get_smu_by_number(b1500, gate)
     gate_smu.enable()
-    gate_smu.force("voltage", 0, gate_voltage, 20e-3)
+
+    if abs(gate_voltage) <= 100:
+        gate_compliance = 125e-3
+    else:
+        gate_compliance = 50e-3
+
+    gate_smu.force("voltage", 0, gate_voltage, gate_compliance)
 
     # b1500.write("SSP 9,3")
     # b1500.adc_auto_zero = True
     b1500.time_stamp = True
     b1500.adc_averaging(10)
-    b1500.meas_mode(MeasMode.STAIRCASE_SWEEP, smu)  # drain
+    b1500.meas_mode(MeasMode.STAIRCASE_SWEEP, smu, gate_smu)  # drain + gate
     smu.meas_op_mode = MeasOpMode.CURRENT
+    gate_smu.meas_op_mode = MeasOpMode.CURRENT
     smu.meas_range_current = 0
     smu.adc_type = 1
 
@@ -101,16 +108,18 @@ def run(b1500: B1500, start, end, steps, average=127, top=4, bottom=3, mode=1, g
     b1500.send_trigger()
 
     smu.force("voltage", 0, 0)
+    gate_smu.force("voltage", 0, 0)
 
 
 def get_data(b1500: B1500):
     data = parse_data(b1500.read())
 
-    times = data[::3]
-    currents = data[1::3]
-    voltages = data[2::3]
+    times = data[::5]
+    currents = data[1::5]
+    gate_currents = data[3::5]
+    voltages = data[4::5]
 
-    return times, voltages, currents
+    return times, voltages, currents, gate_currents
 
 
 if __name__ == "__main__":
