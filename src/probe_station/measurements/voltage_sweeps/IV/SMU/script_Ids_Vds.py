@@ -38,7 +38,6 @@ def run(b1500: B1500, start, end, steps, average=127, top=4, bottom=3, mode=1, g
     else:
         gate_compliance = 50e-3
 
-    # DV: constant gate bias — NOT multi_channel_sweep_source (WNX which is for MM 16)
     gate_smu.force("voltage", 0, gate_voltage, gate_compliance)
 
     # b1500.write("SSP 9,3")
@@ -109,13 +108,12 @@ def run(b1500: B1500, start, end, steps, average=127, top=4, bottom=3, mode=1, g
     b1500.send_trigger()
 
     smu.force("voltage", 0, 0)
+    gate_smu.force("voltage", 0, 0)
 
 
 def get_data(b1500: B1500):
     data = parse_data(b1500.read())
 
-    # Per step with timestamp and 2 measurement channels:
-    # [T_drain, I_drain, T_gate, I_gate, V_drain]
     times = data[::5]
     currents = data[1::5]
     gate_currents = data[3::5]
