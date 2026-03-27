@@ -4,7 +4,6 @@ import sys
 import numpy as np
 from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget
-from pymeasure.display.windows import ManagedWindowBase
 from pymeasure.experiment import (
     FloatParameter,
     IntegerParameter,
@@ -12,7 +11,7 @@ from pymeasure.experiment import (
 from PyQt5.QtCore import QLocale
 
 from probe_station.measurements.voltage_sweeps.IV.widgets import IvPlotWidget
-from probe_station.measurements.common import BaseProcedure, connect_instrument, get_smu_by_number
+from probe_station.measurements.common import BaseProcedure, BaseWindow, connect_instrument, get_smu_by_number
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -101,7 +100,7 @@ class RandomProcedure(BaseProcedure):
         self.smu_gate.force("voltage", 0, 0)
 
 
-class MainWindow(ManagedWindowBase):
+class MainWindow(BaseWindow):
     def __init__(self):
         widget_list = (
             IvPlotWidget("Results Graph", RandomProcedure.DATA_COLUMNS),

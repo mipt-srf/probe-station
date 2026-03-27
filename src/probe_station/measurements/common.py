@@ -3,10 +3,12 @@
 import logging
 from datetime import datetime
 from enum import Enum
+from pathlib import Path
 
 from keysight_b1530a._bindings.config import WGFMUChannel
 from keysight_b1530a._bindings.configuration import set_operation_mode
 from keysight_b1530a.enums import WGFMUOperationMode
+from pymeasure.display.windows import ManagedWindowBase
 from pymeasure.instruments.agilent.agilentB1500 import (
     AgilentB1500,
     ControlMode,
@@ -33,6 +35,52 @@ class BaseProcedure(Procedure):
     def startup(self):
         super().startup()
         self.start_time = datetime.now()
+
+
+def take_screenshot(
+    window, dest: str | Path, full_screen: bool = False
+) -> Path | None:
+    """Capture a screenshot and save it to *dest*.
+
+    :param window: The Qt widget to capture (ignored when *full_screen* is ``True``).
+    :param dest: Full path (including filename) for the saved PNG.
+    :param full_screen: If ``True``, capture the entire screen instead of *window*.
+    :returns: Resolved path to the saved file, or ``None`` on failure.
+    """
+    from PyQt5.QtWidgets import QApplication
+
+    dest = Path(dest)
+    try:
+        if full_screen:
+            pixmap = QApplication.instance().primaryScreen().grabWindow(0)
+        else:
+            pixmap = window.grab()
+        if not pixmap.save(str(dest), "PNG"):
+            log.warning("Screenshot failed: could not save to %s", dest)
+            return None
+        log.info("Screenshot saved: %s", dest)
+        return dest
+    except Exception as e:
+        log.warning("Screenshot failed: %s", e)
+        return None
+
+
+class BaseWindow(ManagedWindowBase):
+    """Base class for all probe-station measurement windows.
+
+    Automatically takes a screenshot of the window when a measurement finishes,
+    provided that data storage is enabled (``store_measurement`` is ``True``).
+    The screenshot is saved next to the results file using the procedure's
+    ``start_time`` as the filename.
+    """
+
+    def finished(self, experiment):
+        super().finished(experiment)
+        if not self.store_measurement:
+            return
+        procedure = experiment.procedure
+        dest = Path(self.directory) / f"{procedure.start_time:%Y%m%d_%H%M%S}_screenshot.png"
+        take_screenshot(self, dest)
 
 
 class RSUOutputMode(Enum):
