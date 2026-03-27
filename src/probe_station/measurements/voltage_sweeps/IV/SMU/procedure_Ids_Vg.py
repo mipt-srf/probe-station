@@ -3,7 +3,7 @@ import sys
 
 import numpy as np
 from pymeasure.display.Qt import QtWidgets
-from pymeasure.display.widgets import LogWidget, PlotWidget
+from pymeasure.display.widgets import LogWidget
 from pymeasure.display.windows import ManagedWindowBase
 from pymeasure.experiment import (
     FloatParameter,
@@ -11,6 +11,7 @@ from pymeasure.experiment import (
 )
 from PyQt5.QtCore import QLocale
 
+from probe_station.measurements.voltage_sweeps.IV.widgets import IvPlotWidget
 from probe_station.measurements.common import BaseProcedure, connect_instrument, get_smu_by_number
 
 log = logging.getLogger(__name__)
@@ -88,7 +89,7 @@ class RandomProcedure(BaseProcedure):
             # )
             data = {
                 "Gate Voltage": voltage,
-                "Drain-Source Current": np.abs(current),
+                "Drain-Source Current": current,
                 # "Gate Current": gate_current,
             }
             self.emit("results", data)
@@ -103,7 +104,7 @@ class RandomProcedure(BaseProcedure):
 class MainWindow(ManagedWindowBase):
     def __init__(self):
         widget_list = (
-            PlotWidget("Results Graph", RandomProcedure.DATA_COLUMNS),
+            IvPlotWidget("Results Graph", RandomProcedure.DATA_COLUMNS),
             LogWidget("Experiment Log"),
         )
         super().__init__(
