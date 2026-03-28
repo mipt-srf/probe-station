@@ -44,13 +44,14 @@ def setup_file_logging(log_dir: str | Path = "logs") -> None:
     root = logging.getLogger()
     root.setLevel(logging.INFO)
 
-    # Enable DEBUG for probe_station and pymeasure; other third-party libs stay at INFO.
+    # Enable DEBUG for probe_station, pymeasure, and pyvisa (SCPI commands).
     logging.getLogger("probe_station").setLevel(logging.DEBUG)
     logging.getLogger("pymeasure").setLevel(logging.DEBUG)
+    logging.getLogger("pyvisa").setLevel(logging.DEBUG)
 
     file_handler = RotatingFileHandler(log_file, maxBytes=5_000_000, backupCount=5, encoding="utf-8")
     file_handler.setLevel(logging.DEBUG)
-    file_handler.addFilter(lambda r: r.name.startswith(("probe_station", "pymeasure")))
+    file_handler.addFilter(lambda r: r.name.startswith(("probe_station", "pymeasure", "pyvisa")))
     file_handler.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s"))
 
     console_handler = logging.StreamHandler()
