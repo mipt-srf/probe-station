@@ -167,7 +167,7 @@ class Launcher(QWidget):
 
 
 if __name__ == "__main__":
-    setup_file_logging()
+    setup_file_logging("logs")
     app = QApplication(sys.argv)
 
     # Enable high DPI scaling for crisp display

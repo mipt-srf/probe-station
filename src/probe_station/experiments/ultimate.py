@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from time import sleep
 
-from probe_station.utilities import setup_file_logging
+from probe_station.utilities import add_file_log_dir, setup_file_logging
 
 import numpy as np
 from keysight_b1530a.enums import WGFMUMeasureCurrentRange
@@ -160,7 +160,8 @@ def log_points(start, stop, per_decade=5):
 
 if __name__ == "__main__":
     Path(folder).mkdir(exist_ok=True)
-    setup_file_logging(folder)
+    setup_file_logging()
+    add_file_log_dir(Path(folder) / "logs")
 
     # run_cycling(100)
     # run_iv_sweep()

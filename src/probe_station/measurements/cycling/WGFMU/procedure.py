@@ -339,7 +339,7 @@ class MainWindow(BaseWindow):
 
 
 if __name__ == "__main__":
-    setup_file_logging()
+    setup_file_logging("logs")
     QLocale.setDefault(QLocale(QLocale.English, QLocale.UnitedStates))
     app = QtWidgets.QApplication(sys.argv)
     window = MainWindow()
