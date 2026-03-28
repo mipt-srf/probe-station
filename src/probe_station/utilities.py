@@ -49,7 +49,7 @@ def setup_file_logging(log_dir: str | Path = "logs") -> None:
 
     file_handler = RotatingFileHandler(log_file, maxBytes=5_000_000, backupCount=5, encoding="utf-8")
     file_handler.setLevel(logging.DEBUG)
-    file_handler.addFilter(logging.Filter("probe_station"))
+    file_handler.addFilter(lambda r: r.name.startswith(("probe_station", "pymeasure")))
     file_handler.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s"))
 
     console_handler = logging.StreamHandler()
