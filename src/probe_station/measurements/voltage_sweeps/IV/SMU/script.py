@@ -6,6 +6,7 @@ from probe_station.measurements.common import (
     RSUOutputMode,
     connect_instrument,
     get_smu_by_number,
+    max_compliance,
     parse_data,
     setup_rsu_output,
 )
@@ -28,6 +29,10 @@ def run(b1500: B1500, start, end, steps, top=4, bottom=3):
 
     top_smu.enable()
     bottom_smu.enable()
+
+    peak = max(abs(start), abs(end))
+    top_smu.force("voltage", 0, 0, max_compliance(top_smu, peak))
+    bottom_smu.force("voltage", 0, 0, max_compliance(bottom_smu, 0))
 
     b1500.clear_timer()
 
