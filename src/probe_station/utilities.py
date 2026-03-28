@@ -44,8 +44,9 @@ def setup_file_logging(log_dir: str | Path = "logs") -> None:
     root = logging.getLogger()
     root.setLevel(logging.INFO)
 
-    # Enable DEBUG only for probe_station loggers; third-party libs stay at INFO.
+    # Enable DEBUG for probe_station and pymeasure; other third-party libs stay at INFO.
     logging.getLogger("probe_station").setLevel(logging.DEBUG)
+    logging.getLogger("pymeasure").setLevel(logging.DEBUG)
 
     file_handler = RotatingFileHandler(log_file, maxBytes=5_000_000, backupCount=5, encoding="utf-8")
     file_handler.setLevel(logging.DEBUG)
