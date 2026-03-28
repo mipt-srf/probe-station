@@ -206,7 +206,7 @@ def check_all_errors(b1500):
         try:
             b1500.check_errors()
         except Exception as e:
-            log.exception(f"{e}")
+            log.warning("Instrument error: %s", e)
         else:
             break
 
