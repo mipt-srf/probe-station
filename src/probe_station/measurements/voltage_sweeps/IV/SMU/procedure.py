@@ -3,16 +3,17 @@ import sys
 
 import numpy as np
 from pymeasure.display.Qt import QtWidgets
-from pymeasure.display.widgets import LogWidget, PlotWidget
-from probe_station.measurements.common import BaseWindow
+from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import (
     FloatParameter,
     IntegerParameter,
 )
 from PyQt5.QtCore import QLocale
 
+from probe_station.measurements.voltage_sweeps.IV.widgets import IvPlotWidget
 from probe_station.measurements.common import (
     BaseProcedure,
+    BaseWindow,
     RSU,
     RSUOutputMode,
     connect_instrument,
@@ -69,7 +70,7 @@ class IvSweepProcedure(BaseProcedure):
             time, current, voltage = measure_at_voltage(
                 self.b1500, voltage, top=self.top_channel, bottom=self.bottom_channel
             )
-            self.emit("results", {"Time": time, "Voltage": voltage, "Top electrode current": np.abs(current)})
+            self.emit("results", {"Time": time, "Voltage": voltage, "Top electrode current": current})
 
         self.b1500.force_gnd()
 
@@ -77,7 +78,7 @@ class IvSweepProcedure(BaseProcedure):
 class MainWindow(BaseWindow):
     def __init__(self):
         widget_list = (
-            PlotWidget("Results Graph", IvSweepProcedure.DATA_COLUMNS),
+            IvPlotWidget("Results Graph", IvSweepProcedure.DATA_COLUMNS),
             LogWidget("Experiment Log"),
         )
         settings = [
