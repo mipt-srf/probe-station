@@ -10,7 +10,6 @@ from pymeasure.experiment import (
 )
 from PyQt5.QtCore import QLocale
 
-from probe_station.measurements.voltage_sweeps.IV.widgets import IvPlotWidget
 from probe_station.measurements.common import (
     BaseProcedure,
     BaseWindow,
@@ -18,6 +17,9 @@ from probe_station.measurements.common import (
     get_smu_by_number,
     max_compliance,
 )
+from probe_station.measurements.voltage_sweeps.IV.widgets import IvPlotWidget
+from probe_station.utilities import setup_file_logging
+
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -128,6 +130,7 @@ class MainWindow(BaseWindow):
 
 
 if __name__ == "__main__":
+    setup_file_logging("logs")
     QLocale.setDefault(QLocale(QLocale.English, QLocale.UnitedStates))
     app = QtWidgets.QApplication(sys.argv)
     window = MainWindow()

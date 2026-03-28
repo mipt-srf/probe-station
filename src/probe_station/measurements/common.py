@@ -18,6 +18,7 @@ from pymeasure.instruments.agilent.agilentB1500 import (
 from pymeasure.experiment import Metadata, Procedure
 
 from probe_station import B1500
+from probe_station.utilities import add_file_log_dir
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -37,9 +38,7 @@ class BaseProcedure(Procedure):
         self.start_time = datetime.now()
 
 
-def take_screenshot(
-    window, dest: str | Path, full_screen: bool = False
-) -> Path | None:
+def take_screenshot(window, dest: str | Path, full_screen: bool = False) -> Path | None:
     """Capture a screenshot and save it to *dest*.
 
     :param window: The Qt widget to capture (ignored when *full_screen* is ``True``).
@@ -73,6 +72,10 @@ class BaseWindow(ManagedWindowBase):
     The screenshot is saved next to the results file using the procedure's
     ``start_time`` as the filename.
     """
+
+    def _queue(self, checked):
+        add_file_log_dir(Path(self.directory) / "logs")
+        super()._queue(checked)
 
     def finished(self, experiment):
         super().finished(experiment)
@@ -156,10 +159,7 @@ def max_compliance(smu, peak_voltage: float) -> float:
     for ceiling, compliance in thresholds:
         if peak_voltage <= ceiling:
             return compliance
-    raise ValueError(
-        f"Peak voltage {peak_voltage} V exceeds the maximum for {smu.type} "
-        f"({thresholds[-1][0]} V)"
-    )
+    raise ValueError(f"Peak voltage {peak_voltage} V exceeds the maximum for {smu.type} " f"({thresholds[-1][0]} V)")
 
 
 def set_smu_compliances(b1500, current_comp=0.1):
@@ -206,7 +206,7 @@ def check_all_errors(b1500):
         try:
             b1500.check_errors()
         except Exception as e:
-            print(e)
+            log.warning("Instrument error: %s", e)
         else:
             break
 
