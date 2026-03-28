@@ -8,7 +8,7 @@ from pymeasure.experiment import (
     FloatParameter,
     IntegerParameter,
 )
-from PyQt5.QtCore import QLocale
+from qtpy.QtCore import QLocale
 
 from probe_station.measurements.common import (
     BaseProcedure,
@@ -19,7 +19,6 @@ from probe_station.measurements.common import (
 )
 from probe_station.measurements.voltage_sweeps.IV.widgets import IvPlotWidget
 from probe_station.utilities import setup_file_logging
-
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())

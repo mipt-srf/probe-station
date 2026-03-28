@@ -8,14 +8,12 @@ from pymeasure.experiment import (
     FloatParameter,
     IntegerParameter,
 )
-from PyQt5.QtCore import QLocale
+from qtpy.QtCore import QLocale
 
-from probe_station.measurements.voltage_sweeps.IV.widgets import IvPlotWidget
-from probe_station.utilities import setup_file_logging
 from probe_station.measurements.common import (
+    RSU,
     BaseProcedure,
     BaseWindow,
-    RSU,
     RSUOutputMode,
     connect_instrument,
     get_smu_by_number,
@@ -23,6 +21,8 @@ from probe_station.measurements.common import (
     setup_rsu_output,
 )
 from probe_station.measurements.voltage_sweeps.IV.SMU.script import measure_at_voltage
+from probe_station.measurements.voltage_sweeps.IV.widgets import IvPlotWidget
+from probe_station.utilities import setup_file_logging
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())

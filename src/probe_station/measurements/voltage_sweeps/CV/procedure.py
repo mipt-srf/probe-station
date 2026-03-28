@@ -4,14 +4,13 @@ from time import sleep
 
 from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget, PlotWidget
-from probe_station.measurements.common import BaseWindow
 from pymeasure.experiment import (
     FloatParameter,
     IntegerParameter,
 )
-from PyQt5.QtCore import QLocale
+from qtpy.QtCore import QLocale
 
-from probe_station.measurements.common import BaseProcedure, connect_instrument
+from probe_station.measurements.common import BaseProcedure, BaseWindow, connect_instrument
 from probe_station.measurements.voltage_sweeps.CV.script import (
     PLOT_POINTS,
     get_results,

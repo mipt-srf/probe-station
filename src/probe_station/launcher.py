@@ -2,9 +2,9 @@ import logging
 import subprocess
 import sys
 
-from PyQt5.QtCore import Qt, QThread
-from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import (
+from qtpy.QtCore import Qt, QThread
+from qtpy.QtGui import QFont
+from qtpy.QtWidgets import (
     QApplication,
     QFrame,
     QLabel,
