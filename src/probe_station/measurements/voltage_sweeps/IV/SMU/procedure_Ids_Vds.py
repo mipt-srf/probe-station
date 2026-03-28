@@ -1,14 +1,13 @@
 import logging
 import sys
 
-import numpy as np
 from pymeasure.display.Qt import QtWidgets
-from pymeasure.display.widgets import LogWidget, PlotWidget
-from pymeasure.display.windows import ManagedWindowBase
+from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter
 from PyQt5.QtCore import QLocale
 
-from probe_station.measurements.common import BaseProcedure, connect_instrument
+from probe_station.measurements.voltage_sweeps.IV.widgets import IvPlotWidget
+from probe_station.measurements.common import BaseProcedure, BaseWindow, connect_instrument
 from probe_station.measurements.voltage_sweeps.IV.SMU.script_Ids_Vds import get_data, run
 from probe_station.utilities import setup_file_logging
 
@@ -56,7 +55,7 @@ class IvSweepProcedure(BaseProcedure):
 
         self.emit(
             "batch results",
-            {"Time": times, "Voltage": voltages, "Source electrode current": np.abs(currents)},
+            {"Time": times, "Voltage": voltages, "Source electrode current": currents},
         )
 
         times, voltages, currents = get_data(self.b1500)
@@ -65,14 +64,14 @@ class IvSweepProcedure(BaseProcedure):
 
         self.emit(
             "batch results",
-            {"Time": times, "Voltage": voltages, "Source electrode current": np.abs(currents)},
+            {"Time": times, "Voltage": voltages, "Source electrode current": currents},
         )
 
 
-class MainWindow(ManagedWindowBase):
+class MainWindow(BaseWindow):
     def __init__(self):
         widget_list = (
-            PlotWidget("Results Graph", IvSweepProcedure.DATA_COLUMNS),
+            IvPlotWidget("Results Graph", IvSweepProcedure.DATA_COLUMNS),
             LogWidget("Experiment Log"),
         )
         settings = [

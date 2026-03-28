@@ -12,7 +12,7 @@ from keysight_b1530a.enums import (
 from keysight_b1530a.errors import WGFMUError
 from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget, PlotWidget
-from pymeasure.display.windows import ManagedWindowBase
+from probe_station.measurements.common import BaseWindow
 from pymeasure.experiment import (
     BooleanParameter,
     FloatParameter,
@@ -207,7 +207,7 @@ class WgfmuIvSweepProcedure(BaseProcedure):
         self.b1500.close_wgfmu_session()
 
 
-class MainWindow(ManagedWindowBase):
+class MainWindow(BaseWindow):
     def __init__(self):
         widget_list = (
             PlotWidget("Results Graph", WgfmuIvSweepProcedure.DATA_COLUMNS),

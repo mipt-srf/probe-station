@@ -3,20 +3,22 @@ import sys
 
 import numpy as np
 from pymeasure.display.Qt import QtWidgets
-from pymeasure.display.widgets import LogWidget, PlotWidget
-from pymeasure.display.windows import ManagedWindowBase
+from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import (
     FloatParameter,
     IntegerParameter,
 )
 from PyQt5.QtCore import QLocale
 
+from probe_station.measurements.voltage_sweeps.IV.widgets import IvPlotWidget
 from probe_station.measurements.common import (
     BaseProcedure,
+    BaseWindow,
     RSU,
     RSUOutputMode,
     connect_instrument,
     get_smu_by_number,
+    max_compliance,
     setup_rsu_output,
 )
 from probe_station.measurements.voltage_sweeps.IV.SMU.script import measure_at_voltage
@@ -51,8 +53,9 @@ class IvSweepProcedure(BaseProcedure):
         top_smu.enable()
         bottom_smu.enable()
 
-        top_smu.force("voltage", 0, 0)
-        bottom_smu.force("voltage", 0, 0)
+        peak = max(abs(self.first_voltage), abs(self.second_voltage))
+        top_smu.force("voltage", 0, 0, max_compliance(top_smu, peak))
+        bottom_smu.force("voltage", 0, 0, max_compliance(bottom_smu, 0))
 
         voltages_forced = np.linspace(self.first_voltage, self.second_voltage, self.steps)
 
@@ -67,15 +70,15 @@ class IvSweepProcedure(BaseProcedure):
             time, current, voltage = measure_at_voltage(
                 self.b1500, voltage, top=self.top_channel, bottom=self.bottom_channel
             )
-            self.emit("results", {"Time": time, "Voltage": voltage, "Top electrode current": np.abs(current)})
+            self.emit("results", {"Time": time, "Voltage": voltage, "Top electrode current": current})
 
         self.b1500.force_gnd()
 
 
-class MainWindow(ManagedWindowBase):
+class MainWindow(BaseWindow):
     def __init__(self):
         widget_list = (
-            PlotWidget("Results Graph", IvSweepProcedure.DATA_COLUMNS),
+            IvPlotWidget("Results Graph", IvSweepProcedure.DATA_COLUMNS),
             LogWidget("Experiment Log"),
         )
         settings = [

@@ -4,7 +4,7 @@ from time import sleep
 
 from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget, PlotWidget
-from pymeasure.display.windows import ManagedWindowBase
+from probe_station.measurements.common import BaseWindow
 from pymeasure.experiment import (
     FloatParameter,
     IntegerParameter,
@@ -72,7 +72,7 @@ class CvSweepProcedure(BaseProcedure):
     #     close_session()
 
 
-class MainWindow(ManagedWindowBase):
+class MainWindow(BaseWindow):
     def __init__(self):
         widget_list = (
             PlotWidget("Results Graph", CvSweepProcedure.DATA_COLUMNS),
