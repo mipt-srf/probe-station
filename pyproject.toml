@@ -37,15 +37,18 @@ tests = [
 ]
 measurements = [
     "keysight-b1530a",
-    "pymeasure",
     "waveform-generator",
 ]
 
 [build-system]
 requires = [
     "setuptools>=61.0",
+    "setuptools-scm",
 ]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+write_to = "src/probe_station/_version.py"
 
 [tool.ruff]
 line-length = 120

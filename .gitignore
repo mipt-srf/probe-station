@@ -1,4 +1,5 @@
 __pycache__/
+src/probe_station/_version.py
 docs/build/
 *.egg-info/
 build/
