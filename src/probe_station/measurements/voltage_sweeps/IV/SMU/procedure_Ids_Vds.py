@@ -6,9 +6,9 @@ from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter
 from PyQt5.QtCore import QLocale
 
-from probe_station.measurements.voltage_sweeps.IV.widgets import IvPlotWidget
 from probe_station.measurements.common import BaseProcedure, BaseWindow, connect_instrument
 from probe_station.measurements.voltage_sweeps.IV.SMU.script_Ids_Vds import get_data, run
+from probe_station.measurements.voltage_sweeps.IV.widgets import IvPlotWidget
 from probe_station.utilities import setup_file_logging
 
 log = logging.getLogger(__name__)

@@ -6,7 +6,6 @@ from time import sleep
 
 from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget
-from probe_station.measurements.common import BaseWindow
 from pymeasure.experiment import (
     FloatParameter,
     IntegerParameter,
@@ -14,8 +13,9 @@ from pymeasure.experiment import (
 from PyQt5.QtCore import QLocale
 
 from probe_station.measurements.common import (
-    BaseProcedure,
     RSU,
+    BaseProcedure,
+    BaseWindow,
     RSUOutputMode,
     connect_instrument,
     get_smu_by_number,

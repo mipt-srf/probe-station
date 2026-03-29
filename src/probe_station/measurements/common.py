@@ -9,13 +9,13 @@ from keysight_b1530a._bindings.config import WGFMUChannel
 from keysight_b1530a._bindings.configuration import set_operation_mode
 from keysight_b1530a.enums import WGFMUOperationMode
 from pymeasure.display.windows import ManagedWindowBase
+from pymeasure.experiment import Metadata, Procedure
 from pymeasure.instruments.agilent.agilentB1500 import (
     AgilentB1500,
     ControlMode,
     PgSelectorConnectionStatus,
     PgSelectorPort,
 )
-from pymeasure.experiment import Metadata, Procedure
 
 from probe_station import B1500
 from probe_station.utilities import add_file_log_dir
@@ -159,7 +159,7 @@ def max_compliance(smu, peak_voltage: float) -> float:
     for ceiling, compliance in thresholds:
         if peak_voltage <= ceiling:
             return compliance
-    raise ValueError(f"Peak voltage {peak_voltage} V exceeds the maximum for {smu.type} " f"({thresholds[-1][0]} V)")
+    raise ValueError(f"Peak voltage {peak_voltage} V exceeds the maximum for {smu.type} ({thresholds[-1][0]} V)")
 
 
 def set_smu_compliances(b1500, current_comp=0.1):
