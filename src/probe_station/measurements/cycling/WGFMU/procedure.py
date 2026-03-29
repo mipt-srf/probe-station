@@ -18,7 +18,7 @@ from pymeasure.experiment import (
     IntegerParameter,
     ListParameter,
 )
-from PyQt5.QtCore import QLocale
+from qtpy.QtCore import QLocale
 from waveform_generator import PulseSequence
 
 from probe_station.measurements.common import BaseProcedure, BaseWindow, connect_instrument

@@ -18,7 +18,7 @@ from pymeasure.experiment import (
     IntegerParameter,
     ListParameter,
 )
-from PyQt5.QtCore import QLocale
+from qtpy.QtCore import QLocale
 
 from probe_station.measurements.common import BaseProcedure, BaseWindow, connect_instrument
 from probe_station.measurements.voltage_sweeps.IV.WGFMU.script import (

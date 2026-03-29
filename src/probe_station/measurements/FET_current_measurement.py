@@ -11,7 +11,7 @@ from pymeasure.experiment import (
     IntegerParameter,
 )
 from pymeasure.instruments.agilent.agilentB1500 import ADCType
-from PyQt5.QtCore import QLocale
+from qtpy.QtCore import QLocale
 
 from probe_station.measurements.common import (
     RSU,

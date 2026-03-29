@@ -8,7 +8,7 @@ from pymeasure.experiment import (
     FloatParameter,
     IntegerParameter,
 )
-from PyQt5.QtCore import QLocale
+from qtpy.QtCore import QLocale
 
 from probe_station.measurements.common import (
     RSU,

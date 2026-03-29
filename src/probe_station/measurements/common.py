@@ -46,7 +46,7 @@ def take_screenshot(window, dest: str | Path, full_screen: bool = False) -> Path
     :param full_screen: If ``True``, capture the entire screen instead of *window*.
     :returns: Resolved path to the saved file, or ``None`` on failure.
     """
-    from PyQt5.QtWidgets import QApplication
+    from qtpy.QtWidgets import QApplication
 
     dest = Path(dest)
     try:

@@ -15,7 +15,6 @@ from probe_station.measurements.common import (
     connect_instrument,
     get_smu_by_number,
     max_compliance,
-    parse_data,
     setup_rsu_output,
 )
 
