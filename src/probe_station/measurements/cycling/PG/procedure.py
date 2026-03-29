@@ -5,11 +5,10 @@ from datetime import datetime, timedelta
 from keysight_b1530a._bindings.initialization import open_session
 from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget
-from probe_station.measurements.common import BaseWindow
 from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter
-from PyQt5.QtCore import QLocale
+from qtpy.QtCore import QLocale
 
-from probe_station.measurements.common import BaseProcedure, max_compliance
+from probe_station.measurements.common import BaseProcedure, BaseWindow, max_compliance
 from probe_station.measurements.cycling.PG.script import connect_instrument, run
 from probe_station.utilities import setup_file_logging
 
