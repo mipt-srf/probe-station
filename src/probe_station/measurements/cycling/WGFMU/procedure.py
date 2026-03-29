@@ -12,17 +12,16 @@ from keysight_b1530a.enums import (
 from keysight_b1530a.errors import WGFMUError
 from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget, PlotWidget
-from probe_station.measurements.common import BaseWindow
 from pymeasure.experiment import (
     BooleanParameter,
     FloatParameter,
     IntegerParameter,
     ListParameter,
 )
-from PyQt5.QtCore import QLocale
+from qtpy.QtCore import QLocale
 from waveform_generator import PulseSequence
 
-from probe_station.measurements.common import BaseProcedure, connect_instrument
+from probe_station.measurements.common import BaseProcedure, BaseWindow, connect_instrument
 from probe_station.measurements.cycling.WGFMU.script import (
     get_data,
     get_sequence,

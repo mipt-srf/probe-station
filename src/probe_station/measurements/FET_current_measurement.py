@@ -5,18 +5,18 @@ import sys
 
 from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget
-from probe_station.measurements.common import BaseWindow
 from pymeasure.experiment import (
     BooleanParameter,
     FloatParameter,
     IntegerParameter,
 )
 from pymeasure.instruments.agilent.agilentB1500 import ADCType
-from PyQt5.QtCore import QLocale
+from qtpy.QtCore import QLocale
 
 from probe_station.measurements.common import (
-    BaseProcedure,
     RSU,
+    BaseProcedure,
+    BaseWindow,
     RSUOutputMode,
     connect_instrument,
     get_smu_by_number,
