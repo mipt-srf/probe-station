@@ -67,14 +67,14 @@ def take_screenshot(window, dest: str | Path, full_screen: bool = False) -> Path
 class BaseWindow(ManagedWindowBase):
     """Base class for all probe-station measurement windows.
 
-    Automatically takes a screenshot of the window when a measurement finishes,
-    provided that data storage is enabled (``store_measurement`` is ``True``).
-    The screenshot is saved next to the results file using the procedure's
-    ``start_time`` as the filename.
+    When data storage is enabled (``store_measurement`` is ``True``), logs are
+    written to a ``logs/`` subdirectory of the results directory and a screenshot
+    is saved next to the results file when the measurement finishes.
     """
 
     def _queue(self, checked):
-        add_file_log_dir(Path(self.directory) / "logs")
+        if self.store_measurement:
+            add_file_log_dir(Path(self.directory) / "logs")
         super()._queue(checked)
 
     def finished(self, experiment):
