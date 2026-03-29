@@ -1,3 +1,4 @@
+import logging
 import subprocess
 import sys
 
@@ -11,6 +12,11 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+
+from probe_station.utilities import setup_file_logging
+
+log = logging.getLogger(__name__)
+log.addHandler(logging.NullHandler())
 
 
 class ScriptRunner(QThread):
@@ -38,7 +44,7 @@ class ScriptRunner(QThread):
             else:
                 subprocess.Popen([sys.executable, "-m", self.script_module])
         except Exception as e:
-            print(f"Error running {self.script_module}: {e}")
+            log.exception(f"Error running {self.script_module}: {e}")
 
 
 class ModernButton(QPushButton):
@@ -161,6 +167,7 @@ class Launcher(QWidget):
 
 
 if __name__ == "__main__":
+    setup_file_logging("logs")
     app = QApplication(sys.argv)
 
     # Enable high DPI scaling for crisp display

@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 from keysight_b1530a._bindings.config import WGFMUChannel
 from keysight_b1530a._bindings.errors import get_error_summary
@@ -12,6 +14,9 @@ from probe_station.measurements.b1500 import (
     WGFMUOperationMode,
 )
 from probe_station.measurements.common import connect_instrument
+
+log = logging.getLogger(__name__)
+log.addHandler(logging.NullHandler())
 
 
 def get_sequence(
@@ -94,12 +99,12 @@ def get_data(b1500: B1500, repetitions, ch=WGFMUChannel.CH2, points=100):
     times = np.split(np.array(times), repetitions)[-1]
     currents = np.split(np.array(currents), repetitions)[-1]
     voltages = np.split(np.array(voltages), repetitions)[-1]
-    print(len(voltages))
+    log.debug(f"Raw voltage array length: {len(voltages)}")
 
     times = np.mean(times.reshape(-1, len(voltages) // points), axis=1)
     currents = np.mean(currents.reshape(-1, len(voltages) // points), axis=1)
     voltages = np.mean(voltages.reshape(-1, len(voltages) // points), axis=1)
-    print(len(voltages))
+    log.debug(f"Decimated voltage array length: {len(voltages)}")
 
     return times, voltages, currents
 

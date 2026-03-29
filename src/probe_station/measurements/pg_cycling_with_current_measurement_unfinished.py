@@ -88,13 +88,12 @@ def run(b1500: B1500, repetitions, amplitude, width, rise, tail, channel=102, bi
         if spgu.complete:
             break
         elapsed = time.perf_counter() - start_time
-    print(
-        f"Elapsed: {elapsed:.1f}s / {period * repetitions:.1f}s",
-    )
+    log.info(f"Elapsed: {elapsed:.1f}s / {period * repetitions:.1f}s")
     import pandas
 
     df: pandas.DataFrame = b1500.read_data(points)
-    print(df)
+    if log.isEnabledFor(logging.DEBUG):
+        log.debug(f"Measurement data (shape={df.shape}):\n{df.head()}")
     df.plot(y="SMU3 Current (A)")
     plt.show()
     close_session()
