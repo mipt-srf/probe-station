@@ -26,8 +26,15 @@ _logging_configured = False
 _logged_dirs: set[Path] = set()
 
 
+_LOG_NAMESPACES = ("probe_station", "pymeasure", "pyvisa")
+
+
 def add_file_log_dir(log_dir: str | Path) -> None:
-    """Attach a rotating file handler writing to *log_dir* to the root logger.
+    """Attach a rotating file handler writing to *log_dir* to each tracked logger.
+
+    Handlers are attached directly to the ``probe_station``, ``pymeasure``, and
+    ``pyvisa`` named loggers rather than root, so they survive any root-logger
+    reconfiguration done by pymeasure when queuing an experiment.
 
     Idempotent: calling with a directory that already has a handler is a no-op.
     The directory is created if it does not exist.
@@ -44,9 +51,9 @@ def add_file_log_dir(log_dir: str | Path) -> None:
     formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s")
     file_handler = RotatingFileHandler(log_dir / log_filename, maxBytes=5_000_000, backupCount=5, encoding="utf-8")
     file_handler.setLevel(logging.DEBUG)
-    file_handler.addFilter(lambda r: r.name.startswith(("probe_station", "pymeasure", "pyvisa")))
     file_handler.setFormatter(formatter)
-    logging.getLogger().addHandler(file_handler)
+    for name in _LOG_NAMESPACES:
+        logging.getLogger(name).addHandler(file_handler)
 
 
 def setup_file_logging(log_dir: str | Path = "logs") -> None:
