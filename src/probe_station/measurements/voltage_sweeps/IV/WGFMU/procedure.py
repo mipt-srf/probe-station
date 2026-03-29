@@ -12,7 +12,7 @@ from keysight_b1530a.enums import (
 from keysight_b1530a.errors import WGFMUError
 from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget, PlotWidget
-from pymeasure.display.windows import ManagedWindowBase
+from probe_station.measurements.common import BaseWindow
 from pymeasure.experiment import (
     BooleanParameter,
     FloatParameter,
@@ -28,6 +28,7 @@ from probe_station.measurements.voltage_sweeps.IV.WGFMU.script import (
     run,
     set_waveform,
 )
+from probe_station.utilities import setup_file_logging
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -156,7 +157,7 @@ class WgfmuIvSweepProcedure(BaseProcedure):
                 )
 
         except WGFMUError:
-            print(get_error_summary())
+            log.error(f"{get_error_summary()}")
             self.b1500.clear_wgfmu()
             self.b1500.close_wgfmu_session()
 
@@ -206,7 +207,7 @@ class WgfmuIvSweepProcedure(BaseProcedure):
         self.b1500.close_wgfmu_session()
 
 
-class MainWindow(ManagedWindowBase):
+class MainWindow(BaseWindow):
     def __init__(self):
         widget_list = (
             PlotWidget("Results Graph", WgfmuIvSweepProcedure.DATA_COLUMNS),
@@ -247,6 +248,7 @@ class MainWindow(ManagedWindowBase):
 
 
 if __name__ == "__main__":
+    setup_file_logging("logs")
     QLocale.setDefault(QLocale(QLocale.English, QLocale.UnitedStates))
     app = QtWidgets.QApplication(sys.argv)
     window = MainWindow()

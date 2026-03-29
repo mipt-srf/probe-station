@@ -5,7 +5,7 @@ import sys
 
 from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget
-from pymeasure.display.windows import ManagedWindowBase
+from probe_station.measurements.common import BaseWindow
 from pymeasure.experiment import (
     BooleanParameter,
     FloatParameter,
@@ -73,11 +73,11 @@ class FetCurrentMeasurementProcedure(BaseProcedure):
         base_smu.force("voltage", 0, self.base_voltage)
 
         tuples = drain_smu.measure_point()
-        print(tuples)
+        log.debug(f"Drain SMU measurement: {tuples}")
         drain_current = tuples[1][1]
 
         tuples = gate_smu.measure_point()
-        print(tuples)
+        log.debug(f"Gate SMU measurement: {tuples}")
         gate_current = tuples[1][1]
 
         self.emit("results", {"Drain Current": drain_current, "Gate Current": gate_current})
@@ -91,7 +91,7 @@ class FetCurrentMeasurementProcedure(BaseProcedure):
     #     close_session()
 
 
-class MainWindow(ManagedWindowBase):
+class MainWindow(BaseWindow):
     def __init__(self):
         widget_list = (LogWidget("Experiment Log"),)
         settings = [

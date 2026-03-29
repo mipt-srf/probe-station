@@ -1,15 +1,15 @@
 import logging
 import sys
 
-import numpy as np
 from pymeasure.display.Qt import QtWidgets
-from pymeasure.display.widgets import LogWidget, PlotWidget
-from pymeasure.display.windows import ManagedWindowBase
+from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter
 from PyQt5.QtCore import QLocale
 
-from probe_station.measurements.common import BaseProcedure, connect_instrument
+from probe_station.measurements.common import BaseProcedure, BaseWindow, connect_instrument
 from probe_station.measurements.voltage_sweeps.IV.SMU.built_in_script import run
+from probe_station.measurements.voltage_sweeps.IV.widgets import IvPlotWidget
+from probe_station.utilities import setup_file_logging
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -57,7 +57,7 @@ class IvSweepProcedure(BaseProcedure):
             self.emit("progress", emitted / total_steps * 100)
             self.emit(
                 "results",
-                {"Time": time, "Voltage": voltage, "Top electrode current": np.abs(current)},
+                {"Time": time, "Voltage": voltage, "Top electrode current": current},
             )
             if self.should_stop():
                 log.warning("Caught the stop flag in the procedure")
@@ -68,10 +68,10 @@ class IvSweepProcedure(BaseProcedure):
         self.b1500.force_gnd()
 
 
-class MainWindow(ManagedWindowBase):
+class MainWindow(BaseWindow):
     def __init__(self):
         widget_list = (
-            PlotWidget("Results Graph", IvSweepProcedure.DATA_COLUMNS),
+            IvPlotWidget("Results Graph", IvSweepProcedure.DATA_COLUMNS),
             LogWidget("Experiment Log"),
         )
         settings = [
@@ -98,6 +98,7 @@ class MainWindow(ManagedWindowBase):
 
 
 if __name__ == "__main__":
+    setup_file_logging("logs")
     QLocale.setDefault(QLocale(QLocale.English, QLocale.UnitedStates))
     app = QtWidgets.QApplication(sys.argv)
     window = MainWindow()

@@ -95,12 +95,11 @@ def run(
         if spgu.complete:
             break
         elapsed = time.perf_counter() - start_time
-    print(
-        f"Elapsed: {elapsed:.1f}s / {period * repetitions:.1f}s",
-    )
+    log.info(f"Elapsed: {elapsed:.1f}s / {period * repetitions:.1f}s")
 
     df: pandas.DataFrame = b1500.read_data(points)
-    print(df)
+    if log.isEnabledFor(logging.DEBUG):
+        log.debug(f"Measurement data (shape={df.shape}):\n{df.head()}")
     df.plot(y=f"SMU{smu_ch} Current (A)")
     # print(b1500.check_errors())
     plt.show()

@@ -3,10 +3,12 @@
 import logging
 from datetime import datetime
 from enum import Enum
+from pathlib import Path
 
 from keysight_b1530a._bindings.config import WGFMUChannel
 from keysight_b1530a._bindings.configuration import set_operation_mode
 from keysight_b1530a.enums import WGFMUOperationMode
+from pymeasure.display.windows import ManagedWindowBase
 from pymeasure.instruments.agilent.agilentB1500 import (
     AgilentB1500,
     ControlMode,
@@ -16,6 +18,7 @@ from pymeasure.instruments.agilent.agilentB1500 import (
 from pymeasure.experiment import Metadata, Procedure
 
 from probe_station import B1500
+from probe_station.utilities import add_file_log_dir
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -33,6 +36,54 @@ class BaseProcedure(Procedure):
     def startup(self):
         super().startup()
         self.start_time = datetime.now()
+
+
+def take_screenshot(window, dest: str | Path, full_screen: bool = False) -> Path | None:
+    """Capture a screenshot and save it to *dest*.
+
+    :param window: The Qt widget to capture (ignored when *full_screen* is ``True``).
+    :param dest: Full path (including filename) for the saved PNG.
+    :param full_screen: If ``True``, capture the entire screen instead of *window*.
+    :returns: Resolved path to the saved file, or ``None`` on failure.
+    """
+    from PyQt5.QtWidgets import QApplication
+
+    dest = Path(dest)
+    try:
+        if full_screen:
+            pixmap = QApplication.instance().primaryScreen().grabWindow(0)
+        else:
+            pixmap = window.grab()
+        if not pixmap.save(str(dest), "PNG"):
+            log.warning("Screenshot failed: could not save to %s", dest)
+            return None
+        log.info("Screenshot saved: %s", dest)
+        return dest
+    except Exception as e:
+        log.warning("Screenshot failed: %s", e)
+        return None
+
+
+class BaseWindow(ManagedWindowBase):
+    """Base class for all probe-station measurement windows.
+
+    When data storage is enabled (``store_measurement`` is ``True``), logs are
+    written to a ``logs/`` subdirectory of the results directory and a screenshot
+    is saved next to the results file when the measurement finishes.
+    """
+
+    def _queue(self, checked):
+        if self.store_measurement:
+            add_file_log_dir(Path(self.directory) / "logs")
+        super()._queue(checked)
+
+    def finished(self, experiment):
+        super().finished(experiment)
+        if not self.store_measurement:
+            return
+        procedure = experiment.procedure
+        dest = Path(self.directory) / f"{procedure.start_time:%Y%m%d_%H%M%S}_screenshot.png"
+        take_screenshot(self, dest)
 
 
 class RSUOutputMode(Enum):
@@ -79,6 +130,38 @@ def setup_rsu_output(b1500: AgilentB1500, rsu: RSU = RSU.RSU2, mode: RSUOutputMo
             set_operation_mode(mode=WGFMUOperationMode.FASTIV, channel=WGFMUChannel.CH1)
 
 
+_COMPLIANCE_THRESHOLDS = {
+    "HRSMU": [(20, 100e-3), (40, 50e-3), (100, 20e-3)],
+    "MPSMU": [(20, 100e-3), (40, 50e-3), (100, 20e-3)],
+    "HPSMU": [(20, 1.0), (40, 500e-3), (100, 125e-3), (200, 50e-3)],
+    "HVSMU": [(1500, 8e-3), (3000, 4e-3)],
+}
+
+
+def max_compliance(smu, peak_voltage: float) -> float:
+    """Return the maximum current compliance in amperes for the given SMU
+    and peak output voltage.
+
+    Looks up the hardware limit from Table 4-7 / 4-12 of the B1500
+    Programmer's Guide.  Use ``max(abs(start), abs(end))`` for sweeps and
+    ``abs(voltage)`` for DC measurements as ``peak_voltage``.
+
+    :param smu: SMU object with a ``.type`` string attribute
+        (e.g. ``"HRSMU"``, ``"MPSMU"``, ``"HPSMU"``, ``"HVSMU"``).
+    :param peak_voltage: Maximum absolute output voltage in V.
+    :raises ValueError: If the voltage exceeds the SMU's range or the
+        SMU type is not supported.
+    """
+    peak_voltage = abs(peak_voltage)
+    thresholds = _COMPLIANCE_THRESHOLDS.get(smu.type)
+    if thresholds is None:
+        raise ValueError(f"SMU type {smu.type!r} is not supported by max_compliance")
+    for ceiling, compliance in thresholds:
+        if peak_voltage <= ceiling:
+            return compliance
+    raise ValueError(f"Peak voltage {peak_voltage} V exceeds the maximum for {smu.type} " f"({thresholds[-1][0]} V)")
+
+
 def set_smu_compliances(b1500, current_comp=0.1):
     """Enable all SMUs and set a uniform current compliance.
 
@@ -87,7 +170,7 @@ def set_smu_compliances(b1500, current_comp=0.1):
     """
     for smu in b1500.smu_references:
         smu.enable()
-        smu.force("Voltage", 0, 0, 1e-1)
+        smu.force("Voltage", 0, 0, current_comp)
 
 
 def enable_all_smus(b1500):
@@ -123,7 +206,7 @@ def check_all_errors(b1500):
         try:
             b1500.check_errors()
         except Exception as e:
-            print(e)
+            log.warning("Instrument error: %s", e)
         else:
             break
 

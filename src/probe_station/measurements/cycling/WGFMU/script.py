@@ -1,3 +1,5 @@
+import logging
+
 from keysight_b1530a._bindings.config import WGFMUChannel
 from waveform_generator import PulseSequence, StaircaseSweep
 
@@ -8,6 +10,9 @@ from probe_station.measurements.b1500 import (
     WGFMUOperationMode,
 )
 from probe_station.measurements.common import connect_instrument
+
+log = logging.getLogger(__name__)
+log.addHandler(logging.NullHandler())
 
 
 def get_sequence(
@@ -54,7 +59,7 @@ def set_waveform(
     pattern_name += f"_{channel.name.lower()}"
     b1500.create_wgfmu_pattern(pattern_name, sequence.pulses[0].dc_bias)
     times, voltages = sequence.to_vectors()
-    print(f"2*steps in full PUND sequence = {len(voltages)}")
+    log.debug(f"2*steps in full PUND sequence = {len(voltages)}")
     b1500.add_vectors_to_wgfmu_pattern(pattern_name, times, voltages)
     seq_time = sequence.total_duration
     if measure:
@@ -86,7 +91,7 @@ def get_data(b1500, repetitions, ch=WGFMUChannel.CH2, points=50):
     wgfmu = b1500.wgfmus[ch.value - 200]
     times, currents = wgfmu.get_measurement_data()
     voltages = wgfmu.get_voltage_data()
-    print(f"Data length = {len(voltages)}, {len(currents)}")
+    log.debug(f"Data length = {len(voltages)}, {len(currents)}")
     # # drop all except last rep
     # times = np.split(np.array(times), repetitions)[-1]
     # currents = np.split(np.array(currents), repetitions)[-1]

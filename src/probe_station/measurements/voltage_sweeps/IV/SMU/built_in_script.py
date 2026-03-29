@@ -14,6 +14,8 @@ from probe_station.measurements.common import (
     RSUOutputMode,
     connect_instrument,
     get_smu_by_number,
+    max_compliance,
+    parse_data,
     setup_rsu_output,
 )
 
@@ -25,11 +27,13 @@ def run(b1500: B1500, start, end, steps, average=127, top=4, bottom=3, mode=1):
 
     smu = get_smu_by_number(b1500, top)
     smu.enable()
-    smu.force("voltage", 0, 0, 1e-1)
 
     smu_bottom = get_smu_by_number(b1500, bottom)
     smu_bottom.enable()
-    smu_bottom.force("voltage", 0, 0, 1e-1)
+
+    peak = max(abs(start), abs(end))
+    smu.force("voltage", 0, 0, max_compliance(smu, peak))
+    smu_bottom.force("voltage", 0, 0, max_compliance(smu_bottom, 0))
 
     # b1500.write("SSP 9,3")
     # b1500.adc_auto_zero = True
@@ -43,18 +47,7 @@ def run(b1500: B1500, start, end, steps, average=127, top=4, bottom=3, mode=1):
     b1500.adc_setup(ADCType.HRADC, ADCMode.MANUAL, average)
     # smu.sweep_timing()
 
-    if smu.channel in [3, 4]:
-        max_voltage = max(abs(start), abs(end))
-        if max_voltage <= 20:
-            compliance = 100e-3
-        elif 20 < max_voltage <= 40:
-            compliance = 50e-3
-        elif 40 < max_voltage <= 100:
-            compliance = 20e-3
-        else:
-            raise ValueError(f"Voltages higher than 100 V are not suported by {smu.name}")
-    else:
-        compliance = 20e-3  # temp fix for other smus
+    compliance = max_compliance(smu, peak)
 
     if mode == 1:
         smu.staircase_sweep_source(

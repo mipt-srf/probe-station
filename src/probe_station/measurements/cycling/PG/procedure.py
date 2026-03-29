@@ -5,12 +5,13 @@ from datetime import datetime, timedelta
 from keysight_b1530a._bindings.initialization import open_session
 from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget
-from pymeasure.display.windows import ManagedWindowBase
+from probe_station.measurements.common import BaseWindow
 from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter
 from PyQt5.QtCore import QLocale
 
-from probe_station.measurements.common import BaseProcedure
+from probe_station.measurements.common import BaseProcedure, max_compliance
 from probe_station.measurements.cycling.PG.script import connect_instrument, run
+from probe_station.utilities import setup_file_logging
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -53,7 +54,7 @@ class PgCyclingProcedure(BaseProcedure):
                 if str(self.dc_channel) == smu.name[-1]:
                     dc_smu = smu
             dc_smu.enable()
-            dc_smu.force("voltage", 0, self.dc_bias_value)
+            dc_smu.force("voltage", 0, self.dc_bias_value, max_compliance(dc_smu, abs(self.dc_bias_value)))
 
             log.info("Starting output of %f V at %d", self.dc_bias_value, self.dc_channel)
 
@@ -92,7 +93,7 @@ class PgCyclingProcedure(BaseProcedure):
         return estimates
 
 
-class MainWindow(ManagedWindowBase):
+class MainWindow(BaseWindow):
     def __init__(self):
         widget_list = (LogWidget("Experiment Log"),)
         settings = [
@@ -122,6 +123,7 @@ class MainWindow(ManagedWindowBase):
 
 
 if __name__ == "__main__":
+    setup_file_logging("logs")
     QLocale.setDefault(QLocale(QLocale.English, QLocale.UnitedStates))
     app = QtWidgets.QApplication(sys.argv)
     window = MainWindow()

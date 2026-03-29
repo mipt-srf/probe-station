@@ -4,6 +4,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from time import sleep
 
+from probe_station.utilities import add_file_log_dir, setup_file_logging
+
 import numpy as np
 from keysight_b1530a.enums import WGFMUMeasureCurrentRange
 from matplotlib import pyplot as plt
@@ -19,32 +21,15 @@ from probe_station.measurements.voltage_sweeps.IV.WGFMU.procedure import (
     WgfmuIvSweepProcedure,
 )
 
-logging.basicConfig(level=logging.INFO)
 folder = "results"
-Path(folder).mkdir(exist_ok=True)
 experiment_counter = itertools.count(1)
 
-# Create logger
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-
-# Console handler (simpler format)
-console_handler = logging.StreamHandler()
-console_handler.setLevel(logging.INFO)
-
-# File handler (detailed format)
-log_filename = f"{folder}/experiment.log"
-file_handler = logging.FileHandler(log_filename, mode="w", encoding="utf-8")
-file_handler.setLevel(logging.DEBUG)  # Can log more details to file
-
-# Add handlers to logger
-logger.addHandler(console_handler)
-logger.addHandler(file_handler)
 
 
 def run_cv():
     exp_num = next(experiment_counter)
-    print(f"\n=================== Measurement number: {exp_num} ===================\n")
+    logger.info(f"=================== Measurement number: {exp_num} ===================")
     proc = CvSweepProcedure()
     proc.first_voltage = -3.2
     proc.second_voltage = 3.2
@@ -57,7 +42,7 @@ def run_cv():
 
 def run_dc_iv():
     exp_num = next(experiment_counter)
-    print(f"\n=================== Measurement number: {exp_num} ===================\n")
+    logger.info(f"=================== Measurement number: {exp_num} ===================")
     proc = IvSweepProcedure()
     proc.first_voltage = -2.6
     proc.second_voltage = 2.6
@@ -72,7 +57,7 @@ def run_dc_iv():
 
 def run_iv_sweep(mode="PUND", voltage_first=5, voltage_second=-5):
     exp_num = next(experiment_counter)
-    print(f"\n=================== Measurement number: {exp_num} ===================\n")
+    logger.info(f"=================== Measurement number: {exp_num} ===================")
     proc = WgfmuIvSweepProcedure()
     proc.voltage_top_first = voltage_first
     proc.voltage_top_second = voltage_second
@@ -88,7 +73,7 @@ def run_iv_sweep(mode="PUND", voltage_first=5, voltage_second=-5):
 
 def run_cycling(cycles=1000, width=1e-5):
     exp_num = next(experiment_counter)
-    print(f"\n=================== Measurement number: {exp_num} ===================\n")
+    logger.info(f"=================== Measurement number: {exp_num} ===================")
     proc = PgCyclingProcedure()
     proc.width = width
     proc.repetitions = cycles
@@ -173,87 +158,91 @@ def log_points(start, stop, per_decade=5):
 # log_points(10, 1000, per_decade=2) # From 10 to 1000, with 2 additional points per decade (so 3 points: 10, p1, p2, 100,)
 
 
-# run_cycling(100)
-# run_iv_sweep()
+if __name__ == "__main__":
+    Path(folder).mkdir(exist_ok=True)
+    setup_file_logging()
+    add_file_log_dir(Path(folder) / "logs")
 
-# run_dc_iv()
+    # run_cycling(100)
+    # run_iv_sweep()
 
-# run_cv()
+    # run_dc_iv()
 
+    # run_cv()
 
-experiment_counter = itertools.count(1)
-run_iv_sweep()
-sleep(3)
-plt.figure(figsize=(10, 6))
-ds = Results.load(f"{folder}/{1}_WgfmuIvSweepProcedure.csv")
-plt.plot(
-    ds.data["Top electrode voltage"],
-    ds.data["Top electrode Current"],
-)
-
-plt.xlabel("Voltage")
-plt.ylabel("Top electrode current")
-plt.legend()
-plt.grid(True)
-plt.show()
-sleep(3)
-
-run_dc_iv()
-
-plt.figure(figsize=(10, 6))
-ds = Results.load(f"{folder}/{2}_IvSweepProcedure.csv")
-plt.plot(
-    ds.data["Voltage"],
-    ds.data["Top electrode current"],
-)
-
-plt.xlabel("Voltage")
-plt.ylabel("Top electrode current")
-plt.legend()
-plt.grid(True)
-plt.show()
-sleep(3)
-
-run_cv()
-
-plt.figure(figsize=(10, 6))
-ds = Results.load(f"{folder}/{3}_CvSweepProcedure.csv")
-plt.plot(
-    ds.data["Voltage"],
-    ds.data["Capacitance"],
-)
-
-plt.xlabel("Voltage")
-plt.ylabel("Top electrode current")
-plt.legend()
-plt.grid(True)
-plt.show()
-sleep(3)
-total = 0
-for cycles in [
-    # *[25] * 4,
-    # *[100] * 9,
-    # *[1000] * 9,
-    # *[10000] * 9,
-    # *[100_000] * 9,
-    # *[1_000_000] * 999,
-    # *log_points(10, 1e6, per_decade=4).tolist(),
-    *log_points(10, 1e10, per_decade=10).tolist()[:],
-    # *[1_000_000] * 999,
-    # *[1_000_000] * 1000,
-    # *[10**7] * 100
-]:
-    cycles = int(cycles)
-    total += cycles
-    print(
-        f"Total cycles (start): {total}, || {datetime.now()} || {datetime.now() + timedelta(seconds=cycles * 1e-5 * 3)}"
+    experiment_counter = itertools.count(1)
+    run_iv_sweep()
+    sleep(3)
+    plt.figure(figsize=(10, 6))
+    ds = Results.load(f"{folder}/{1}_WgfmuIvSweepProcedure.csv")
+    plt.plot(
+        ds.data["Top electrode voltage"],
+        ds.data["Top electrode Current"],
     )
-    run_cycling(cycles)
-    run_iv_sweep(voltage_first=2.6, voltage_second=-2.6)
-    run_iv_sweep(mode="DEFAULT", voltage_first=2.6, voltage_second=-2.6)
-    run_iv_sweep(voltage_first=5, voltage_second=-5)
-    run_iv_sweep(mode="DEFAULT", voltage_first=5, voltage_second=-5)
+
+    plt.xlabel("Voltage")
+    plt.ylabel("Top electrode current")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+    sleep(3)
+
     run_dc_iv()
+
+    plt.figure(figsize=(10, 6))
+    ds = Results.load(f"{folder}/{2}_IvSweepProcedure.csv")
+    plt.plot(
+        ds.data["Voltage"],
+        ds.data["Top electrode current"],
+    )
+
+    plt.xlabel("Voltage")
+    plt.ylabel("Top electrode current")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+    sleep(3)
+
     run_cv()
 
-    #!!!!!!!!!!!!!!!!! bipolar false
+    plt.figure(figsize=(10, 6))
+    ds = Results.load(f"{folder}/{3}_CvSweepProcedure.csv")
+    plt.plot(
+        ds.data["Voltage"],
+        ds.data["Capacitance"],
+    )
+
+    plt.xlabel("Voltage")
+    plt.ylabel("Top electrode current")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+    sleep(3)
+    total = 0
+    for cycles in [
+        # *[25] * 4,
+        # *[100] * 9,
+        # *[1000] * 9,
+        # *[10000] * 9,
+        # *[100_000] * 9,
+        # *[1_000_000] * 999,
+        # *log_points(10, 1e6, per_decade=4).tolist(),
+        *log_points(10, 1e10, per_decade=10).tolist()[:],
+        # *[1_000_000] * 999,
+        # *[1_000_000] * 1000,
+        # *[10**7] * 100
+    ]:
+        cycles = int(cycles)
+        total += cycles
+        logger.info(
+            f"Total cycles (start): {total} || {datetime.now()} || {datetime.now() + timedelta(seconds=cycles * 1e-5 * 3)}"
+        )
+        run_cycling(cycles)
+        run_iv_sweep(voltage_first=2.6, voltage_second=-2.6)
+        run_iv_sweep(mode="DEFAULT", voltage_first=2.6, voltage_second=-2.6)
+        run_iv_sweep(voltage_first=5, voltage_second=-5)
+        run_iv_sweep(mode="DEFAULT", voltage_first=5, voltage_second=-5)
+        run_dc_iv()
+        run_cv()
+
+        #!!!!!!!!!!!!!!!!! bipolar false
