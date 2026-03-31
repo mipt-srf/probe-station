@@ -5,7 +5,6 @@ import sys
 from time import sleep
 
 from pymeasure.display.Qt import QtWidgets
-from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import (
     FloatParameter,
     IntegerParameter,
@@ -34,8 +33,6 @@ class DcProcedure(BaseProcedure):
     time = FloatParameter("Time", units="s", default=1, minimum=0.2)
     channel = IntegerParameter("Channel", default=4)
 
-    DATA_COLUMNS = []
-
     def startup(self):
         super().startup()
         self.b1500 = connect_instrument()
@@ -57,22 +54,10 @@ class DcProcedure(BaseProcedure):
 
 class MainWindow(BaseWindow):
     def __init__(self):
-        widget_list = (LogWidget("Experiment Log"),)
-        settings = [
-            "voltage",
-            "time",
-            "channel",
-        ]
         super().__init__(
             procedure_class=DcProcedure,
-            inputs=settings,
-            displays=settings,
-            widget_list=widget_list,
+            logger=log,
         )
-        logging.getLogger().addHandler(widget_list[0].handler)
-        log.setLevel(self.log_level)
-        log.info("ManagedWindow connected to logging")
-        self.setWindowTitle(self.procedure_class.__name__)
 
 
 if __name__ == "__main__":

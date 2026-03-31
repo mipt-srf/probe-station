@@ -32,16 +32,16 @@ class FetCurrentMeasurementProcedure(BaseProcedure):
 
     gate_voltage = FloatParameter("Gate voltage", units="V", default=10.0)
     drain_voltage = FloatParameter("Drain voltage", units="V", default=10.0)
-    source_voltage = FloatParameter("Source voltage", units="V", default=0.0, group_by="advanced_config")
-    base_voltage = FloatParameter("Base voltage", units="V", default=0.0, group_by="advanced_config")
 
     gate_channel = IntegerParameter("Gate Channel", default=4)
     drain_channel = IntegerParameter("Drain Channel", default=3)
-    source_channel = IntegerParameter("Source Channel", default=2, group_by="advanced_config")
-    base_channel = IntegerParameter("Base Channel", default=1, group_by="advanced_config")
 
     advanced_config = BooleanParameter("Advanced config", default=False)
     averaging = IntegerParameter("Averaging", default=1023, minimum=1, maximum=1023, group_by="advanced_config")
+    source_channel = IntegerParameter("Source Channel", default=2, group_by="advanced_config")
+    base_channel = IntegerParameter("Base Channel", default=1, group_by="advanced_config")
+    source_voltage = FloatParameter("Source voltage", units="V", default=0.0, group_by="advanced_config")
+    base_voltage = FloatParameter("Base voltage", units="V", default=0.0, group_by="advanced_config")
 
     DATA_COLUMNS = ["Drain Current", "Gate Current"]
 
@@ -94,28 +94,11 @@ class FetCurrentMeasurementProcedure(BaseProcedure):
 class MainWindow(BaseWindow):
     def __init__(self):
         widget_list = (LogWidget("Experiment Log"),)
-        settings = [
-            "gate_voltage",
-            "drain_voltage",
-            "gate_channel",
-            "drain_channel",
-            "advanced_config",
-            "averaging",
-            "source_channel",
-            "base_channel",
-            "source_voltage",
-            "base_voltage",
-        ]
         super().__init__(
             procedure_class=FetCurrentMeasurementProcedure,
-            inputs=settings,
-            displays=settings,
             widget_list=widget_list,
+            logger=log,
         )
-        logging.getLogger().addHandler(widget_list[0].handler)
-        log.setLevel(self.log_level)
-        log.info("ManagedWindow connected to logging")
-        self.setWindowTitle(self.procedure_class.__name__)
 
 
 if __name__ == "__main__":

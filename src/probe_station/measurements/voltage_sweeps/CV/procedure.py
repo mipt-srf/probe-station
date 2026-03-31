@@ -2,7 +2,6 @@ import logging
 import sys
 
 from pymeasure.display.Qt import QtWidgets
-from pymeasure.display.widgets import LogWidget, PlotWidget
 from pymeasure.experiment import (
     FloatParameter,
     IntegerParameter,
@@ -58,25 +57,10 @@ class CvSweepProcedure(BaseProcedure):
 
 class MainWindow(BaseWindow):
     def __init__(self):
-        widget_list = (
-            PlotWidget("Results Graph", CvSweepProcedure.DATA_COLUMNS),
-            LogWidget("Experiment Log"),
-        )
-        settings = [
-            "first_voltage",
-            "second_voltage",
-            "avg_per_point",
-        ]
         super().__init__(
             procedure_class=CvSweepProcedure,
-            inputs=settings,
-            displays=settings,
-            widget_list=widget_list,
+            logger=log,
         )
-        logging.getLogger().addHandler(widget_list[1].handler)
-        log.setLevel(self.log_level)
-        log.info("ManagedWindow connected to logging")
-        self.setWindowTitle(f"{self.procedure_class.__name__}")
 
 
 if __name__ == "__main__":

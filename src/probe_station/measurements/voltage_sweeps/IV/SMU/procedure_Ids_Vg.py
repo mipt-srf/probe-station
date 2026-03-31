@@ -101,29 +101,9 @@ class MainWindow(BaseWindow):
         )
         super().__init__(
             procedure_class=RandomProcedure,
-            inputs=[
-                "source",
-                "drain",
-                "gate",
-                "voltage_ds",
-                "voltage_gate_first",
-                "voltage_gate_second",
-                "points",
-            ],
-            displays=[
-                "source",
-                "drain",
-                "gate",
-                "voltage_ds",
-                "voltage_gate_first",
-                "voltage_gate_second",
-                "points",
-            ],
             widget_list=widget_list,
+            logger=log,
         )
-        logging.getLogger().addHandler(widget_list[1].handler)
-        log.setLevel(self.log_level)
-        log.info("ManagedWindow connected to logging")
         self.setWindowTitle("Ids (Vg)")
         self.filename = "voltage_ds={Drain-source voltage}"
 

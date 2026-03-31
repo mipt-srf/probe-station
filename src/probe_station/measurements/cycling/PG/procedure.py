@@ -33,10 +33,8 @@ class PgCyclingProcedure(BaseProcedure):
     pulse_separation = BooleanParameter("Pulse separation", default=True)
 
     dc_bias = BooleanParameter("Enable DC bias", default=False)
-    dc_channel = IntegerParameter("DC bias channel", default=1, group_by="dc_bias")
     dc_bias_value = FloatParameter("DC bias", default=0.0, group_by="dc_bias")
-
-    DATA_COLUMNS = ["Cycle", "Random Number"]
+    dc_channel = IntegerParameter("DC bias channel", default=1, group_by="dc_bias")
 
     def startup(self):
         super().startup()
@@ -95,30 +93,12 @@ class PgCyclingProcedure(BaseProcedure):
 class MainWindow(BaseWindow):
     def __init__(self):
         widget_list = (LogWidget("Experiment Log"),)
-        settings = [
-            "repetitions",
-            "amplitude",
-            "width",
-            "rise",
-            "tail",
-            "channel",
-            "bipolar_pulses",
-            "pulse_separation",
-            "dc_bias",
-            "dc_bias_value",
-            "dc_channel",
-        ]
         super().__init__(
             procedure_class=PgCyclingProcedure,
-            inputs=settings,
-            displays=settings,
             widget_list=widget_list,
+            logger=log,
         )
-        logging.getLogger().addHandler(widget_list[0].handler)
-        log.setLevel(self.log_level)
-        log.info("ManagedWindow connected to logging")
         self.filename = "width={Pulse width}_num={Number of cycles}_ampl={Pulse amplitude:.0f}"
-        self.setWindowTitle("GUI Example")
 
 
 if __name__ == "__main__":

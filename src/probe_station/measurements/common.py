@@ -8,6 +8,7 @@ from pathlib import Path
 from keysight_b1530a._bindings.config import WGFMUChannel
 from keysight_b1530a._bindings.configuration import set_operation_mode
 from keysight_b1530a.enums import WGFMUOperationMode
+from pymeasure.display.widgets import LogWidget, PlotWidget
 from pymeasure.display.windows import ManagedWindowBase
 from pymeasure.experiment import Metadata, Procedure
 from pymeasure.instruments.agilent.agilentB1500 import (
@@ -67,10 +68,54 @@ def take_screenshot(window, dest: str | Path, full_screen: bool = False) -> Path
 class BaseWindow(ManagedWindowBase):
     """Base class for all probe-station measurement windows.
 
+    ``inputs`` and ``displays`` default to all parameters declared on
+    ``procedure_class`` (in definition order).  Pass explicit lists to override.
+
+    ``widget_list`` defaults to ``(PlotWidget("Results Graph", DATA_COLUMNS),
+    LogWidget("Experiment Log"))`` when the procedure defines non-empty
+    ``DATA_COLUMNS``, otherwise ``(LogWidget("Experiment Log"),)``.
+
+    An optional ``logger`` is connected to the window's log level and the
+    ``LogWidget`` found in ``widget_list`` (looked up by type, not by index).
+
+    ``store_measurement`` defaults to ``False``.  Set it to ``True`` on a
+    subclass or after construction to enable data storage.
+
     When data storage is enabled (``store_measurement`` is ``True``), logs are
     written to a ``logs/`` subdirectory of the results directory and a screenshot
     is saved next to the results file when the measurement finishes.
     """
+
+    store_measurement = False
+
+    def __init__(self, *args, procedure_class, widget_list=None, inputs=None, displays=None, logger=None, **kwargs):
+        if widget_list is None:
+            columns = getattr(procedure_class, "DATA_COLUMNS", [])
+            if columns:
+                widget_list = (
+                    PlotWidget("Results Graph", columns),
+                    LogWidget("Experiment Log"),
+                )
+            else:
+                widget_list = (LogWidget("Experiment Log"),)
+
+        if inputs is None:
+            inputs = list(procedure_class._parameters.keys())
+        if displays is None:
+            displays = inputs
+
+        super().__init__(
+            *args, procedure_class=procedure_class, widget_list=widget_list, inputs=inputs, displays=displays, **kwargs
+        )
+
+        log_widget = next((w for w in widget_list if isinstance(w, LogWidget)), None)
+        if log_widget is not None:
+            logging.getLogger().addHandler(log_widget.handler)
+        if logger is not None:
+            logger.setLevel(self.log_level)
+            logger.info("ManagedWindow connected to logging")
+
+        self.setWindowTitle(self.procedure_class.__name__)
 
     def _queue(self, checked):
         if self.store_measurement:

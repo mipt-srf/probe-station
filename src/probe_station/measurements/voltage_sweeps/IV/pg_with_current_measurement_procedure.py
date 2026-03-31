@@ -3,7 +3,6 @@ import sys
 from datetime import datetime, timedelta
 
 from pymeasure.display.Qt import QtWidgets
-from pymeasure.display.widgets import LogWidget, PlotWidget
 from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter
 from qtpy.QtCore import QLocale
 
@@ -83,26 +82,11 @@ class PgCyclingProcedure(BaseProcedure):
 
 class MainWindow(BaseWindow):
     def __init__(self):
-        widget_list = (PlotWidget("Results Graph", PgCyclingProcedure.DATA_COLUMNS), LogWidget("Experiment Log"))
-        settings = [
-            "repetitions",
-            "amplitude",
-            "rise",
-            "tail",
-            "channel",
-            "bipolar_pulses",
-        ]
         super().__init__(
             procedure_class=PgCyclingProcedure,
-            inputs=settings,
-            displays=settings,
-            widget_list=widget_list,
+            logger=log,
         )
-        logging.getLogger().addHandler(widget_list[1].handler)
-        log.setLevel(self.log_level)
-        log.info("ManagedWindow connected to logging")
         self.filename = "width={Pulse width}_num={Number of cycles}_ampl={Pulse amplitude:.0f}"
-        self.setWindowTitle("GUI Example")
 
 
 if __name__ == "__main__":
