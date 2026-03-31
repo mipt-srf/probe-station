@@ -120,8 +120,8 @@ class Launcher(QWidget):
         scripts = [
             ("🔄 Cycling Procedure (SPGU)", "probe_station.measurements.cycling.PG.procedure", "#4CAF50"),
             (
-                "🔄 IV Script (SPGU) - experimental",
-                "probe_station.measurements.voltage_sweeps.IV.pg_with_current_measurement",
+                "🔄 IV Procedure (SPGU) - experimental",
+                "probe_station.measurements.voltage_sweeps.IV.pg_with_current_measurement_procedure",
                 "#4CAF50",
             ),
             (

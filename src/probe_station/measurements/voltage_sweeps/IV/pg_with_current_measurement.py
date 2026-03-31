@@ -1,14 +1,12 @@
 import logging
 import time
 
-import pandas
-from keysight_b1530a import close_session
-from matplotlib import pyplot as plt
 from pymeasure.instruments.agilent.agilentB1500 import (
     SMU,
     SPGU,
     ALWGPattern,
     MeasMode,
+    MeasOpMode,
     SPGUChannel,
     SPGUOperationMode,
     SPGUOutputMode,
@@ -27,9 +25,7 @@ log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-def run(
-    b1500: B1500, repetitions, amplitude, width, rise, tail, channel=102, smu_ch=1, bipolar=False, pulse_separation=True
-):
+def run(b1500: B1500, repetitions, amplitude, rise, tail, channel=102, smu_ch=1, bipolar=False):
     # Total duration of one two-pulse sequence (used for DURATION output mode)
     period = 2 * (rise + tail)
 
@@ -76,7 +72,14 @@ def run(
     pg.apply_setup()
 
     smu: SMU = get_smu_by_number(b1500, smu_ch)
+    smu_voltage: SMU = get_smu_by_number(b1500, 4)
+
+    b1500.time_stamp = True
     b1500.meas_mode(MeasMode.SAMPLING, smu)
+
+    # smu.meas_op_mode = MeasOpMode.CURRENT
+    smu_voltage.meas_op_mode = MeasOpMode.VOLTAGE
+
     # points = 1000
     interval = 2e-3
     points = int(period * repetitions / interval)
@@ -87,6 +90,7 @@ def run(
     b1500.check_errors()
     # spgu.output = True
     b1500.write(f"MSP {pg.id}")
+    b1500.clear_timer()
     b1500.send_trigger()
 
     elapsed = 0
@@ -97,16 +101,20 @@ def run(
         elapsed = time.perf_counter() - start_time
     log.info(f"Elapsed: {elapsed:.1f}s / {period * repetitions:.1f}s")
 
-    df: pandas.DataFrame = b1500.read_data(points)
-    if log.isEnabledFor(logging.DEBUG):
-        log.debug(f"Measurement data (shape={df.shape}):\n{df.head()}")
-    df.plot(y=f"SMU{smu_ch} Current (A)")
+    # df: pandas.DataFrame = b1500.read_data(points)
+    # if log.isEnabledFor(logging.DEBUG):
+    # log.debug(f"Measurement data (shape={df.shape}):\n{df.head()}")
+    # print(df)
+    # df.plot(y=f"SMU{4} Voltage (V)")
+    # df.plot(
+    # x=f"SMU{smu_ch} Time (s)", y=f"SMU{smu_ch} Current (A)"
+    # )  # TODO: сейчас SMU начинает измерять позже SPGU output -> не виден ток в начале. Нужно либо убрать триггер, и запускать измерения вручную (мб получиться обойти 2e-3 ограничение), либо захардкодить output нуля в начале ALWG
     # print(b1500.check_errors())
-    plt.show()
-    close_session()
+    # plt.show()
+    # close_session()
 
 
 if __name__ == "__main__":
     b1500 = connect_instrument()
-    run(b1500, amplitude=3, width=1e-1, rise=5e-2, tail=5e-2, repetitions=1e1, bipolar=True)
+    run(b1500, amplitude=3, rise=5e-2, tail=5e-2, repetitions=1, bipolar=True)
     # run(b1500, amplitude=3, width=4e-3, rise=4e-3, tail=4e-3, repetitions=1e1, pulse_separation=False, bipolar=True)
