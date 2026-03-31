@@ -68,19 +68,33 @@ def take_screenshot(window, dest: str | Path, full_screen: bool = False) -> Path
 class BaseWindow(ManagedWindowBase):
     """Base class for all probe-station measurement windows.
 
+    ``inputs`` and ``displays`` default to all parameters declared on
+    ``procedure_class`` (in definition order).  Pass explicit lists to override.
+    An optional ``logger`` is connected to the window's log level and the
+    ``LogWidget`` found in ``widget_list`` (looked up by type, not by index).
+
     When data storage is enabled (``store_measurement`` is ``True``), logs are
     written to a ``logs/`` subdirectory of the results directory and a screenshot
     is saved next to the results file when the measurement finishes.
     """
 
-    def __init__(self, *args, widget_list, logger=None, **kwargs):
-        super().__init__(*args, widget_list=widget_list, **kwargs)
+    def __init__(self, *args, procedure_class, widget_list, inputs=None, displays=None, logger=None, **kwargs):
+        if inputs is None:
+            inputs = list(procedure_class._parameters.keys())
+        if displays is None:
+            displays = inputs
+
+        super().__init__(
+            *args, procedure_class=procedure_class, widget_list=widget_list, inputs=inputs, displays=displays, **kwargs
+        )
+
         log_widget = next((w for w in widget_list if isinstance(w, LogWidget)), None)
         if log_widget is not None:
             logging.getLogger().addHandler(log_widget.handler)
         if logger is not None:
             logger.setLevel(self.log_level)
             logger.info("ManagedWindow connected to logging")
+
         self.setWindowTitle(self.procedure_class.__name__)
 
     def _queue(self, checked):

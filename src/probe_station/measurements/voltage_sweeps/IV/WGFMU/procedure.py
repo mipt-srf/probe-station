@@ -46,13 +46,12 @@ class SweepMode(Enum):
 
 class WgfmuIvSweepProcedure(BaseProcedure):
     mode = ListParameter("Mode", default=SweepMode.PUND.name, choices=[e.name for e in SweepMode])
-
-    top = IntegerParameter("Top channel", default=2)
-    bottom = IntegerParameter("Bottom channel", default=1, group_by="enable_bottom")
+    pulse_time = FloatParameter("Pulse time", units="s", default=0.0001)
 
     voltage_top_first = FloatParameter("Top electrode voltage (first)", units="V", default=5.0)
     voltage_top_second = FloatParameter("Top electrode voltage (second)", units="V", default=-5.0)
 
+    top = IntegerParameter("Top channel", default=2)
     current_range = ListParameter(
         "Current range",
         default=WGFMUMeasureCurrentRange.RANGE_100_UA.name,
@@ -67,16 +66,13 @@ class WgfmuIvSweepProcedure(BaseProcedure):
     voltage_bottom_second = FloatParameter(
         "Bottom electrode voltage (second)", units="V", default=5.0, group_by="enable_bottom"
     )
-
-    pulse_time = FloatParameter("Pulse time", units="s", default=0.0001)
+    bottom = IntegerParameter("Bottom channel", default=1, group_by="enable_bottom")
 
     advanced_config = BooleanParameter("Advanced config", default=False)
 
     steps = IntegerParameter("Steps per staircase", default=100, group_by="advanced_config")
     measure_points = IntegerParameter("Points to measure", default=20_000, group_by="advanced_config")
-
     plot_points = IntegerParameter("Points to plot", default=1000, group_by="advanced_config")
-
     rise_to_hold_ratio = FloatParameter("Rise to hold time ratio", default=100, group_by="advanced_config")
 
     calculate_polarization = BooleanParameter("Calculate Polarization", default=False)
@@ -213,30 +209,8 @@ class MainWindow(BaseWindow):
             LogWidget("Experiment Log"),
         )
 
-        settings = [
-            "mode",
-            "pulse_time",
-            "voltage_top_first",
-            "voltage_top_second",
-            "top",
-            "current_range",
-            "enable_bottom",
-            "voltage_bottom_first",
-            "voltage_bottom_second",
-            "bottom",
-            "advanced_config",
-            "steps",
-            "measure_points",
-            "plot_points",
-            "rise_to_hold_ratio",
-            "calculate_polarization",
-            "pad_size",
-        ]
-
         super().__init__(
             procedure_class=WgfmuIvSweepProcedure,
-            inputs=settings,
-            displays=settings,
             widget_list=widget_list,
             logger=log,
         )

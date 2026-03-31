@@ -62,15 +62,8 @@ class MainWindow(BaseWindow):
             PlotWidget("Results Graph", CvSweepProcedure.DATA_COLUMNS),
             LogWidget("Experiment Log"),
         )
-        settings = [
-            "first_voltage",
-            "second_voltage",
-            "avg_per_point",
-        ]
         super().__init__(
             procedure_class=CvSweepProcedure,
-            inputs=settings,
-            displays=settings,
             widget_list=widget_list,
             logger=log,
         )

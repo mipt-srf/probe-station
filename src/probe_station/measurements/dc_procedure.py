@@ -58,15 +58,8 @@ class DcProcedure(BaseProcedure):
 class MainWindow(BaseWindow):
     def __init__(self):
         widget_list = (LogWidget("Experiment Log"),)
-        settings = [
-            "voltage",
-            "time",
-            "channel",
-        ]
         super().__init__(
             procedure_class=DcProcedure,
-            inputs=settings,
-            displays=settings,
             widget_list=widget_list,
             logger=log,
         )

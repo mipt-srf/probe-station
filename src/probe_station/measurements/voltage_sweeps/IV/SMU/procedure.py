@@ -82,17 +82,8 @@ class MainWindow(BaseWindow):
             IvPlotWidget("Results Graph", IvSweepProcedure.DATA_COLUMNS),
             LogWidget("Experiment Log"),
         )
-        settings = [
-            "first_voltage",
-            "second_voltage",
-            "top_channel",
-            "bottom_channel",
-            "steps",
-        ]
         super().__init__(
             procedure_class=IvSweepProcedure,
-            inputs=settings,
-            displays=settings,
             widget_list=widget_list,
             logger=log,
         )

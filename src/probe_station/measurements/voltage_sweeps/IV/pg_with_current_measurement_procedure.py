@@ -84,18 +84,8 @@ class PgCyclingProcedure(BaseProcedure):
 class MainWindow(BaseWindow):
     def __init__(self):
         widget_list = (PlotWidget("Results Graph", PgCyclingProcedure.DATA_COLUMNS), LogWidget("Experiment Log"))
-        settings = [
-            "repetitions",
-            "amplitude",
-            "rise",
-            "tail",
-            "channel",
-            "bipolar_pulses",
-        ]
         super().__init__(
             procedure_class=PgCyclingProcedure,
-            inputs=settings,
-            displays=settings,
             widget_list=widget_list,
             logger=log,
         )

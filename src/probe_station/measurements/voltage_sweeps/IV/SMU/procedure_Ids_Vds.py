@@ -18,14 +18,14 @@ log.addHandler(logging.NullHandler())
 class IvSweepProcedure(BaseProcedure):
     first_voltage = FloatParameter("First voltage", units="V", default=-3)
     second_voltage = FloatParameter("Second voltage", units="V", default=3)
-    gate_voltage = FloatParameter("Gate voltage", units="V", default=0)
     source_channel = IntegerParameter("Source channel", default=4)
     drain_channel = IntegerParameter("Drain channel", default=3)
-    gate_channel = IntegerParameter("Gate channel", default=1)
     average = IntegerParameter("Intergration coefficient", default=127, minimum=1, maximum=127)
     advanced_config = BooleanParameter("Advanced config", default=False)
     steps = IntegerParameter("Steps", default=100, group_by="advanced_config")
     mode = IntegerParameter("Mode", default=1, group_by="advanced_config")
+    gate_channel = IntegerParameter("Gate channel", default=1)
+    gate_voltage = FloatParameter("Gate voltage", units="V", default=0)
     # compliance = FloatParameter("Current compliance", units="A", default=0.1, group_by="advanced_config")
 
     DATA_COLUMNS = ["Voltage", "Source electrode current", "Time"]
@@ -74,23 +74,8 @@ class MainWindow(BaseWindow):
             IvPlotWidget("Results Graph", IvSweepProcedure.DATA_COLUMNS),
             LogWidget("Experiment Log"),
         )
-        settings = [
-            "first_voltage",
-            "second_voltage",
-            "source_channel",
-            "drain_channel",
-            "average",
-            "advanced_config",
-            "steps",
-            "mode",
-            "gate_channel",
-            "gate_voltage",
-            # "compliance",
-        ]
         super().__init__(
             procedure_class=IvSweepProcedure,
-            inputs=settings,
-            displays=settings,
             widget_list=widget_list,
             logger=log,
         )

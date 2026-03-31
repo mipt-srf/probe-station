@@ -47,13 +47,13 @@ class SweepMode(Enum):
 
 class CyclingProcedure(BaseProcedure):
     mode = ListParameter("Mode", default=SweepMode.DEFAULT.name, choices=[e.name for e in SweepMode])
-
-    top = IntegerParameter("Top channel", default=2)
-    bottom = IntegerParameter("Bottom channel", default=1, group_by="enable_bottom")
+    pulse_time = FloatParameter("Pulse time", units="s", default=1e-5)
 
     voltage_top_first = FloatParameter("Top electrode voltage (first)", units="V", default=5.0)
     voltage_top_second = FloatParameter("Top electrode voltage (second)", units="V", default=-5.0)
 
+    repetitions = IntegerParameter("Number of cycles", default=1e3)
+    top = IntegerParameter("Top channel", default=2)
     current_range = ListParameter(
         "Current range",
         default=WGFMUMeasureCurrentRange.RANGE_100_UA.name,
@@ -68,15 +68,11 @@ class CyclingProcedure(BaseProcedure):
     voltage_bottom_second = FloatParameter(
         "Bottom electrode voltage (second)", units="V", default=10.0, group_by="enable_bottom"
     )
-
-    pulse_time = FloatParameter("Pulse time", units="s", default=1e-5)
+    bottom = IntegerParameter("Bottom channel", default=1, group_by="enable_bottom")
 
     advanced_config = BooleanParameter("Advanced config", default=False)
 
     steps = IntegerParameter("Steps per staircase", default=100, group_by="advanced_config")
-
-    repetitions = IntegerParameter("Number of cycles", default=1e3)
-
     rise_to_hold_ratio = FloatParameter("Rise to hold time ratio", default=1, group_by="advanced_config")
 
     calculate_polarization = BooleanParameter("Calculate Polarization", default=False)
@@ -305,29 +301,8 @@ class MainWindow(BaseWindow):
             LogWidget("Experiment Log"),
         )
 
-        settings = [
-            "mode",
-            "pulse_time",
-            "voltage_top_first",
-            "voltage_top_second",
-            "repetitions",
-            "top",
-            "current_range",
-            "enable_bottom",
-            "voltage_bottom_first",
-            "voltage_bottom_second",
-            "bottom",
-            "advanced_config",
-            "steps",
-            "rise_to_hold_ratio",
-            "calculate_polarization",
-            "pad_size",
-        ]
-
         super().__init__(
             procedure_class=CyclingProcedure,
-            inputs=settings,
-            displays=settings,
             widget_list=widget_list,
             logger=log,
         )

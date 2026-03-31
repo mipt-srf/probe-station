@@ -101,24 +101,6 @@ class MainWindow(BaseWindow):
         )
         super().__init__(
             procedure_class=RandomProcedure,
-            inputs=[
-                "source",
-                "drain",
-                "gate",
-                "voltage_ds",
-                "voltage_gate_first",
-                "voltage_gate_second",
-                "points",
-            ],
-            displays=[
-                "source",
-                "drain",
-                "gate",
-                "voltage_ds",
-                "voltage_gate_first",
-                "voltage_gate_second",
-                "points",
-            ],
             widget_list=widget_list,
             logger=log,
         )
