@@ -78,10 +78,15 @@ class BaseWindow(ManagedWindowBase):
     An optional ``logger`` is connected to the window's log level and the
     ``LogWidget`` found in ``widget_list`` (looked up by type, not by index).
 
+    ``store_measurement`` defaults to ``False``.  Set it to ``True`` on a
+    subclass or after construction to enable data storage.
+
     When data storage is enabled (``store_measurement`` is ``True``), logs are
     written to a ``logs/`` subdirectory of the results directory and a screenshot
     is saved next to the results file when the measurement finishes.
     """
+
+    store_measurement = False
 
     def __init__(self, *args, procedure_class, widget_list=None, inputs=None, displays=None, logger=None, **kwargs):
         if widget_list is None:

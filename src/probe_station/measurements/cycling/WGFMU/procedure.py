@@ -299,7 +299,6 @@ class MainWindow(BaseWindow):
             procedure_class=CyclingProcedure,
             logger=log,
         )
-        self.store_measurement = False
 
 
 if __name__ == "__main__":

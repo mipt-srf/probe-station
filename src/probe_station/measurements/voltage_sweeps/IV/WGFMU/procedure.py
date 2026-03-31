@@ -207,7 +207,6 @@ class MainWindow(BaseWindow):
             procedure_class=WgfmuIvSweepProcedure,
             logger=log,
         )
-        self.store_measurement = False
 
 
 if __name__ == "__main__":
