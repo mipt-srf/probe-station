@@ -119,7 +119,16 @@ class Launcher(QWidget):
         # Script buttons
         scripts = [
             ("🔄 Cycling Procedure (SPGU)", "probe_station.measurements.cycling.PG.procedure", "#4CAF50"),
-            ("🔄 Cycling Procedure (WGFMU) - exp", "probe_station.measurements.cycling.WGFMU.procedure", "#4CAF50"),
+            (
+                "🔄 IV Script (SPGU) - experimental",
+                "probe_station.measurements.voltage_sweeps.IV.pg_with_current_measurement",
+                "#4CAF50",
+            ),
+            (
+                "🔄 Cycling Procedure (WGFMU) - experimental",
+                "probe_station.measurements.cycling.WGFMU.procedure",
+                "#2196F3",
+            ),
             ("📊 Fast IV Procedure (WGFMU)", "probe_station.measurements.voltage_sweeps.IV.WGFMU.procedure", "#2196F3"),
             (
                 "📊 PUND 20 V (WGFMU) - experimental",
