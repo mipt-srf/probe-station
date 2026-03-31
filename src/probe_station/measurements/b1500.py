@@ -97,3 +97,30 @@ class B1500(AgilentB1500):
     @wraps(clear)
     def clear_wgfmu(self):
         clear()
+
+    def iter_output(self, total_steps: int, values_per_step: int):
+        """Read sweep output step-by-step (B1500 guide section 1-19).
+
+        Yields tuples of `values_per_step` floats, one tuple per sweep step.
+        Call after send_trigger() has been issued.
+
+        Uses read_bytes instead of read() to avoid waiting for end-of-message (EOM),
+        enabling real-time per-step readout when FMT mode 1 is active.
+        Reads until comma/newline delimiters so token byte length does not need to be known.
+        """
+        resource = self.adapter.connection
+        buf = bytearray()
+
+        def next_value() -> float:
+            while True:
+                for i, byte in enumerate(buf):
+                    if byte in (ord(","), ord("\r"), ord("\n")):
+                        token = buf[:i].decode("ascii")
+                        del buf[: i + 1]
+                        if token:
+                            return float(token[3:])
+                        break  # empty token (e.g. \n after \r), keep scanning
+                buf.extend(resource.read_bytes(16))
+
+        for _ in range(total_steps):
+            yield tuple(next_value() for _ in range(values_per_step))

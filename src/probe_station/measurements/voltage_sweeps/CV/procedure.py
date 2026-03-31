@@ -1,6 +1,5 @@
 import logging
 import sys
-from time import sleep
 
 from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget, PlotWidget
@@ -11,11 +10,7 @@ from pymeasure.experiment import (
 from qtpy.QtCore import QLocale
 
 from probe_station.measurements.common import BaseProcedure, BaseWindow, connect_instrument
-from probe_station.measurements.voltage_sweeps.CV.script import (
-    PLOT_POINTS,
-    get_results,
-    run,
-)
+from probe_station.measurements.voltage_sweeps.CV.script import PLOT_POINTS, run
 from probe_station.utilities import setup_file_logging
 
 log = logging.getLogger(__name__)
@@ -46,26 +41,16 @@ class CvSweepProcedure(BaseProcedure):
             avg_per_point=self.avg_per_point,
         )
         measure_points = self.avg_per_point * PLOT_POINTS
-        sec_per_point = 32 / 200
-        sec_per_percent = sec_per_point * measure_points / 100
-        for i in range(100):
-            sleep(sec_per_percent)
-            self.emit("progress", i)
+        total_steps = 2 * measure_points  # LINEAR_DOUBLE sweep: forward + backward
+
+        for i, (_, Cp, Rp, _ac, dc_measured, _dc_forced) in enumerate(self.b1500.iter_output(total_steps, 6)):
+            self.emit("progress", (i + 1) / total_steps * 100)
+            self.emit("results", {"Voltage": dc_measured, "Capacitance": Cp, "Resistance": Rp})
             if self.should_stop():
                 log.warning("Caught the stop flag in the procedure")
                 self.b1500.abort()
                 self.b1500.force_gnd()
-                break
-        else:
-            capacitance, resistance, ac, dc_measured, dc_forced = get_results(self.b1500)
-            self.emit(
-                "batch results",
-                {
-                    "Voltage": dc_measured,
-                    "Capacitance": capacitance,
-                    "Resistance": resistance,
-                },
-            )
+                return
 
     # def shutdown(self):
     #     close_session()
