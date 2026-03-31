@@ -36,8 +36,6 @@ class PgCyclingProcedure(BaseProcedure):
     dc_bias_value = FloatParameter("DC bias", default=0.0, group_by="dc_bias")
     dc_channel = IntegerParameter("DC bias channel", default=1, group_by="dc_bias")
 
-    DATA_COLUMNS = ["Cycle", "Random Number"]
-
     def startup(self):
         super().startup()
         self.b1500 = connect_instrument()

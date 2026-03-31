@@ -33,8 +33,6 @@ class DcProcedure(BaseProcedure):
     time = FloatParameter("Time", units="s", default=1, minimum=0.2)
     channel = IntegerParameter("Channel", default=4)
 
-    DATA_COLUMNS = []
-
     def startup(self):
         super().startup()
         self.b1500 = connect_instrument()
