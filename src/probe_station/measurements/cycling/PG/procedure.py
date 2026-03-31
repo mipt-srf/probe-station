@@ -101,7 +101,6 @@ class MainWindow(BaseWindow):
             logger=log,
         )
         self.filename = "width={Pulse width}_num={Number of cycles}_ampl={Pulse amplitude:.0f}"
-        self.setWindowTitle("GUI Example")
 
 
 if __name__ == "__main__":
