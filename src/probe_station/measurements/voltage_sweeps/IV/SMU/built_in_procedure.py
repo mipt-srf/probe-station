@@ -90,11 +90,8 @@ class MainWindow(BaseWindow):
             inputs=settings,
             displays=settings,
             widget_list=widget_list,
+            logger=log,
         )
-        logging.getLogger().addHandler(widget_list[1].handler)
-        log.setLevel(self.log_level)
-        log.info("ManagedWindow connected to logging")
-        self.setWindowTitle(f"{self.procedure_class.__name__}")
 
 
 if __name__ == "__main__":

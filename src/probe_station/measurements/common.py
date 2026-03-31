@@ -8,6 +8,7 @@ from pathlib import Path
 from keysight_b1530a._bindings.config import WGFMUChannel
 from keysight_b1530a._bindings.configuration import set_operation_mode
 from keysight_b1530a.enums import WGFMUOperationMode
+from pymeasure.display.widgets import LogWidget
 from pymeasure.display.windows import ManagedWindowBase
 from pymeasure.experiment import Metadata, Procedure
 from pymeasure.instruments.agilent.agilentB1500 import (
@@ -71,6 +72,16 @@ class BaseWindow(ManagedWindowBase):
     written to a ``logs/`` subdirectory of the results directory and a screenshot
     is saved next to the results file when the measurement finishes.
     """
+
+    def __init__(self, *args, widget_list, logger=None, **kwargs):
+        super().__init__(*args, widget_list=widget_list, **kwargs)
+        log_widget = next((w for w in widget_list if isinstance(w, LogWidget)), None)
+        if log_widget is not None:
+            logging.getLogger().addHandler(log_widget.handler)
+        if logger is not None:
+            logger.setLevel(self.log_level)
+            logger.info("ManagedWindow connected to logging")
+        self.setWindowTitle(self.procedure_class.__name__)
 
     def _queue(self, checked):
         if self.store_measurement:
