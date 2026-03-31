@@ -5,7 +5,6 @@ import sys
 from time import sleep
 
 from pymeasure.display.Qt import QtWidgets
-from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import (
     FloatParameter,
     IntegerParameter,
@@ -57,10 +56,8 @@ class DcProcedure(BaseProcedure):
 
 class MainWindow(BaseWindow):
     def __init__(self):
-        widget_list = (LogWidget("Experiment Log"),)
         super().__init__(
             procedure_class=DcProcedure,
-            widget_list=widget_list,
             logger=log,
         )
 

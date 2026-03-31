@@ -8,7 +8,7 @@ from pathlib import Path
 from keysight_b1530a._bindings.config import WGFMUChannel
 from keysight_b1530a._bindings.configuration import set_operation_mode
 from keysight_b1530a.enums import WGFMUOperationMode
-from pymeasure.display.widgets import LogWidget
+from pymeasure.display.widgets import LogWidget, PlotWidget
 from pymeasure.display.windows import ManagedWindowBase
 from pymeasure.experiment import Metadata, Procedure
 from pymeasure.instruments.agilent.agilentB1500 import (
@@ -70,6 +70,11 @@ class BaseWindow(ManagedWindowBase):
 
     ``inputs`` and ``displays`` default to all parameters declared on
     ``procedure_class`` (in definition order).  Pass explicit lists to override.
+
+    ``widget_list`` defaults to ``(PlotWidget("Results Graph", DATA_COLUMNS),
+    LogWidget("Experiment Log"))`` when the procedure defines non-empty
+    ``DATA_COLUMNS``, otherwise ``(LogWidget("Experiment Log"),)``.
+
     An optional ``logger`` is connected to the window's log level and the
     ``LogWidget`` found in ``widget_list`` (looked up by type, not by index).
 
@@ -78,7 +83,17 @@ class BaseWindow(ManagedWindowBase):
     is saved next to the results file when the measurement finishes.
     """
 
-    def __init__(self, *args, procedure_class, widget_list, inputs=None, displays=None, logger=None, **kwargs):
+    def __init__(self, *args, procedure_class, widget_list=None, inputs=None, displays=None, logger=None, **kwargs):
+        if widget_list is None:
+            columns = getattr(procedure_class, "DATA_COLUMNS", [])
+            if columns:
+                widget_list = (
+                    PlotWidget("Results Graph", columns),
+                    LogWidget("Experiment Log"),
+                )
+            else:
+                widget_list = (LogWidget("Experiment Log"),)
+
         if inputs is None:
             inputs = list(procedure_class._parameters.keys())
         if displays is None:
