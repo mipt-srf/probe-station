@@ -49,7 +49,7 @@ class IvSweepProcedure(BaseProcedure):
         # mode 1: one LINEAR_DOUBLE sweep → 2*steps output points
         # mode 2: two LINEAR_DOUBLE half-sweeps, each configured with steps//2 and LINEAR_DOUBLE
         if self.mode == 2:
-            total_steps = 2 * 2 * (self.steps // 2)
+            total_steps = 2 * self.steps - 1
         else:
             total_steps = 2 * self.steps
 
