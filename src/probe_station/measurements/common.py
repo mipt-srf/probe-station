@@ -10,7 +10,7 @@ from keysight_b1530a._bindings.configuration import set_operation_mode
 from keysight_b1530a.enums import WGFMUOperationMode
 from pymeasure.display.widgets import LogWidget, PlotWidget
 from pymeasure.display.windows import ManagedWindowBase
-from pymeasure.experiment import Metadata, Procedure
+from pymeasure.experiment import Metadata, Parameter, Procedure
 from pymeasure.instruments.agilent.agilentB1500 import (
     AgilentB1500,
     ControlMode,
@@ -100,7 +100,15 @@ class BaseWindow(ManagedWindowBase):
                 widget_list = (LogWidget("Experiment Log"),)
 
         if inputs is None:
-            inputs = list(procedure_class._parameters.keys())
+            # Collect all Parameter fields in definition order across the MRO.
+            seen: set[str] = set()
+            inputs = []
+            for cls in reversed(procedure_class.__mro__):
+                for name, obj in cls.__dict__.items():
+                    if isinstance(obj, Parameter) and name not in seen:
+                        seen.add(name)
+                        inputs.append(name)
+
         if displays is None:
             displays = inputs
 
