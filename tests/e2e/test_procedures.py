@@ -9,15 +9,19 @@ from probe_station.measurements.voltage_sweeps.IV.WGFMU.procedure import WgfmuIv
 pytestmark = pytest.mark.e2e
 
 
-def test_iv_sweep_procedure():
-    procedure = IvSweepProcedure()
-
+def run_procedure(procedure):
+    """Run procedure lifecycle and return emitted data without a Qt application or pymeasure Worker."""
     emitted = []
-    # patch emit to capture emitted data without a running Qt application or pymeasure Worker
     with patch.object(procedure, "emit", side_effect=lambda *args: emitted.append(args)):
         procedure.startup()
         procedure.execute()
         procedure.shutdown()
+    return emitted
+
+
+def test_iv_sweep_procedure():
+    procedure = IvSweepProcedure()
+    emitted = run_procedure(procedure)
 
     assert len(emitted) >= 1
     record_type, data = emitted[0]
@@ -28,13 +32,7 @@ def test_iv_sweep_procedure():
 
 def test_cv_procedure():
     procedure = CvSweepProcedure()
-
-    emitted = []
-    # patch emit to capture emitted data without a running Qt application or pymeasure Worker
-    with patch.object(procedure, "emit", side_effect=lambda *args: emitted.append(args)):
-        procedure.startup()
-        procedure.execute()
-        procedure.shutdown()
+    emitted = run_procedure(procedure)
 
     results = [(record_type, data) for record_type, data in emitted if record_type == "results"]
     assert len(results) > 0
@@ -44,13 +42,7 @@ def test_cv_procedure():
 
 def test_wgfmu_iv_procedure():
     procedure = WgfmuIvSweepProcedure()
-
-    emitted = []
-    # patch emit to capture emitted data without a running Qt application or pymeasure Worker
-    with patch.object(procedure, "emit", side_effect=lambda *args: emitted.append(args)):
-        procedure.startup()
-        procedure.execute()
-        procedure.shutdown()
+    emitted = run_procedure(procedure)
 
     assert len(emitted) >= 1
     record_type, data = emitted[0]
