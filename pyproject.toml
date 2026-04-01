@@ -50,6 +50,11 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools_scm]
 write_to = "src/probe_station/_version.py"
 
+[tool.pytest.ini_options]
+markers = [
+    "e2e: end-to-end tests requiring a real B1500 instrument (deselect with '-m \"not e2e\"')",
+]
+
 [tool.ruff]
 line-length = 120
 
