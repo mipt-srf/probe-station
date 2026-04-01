@@ -78,15 +78,14 @@ class BaseWindow(ManagedWindowBase):
     An optional ``logger`` is connected to the window's log level and the
     ``LogWidget`` found in ``widget_list`` (looked up by type, not by index).
 
-    ``store_measurement`` defaults to ``False``.  Set it to ``True`` on a
-    subclass or after construction to enable data storage.
+    ``store_measurement`` defaults to ``False`` (the "Save data" checkbox starts
+    unchecked).  Set ``self.store_measurement = True`` in a subclass ``__init__``
+    after calling ``super().__init__()`` to start with data storage enabled.
 
     When data storage is enabled (``store_measurement`` is ``True``), logs are
     written to a ``logs/`` subdirectory of the results directory and a screenshot
     is saved next to the results file when the measurement finishes.
     """
-
-    store_measurement = False
 
     def __init__(self, *args, procedure_class, widget_list=None, inputs=None, displays=None, logger=None, **kwargs):
         if widget_list is None:
@@ -125,6 +124,7 @@ class BaseWindow(ManagedWindowBase):
             logger.info("ManagedWindow connected to logging")
 
         self.setWindowTitle(self.procedure_class.__name__)
+        self.store_measurement = False
 
     def _queue(self, checked):
         if self.store_measurement:
