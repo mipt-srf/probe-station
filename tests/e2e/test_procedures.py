@@ -13,6 +13,7 @@ def test_iv_sweep_procedure():
     procedure = IvSweepProcedure()
 
     emitted = []
+    # patch emit to capture emitted data without a running Qt application or pymeasure Worker
     with patch.object(procedure, "emit", side_effect=lambda *args: emitted.append(args)):
         procedure.startup()
         procedure.execute()
@@ -29,6 +30,7 @@ def test_cv_procedure():
     procedure = CvSweepProcedure()
 
     emitted = []
+    # patch emit to capture emitted data without a running Qt application or pymeasure Worker
     with patch.object(procedure, "emit", side_effect=lambda *args: emitted.append(args)):
         procedure.startup()
         procedure.execute()
@@ -44,6 +46,7 @@ def test_wgfmu_iv_procedure():
     procedure = WgfmuIvSweepProcedure()
 
     emitted = []
+    # patch emit to capture emitted data without a running Qt application or pymeasure Worker
     with patch.object(procedure, "emit", side_effect=lambda *args: emitted.append(args)):
         procedure.startup()
         procedure.execute()
