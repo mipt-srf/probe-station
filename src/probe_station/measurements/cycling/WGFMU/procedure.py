@@ -165,6 +165,7 @@ class CyclingProcedure(BaseProcedure):
             self.b1500.clear_wgfmu()
 
             set_waveform(
+                b1500=self.b1500,
                 sequence=seq_nd,
                 repetitions=1,
                 channel=WGFMUChannel(self.top + 200),
@@ -172,6 +173,7 @@ class CyclingProcedure(BaseProcedure):
                 pattern_name="top_nd",
             )
             set_waveform(
+                b1500=self.b1500,
                 sequence=seq_bottom_nd,
                 repetitions=1,
                 channel=WGFMUChannel(self.bottom + 200),
@@ -215,6 +217,7 @@ class CyclingProcedure(BaseProcedure):
 
         else:
             set_waveform(
+                b1500=self.b1500,
                 sequence=seq,
                 repetitions=self.repetitions,
                 channel=WGFMUChannel(self.top + 200),
@@ -222,6 +225,7 @@ class CyclingProcedure(BaseProcedure):
             )
             if self.enable_bottom:
                 set_waveform(
+                    b1500=self.b1500,
                     sequence=seq_bottom,
                     repetitions=self.repetitions,
                     channel=WGFMUChannel(self.bottom + 200),
@@ -230,9 +234,17 @@ class CyclingProcedure(BaseProcedure):
 
             try:
                 if self.enable_bottom:
-                    run(channels=[self.ch1, self.ch2], range=WGFMUMeasureCurrentRange[self.current_range])
+                    run(
+                        b1500=self.b1500,
+                        channels=[self.ch1, self.ch2],
+                        range=WGFMUMeasureCurrentRange[self.current_range],
+                    )
                 else:
-                    run(channels=[WGFMUChannel(self.top + 200)], range=WGFMUMeasureCurrentRange[self.current_range])
+                    run(
+                        b1500=self.b1500,
+                        channels=[WGFMUChannel(self.top + 200)],
+                        range=WGFMUMeasureCurrentRange[self.current_range],
+                    )
 
                 # times, voltages, currents = get_data(
                 #     b1500=self.b1500, repetitions=1, ch=WGFMUChannel(self.top + 200), points=self.steps*4
