@@ -56,8 +56,8 @@ line-length = 120
 [tool.ruff.format]
 docstring-code-format = true
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "ipykernel>=6.29.5",
     "ruff>=0.9.3",
 ]
