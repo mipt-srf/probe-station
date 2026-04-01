@@ -19,4 +19,4 @@ def test_cv_procedure():
     results = [(record_type, data) for record_type, data in emitted if record_type == "results"]
     assert len(results) > 0
     _, data = results[0]
-    assert set(data.keys()) == {"Voltage", "Capacitance", "Resistance"}
+    assert set(data.keys()) == set(CvSweepProcedure.DATA_COLUMNS)

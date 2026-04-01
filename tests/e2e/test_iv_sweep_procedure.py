@@ -7,7 +7,7 @@ from probe_station.measurements.voltage_sweeps.IV.SMU.built_in_procedure import 
 pytestmark = pytest.mark.e2e
 
 
-def test_iv_sweep_procedure_smoke():
+def test_iv_sweep_procedure():
     procedure = IvSweepProcedure()
 
     emitted = []
@@ -19,5 +19,5 @@ def test_iv_sweep_procedure_smoke():
     assert len(emitted) >= 1
     record_type, data = emitted[0]
     assert record_type == "batch results"
-    assert set(data.keys()) == {"Voltage", "Top electrode current", "Time"}
+    assert set(data.keys()) == set(IvSweepProcedure.DATA_COLUMNS)
     assert len(data["Voltage"]) == procedure.steps

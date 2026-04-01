@@ -19,4 +19,4 @@ def test_wgfmu_iv_procedure():
     assert len(emitted) >= 1
     record_type, data = emitted[0]
     assert record_type == "batch results"
-    assert {"Top electrode voltage", "Top electrode Current", "Time"}.issubset(data.keys())
+    assert set(data.keys()).issubset(set(WgfmuIvSweepProcedure.DATA_COLUMNS))
