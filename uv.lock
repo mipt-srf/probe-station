@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.12"
 
 [[package]]
@@ -979,7 +979,6 @@ docs = [
 ]
 measurements = [
     { name = "keysight-b1530a" },
-    { name = "pymeasure" },
     { name = "waveform-generator" },
 ]
 tests = [
@@ -1006,7 +1005,6 @@ requires-dist = [
     { name = "numpy", specifier = ">=2.1.3" },
     { name = "pandas", specifier = ">=2.2.3" },
     { name = "pymeasure", editable = "../pymeasure" },
-    { name = "pymeasure", marker = "extra == 'measurements'", editable = "../pymeasure" },
     { name = "pyqt6", specifier = ">=6.9.1" },
     { name = "pytest", marker = "extra == 'tests'", specifier = ">=8.3.5" },
     { name = "pytest-cov", marker = "extra == 'tests'", specifier = ">=5.0.0" },
