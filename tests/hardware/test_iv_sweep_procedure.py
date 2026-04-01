@@ -4,7 +4,7 @@ import pytest
 
 from probe_station.measurements.voltage_sweeps.IV.SMU.built_in_procedure import IvSweepProcedure
 
-pytestmark = [pytest.mark.hardware, pytest.mark.smoke]
+pytestmark = pytest.mark.e2e
 
 
 def test_iv_sweep_procedure_smoke():

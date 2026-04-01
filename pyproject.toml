@@ -52,8 +52,7 @@ write_to = "src/probe_station/_version.py"
 
 [tool.pytest.ini_options]
 markers = [
-    "hardware: requires real B1500 instrument connected (deselect with '-m \"not hardware\"')",
-    "smoke: smoke tests verifying core procedures run end-to-end",
+    "e2e: end-to-end tests requiring a real B1500 instrument (deselect with '-m \"not e2e\"')",
 ]
 
 [tool.ruff]
