@@ -110,6 +110,7 @@ class BaseWindow(ManagedWindowBase):
 
         log_widget = next((w for w in widget_list if isinstance(w, LogWidget)), None)
         if log_widget is not None:
+            log_widget.handler.setLevel(logging.INFO)
             logging.getLogger().addHandler(log_widget.handler)
         if logger is not None:
             logger.setLevel(self.log_level)
