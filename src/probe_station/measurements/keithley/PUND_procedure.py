@@ -1,15 +1,13 @@
 import logging
-import sys
 
-from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget, PlotWidget
 from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter, Parameter
 
-from probe_station.measurements.common import BaseProcedure, BaseWindow
+from probe_station.logging_setup import setup_file_logging
+from probe_station.measurements.common import BaseProcedure, BaseWindow, run_app
 from probe_station.measurements.keithley import connect_instrument
 from probe_station.measurements.keithley.cycling import cycle
 from probe_station.measurements.keithley.PUND_waveform import create_waveform
-from probe_station.logging_setup import setup_file_logging
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -95,7 +93,4 @@ class MainWindow(BaseWindow):
 
 if __name__ == "__main__":
     setup_file_logging("logs")
-    app = QtWidgets.QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    app.exec()
+    run_app(MainWindow)
