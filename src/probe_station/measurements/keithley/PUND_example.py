@@ -2,7 +2,7 @@ import datetime
 import os
 import time
 
-from probe_station.measurements.keithley import Keithley2450Extended
+from probe_station.measurements.keithley import connect_instrument
 from probe_station.measurements.keithley.cycling import cycle
 from probe_station.measurements.keithley.plot_fig import plot_fig, save_data
 from probe_station.measurements.keithley.PUND_waveform import create_waveform
@@ -47,7 +47,7 @@ params = {
 # connect_pv(ser) 7.2366859912872314
 
 
-with Keithley2450Extended(device) as smu:
+with connect_instrument(device) as smu:
     smu.set_terminal(terminal)
     smu.check_for_errors()
 
