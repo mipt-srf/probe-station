@@ -1,6 +1,6 @@
 import time
 
-from probe_station.measurements.keithley import Keithley2450Extended
+from probe_station.measurements.keithley import Keithley2450Extended, connect_instrument
 
 
 def cycle(smu: Keithley2450Extended, n_times, vf, vs):
@@ -27,7 +27,7 @@ def cycle(smu: Keithley2450Extended, n_times, vf, vs):
 if __name__ == "__main__":
     time.sleep(0)
     instrument_id = "SMU"
-    smu = Keithley2450Extended(instrument_id)
+    smu = connect_instrument(instrument_id)
 
     smu.set_terminal("front")
     cycle(smu, 10, 1, -1)
