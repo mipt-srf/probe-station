@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from time import sleep
 
-from probe_station.utilities import add_file_log_dir, setup_file_logging
+from probe_station.logging_setup import add_file_log_dir, setup_file_logging
 
 import numpy as np
 from keysight_b1530a.enums import WGFMUMeasureCurrentRange

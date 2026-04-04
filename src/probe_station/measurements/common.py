@@ -19,7 +19,7 @@ from pymeasure.instruments.agilent.agilentB1500 import (
 )
 
 from probe_station import B1500
-from probe_station.utilities import add_file_log_dir
+from probe_station.logging_setup import add_file_log_dir
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
