@@ -1,16 +1,13 @@
 import logging
-import sys
 from datetime import datetime, timedelta
 
 from keysight_b1530a._bindings.initialization import open_session
-from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter
-from qtpy.QtCore import QLocale
 
-from probe_station.measurements.common import BaseProcedure, BaseWindow, max_compliance
-from probe_station.measurements.cycling.PG.script import connect_instrument, run
 from probe_station.logging_setup import setup_file_logging
+from probe_station.measurements.common import BaseProcedure, BaseWindow, max_compliance, run_app
+from probe_station.measurements.cycling.PG.script import connect_instrument, run
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -103,8 +100,4 @@ class MainWindow(BaseWindow):
 
 if __name__ == "__main__":
     setup_file_logging("logs")
-    QLocale.setDefault(QLocale(QLocale.English, QLocale.UnitedStates))
-    app = QtWidgets.QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    app.exec()
+    run_app(MainWindow)

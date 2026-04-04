@@ -1,16 +1,13 @@
 import logging
-import sys
 
-from pymeasure.display.Qt import QtWidgets
 from pymeasure.experiment import (
     FloatParameter,
     IntegerParameter,
 )
-from qtpy.QtCore import QLocale
 
-from probe_station.measurements.common import BaseProcedure, BaseWindow, connect_instrument
-from probe_station.measurements.voltage_sweeps.CV.script import PLOT_POINTS, run
 from probe_station.logging_setup import setup_file_logging
+from probe_station.measurements.common import BaseProcedure, BaseWindow, connect_instrument, run_app
+from probe_station.measurements.voltage_sweeps.CV.script import PLOT_POINTS, run
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -65,8 +62,4 @@ class MainWindow(BaseWindow):
 
 if __name__ == "__main__":
     setup_file_logging("logs")
-    QLocale.setDefault(QLocale(QLocale.English, QLocale.UnitedStates))
-    app = QtWidgets.QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    app.exec()
+    run_app(MainWindow)

@@ -1,9 +1,7 @@
 """PyMeasure procedure for measuring FET drain and gate currents at fixed bias."""
 
 import logging
-import sys
 
-from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import (
     BooleanParameter,
@@ -11,7 +9,6 @@ from pymeasure.experiment import (
     IntegerParameter,
 )
 from pymeasure.instruments.agilent.agilentB1500 import ADCType
-from qtpy.QtCore import QLocale
 
 from probe_station.measurements.common import (
     RSU,
@@ -20,6 +17,7 @@ from probe_station.measurements.common import (
     RSUOutputMode,
     connect_instrument,
     get_smu_by_number,
+    run_app,
     setup_rsu_output,
 )
 
@@ -102,8 +100,4 @@ class MainWindow(BaseWindow):
 
 
 if __name__ == "__main__":
-    QLocale.setDefault(QLocale(QLocale.English, QLocale.UnitedStates))
-    app = QtWidgets.QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    app.exec()
+    run_app(MainWindow)

@@ -1,15 +1,13 @@
 import logging
-import sys
 
 import numpy as np
-from pymeasure.display.Qt import QtWidgets
 from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import (
     FloatParameter,
     IntegerParameter,
 )
-from qtpy.QtCore import QLocale
 
+from probe_station.logging_setup import setup_file_logging
 from probe_station.measurements.common import (
     RSU,
     BaseProcedure,
@@ -18,11 +16,11 @@ from probe_station.measurements.common import (
     connect_instrument,
     get_smu_by_number,
     max_compliance,
+    run_app,
     setup_rsu_output,
 )
 from probe_station.measurements.voltage_sweeps.IV.SMU.script import measure_at_voltage
 from probe_station.measurements.voltage_sweeps.IV.widgets import IvPlotWidget
-from probe_station.logging_setup import setup_file_logging
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -91,8 +89,4 @@ class MainWindow(BaseWindow):
 
 if __name__ == "__main__":
     setup_file_logging("logs")
-    QLocale.setDefault(QLocale(QLocale.English, QLocale.UnitedStates))
-    app = QtWidgets.QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    app.exec()
+    run_app(MainWindow)

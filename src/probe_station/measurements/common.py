@@ -251,6 +251,27 @@ def connect_instrument(timeout=60000, reset=False):
         raise ConnectionError("Could not connect to the Agilent B1500 instrument.")
 
 
+def run_app(window_class):
+    """Launch a pymeasure ManagedWindow application.
+
+    Sets the locale to English (to prevent decimal-comma issues), creates the
+    Qt application, shows the window, and starts the event loop.  Intended for
+    use in ``if __name__ == "__main__"`` blocks.
+
+    :param window_class: A ``ManagedWindowBase`` subclass to instantiate and show.
+    """
+    import sys
+
+    from pymeasure.display.Qt import QtWidgets
+    from qtpy.QtCore import QLocale
+
+    QLocale.setDefault(QLocale(QLocale.English, QLocale.UnitedStates))
+    app = QtWidgets.QApplication(sys.argv)
+    window = window_class()
+    window.show()
+    app.exec()
+
+
 def check_all_errors(b1500):
     """Query and print all pending instrument errors until the queue is empty.
 

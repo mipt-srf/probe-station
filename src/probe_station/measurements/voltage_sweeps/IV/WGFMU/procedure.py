@@ -1,5 +1,4 @@
 import logging
-import sys
 from enum import Enum
 
 import numpy as np
@@ -10,23 +9,21 @@ from keysight_b1530a.enums import (
     WGFMUMeasureCurrentRange,
 )
 from keysight_b1530a.errors import WGFMUError
-from pymeasure.display.Qt import QtWidgets
 from pymeasure.experiment import (
     BooleanParameter,
     FloatParameter,
     IntegerParameter,
     ListParameter,
 )
-from qtpy.QtCore import QLocale
 
-from probe_station.measurements.common import BaseProcedure, BaseWindow, connect_instrument
+from probe_station.logging_setup import setup_file_logging
+from probe_station.measurements.common import BaseProcedure, BaseWindow, connect_instrument, run_app
 from probe_station.measurements.voltage_sweeps.IV.WGFMU.script import (
     get_data,
     get_sequence,
     run,
     set_waveform,
 )
-from probe_station.logging_setup import setup_file_logging
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -211,8 +208,4 @@ class MainWindow(BaseWindow):
 
 if __name__ == "__main__":
     setup_file_logging("logs")
-    QLocale.setDefault(QLocale(QLocale.English, QLocale.UnitedStates))
-    app = QtWidgets.QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    app.exec()
+    run_app(MainWindow)

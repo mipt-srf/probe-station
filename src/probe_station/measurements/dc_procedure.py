@@ -1,15 +1,12 @@
 """PyMeasure procedure for applying a DC voltage for a fixed duration."""
 
 import logging
-import sys
 from time import sleep
 
-from pymeasure.display.Qt import QtWidgets
 from pymeasure.experiment import (
     FloatParameter,
     IntegerParameter,
 )
-from qtpy.QtCore import QLocale
 
 from probe_station.measurements.common import (
     RSU,
@@ -19,6 +16,7 @@ from probe_station.measurements.common import (
     connect_instrument,
     get_smu_by_number,
     max_compliance,
+    run_app,
     setup_rsu_output,
 )
 
@@ -61,8 +59,4 @@ class MainWindow(BaseWindow):
 
 
 if __name__ == "__main__":
-    QLocale.setDefault(QLocale(QLocale.English, QLocale.UnitedStates))
-    app = QtWidgets.QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    app.exec()
+    run_app(MainWindow)
