@@ -2,13 +2,12 @@ import datetime
 import os
 import time
 
-from smu.cycling import cycle
-from smu.plot_fig import plot_fig, save_data
-from smu.PUND_waveform import create_waveform
-from smu.SMU_device import SMUDevice
+from probe_station.measurements.keithley import Keithley2450Extended
+from probe_station.measurements.keithley.cycling import cycle
+from probe_station.measurements.keithley.plot_fig import plot_fig, save_data
+from probe_station.measurements.keithley.PUND_waveform import create_waveform
 
 time.sleep(0)
-device = "SMU"
 device = "TCPIP0::192.168.81.20::inst0::INSTR"
 
 ifcycle = True
@@ -48,7 +47,7 @@ params = {
 # connect_pv(ser) 7.2366859912872314
 
 
-with SMUDevice(device) as smu:
+with Keithley2450Extended(device) as smu:
     smu.set_terminal(terminal)
     smu.check_for_errors()
 
@@ -69,7 +68,6 @@ with SMUDevice(device) as smu:
 
     smu.check_for_errors()
     data = smu.get_traces()
-    smu.close()
 
 plot_fig(data, params, area, save=save, path=dir, name=save_name)
 

@@ -2,15 +2,15 @@ import pyvisa
 from pymeasure.instruments.keithley import Keithley2450
 
 
-class SMUDevice(Keithley2450):
+class Keithley2450Extended(Keithley2450):
     name = "Keithley 2450 SourceMeter"
 
-    def __init__(self, instruments_name):
-        self.instr_name = instruments_name
+    def __init__(self, adapter="SMU", **kwargs):
+        self.instr_name = adapter
         try:
-            super().__init__(instruments_name, write_termination="\n")
+            super().__init__(adapter, write_termination="\n", **kwargs)
         except pyvisa.errors.VisaIOError:
-            print(f"Device {instruments_name} is not present in the system, check the connections.")
+            print(f"Device {adapter} is not present in the system, check the connections.")
             return
         self.connect(verbose=False)
 
