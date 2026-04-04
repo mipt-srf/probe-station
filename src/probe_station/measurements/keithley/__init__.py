@@ -1,3 +1,3 @@
-from .device import Keithley2450Extended
+from .device import Keithley2450Extended, connect_instrument
 
-__all__ = ["Keithley2450Extended"]
+__all__ = ["Keithley2450Extended", "connect_instrument"]

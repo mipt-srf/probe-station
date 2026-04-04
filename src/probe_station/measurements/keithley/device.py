@@ -1,5 +1,25 @@
+import logging
+
 import pyvisa
 from pymeasure.instruments.keithley import Keithley2450
+
+log = logging.getLogger(__name__)
+log.addHandler(logging.NullHandler())
+
+
+def connect_instrument(address: str, timeout=60000) -> "Keithley2450Extended":
+    """Connect to a Keithley 2450 instrument.
+
+    :param address: VISA resource string (e.g. ``"TCPIP0::192.168.81.20::inst0::INSTR"``).
+    :param timeout: Communication timeout in milliseconds.
+    :raises ConnectionError: If the instrument cannot be reached.
+    """
+    try:
+        smu = Keithley2450Extended(address, timeout=timeout)
+        log.info("Connected to Keithley 2450 at %s", address)
+        return smu
+    except Exception as exc:
+        raise ConnectionError(f"Could not connect to Keithley 2450 at {address}.") from exc
 
 
 class Keithley2450Extended(Keithley2450):
