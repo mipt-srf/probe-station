@@ -84,6 +84,22 @@ class MainWindow(BaseWindow):
             widget_list=widget_list,
             logger=log,
         )
+        from qtpy.QtWidgets import QLabel
+
+        self._pulse_label = QLabel()
+        self.inputs.layout().addWidget(self._pulse_label)
+        self.inputs.rise.valueChanged.connect(self._update_pulse_duration)
+        self.inputs.hold.valueChanged.connect(self._update_pulse_duration)
+        self.inputs.int_time.valueChanged.connect(self._update_pulse_duration)
+        self._update_pulse_duration()
+
+    def _update_pulse_duration(self):
+        rise = self.inputs.rise.value()
+        hold = self.inputs.hold.value()
+        int_time = self.inputs.int_time.value()
+        effective_nplc = max(0.01, int_time * 60)
+        duration = round((2 * rise + hold) * effective_nplc / 60 * 1e3 * 3, 3)  # factor of 3 due to ???
+        self._pulse_label.setText(f"Pulse duration: {duration} ms")
 
 
 if __name__ == "__main__":
