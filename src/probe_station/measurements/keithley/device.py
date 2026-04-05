@@ -16,6 +16,7 @@ def connect_instrument(address: str, timeout=60000) -> "Keithley2450Extended":
     """
     try:
         smu = Keithley2450Extended(address, timeout=timeout)
+        smu.clear()
         log.info("Connected to Keithley 2450 at %s", address)
         return smu
     except Exception as exc:
@@ -23,16 +24,8 @@ def connect_instrument(address: str, timeout=60000) -> "Keithley2450Extended":
 
 
 class Keithley2450Extended(Keithley2450):
-    name = "Keithley 2450 SourceMeter"
-
-    def __init__(self, adapter="SMU", **kwargs):
-        self.instr_name = adapter
-        try:
-            super().__init__(adapter, write_termination="\n", **kwargs)
-        except pyvisa.errors.VisaIOError:
-            print(f"Device {adapter} is not present in the system, check the connections.")
-            return
-        self.connect(verbose=False)
+    def __init__(self, adapter="TCPIP0::192.168.81.20::inst0::INSTR", **kwargs):
+        super().__init__(adapter, write_termination="\n", name="Keithley 2450 SourceMeter", **kwargs)
 
     def __enter__(self):
         return self
@@ -40,24 +33,12 @@ class Keithley2450Extended(Keithley2450):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.shutdown()
 
-    def connect(self, verbose=True):
-        """Connect to the device and apply initial settings."""
-        # self.reset()
-        self.clear()
-        device_info = self.id  # queries *IDN?
-
-        if verbose:
-            print(f"Device \n{device_info}is connected!")
-
-    def write_command(self, command):
-        self.write(command)
-
     def wait(self):
         """Block until all pending device operations complete (*OPC? polling)."""
-        self.write("*OPC?")
+        self.complete
         while True:
             try:
-                self.read()
+                self.read()  # wait for the synchronization bit
                 break
             except pyvisa.errors.VisaIOError:
                 continue
@@ -100,22 +81,6 @@ class Keithley2450Extended(Keithley2450):
             self.source_voltage_delay_auto = True
 
         self.source_voltage_readback = "ON" if readback else "OFF"
-
-    def check_for_errors(self):
-        """
-        Check if some errors occurred during the measurements. Raise warning in that case.
-        Errors might appear in reversed order.
-        """
-        n_errors = self.error_count
-        if n_errors != 0:
-            errors = [self.next_error for _ in range(n_errors)]
-            raise Warning(f"An error occurred during measurements:\n {errors}")
-
-    def turn_on_display(self):
-        self.display_light_state = "ON50"
-
-    def turn_off_display(self):
-        self.display_light_state = "BLAC"
 
     def set_terminal(self, name):
         if name == "rear":

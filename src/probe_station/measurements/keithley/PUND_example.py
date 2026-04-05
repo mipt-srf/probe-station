@@ -49,16 +49,16 @@ params = {
 
 with connect_instrument(device) as smu:
     smu.set_terminal(terminal)
-    smu.check_for_errors()
+    smu.check_errors()
 
     if ifcycle:
         cycle(smu, 50, params["Vf"], params["Vs"])
         # cycle(smu, 10, params['Vf'], params['Vs'])
-    smu.check_for_errors()
+    smu.check_errors()
 
     smu.setup_sense_subsystem(compl=1e-4, range=1e-4, int_time=0, counts=1)
     smu.setup_source_subsystem()
-    smu.check_for_errors()
+    smu.check_errors()
 
     waveform = create_waveform(params, by_rate=False)
     smu.voltage_list_sweep(waveform, params["n_cycles"])
@@ -66,7 +66,7 @@ with connect_instrument(device) as smu:
     smu.initiate()
     smu.wait()
 
-    smu.check_for_errors()
+    smu.check_errors()
     data = smu.get_traces()
 
 plot_fig(data, params, area, save=save, path=dir, name=save_name)

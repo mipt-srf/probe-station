@@ -34,7 +34,7 @@ class PundProcedure(BaseProcedure):
     def execute(self):
         log.info("Starting %s", self.__class__.__name__)
         self.smu.set_terminal(self.terminal)
-        self.smu.check_for_errors()
+        self.smu.check_errors()
 
         if self.do_cycle:
             log.info("Pre-cycling %d times", self.n_precycles)
@@ -42,11 +42,11 @@ class PundProcedure(BaseProcedure):
             if self.should_stop():
                 self.smu.shutdown()
                 return
-            self.smu.check_for_errors()
+            self.smu.check_errors()
 
         self.smu.setup_sense_subsystem(compl=1e-4, range=1e-4, int_time=0, counts=1)
         self.smu.setup_source_subsystem()
-        self.smu.check_for_errors()
+        self.smu.check_errors()
 
         params = {
             "Vf": self.vf,
@@ -65,7 +65,7 @@ class PundProcedure(BaseProcedure):
             self.smu.shutdown()
             return
 
-        self.smu.check_for_errors()
+        self.smu.check_errors()
         data = self.smu.get_traces()
 
         total = len(data["time"])

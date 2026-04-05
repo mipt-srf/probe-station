@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # replace with lazy imports (py>=3.15) https://peps.python.org/pep-0810/
     from .dataset import Dataset
     from .measurements.b1500 import B1500
     from .measurements.common import connect_instrument
