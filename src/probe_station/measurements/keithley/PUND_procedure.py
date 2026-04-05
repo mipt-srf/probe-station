@@ -81,7 +81,7 @@ class PundProcedure(BaseProcedure):
 class MainWindow(BaseWindow):
     def __init__(self):
         widget_list = (
-            PlotWidget("Results Graph", PundProcedure.DATA_COLUMNS, x="Time", y="Reading"),
+            PlotWidget("Results Graph", PundProcedure.DATA_COLUMNS, x_axis="Time", y_axis="Reading"),
             LogWidget("Experiment Log"),
         )
         super().__init__(
