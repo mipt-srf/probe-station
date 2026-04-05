@@ -19,9 +19,10 @@ class PundProcedure(BaseProcedure):
     vf = FloatParameter("First voltage", units="V", default=-3)
     vs = FloatParameter("Second voltage", units="V", default=3)
     rise = IntegerParameter("Rise steps", default=50)
-    hold = IntegerParameter("Hold steps", default=10)
-    space = IntegerParameter("Space steps", default=75)
+    hold = IntegerParameter("Hold steps", default=5)
+    space = IntegerParameter("Space steps", default=5)
     n_cycles = IntegerParameter("PUND cycles", default=1)
+    average_cycles = BooleanParameter("Average cycles", default=False)
     int_time = FloatParameter("Integration time", units="s", default=0)
     do_cycle = BooleanParameter("Pre-cycle", default=False)
     n_precycles = IntegerParameter("Pre-cycle count", default=50, group_by="do_cycle")
@@ -57,9 +58,15 @@ class PundProcedure(BaseProcedure):
         self.smu.raise_error()
         data = self.smu.get_traces()
 
-        total = len(data["time"])
-        for i, (t, src, reading) in enumerate(zip(data["time"], data["source"], data["reading"])):
-            self.emit("results", {"Time": t, "Source": src, "Reading": reading})
+        time, source, reading = data["time"], data["source"], data["reading"]
+        if self.average_cycles and self.n_cycles > 1:
+            n = len(time) // self.n_cycles
+            reading = [sum(reading[i + n * c] for c in range(self.n_cycles)) / self.n_cycles for i in range(n)]
+            time, source = time[:n], source[:n]
+
+        total = len(time)
+        for i, (t, src, r) in enumerate(zip(time, source, reading)):
+            self.emit("results", {"Time": t, "Source": src, "Reading": r})
             self.emit("progress", (i + 1) / total * 100)
             if self.should_stop():
                 break
