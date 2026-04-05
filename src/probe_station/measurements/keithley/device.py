@@ -97,6 +97,11 @@ class Keithley2450Extended(Keithley2450):
 
         self.source_voltage_readback = "ON" if readback else "OFF"
 
+    def raise_error(self):
+        errors = self.check_errors()
+        if errors:
+            raise RuntimeError(f"Keithley 2450 error: {errors[0][0]}, {errors[0][1]}")
+
     def set_terminal(self, name):
         if name == "rear":
             self.use_rear_terminals()

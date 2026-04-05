@@ -18,11 +18,12 @@ class PundProcedure(BaseProcedure):
     terminal = Parameter("Terminal", default="rear")
     vf = FloatParameter("First voltage", units="V", default=-3)
     vs = FloatParameter("Second voltage", units="V", default=3)
-    rise = IntegerParameter("Rise steps", default=10)
-    hold = IntegerParameter("Hold steps", default=2)
-    space = IntegerParameter("Space steps", default=15)
-    n_cycles = IntegerParameter("PUND cycles", default=4)
-    do_cycle = BooleanParameter("Pre-cycle", default=True)
+    rise = IntegerParameter("Rise steps", default=50)
+    hold = IntegerParameter("Hold steps", default=10)
+    space = IntegerParameter("Space steps", default=75)
+    n_cycles = IntegerParameter("PUND cycles", default=1)
+    int_time = FloatParameter("Integration time", units="s", default=0)
+    do_cycle = BooleanParameter("Pre-cycle", default=False)
     n_precycles = IntegerParameter("Pre-cycle count", default=50, group_by="do_cycle")
 
     DATA_COLUMNS = ["Time", "Source", "Reading"]
@@ -34,18 +35,18 @@ class PundProcedure(BaseProcedure):
     def execute(self):
         log.info("Starting %s", self.__class__.__name__)
         self.smu.set_terminal(self.terminal)
-        self.smu.check_errors()
+        self.smu.raise_error()
 
         if self.do_cycle:
             log.info("Pre-cycling %d times", self.n_precycles)
             cycle(self.smu, self.n_precycles, self.vf, self.vs)
             if self.should_stop():
                 return
-            self.smu.check_errors()
+            self.smu.raise_error()
 
-        self.smu.setup_sense_subsystem(compl=1e-4, range=1e-4, int_time=0, counts=1)
+        self.smu.setup_sense_subsystem(compl=1e-4, range=1e-4, int_time=self.int_time, counts=1)
         self.smu.setup_source_subsystem()
-        self.smu.check_errors()
+        self.smu.raise_error()
 
         params = {
             "Vf": self.vf,
@@ -56,11 +57,12 @@ class PundProcedure(BaseProcedure):
             "n_cycles": self.n_cycles,
         }
         waveform = create_waveform(params, by_rate=False)
+        log.info("Initiating PUND waveform with %d points", len(waveform))
         self.smu.voltage_list_sweep(waveform, self.n_cycles)
         self.smu.initiate()
         self.smu.wait()
 
-        self.smu.check_errors()
+        self.smu.raise_error()
         data = self.smu.get_traces()
 
         total = len(data["time"])
