@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 
 import pyvisa
@@ -7,7 +9,7 @@ log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-def connect_instrument(address: str, timeout=60000) -> "Keithley2450Extended":
+def connect_instrument(address: str, timeout=60000) -> Keithley2450Extended:
     """Connect to a Keithley 2450 instrument.
 
     :param address: VISA resource string (e.g. ``"TCPIP0::192.168.81.20::inst0::INSTR"``).
@@ -35,7 +37,7 @@ class Keithley2450Extended(Keithley2450):
 
     def wait(self):
         """Block until all pending device operations complete (*OPC? polling)."""
-        self.complete
+        self.write("*OPC?")
         while True:
             try:
                 self.read()  # wait for the synchronization bit
