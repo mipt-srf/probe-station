@@ -8,6 +8,19 @@ from pymeasure.instruments.keithley import Keithley2450
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
+_smu: Keithley2450Extended | None = None
+
+
+def get_smu() -> Keithley2450Extended:
+    if _smu is None:
+        raise RuntimeError("No active Keithley session. Connect from the launcher first.")
+    return _smu
+
+
+def set_smu(smu: Keithley2450Extended | None) -> None:
+    global _smu
+    _smu = smu
+
 
 def connect_instrument(address: str, timeout=60000) -> Keithley2450Extended:
     """Connect to a Keithley 2450 instrument.

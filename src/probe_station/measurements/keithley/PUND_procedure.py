@@ -5,8 +5,9 @@ from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParame
 
 from probe_station.logging_setup import setup_file_logging
 from probe_station.measurements.common import BaseProcedure, BaseWindow, run_app
-from probe_station.measurements.keithley import connect_instrument
 from probe_station.measurements.keithley.cycling import cycle
+from probe_station.measurements.keithley.device import connect_instrument, get_smu, set_smu
+from probe_station.measurements.keithley.launcher import ADDRESS
 from probe_station.measurements.keithley.PUND_waveform import create_waveform
 
 log = logging.getLogger(__name__)
@@ -14,7 +15,6 @@ log.addHandler(logging.NullHandler())
 
 
 class PundProcedure(BaseProcedure):
-    address = Parameter("VISA address", default="TCPIP0::192.168.81.20::inst0::INSTR")
     terminal = Parameter("Terminal", default="rear")
     vf = FloatParameter("First voltage", units="V", default=-3)
     vs = FloatParameter("Second voltage", units="V", default=3)
@@ -29,7 +29,7 @@ class PundProcedure(BaseProcedure):
 
     def startup(self):
         super().startup()
-        self.smu = connect_instrument(self.address)
+        self.smu = get_smu()
 
     def execute(self):
         log.info("Starting %s", self.__class__.__name__)
@@ -40,7 +40,6 @@ class PundProcedure(BaseProcedure):
             log.info("Pre-cycling %d times", self.n_precycles)
             cycle(self.smu, self.n_precycles, self.vf, self.vs)
             if self.should_stop():
-                self.smu.shutdown()
                 return
             self.smu.check_errors()
 
@@ -61,10 +60,6 @@ class PundProcedure(BaseProcedure):
         self.smu.initiate()
         self.smu.wait()
 
-        if self.should_stop():
-            self.smu.shutdown()
-            return
-
         self.smu.check_errors()
         data = self.smu.get_traces()
 
@@ -74,8 +69,6 @@ class PundProcedure(BaseProcedure):
             self.emit("progress", (i + 1) / total * 100)
             if self.should_stop():
                 break
-
-        self.smu.shutdown()
 
 
 class MainWindow(BaseWindow):
@@ -93,4 +86,5 @@ class MainWindow(BaseWindow):
 
 if __name__ == "__main__":
     setup_file_logging("logs")
+    set_smu(connect_instrument(ADDRESS))
     run_app(MainWindow)
