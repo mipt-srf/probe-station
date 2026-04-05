@@ -48,16 +48,8 @@ class PundProcedure(BaseProcedure):
         self.smu.setup_source_subsystem()
         self.smu.raise_error()
 
-        params = {
-            "Vf": self.vf,
-            "Vs": self.vs,
-            "rise": self.rise,
-            "hold": self.hold,
-            "space": self.space,
-            "n_cycles": self.n_cycles,
-        }
-        waveform = create_waveform(params, by_rate=False)
-        log.info("Initiating PUND waveform with %d points", len(waveform))
+        waveform = self._create_waveform()
+        log.info("Initiating waveform with %d points", len(waveform))
         self.smu.voltage_list_sweep(waveform, self.n_cycles)
         self.smu.initiate()
         self.smu.wait()
@@ -71,6 +63,17 @@ class PundProcedure(BaseProcedure):
             self.emit("progress", (i + 1) / total * 100)
             if self.should_stop():
                 break
+
+    def _create_waveform(self):
+        params = {
+            "Vf": self.vf,
+            "Vs": self.vs,
+            "rise": self.rise,
+            "hold": self.hold,
+            "space": self.space,
+            "n_cycles": self.n_cycles,
+        }
+        return create_waveform(params, by_rate=False)
 
 
 class MainWindow(BaseWindow):

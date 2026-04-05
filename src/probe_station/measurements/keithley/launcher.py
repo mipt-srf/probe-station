@@ -46,6 +46,10 @@ class LauncherWindow(QWidget):
         self._pund_btn.setEnabled(False)
         self._pund_btn.clicked.connect(self._open_pund)
 
+        self._dc_iv_btn = QPushButton("DC IV measurement")
+        self._dc_iv_btn.setEnabled(False)
+        self._dc_iv_btn.clicked.connect(self._open_dc_iv)
+
         address_row = QHBoxLayout()
         address_row.addWidget(QLabel("Address:"))
         address_row.addWidget(self._address)
@@ -55,6 +59,7 @@ class LauncherWindow(QWidget):
         layout.addWidget(self._status)
         layout.addWidget(self._connect_btn)
         layout.addWidget(self._pund_btn)
+        layout.addWidget(self._dc_iv_btn)
         self.setLayout(layout)
 
     def _toggle_connection(self):
@@ -82,6 +87,7 @@ class LauncherWindow(QWidget):
             self._status.setText("Disconnected")
             self._connect_btn.setText("Connect")
             self._pund_btn.setEnabled(False)
+            self._dc_iv_btn.setEnabled(False)
 
     def _on_connected(self, smu):
         set_smu(smu)
@@ -89,6 +95,7 @@ class LauncherWindow(QWidget):
         self._connect_btn.setText("Disconnect")
         self._connect_btn.setEnabled(True)
         self._pund_btn.setEnabled(True)
+        self._dc_iv_btn.setEnabled(True)
 
     def _on_connect_failed(self, message: str):
         self._status.setText("Disconnected")
@@ -97,6 +104,13 @@ class LauncherWindow(QWidget):
 
     def _open_pund(self):
         from probe_station.measurements.keithley.PUND_procedure import MainWindow
+
+        window = MainWindow()
+        window.show()
+        self._windows.append(window)
+
+    def _open_dc_iv(self):
+        from probe_station.measurements.keithley.dc_iv_procedure import MainWindow
 
         window = MainWindow()
         window.show()
