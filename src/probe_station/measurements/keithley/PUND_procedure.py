@@ -24,6 +24,12 @@ class PundProcedure(BaseProcedure):
     n_cycles = IntegerParameter("PUND cycles", default=1)
     average_cycles = BooleanParameter("Average cycles", default=False)
     int_time = FloatParameter("Integration time", units="s", default=0)
+    compliance = FloatParameter("Compliance current", units="A", default=1e-4)
+    autorange = BooleanParameter("Autorange", default=True)
+    current_range = FloatParameter(
+        "Current range", units="A", default=1e-4, group_by="autorange", group_condition=False
+    )
+    counts = IntegerParameter("Averaging", default=1)
     do_cycle = BooleanParameter("Pre-cycle", default=False)
     n_precycles = IntegerParameter("Pre-cycle count", default=50, group_by="do_cycle")
 
@@ -45,7 +51,9 @@ class PundProcedure(BaseProcedure):
                 return
             self.smu.raise_error()
 
-        self.smu.setup_sense_subsystem(compl=1e-4, range=1e-4, int_time=self.int_time, counts=1)
+        self.smu.setup_sense_subsystem(
+            compl=self.compliance, range=self.current_range, autorange=self.autorange, int_time=self.int_time, counts=self.counts
+        )
         self.smu.setup_source_subsystem()
         self.smu.raise_error()
 
