@@ -24,12 +24,12 @@ class PundProcedure(BaseProcedure):
     n_cycles = IntegerParameter("PUND cycles", default=1)
     average_cycles = BooleanParameter("Average cycles", default=False)
     int_time = FloatParameter("Integration time", units="s", default=0)
-    compliance = FloatParameter("Compliance current", units="A", default=1e-4)
-    autorange = BooleanParameter("Autorange", default=True)
+    # compliance = FloatParameter("Compliance current", units="A", default=1e-4)
+    autorange = BooleanParameter("Autorange", default=False)
     current_range = FloatParameter(
         "Current range", units="A", default=1e-4, group_by="autorange", group_condition=False
     )
-    counts = IntegerParameter("Averaging", default=1)
+    # counts = IntegerParameter("Averaging", default=1)
     do_cycle = BooleanParameter("Pre-cycle", default=False)
     n_precycles = IntegerParameter("Pre-cycle count", default=50, group_by="do_cycle")
 
@@ -52,11 +52,12 @@ class PundProcedure(BaseProcedure):
             self.smu.raise_error()
 
         self.smu.setup_sense_subsystem(
-            compl=self.compliance,
+            # compl=self.compliance,
+            compl=self.current_range,
             range=self.current_range,
             autorange=self.autorange,
             int_time=self.int_time,
-            counts=self.counts,
+            # counts=self.counts,
         )
         self.smu.setup_source_subsystem()
         self.smu.raise_error()
@@ -102,7 +103,7 @@ class PundProcedure(BaseProcedure):
 class MainWindow(BaseWindow):
     def __init__(self):
         widget_list = (
-            PlotWidget("Results Graph", PundProcedure.DATA_COLUMNS, x_axis="Time", y_axis="Reading"),
+            PlotWidget("Results Graph", PundProcedure.DATA_COLUMNS, x_axis="Source", y_axis="Reading"),
             LogWidget("Experiment Log"),
         )
         super().__init__(

@@ -16,10 +16,10 @@ log.addHandler(logging.NullHandler())
 
 
 class DcIvProcedure(PundProcedure):
-    int_time = FloatParameter("Integration time", units="s", default=1e-2)
-
-    # space is unused — DC IV waveform has no gaps between pulses
-    space = 0
+    int_time = FloatParameter("Integration time", units="s", default=2e-2)
+    current_range = FloatParameter(
+        "Current range", units="A", default=1e-6, group_by="autorange", group_condition=False
+    )
 
     _INPUTS = [
         name
