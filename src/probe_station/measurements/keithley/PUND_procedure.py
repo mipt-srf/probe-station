@@ -52,7 +52,11 @@ class PundProcedure(BaseProcedure):
             self.smu.raise_error()
 
         self.smu.setup_sense_subsystem(
-            compl=self.compliance, range=self.current_range, autorange=self.autorange, int_time=self.int_time, counts=self.counts
+            compl=self.compliance,
+            range=self.current_range,
+            autorange=self.autorange,
+            int_time=self.int_time,
+            counts=self.counts,
         )
         self.smu.setup_source_subsystem()
         self.smu.raise_error()
@@ -61,7 +65,11 @@ class PundProcedure(BaseProcedure):
         log.info("Initiating waveform with %d points", len(waveform))
         self.smu.voltage_list_sweep(waveform, self.n_cycles)
         self.smu.initiate()
-        self.smu.wait()
+        self.smu.wait(self.should_stop)
+
+        if self.should_stop():
+            log.info("Aborted during sweep")
+            return
 
         self.smu.raise_error()
         data = self.smu.get_traces()

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import time
 
 import pyvisa
 from pymeasure.instruments.keithley import Keithley2450
@@ -48,15 +49,46 @@ class Keithley2450Extended(Keithley2450):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.shutdown()
 
-    def wait(self):
-        """Block until all pending device operations complete (*OPC? polling)."""
-        self.write("*OPC?")
-        while True:
-            try:
-                self.read()  # wait for the synchronization bit
-                break
-            except pyvisa.errors.VisaIOError:
-                continue
+    def wait(self, should_stop=None):
+        """Block until all pending device operations complete.
+
+        Without *should_stop*: blocks via ``*OPC?`` (original behaviour).
+        With *should_stop*: polls ``*ESR?`` every 200 ms so the instrument can
+        be aborted mid-sweep without waiting for the full VISA timeout.
+        """
+        if should_stop is None:
+            self.write("*OPC?")
+            while True:
+                try:
+                    self.read()
+                    break
+                except pyvisa.errors.VisaIOError:
+                    continue
+        else:
+            # *OPC (no ?) sets ESR bit 0 when done without blocking the bus.
+            # Discard any stale OPC bit first, then arm.
+            self.write("*ESR?")
+            self.read()
+            self.write("*OPC")
+            while True:
+                self.write("*ESR?")
+                esr = int(self.read().strip())
+                if esr & 1:  # Operation Complete bit
+                    break
+                if should_stop():
+                    self.abort()
+                    return
+                time.sleep(0.2)
+
+    def abort(self):
+        """Abort the currently running trigger model sweep.
+
+        Sends ``ABOR``, turns off the source output, and drains any
+        abort-related errors from the queue so the next run starts clean.
+        """
+        self.write(":ABOR")
+        self.disable_source()
+        self.check_errors()  # discard "operation cancelled" and similar
 
     def get_traces(self):
         """Retrieve time, source, and reading arrays from the default trace buffer."""
@@ -78,6 +110,7 @@ class Keithley2450Extended(Keithley2450):
             self.current_range = range
 
         self.compliance_current = compl
+
         if counts != 1:
             self.sense_count = counts
 
