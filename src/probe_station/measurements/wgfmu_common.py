@@ -252,7 +252,6 @@ def run_waveforms_split(
 
     top_chunks = []
     bottom_chunks = []
-    first_run_start: float | None = None
     for i, (name, half_top, half_bot) in enumerate(halves):
         set_waveform(
             b1500=b1500,
@@ -291,10 +290,9 @@ def run_waveforms_split(
         bottom_data = get_data(b1500=b1500, channel=bottom_ch, repetitions=1, points=half_points)
 
         run_start = time.perf_counter()
-        if i < len(halves) - 1:
-            b1500.clear_wgfmu()
-        if first_run_start is None:
+        if i == 0:
             first_run_start = run_start
+            b1500.clear_wgfmu()
         else:
             shift = run_start - first_run_start
             log.info(f"Inter-half delay before {name}: {shift:.4f} s")
