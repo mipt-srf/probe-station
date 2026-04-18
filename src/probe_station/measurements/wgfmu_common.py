@@ -69,7 +69,6 @@ def set_waveform(
     measure=True,
     measure_points=1600,
     pattern_name="sequence",
-    interval_scale: float = 1.0,
 ):
     pattern_name += f"_wgfmu{channel}"
     b1500.create_wgfmu_pattern(pattern_name, sequence.pulses[0].dc_bias)
@@ -82,7 +81,7 @@ def set_waveform(
             pattern_name=pattern_name,
             event_name="event",
             points=measure_points,
-            interval=seq_time / measure_points * interval_scale,
+            interval=seq_time / measure_points,
             average=seq_time / measure_points,
             mode=WGFMUMeasureEvent.AVERAGED,
         )
@@ -149,7 +148,6 @@ def run_waveforms(
     current_range: WGFMUMeasureCurrentRange,
     measure: bool,
     plot_points: int | None = None,
-    interval_scale: float = 1.0,
 ):
     """Set waveforms on top (and optional bottom), run, optionally fetch data.
 
@@ -164,7 +162,6 @@ def run_waveforms(
         channel=top_ch,
         measure=measure,
         measure_points=plot_points or 0,
-        interval_scale=interval_scale,
     )
     if bottom_seq is not None:
         set_waveform(
@@ -174,7 +171,6 @@ def run_waveforms(
             channel=bottom_ch,
             measure=measure,
             measure_points=plot_points or 0,
-            interval_scale=interval_scale,
         )
 
     channels = [top_ch] if bottom_ch is None else [top_ch, bottom_ch]
@@ -220,7 +216,6 @@ def run_waveforms_split(
     bottom_ch: int,
     current_range: WGFMUMeasureCurrentRange,
     plot_points: int,
-    interval_scale: float = 1.0,
 ):
     """Split a PUND sequence into positive/negative halves and run each separately.
 
@@ -254,7 +249,6 @@ def run_waveforms_split(
             measure=True,
             measure_points=half_points,
             pattern_name=f"top_{name}",
-            interval_scale=interval_scale,
         )
         set_waveform(
             b1500=b1500,
@@ -264,7 +258,6 @@ def run_waveforms_split(
             measure=True,
             measure_points=half_points,
             pattern_name=f"bottom_{name}",
-            interval_scale=interval_scale,
         )
         try:
             run(
