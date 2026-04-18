@@ -32,7 +32,7 @@ log.addHandler(logging.NullHandler())
 
 class WgfmuIvSweepProcedure(BaseProcedure):
     mode = ListParameter("Mode", default=SweepMode.PUND.name, choices=[e.name for e in SweepMode])
-    pulse_time = FloatParameter("Pulse time", units="s", default=0.0001)
+    pulse_time = FloatParameter("Pulse time", units="s", default=2e-4)
 
     voltage_top_first = FloatParameter("Top electrode voltage (first)", units="V", default=5.0)
     voltage_top_second = FloatParameter("Top electrode voltage (second)", units="V", default=-5.0)
@@ -109,7 +109,7 @@ class WgfmuIvSweepProcedure(BaseProcedure):
             b1500=self.b1500,
             sequence=seq,
             repetitions=2,
-            channel=WGFMUChannel(self.top + 200),
+            channel=self.top,
             measure_points=self.plot_points,
         )
         if self.enable_bottom:
@@ -117,7 +117,7 @@ class WgfmuIvSweepProcedure(BaseProcedure):
                 b1500=self.b1500,
                 sequence=seq_bottom,
                 repetitions=2,
-                channel=WGFMUChannel(self.bottom + 200),
+                channel=self.bottom,
                 measure_points=self.plot_points,
             )
 
@@ -131,16 +131,16 @@ class WgfmuIvSweepProcedure(BaseProcedure):
             else:
                 run(
                     b1500=self.b1500,
-                    channels=[WGFMUChannel(self.top + 200)],
+                    channels=[self.top],
                     measure_range=WGFMUMeasureCurrentRange[self.current_range],
                 )
 
             times, voltages, currents = get_data(
-                b1500=self.b1500, repetitions=2, channel=WGFMUChannel(self.top + 200), points=self.plot_points
+                b1500=self.b1500, repetitions=2, channel=self.top, points=self.plot_points
             )
             if self.enable_bottom:
                 times_bottom, voltages_bottom, currents_bottom = get_data(
-                    b1500=self.b1500, repetitions=2, channel=WGFMUChannel(self.bottom + 200), points=self.plot_points
+                    b1500=self.b1500, repetitions=2, channel=self.bottom, points=self.plot_points
                 )
 
         except WGFMUError:

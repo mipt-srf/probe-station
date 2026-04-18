@@ -1,6 +1,5 @@
 import logging
 
-from keysight_b1530a._bindings.config import WGFMUChannel
 from keysight_b1530a._bindings.errors import get_error_summary
 from keysight_b1530a.enums import (
     WGFMUMeasureCurrentRange,
@@ -75,9 +74,6 @@ class CyclingProcedure(BaseProcedure):
         super().startup()
         self.b1500 = connect_instrument(timeout=60000, reset=False)
         self.b1500.clear_wgfmu()
-        self.ch1 = WGFMUChannel.CH1
-        self.ch2 = WGFMUChannel.CH2
-        self.channels = [self.ch1, self.ch2]
         self.b1500.initialize_wgfmu()
 
     def execute(self):
@@ -117,7 +113,7 @@ class CyclingProcedure(BaseProcedure):
                 b1500=self.b1500,
                 sequence=seq_pu,
                 repetitions=1,
-                channel=WGFMUChannel(self.top + 200),
+                channel=self.top,
                 measure=False,
                 measure_points=self.steps * 2,
                 pattern_name="top_pu",
@@ -127,7 +123,7 @@ class CyclingProcedure(BaseProcedure):
                 b1500=self.b1500,
                 sequence=seq_bottom_pu,
                 repetitions=1,
-                channel=WGFMUChannel(self.bottom + 200),
+                channel=self.bottom,
                 measure=False,
                 measure_points=self.steps * 2,
                 pattern_name="bottom_pu",
@@ -137,7 +133,7 @@ class CyclingProcedure(BaseProcedure):
             try:
                 run(
                     b1500=self.b1500,
-                    channels=[self.ch1, self.ch2],
+                    channels=[self.bottom, self.top],
                     measure_range=WGFMUMeasureCurrentRange[self.current_range],
                     configure_measure_mode=False,
                 )
@@ -154,7 +150,7 @@ class CyclingProcedure(BaseProcedure):
                 b1500=self.b1500,
                 sequence=seq_nd,
                 repetitions=1,
-                channel=WGFMUChannel(self.top + 200),
+                channel=self.top,
                 measure=False,
                 measure_points=self.steps * 2,
                 pattern_name="top_nd",
@@ -164,7 +160,7 @@ class CyclingProcedure(BaseProcedure):
                 b1500=self.b1500,
                 sequence=seq_bottom_nd,
                 repetitions=1,
-                channel=WGFMUChannel(self.bottom + 200),
+                channel=self.bottom,
                 measure=False,
                 measure_points=self.steps * 2,
                 pattern_name="bottom_nd",
@@ -174,7 +170,7 @@ class CyclingProcedure(BaseProcedure):
             try:
                 run(
                     b1500=self.b1500,
-                    channels=[self.ch1, self.ch2],
+                    channels=[self.bottom, self.top],
                     measure_range=WGFMUMeasureCurrentRange[self.current_range],
                     configure_measure_mode=False,
                 )
@@ -190,7 +186,7 @@ class CyclingProcedure(BaseProcedure):
                 b1500=self.b1500,
                 sequence=seq,
                 repetitions=self.repetitions,
-                channel=WGFMUChannel(self.top + 200),
+                channel=self.top,
                 measure=False,
                 measure_points=self.steps * 4,
                 interval_scale=1.02,
@@ -200,7 +196,7 @@ class CyclingProcedure(BaseProcedure):
                     b1500=self.b1500,
                     sequence=seq_bottom,
                     repetitions=self.repetitions,
-                    channel=WGFMUChannel(self.bottom + 200),
+                    channel=self.bottom,
                     measure=False,
                     measure_points=self.steps * 4,
                     interval_scale=1.02,
@@ -210,24 +206,24 @@ class CyclingProcedure(BaseProcedure):
                 if self.enable_bottom:
                     run(
                         b1500=self.b1500,
-                        channels=[self.ch1, self.ch2],
+                        channels=[self.bottom, self.top],
                         measure_range=WGFMUMeasureCurrentRange[self.current_range],
                         configure_measure_mode=False,
                     )
                 else:
                     run(
                         b1500=self.b1500,
-                        channels=[WGFMUChannel(self.top + 200)],
+                        channels=[self.top],
                         measure_range=WGFMUMeasureCurrentRange[self.current_range],
                         configure_measure_mode=False,
                     )
 
                 # times, voltages, currents = get_data(
-                #     b1500=self.b1500, repetitions=1, ch=WGFMUChannel(self.top + 200), points=self.steps*4
+                #     b1500=self.b1500, repetitions=1, ch=self.top, points=self.steps*4
                 # )
                 # if self.enable_bottom:
                 #     times_bottom, voltages_bottom, currents_bottom = get_data(
-                #         b1500=self.b1500, repetitions=1, ch=WGFMUChannel(self.bottom + 200), points=self.steps*4
+                #         b1500=self.b1500, repetitions=1, ch=self.bottom, points=self.steps*4
                 #     )
 
             except WGFMUError:

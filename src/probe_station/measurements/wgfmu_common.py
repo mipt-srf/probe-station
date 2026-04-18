@@ -5,7 +5,6 @@ from enum import Enum
 
 import numpy as np
 import scipy
-from keysight_b1530a._bindings.config import WGFMUChannel
 from waveform_generator import PulseSequence, TrapezoidalPulse, TriangularSweep
 
 from probe_station.measurements.b1500 import (
@@ -63,13 +62,13 @@ def set_waveform(
     sequence,
     *,
     repetitions=1,
-    channel=WGFMUChannel.CH1,
+    channel=1,
     measure=True,
     measure_points=1600,
     pattern_name="sequence",
     interval_scale: float = 1.0,
 ):
-    pattern_name += f"_{channel.name.lower()}"
+    pattern_name += f"_wgfmu{channel}"
     b1500.create_wgfmu_pattern(pattern_name, sequence.pulses[0].dc_bias)
     times, voltages = sequence.to_vectors()
     seq_time = sequence.total_duration
@@ -84,7 +83,7 @@ def set_waveform(
             average=seq_time / measure_points,
             mode=WGFMUMeasureEvent.AVERAGED,
         )
-    wgfmu = b1500.wgfmus[channel.value - 200]
+    wgfmu = b1500.wgfmus[channel]
     wgfmu.add_sequence(pattern_name, repetitions=repetitions)
 
 
@@ -97,9 +96,9 @@ def run(
     configure_measure_mode: bool = True,
 ):
     if channels is None:
-        channels = [WGFMUChannel.CH2]
+        channels = [2]
     for channel in channels:
-        wgfmu = b1500.wgfmus[channel.value - 200]
+        wgfmu = b1500.wgfmus[channel]
         wgfmu.set_operation_mode(mode)
         if configure_measure_mode:
             wgfmu.set_measure_mode(WGFMUMeasureMode.CURRENT)
@@ -111,11 +110,11 @@ def run(
 def get_data(
     b1500: B1500,
     *,
-    channel=WGFMUChannel.CH2,
+    channel=2,
     repetitions=1,
     points: int | None = None,
 ):
-    wgfmu = b1500.wgfmus[channel.value - 200]
+    wgfmu = b1500.wgfmus[channel]
     times, currents = wgfmu.get_measurement_data()
     voltages = wgfmu.get_voltage_data()
 
