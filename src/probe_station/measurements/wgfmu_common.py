@@ -6,7 +6,7 @@ from enum import Enum
 import numpy as np
 import scipy
 from keysight_b1530a._bindings.config import WGFMUChannel
-from waveform_generator import PulseSequence, StaircaseSweep, TrapezoidalPulse
+from waveform_generator import PulseSequence, TrapezoidalPulse, TriangularSweep
 
 from probe_station.measurements.b1500 import (
     B1500,
@@ -33,38 +33,29 @@ def calculate_polarization(times, currents, pad_size_um):
 
 def get_sequence(
     sequence_type="pund",
-    staircase_time=1e-4,
-    steps=50,
+    pulse_time=2e-4,
+    steps=200,
     max_voltage=4,
     min_voltage=-4,
     rise_to_hold_ratio=0.01,
     *,
     trailing_pulse: bool = False,
 ):
-    time_step = staircase_time / steps / (1 + rise_to_hold_ratio)
+    time_step = pulse_time / steps / (1 + rise_to_hold_ratio)
     edge_time = time_step * rise_to_hold_ratio
 
-    positive_rise = StaircaseSweep(end_voltage=max_voltage, time_step=time_step, steps=steps, edge_time=edge_time)
-    positive_fall = StaircaseSweep(
-        start_voltage=max_voltage, end_voltage=0, time_step=time_step, steps=steps, edge_time=edge_time
-    )
-    positive = [positive_rise, positive_fall]
-
-    negative_rise = StaircaseSweep(end_voltage=min_voltage, time_step=time_step, steps=steps, edge_time=edge_time)
-    negative_fall = StaircaseSweep(
-        start_voltage=min_voltage, end_voltage=0, time_step=time_step, steps=steps, edge_time=edge_time
-    )
-    negative = [negative_rise, negative_fall]
+    positive = TriangularSweep(end_voltage=max_voltage, time_step=time_step, steps=steps, edge_time=edge_time)
+    negative = TriangularSweep(end_voltage=min_voltage, time_step=time_step, steps=steps, edge_time=edge_time)
 
     if sequence_type == "pund":
-        pulses = positive * 2 + negative * 2
+        pulses = [positive] * 2 + [negative] * 2
         if trailing_pulse:
             # delay pulse so the last measurement points are not clipped
             pulses.append(
                 TrapezoidalPulse(amplitude=0.0, pulse_width=edge_time, rise_time=10 * edge_time, fall_time=edge_time)
             )
         return PulseSequence(pulses)
-    return PulseSequence(positive + negative)
+    return PulseSequence([positive, negative])
 
 
 def set_waveform(
@@ -82,7 +73,7 @@ def set_waveform(
     b1500.create_wgfmu_pattern(pattern_name, sequence.pulses[0].dc_bias)
     times, voltages = sequence.to_vectors()
     seq_time = sequence.total_duration
-    log.debug(f"Waveform for {pattern_name}: {len(voltages)} samples, {seq_time:.6g} s, {len(sequence.pulses)} pulses")
+    log.info(f"Waveform for {pattern_name}: {len(voltages)} samples, {seq_time:.6g} s, {len(sequence.pulses)} pulses")
     b1500.add_vectors_to_wgfmu_pattern(pattern_name, times, voltages)
     if measure:
         b1500.set_wgfmu_measure_event(

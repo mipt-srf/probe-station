@@ -56,7 +56,7 @@ class WgfmuIvSweepProcedure(BaseProcedure):
 
     advanced_config = BooleanParameter("Advanced config", default=False)
 
-    steps = IntegerParameter("Steps per staircase", default=100, group_by="advanced_config")
+    steps = IntegerParameter("Steps per pulse", default=200, group_by="advanced_config")
     measure_points = IntegerParameter("Points to measure", default=20_000, group_by="advanced_config")
     plot_points = IntegerParameter("Points to plot", default=1000, group_by="advanced_config")
     rise_to_hold_ratio = FloatParameter("Rise to hold time ratio", default=100, group_by="advanced_config")
@@ -87,7 +87,7 @@ class WgfmuIvSweepProcedure(BaseProcedure):
     def execute(self):
         seq = get_sequence(
             sequence_type=self.mode.lower(),
-            staircase_time=self.pulse_time,
+            pulse_time=self.pulse_time,
             max_voltage=self.voltage_top_first,
             min_voltage=self.voltage_top_second,
             steps=self.steps,
@@ -97,7 +97,7 @@ class WgfmuIvSweepProcedure(BaseProcedure):
         if self.enable_bottom:
             seq_bottom = get_sequence(
                 sequence_type=self.mode.lower(),
-                staircase_time=self.pulse_time,
+                pulse_time=self.pulse_time,
                 max_voltage=self.voltage_bottom_first,
                 min_voltage=self.voltage_bottom_second,
                 steps=self.steps,
