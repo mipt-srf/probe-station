@@ -151,6 +151,7 @@ class WgfmuIvSweepProcedure(BaseProcedure):
             log.error(f"{get_error_summary()}")
             self.b1500.clear_wgfmu()
             self.b1500.close_wgfmu_session()
+            raise
 
         polarization_positive = np.concatenate(
             (

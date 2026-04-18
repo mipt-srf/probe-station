@@ -158,6 +158,7 @@ class CyclingProcedure(BaseProcedure):
                 log.error(f"{get_error_summary()}")
                 self.b1500.clear_wgfmu()
                 self.b1500.close_wgfmu_session()
+                raise
 
             self.b1500.clear_wgfmu()
 
@@ -192,6 +193,7 @@ class CyclingProcedure(BaseProcedure):
                 log.error(f"{get_error_summary()}")
                 self.b1500.clear_wgfmu()
                 self.b1500.close_wgfmu_session()
+                raise
 
             voltages = np.concatenate((voltages, voltages_nd))
             currents = np.concatenate((currents, currents_nd))
@@ -255,6 +257,7 @@ class CyclingProcedure(BaseProcedure):
                 log.error(f"{get_error_summary()}")
                 self.b1500.clear_wgfmu()
                 self.b1500.close_wgfmu_session()
+                raise
 
             # polarization_positive = np.concatenate(
             #     (
