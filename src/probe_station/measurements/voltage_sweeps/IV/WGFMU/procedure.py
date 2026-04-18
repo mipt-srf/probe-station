@@ -2,12 +2,7 @@ import logging
 
 import numpy as np
 import scipy
-from keysight_b1530a._bindings.config import WGFMUChannel
-from keysight_b1530a._bindings.errors import get_error_summary
-from keysight_b1530a.enums import (
-    WGFMUMeasureCurrentRange,
-)
-from keysight_b1530a.errors import WGFMUError
+from keysight_b1530a.enums import WGFMUMeasureCurrentRange
 from pymeasure.experiment import (
     BooleanParameter,
     FloatParameter,
@@ -16,35 +11,23 @@ from pymeasure.experiment import (
 )
 
 from probe_station.logging_setup import setup_file_logging
-from probe_station.measurements.common import BaseProcedure, BaseWindow, connect_instrument, run_app
+from probe_station.measurements.common import BaseWindow, run_app
 from probe_station.measurements.wgfmu_common import (
     SweepMode,
+    WgfmuBaseProcedure,
     calculate_polarization,
-    get_data,
     get_sequence,
-    run,
-    set_waveform,
+    run_waveforms,
+    run_waveforms_split,
 )
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-class WgfmuIvSweepProcedure(BaseProcedure):
+class WgfmuIvSweepProcedure(WgfmuBaseProcedure):
     mode = ListParameter("Mode", default=SweepMode.PUND.name, choices=[e.name for e in SweepMode])
-    pulse_time = FloatParameter("Pulse time", units="s", default=0.0001)
-
-    voltage_top_first = FloatParameter("Top electrode voltage (first)", units="V", default=5.0)
-    voltage_top_second = FloatParameter("Top electrode voltage (second)", units="V", default=-5.0)
-
-    top = IntegerParameter("Top channel", default=2)
-    current_range = ListParameter(
-        "Current range",
-        default=WGFMUMeasureCurrentRange.RANGE_100_UA.name,
-        choices=[e.name for e in WGFMUMeasureCurrentRange],
-    )
-
-    enable_bottom = BooleanParameter("Enable bottom bias and measurement", default=False)
+    pulse_time = FloatParameter("Pulse time", units="s", default=1e-4)
 
     voltage_bottom_first = FloatParameter(
         "Bottom electrode voltage (first)", units="V", default=-5.0, group_by="enable_bottom"
@@ -52,18 +35,21 @@ class WgfmuIvSweepProcedure(BaseProcedure):
     voltage_bottom_second = FloatParameter(
         "Bottom electrode voltage (second)", units="V", default=5.0, group_by="enable_bottom"
     )
-    bottom = IntegerParameter("Bottom channel", default=1, group_by="enable_bottom")
 
-    advanced_config = BooleanParameter("Advanced config", default=False)
+    current_range = ListParameter(
+        "Current range",
+        default=WGFMUMeasureCurrentRange.RANGE_100_UA.name,
+        choices=[e.name for e in WGFMUMeasureCurrentRange],
+    )
 
     steps = IntegerParameter("Steps per pulse", default=200, group_by="advanced_config")
-    measure_points = IntegerParameter("Points to measure", default=20_000, group_by="advanced_config")
-    plot_points = IntegerParameter("Points to plot", default=1000, group_by="advanced_config")
     rise_to_hold_ratio = FloatParameter("Rise to hold time ratio", default=100, group_by="advanced_config")
 
-    calculate_polarization = BooleanParameter("Calculate Polarization", default=False)
+    measure_points = IntegerParameter("Points to measure", default=20_000, group_by="advanced_config")
+    plot_points = IntegerParameter("Points to plot", default=1000, group_by="advanced_config")
 
-    pad_size = FloatParameter("Pad size", units="um", default=25, group_by="calculate_polarization")
+    compute_polarization = BooleanParameter("Calculate Polarization", default=False)
+    pad_size = FloatParameter("Pad size", units="um", default=25, group_by="compute_polarization")
 
     DATA_COLUMNS = [
         "Top electrode voltage",
@@ -75,17 +61,8 @@ class WgfmuIvSweepProcedure(BaseProcedure):
         "Filtered Polarization current",
     ]
 
-    def startup(self):
-        super().startup()
-        self.b1500 = connect_instrument()
-        self.b1500.clear_wgfmu()
-        self.ch1 = WGFMUChannel.CH1
-        self.ch2 = WGFMUChannel.CH2
-        self.channels = [self.ch1, self.ch2]
-        self.b1500.initialize_wgfmu()
-
     def execute(self):
-        seq = get_sequence(
+        seq_top = get_sequence(
             sequence_type=self.mode.lower(),
             pulse_time=self.pulse_time,
             max_voltage=self.voltage_top_first,
@@ -94,6 +71,7 @@ class WgfmuIvSweepProcedure(BaseProcedure):
             rise_to_hold_ratio=self.rise_to_hold_ratio,
             trailing_pulse=True,
         )
+        seq_bottom = None
         if self.enable_bottom:
             seq_bottom = get_sequence(
                 sequence_type=self.mode.lower(),
@@ -105,49 +83,37 @@ class WgfmuIvSweepProcedure(BaseProcedure):
                 trailing_pulse=True,
             )
 
-        set_waveform(
-            b1500=self.b1500,
-            sequence=seq,
-            repetitions=2,
-            channel=WGFMUChannel(self.top + 200),
-            measure_points=self.plot_points,
-        )
-        if self.enable_bottom:
-            set_waveform(
+        top_span = abs(self.voltage_top_first - self.voltage_top_second)
+        bottom_span = abs(self.voltage_bottom_first - self.voltage_bottom_second) if self.enable_bottom else 0
+        high_voltage = max(top_span, bottom_span) > 10
+
+        if high_voltage:
+            if not self.enable_bottom:
+                raise ValueError("Pulses exceeding 10 V require the bottom electrode to be enabled")
+            top_data, bottom_data = run_waveforms_split(
                 b1500=self.b1500,
-                sequence=seq_bottom,
+                top_seq=seq_top,
+                top_ch=self.top_channel,
+                bottom_seq=seq_bottom,
+                bottom_ch=self.bottom_channel,
+                current_range=self.measure_current_range,
+                plot_points=self.plot_points,
+            )
+        else:
+            result = run_waveforms(
+                b1500=self.b1500,
+                top_seq=seq_top,
+                top_ch=self.top_channel,
+                bottom_seq=seq_bottom,
+                bottom_ch=self.bottom_channel if self.enable_bottom else None,
                 repetitions=2,
-                channel=WGFMUChannel(self.bottom + 200),
-                measure_points=self.plot_points,
+                current_range=self.measure_current_range,
+                measure=True,
+                plot_points=self.plot_points,
             )
+            top_data, bottom_data = result
 
-        try:
-            if self.enable_bottom:
-                run(
-                    b1500=self.b1500,
-                    channels=[self.ch1, self.ch2],
-                    measure_range=WGFMUMeasureCurrentRange[self.current_range],
-                )
-            else:
-                run(
-                    b1500=self.b1500,
-                    channels=[WGFMUChannel(self.top + 200)],
-                    measure_range=WGFMUMeasureCurrentRange[self.current_range],
-                )
-
-            times, voltages, currents = get_data(
-                b1500=self.b1500, repetitions=2, channel=WGFMUChannel(self.top + 200), points=self.plot_points
-            )
-            if self.enable_bottom:
-                times_bottom, voltages_bottom, currents_bottom = get_data(
-                    b1500=self.b1500, repetitions=2, channel=WGFMUChannel(self.bottom + 200), points=self.plot_points
-                )
-
-        except WGFMUError:
-            log.error(f"{get_error_summary()}")
-            self.b1500.clear_wgfmu()
-            self.b1500.close_wgfmu_session()
-            raise
+        times, voltages, currents = top_data
 
         polarization_positive = np.concatenate(
             (
@@ -163,7 +129,9 @@ class WgfmuIvSweepProcedure(BaseProcedure):
         )
         polarization_current = np.concatenate((polarization_positive, polarization_negative))
         filtered_polarization_current = scipy.ndimage.gaussian_filter1d(polarization_current, sigma=3)
-        if self.enable_bottom:
+
+        if bottom_data is not None:
+            times_bottom, voltages_bottom, currents_bottom = bottom_data
             self.emit(
                 "batch results",
                 {
@@ -188,7 +156,7 @@ class WgfmuIvSweepProcedure(BaseProcedure):
                     "Filtered Polarization current": filtered_polarization_current,
                 },
             )
-        if self.calculate_polarization:
+        if self.compute_polarization:
             polarization = calculate_polarization(times, filtered_polarization_current, self.pad_size)
             log.info("Polarization (Pr): %s", polarization)
 
