@@ -3,12 +3,13 @@ import logging
 from pymeasure.experiment import IntegerParameter
 
 from probe_station.logging_setup import setup_file_logging
+from probe_station.measurements.b1500 import WGFMUMeasureCurrentRange
 from probe_station.measurements.common import BaseWindow, run_app
 from probe_station.measurements.wgfmu_common import (
-    WgfmuBaseProcedure,
     get_sequence,
     run_waveforms,
 )
+from probe_station.measurements.wgfmu_procedure import WgfmuBaseProcedure
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -44,7 +45,7 @@ class CyclingProcedure(WgfmuBaseProcedure):
             bottom_seq=seq_bottom,
             bottom_ch=self.bottom if self.enable_bottom else None,
             repetitions=self.repetitions,
-            current_range=self.measure_current_range,
+            current_range=WGFMUMeasureCurrentRange[self.current_range],
             measure=False,
         )
 
