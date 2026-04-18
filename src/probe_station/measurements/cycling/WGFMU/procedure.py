@@ -1,8 +1,6 @@
 import logging
-from enum import Enum
 
 import numpy as np
-import scipy
 from keysight_b1530a._bindings.config import WGFMUChannel
 from keysight_b1530a._bindings.errors import get_error_summary
 from keysight_b1530a.enums import (
@@ -19,7 +17,8 @@ from waveform_generator import PulseSequence
 
 from probe_station.logging_setup import setup_file_logging
 from probe_station.measurements.common import BaseProcedure, BaseWindow, connect_instrument, run_app
-from probe_station.measurements.cycling.WGFMU.script import (
+from probe_station.measurements.wgfmu_common import (
+    SweepMode,
     get_data,
     get_sequence,
     run,
@@ -28,17 +27,6 @@ from probe_station.measurements.cycling.WGFMU.script import (
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
-
-
-def calculate_polarization(times, currents, pad_size_um):
-    charge = scipy.integrate.simpson(y=np.abs(currents), x=times)
-    area = (pad_size_um * 1e-4) ** 2
-    return charge / area * 1e6
-
-
-class SweepMode(Enum):
-    DEFAULT = "default"
-    PUND = "pund"
 
 
 class CyclingProcedure(BaseProcedure):
@@ -132,26 +120,35 @@ class CyclingProcedure(BaseProcedure):
                 sequence=seq_pu,
                 repetitions=1,
                 channel=WGFMUChannel(self.top + 200),
+                measure=False,
                 measure_points=self.steps * 2,
                 pattern_name="top_pu",
+                interval_scale=1.02,
             )
             set_waveform(
                 b1500=self.b1500,
                 sequence=seq_bottom_pu,
                 repetitions=1,
                 channel=WGFMUChannel(self.bottom + 200),
+                measure=False,
                 measure_points=self.steps * 2,
                 pattern_name="bottom_pu",
+                interval_scale=1.02,
             )
 
             try:
-                run(b1500=self.b1500, channels=[self.ch1, self.ch2], range=WGFMUMeasureCurrentRange[self.current_range])
+                run(
+                    b1500=self.b1500,
+                    channels=[self.ch1, self.ch2],
+                    measure_range=WGFMUMeasureCurrentRange[self.current_range],
+                    configure_measure_mode=False,
+                )
 
                 times, voltages, currents = get_data(
-                    b1500=self.b1500, repetitions=1, ch=WGFMUChannel(self.top + 200), points=self.steps * 2
+                    b1500=self.b1500, repetitions=1, channel=WGFMUChannel(self.top + 200)
                 )
                 times_bottom, voltages_bottom, currents_bottom = get_data(
-                    b1500=self.b1500, repetitions=1, ch=WGFMUChannel(self.bottom + 200), points=self.steps * 4
+                    b1500=self.b1500, repetitions=1, channel=WGFMUChannel(self.bottom + 200)
                 )
 
             except WGFMUError:
@@ -167,26 +164,35 @@ class CyclingProcedure(BaseProcedure):
                 sequence=seq_nd,
                 repetitions=1,
                 channel=WGFMUChannel(self.top + 200),
+                measure=False,
                 measure_points=self.steps * 2,
                 pattern_name="top_nd",
+                interval_scale=1.02,
             )
             set_waveform(
                 b1500=self.b1500,
                 sequence=seq_bottom_nd,
                 repetitions=1,
                 channel=WGFMUChannel(self.bottom + 200),
+                measure=False,
                 measure_points=self.steps * 2,
                 pattern_name="bottom_nd",
+                interval_scale=1.02,
             )
 
             try:
-                run(b1500=self.b1500, channels=[self.ch1, self.ch2], range=WGFMUMeasureCurrentRange[self.current_range])
+                run(
+                    b1500=self.b1500,
+                    channels=[self.ch1, self.ch2],
+                    measure_range=WGFMUMeasureCurrentRange[self.current_range],
+                    configure_measure_mode=False,
+                )
 
                 times_nd, voltages_nd, currents_nd = get_data(
-                    b1500=self.b1500, repetitions=1, ch=WGFMUChannel(self.top + 200), points=self.steps * 2
+                    b1500=self.b1500, repetitions=1, channel=WGFMUChannel(self.top + 200)
                 )
                 times_bottom_nd, voltages_bottom_nd, currents_bottom_nd = get_data(
-                    b1500=self.b1500, repetitions=1, ch=WGFMUChannel(self.bottom + 200), points=self.steps * 4
+                    b1500=self.b1500, repetitions=1, channel=WGFMUChannel(self.bottom + 200)
                 )
 
             except WGFMUError:
@@ -220,7 +226,9 @@ class CyclingProcedure(BaseProcedure):
                 sequence=seq,
                 repetitions=self.repetitions,
                 channel=WGFMUChannel(self.top + 200),
+                measure=False,
                 measure_points=self.steps * 4,
+                interval_scale=1.02,
             )
             if self.enable_bottom:
                 set_waveform(
@@ -228,7 +236,9 @@ class CyclingProcedure(BaseProcedure):
                     sequence=seq_bottom,
                     repetitions=self.repetitions,
                     channel=WGFMUChannel(self.bottom + 200),
+                    measure=False,
                     measure_points=self.steps * 4,
+                    interval_scale=1.02,
                 )
 
             try:
@@ -236,13 +246,15 @@ class CyclingProcedure(BaseProcedure):
                     run(
                         b1500=self.b1500,
                         channels=[self.ch1, self.ch2],
-                        range=WGFMUMeasureCurrentRange[self.current_range],
+                        measure_range=WGFMUMeasureCurrentRange[self.current_range],
+                        configure_measure_mode=False,
                     )
                 else:
                     run(
                         b1500=self.b1500,
                         channels=[WGFMUChannel(self.top + 200)],
-                        range=WGFMUMeasureCurrentRange[self.current_range],
+                        measure_range=WGFMUMeasureCurrentRange[self.current_range],
+                        configure_measure_mode=False,
                     )
 
                 # times, voltages, currents = get_data(
