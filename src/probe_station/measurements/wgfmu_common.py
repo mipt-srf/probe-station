@@ -81,10 +81,10 @@ def set_waveform(
     pattern_name += f"_{channel.name.lower()}"
     b1500.create_wgfmu_pattern(pattern_name, sequence.pulses[0].dc_bias)
     times, voltages = sequence.to_vectors()
-    log.debug(f"Waveform vector length: {len(voltages)}")
+    seq_time = sequence.total_duration
+    log.debug(f"Waveform for {pattern_name}: {len(voltages)} samples, {seq_time:.6g} s, {len(sequence.pulses)} pulses")
     b1500.add_vectors_to_wgfmu_pattern(pattern_name, times, voltages)
     if measure:
-        seq_time = sequence.total_duration
         b1500.set_wgfmu_measure_event(
             pattern_name=pattern_name,
             event_name="event",
