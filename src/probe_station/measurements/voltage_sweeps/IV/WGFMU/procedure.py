@@ -77,6 +77,7 @@ class WgfmuIvSweepProcedure(WgfmuBaseProcedure):
         if high_voltage:
             if not self.enable_bottom:
                 raise ValueError("Pulses exceeding 10 V require the bottom electrode to be enabled")
+            log.warning("High voltage mode is enabled. Current measurement might be inaccurate")
             top_data, bottom_data = run_waveforms_split(
                 b1500=self.b1500,
                 top_seq=seq_top,
