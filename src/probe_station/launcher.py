@@ -179,10 +179,6 @@ if __name__ == "__main__":
     setup_file_logging("logs")
     app = QApplication(sys.argv)
 
-    # Enable high DPI scaling for crisp display
-    app.setAttribute(Qt.AA_EnableHighDpiScaling, True)
-    app.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
-
     launcher = Launcher()
     launcher.show()
 
