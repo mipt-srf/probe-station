@@ -1,6 +1,5 @@
 import logging
 
-import numpy as np
 from keysight_b1530a._bindings.config import WGFMUChannel
 from keysight_b1530a._bindings.errors import get_error_summary
 from keysight_b1530a.enums import (
@@ -19,7 +18,6 @@ from probe_station.logging_setup import setup_file_logging
 from probe_station.measurements.common import BaseProcedure, BaseWindow, connect_instrument, run_app
 from probe_station.measurements.wgfmu_common import (
     SweepMode,
-    get_data,
     get_sequence,
     run,
     set_waveform,
@@ -144,13 +142,6 @@ class CyclingProcedure(BaseProcedure):
                     configure_measure_mode=False,
                 )
 
-                times, voltages, currents = get_data(
-                    b1500=self.b1500, repetitions=1, channel=WGFMUChannel(self.top + 200)
-                )
-                times_bottom, voltages_bottom, currents_bottom = get_data(
-                    b1500=self.b1500, repetitions=1, channel=WGFMUChannel(self.bottom + 200)
-                )
-
             except WGFMUError:
                 log.error(f"{get_error_summary()}")
                 self.b1500.clear_wgfmu()
@@ -188,37 +179,11 @@ class CyclingProcedure(BaseProcedure):
                     configure_measure_mode=False,
                 )
 
-                times_nd, voltages_nd, currents_nd = get_data(
-                    b1500=self.b1500, repetitions=1, channel=WGFMUChannel(self.top + 200)
-                )
-                times_bottom_nd, voltages_bottom_nd, currents_bottom_nd = get_data(
-                    b1500=self.b1500, repetitions=1, channel=WGFMUChannel(self.bottom + 200)
-                )
-
             except WGFMUError:
                 log.error(f"{get_error_summary()}")
                 self.b1500.clear_wgfmu()
                 self.b1500.close_wgfmu_session()
                 raise
-
-            voltages = np.concatenate((voltages, voltages_nd))
-            currents = np.concatenate((currents, currents_nd))
-            times = np.concatenate((times, times_nd))
-            voltages_bottom = np.concatenate((voltages_bottom, voltages_bottom_nd))
-            currents_bottom = np.concatenate((currents_bottom, currents_bottom_nd))
-            times_bottom = np.concatenate((times_bottom, times_bottom_nd))
-
-            self.emit(
-                "batch results",
-                {
-                    "Top electrode voltage": voltages,
-                    "Top electrode Current": currents,
-                    "Time": times,
-                    "Bottom electrode voltage": voltages_bottom,
-                    "Bottom time": times_bottom,
-                    "Bottom electrode current": currents_bottom,
-                },
-            )
 
         else:
             set_waveform(
