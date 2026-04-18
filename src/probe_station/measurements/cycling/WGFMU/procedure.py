@@ -1,83 +1,25 @@
 import logging
 
-from keysight_b1530a._bindings.errors import get_error_summary
-from keysight_b1530a.enums import (
-    WGFMUMeasureCurrentRange,
-)
-from keysight_b1530a.errors import WGFMUError
-from pymeasure.experiment import (
-    BooleanParameter,
-    FloatParameter,
-    IntegerParameter,
-    ListParameter,
-)
-from waveform_generator import PulseSequence
+from pymeasure.experiment import IntegerParameter
 
 from probe_station.logging_setup import setup_file_logging
-from probe_station.measurements.common import BaseProcedure, BaseWindow, connect_instrument, run_app
+from probe_station.measurements.b1500 import WGFMUMeasureCurrentRange
+from probe_station.measurements.common import BaseWindow, run_app
 from probe_station.measurements.wgfmu_common import (
-    SweepMode,
     get_sequence,
-    run,
-    set_waveform,
+    run_waveforms,
 )
+from probe_station.measurements.wgfmu_procedure import WgfmuBaseProcedure
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-class CyclingProcedure(BaseProcedure):
-    mode = ListParameter("Mode", default=SweepMode.DEFAULT.name, choices=[e.name for e in SweepMode])
-    pulse_time = FloatParameter("Pulse time", units="s", default=1e-5)
-
-    voltage_top_first = FloatParameter("Top electrode voltage (first)", units="V", default=5.0)
-    voltage_top_second = FloatParameter("Top electrode voltage (second)", units="V", default=-5.0)
-
+class CyclingProcedure(WgfmuBaseProcedure):
     repetitions = IntegerParameter("Number of cycles", default=1e3)
-    top = IntegerParameter("Top channel", default=2)
-    current_range = ListParameter(
-        "Current range",
-        default=WGFMUMeasureCurrentRange.RANGE_100_UA.name,
-        choices=[e.name for e in WGFMUMeasureCurrentRange],
-    )
-
-    enable_bottom = BooleanParameter("Enable bottom bias and measurement", default=False)
-
-    voltage_bottom_first = FloatParameter(
-        "Bottom electrode voltage (first)", units="V", default=-10.0, group_by="enable_bottom"
-    )
-    voltage_bottom_second = FloatParameter(
-        "Bottom electrode voltage (second)", units="V", default=10.0, group_by="enable_bottom"
-    )
-    bottom = IntegerParameter("Bottom channel", default=1, group_by="enable_bottom")
-
-    advanced_config = BooleanParameter("Advanced config", default=False)
-
-    steps = IntegerParameter("Steps per pulse", default=100, group_by="advanced_config")
-    rise_to_hold_ratio = FloatParameter("Rise to hold time ratio", default=1, group_by="advanced_config")
-
-    calculate_polarization = BooleanParameter("Calculate Polarization", default=False)
-
-    pad_size = FloatParameter("Pad size", units="um", default=25, group_by="calculate_polarization")
-
-    DATA_COLUMNS = [
-        "Top electrode voltage",
-        "Top electrode Current",
-        "Time",
-        "Bottom electrode voltage",
-        "Bottom electrode current",
-        "Polarization current",
-        "Filtered Polarization current",
-    ]
-
-    def startup(self):
-        super().startup()
-        self.b1500 = connect_instrument(timeout=60000, reset=False)
-        self.b1500.clear_wgfmu()
-        self.b1500.initialize_wgfmu()
 
     def execute(self):
-        seq = get_sequence(
+        seq_top = get_sequence(
             sequence_type=self.mode.lower(),
             pulse_time=self.pulse_time,
             max_voltage=self.voltage_top_first,
@@ -85,6 +27,7 @@ class CyclingProcedure(BaseProcedure):
             steps=self.steps,
             rise_to_hold_ratio=self.rise_to_hold_ratio,
         )
+        seq_bottom = None
         if self.enable_bottom:
             seq_bottom = get_sequence(
                 sequence_type=self.mode.lower(),
@@ -95,185 +38,16 @@ class CyclingProcedure(BaseProcedure):
                 rise_to_hold_ratio=self.rise_to_hold_ratio,
             )
 
-        if (
-            self.enable_bottom
-            and max(
-                abs(self.voltage_top_first - self.voltage_top_second),
-                abs(self.voltage_bottom_first - self.voltage_bottom_second),
-            )
-            > 10
-        ):
-            seq_pu = PulseSequence(seq.pulses[:4])
-            seq_nd = PulseSequence(seq.pulses[4:])
-
-            seq_bottom_pu = PulseSequence(seq_bottom.pulses[:4])
-            seq_bottom_nd = PulseSequence(seq_bottom.pulses[4:])
-
-            set_waveform(
-                b1500=self.b1500,
-                sequence=seq_pu,
-                repetitions=1,
-                channel=self.top,
-                measure=False,
-                measure_points=self.steps * 2,
-                pattern_name="top_pu",
-                interval_scale=1.02,
-            )
-            set_waveform(
-                b1500=self.b1500,
-                sequence=seq_bottom_pu,
-                repetitions=1,
-                channel=self.bottom,
-                measure=False,
-                measure_points=self.steps * 2,
-                pattern_name="bottom_pu",
-                interval_scale=1.02,
-            )
-
-            try:
-                run(
-                    b1500=self.b1500,
-                    channels=[self.bottom, self.top],
-                    measure_range=WGFMUMeasureCurrentRange[self.current_range],
-                    configure_measure_mode=False,
-                )
-
-            except WGFMUError:
-                log.error(f"{get_error_summary()}")
-                self.b1500.clear_wgfmu()
-                self.b1500.close_wgfmu_session()
-                raise
-
-            self.b1500.clear_wgfmu()
-
-            set_waveform(
-                b1500=self.b1500,
-                sequence=seq_nd,
-                repetitions=1,
-                channel=self.top,
-                measure=False,
-                measure_points=self.steps * 2,
-                pattern_name="top_nd",
-                interval_scale=1.02,
-            )
-            set_waveform(
-                b1500=self.b1500,
-                sequence=seq_bottom_nd,
-                repetitions=1,
-                channel=self.bottom,
-                measure=False,
-                measure_points=self.steps * 2,
-                pattern_name="bottom_nd",
-                interval_scale=1.02,
-            )
-
-            try:
-                run(
-                    b1500=self.b1500,
-                    channels=[self.bottom, self.top],
-                    measure_range=WGFMUMeasureCurrentRange[self.current_range],
-                    configure_measure_mode=False,
-                )
-
-            except WGFMUError:
-                log.error(f"{get_error_summary()}")
-                self.b1500.clear_wgfmu()
-                self.b1500.close_wgfmu_session()
-                raise
-
-        else:
-            set_waveform(
-                b1500=self.b1500,
-                sequence=seq,
-                repetitions=self.repetitions,
-                channel=self.top,
-                measure=False,
-                measure_points=self.steps * 4,
-                interval_scale=1.02,
-            )
-            if self.enable_bottom:
-                set_waveform(
-                    b1500=self.b1500,
-                    sequence=seq_bottom,
-                    repetitions=self.repetitions,
-                    channel=self.bottom,
-                    measure=False,
-                    measure_points=self.steps * 4,
-                    interval_scale=1.02,
-                )
-
-            try:
-                if self.enable_bottom:
-                    run(
-                        b1500=self.b1500,
-                        channels=[self.bottom, self.top],
-                        measure_range=WGFMUMeasureCurrentRange[self.current_range],
-                        configure_measure_mode=False,
-                    )
-                else:
-                    run(
-                        b1500=self.b1500,
-                        channels=[self.top],
-                        measure_range=WGFMUMeasureCurrentRange[self.current_range],
-                        configure_measure_mode=False,
-                    )
-
-                # times, voltages, currents = get_data(
-                #     b1500=self.b1500, repetitions=1, ch=self.top, points=self.steps*4
-                # )
-                # if self.enable_bottom:
-                #     times_bottom, voltages_bottom, currents_bottom = get_data(
-                #         b1500=self.b1500, repetitions=1, ch=self.bottom, points=self.steps*4
-                #     )
-
-            except WGFMUError:
-                log.error(f"{get_error_summary()}")
-                self.b1500.clear_wgfmu()
-                self.b1500.close_wgfmu_session()
-                raise
-
-            # polarization_positive = np.concatenate(
-            #     (
-            #         currents[: len(currents) // 4] - currents[len(currents) // 4 : len(currents) // 2],
-            #         np.zeros(len(currents) // 4),
-            #     )
-            # )
-            # polarization_negative = np.concatenate(
-            #     (
-            #         currents[len(currents) // 2 : 3 * len(currents) // 4] - currents[3 * len(currents) // 4 :],
-            #         np.zeros(len(currents) // 4),
-            #     )
-            # )
-            # polarization_current = np.concatenate((polarization_positive, polarization_negative))
-            # filtered_polarization_current = scipy.ndimage.gaussian_filter1d(polarization_current, sigma=3)
-            # if self.enable_bottom:
-            #     self.emit(
-            #         "batch results",
-            #         {
-            #             "Top electrode voltage": voltages,
-            #             "Top electrode Current": currents,
-            #             "Time": times,
-            #             "Bottom electrode voltage": voltages_bottom,
-            #             "Bottom time": times_bottom,
-            #             "Bottom electrode current": currents_bottom,
-            #             "Polarization current": polarization_current,
-            #             "Filtered Polarization current": filtered_polarization_current,
-            #         },
-            #     )
-            # else:
-            #     self.emit(
-            #         "batch results",
-            #         {
-            #             "Top electrode voltage": voltages,
-            #             "Time": times,
-            #             "Top electrode Current": currents,
-            #             "Polarization current": polarization_current,
-            #             "Filtered Polarization current": filtered_polarization_current,
-            #         },
-            #     )
-            # if self.calculate_polarization:
-            #     polarization = calculate_polarization(times, filtered_polarization_current, self.pad_size)
-            #     log.info("Polarization (Pr): %s", polarization)
+        run_waveforms(
+            b1500=self.b1500,
+            top_seq=seq_top,
+            top_ch=self.top,
+            bottom_seq=seq_bottom,
+            bottom_ch=self.bottom if self.enable_bottom else None,
+            repetitions=self.repetitions,
+            current_range=WGFMUMeasureCurrentRange[self.current_range],
+            measure=False,
+        )
 
         self.b1500.close_wgfmu_session()
 
