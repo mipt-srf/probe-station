@@ -1,5 +1,4 @@
 import logging
-from enum import Enum
 
 import numpy as np
 import scipy
@@ -18,7 +17,9 @@ from pymeasure.experiment import (
 
 from probe_station.logging_setup import setup_file_logging
 from probe_station.measurements.common import BaseProcedure, BaseWindow, connect_instrument, run_app
-from probe_station.measurements.voltage_sweeps.IV.WGFMU.script import (
+from probe_station.measurements.wgfmu_common import (
+    SweepMode,
+    calculate_polarization,
     get_data,
     get_sequence,
     run,
@@ -27,17 +28,6 @@ from probe_station.measurements.voltage_sweeps.IV.WGFMU.script import (
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
-
-
-def calculate_polarization(times, currents, pad_size_um):
-    charge = scipy.integrate.simpson(y=np.abs(currents), x=times)
-    area = (pad_size_um * 1e-4) ** 2
-    return charge / area * 1e6
-
-
-class SweepMode(Enum):
-    DEFAULT = "default"
-    PUND = "pund"
 
 
 class WgfmuIvSweepProcedure(BaseProcedure):
@@ -102,6 +92,7 @@ class WgfmuIvSweepProcedure(BaseProcedure):
             min_voltage=self.voltage_top_second,
             steps=self.steps,
             rise_to_hold_ratio=self.rise_to_hold_ratio,
+            trailing_pulse=True,
         )
         if self.enable_bottom:
             seq_bottom = get_sequence(
@@ -111,6 +102,7 @@ class WgfmuIvSweepProcedure(BaseProcedure):
                 min_voltage=self.voltage_bottom_second,
                 steps=self.steps,
                 rise_to_hold_ratio=self.rise_to_hold_ratio,
+                trailing_pulse=True,
             )
 
         set_waveform(
@@ -131,20 +123,24 @@ class WgfmuIvSweepProcedure(BaseProcedure):
 
         try:
             if self.enable_bottom:
-                run(b1500=self.b1500, channels=[self.ch1, self.ch2], range=WGFMUMeasureCurrentRange[self.current_range])
+                run(
+                    b1500=self.b1500,
+                    channels=[self.ch1, self.ch2],
+                    measure_range=WGFMUMeasureCurrentRange[self.current_range],
+                )
             else:
                 run(
                     b1500=self.b1500,
                     channels=[WGFMUChannel(self.top + 200)],
-                    range=WGFMUMeasureCurrentRange[self.current_range],
+                    measure_range=WGFMUMeasureCurrentRange[self.current_range],
                 )
 
             times, voltages, currents = get_data(
-                b1500=self.b1500, repetitions=2, ch=WGFMUChannel(self.top + 200), points=self.plot_points
+                b1500=self.b1500, repetitions=2, channel=WGFMUChannel(self.top + 200), points=self.plot_points
             )
             if self.enable_bottom:
                 times_bottom, voltages_bottom, currents_bottom = get_data(
-                    b1500=self.b1500, repetitions=2, ch=WGFMUChannel(self.bottom + 200), points=self.plot_points
+                    b1500=self.b1500, repetitions=2, channel=WGFMUChannel(self.bottom + 200), points=self.plot_points
                 )
 
         except WGFMUError:
