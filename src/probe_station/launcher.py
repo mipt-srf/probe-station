@@ -125,16 +125,11 @@ class Launcher(QWidget):
                 "#4CAF50",
             ),
             (
-                "🔄 Cycling Procedure (WGFMU) - experimental",
+                "🔄 Cycling Procedure (WGFMU)",
                 "probe_station.measurements.cycling.WGFMU.procedure",
                 "#2196F3",
             ),
             ("📊 Fast IV Procedure (WGFMU)", "probe_station.measurements.voltage_sweeps.IV.WGFMU.procedure", "#2196F3"),
-            (
-                "📊 PUND 20 V (WGFMU) - experimental",
-                "probe_station.measurements.voltage_sweeps.IV.WGFMU.procedure_new",
-                "#2196F3",
-            ),
             ("📊 CV Sweep Procedure (CMU)", "probe_station.measurements.voltage_sweeps.CV.procedure", "#C224BA"),
             (
                 "📊 IV Sweep Procedure (SMU)",
