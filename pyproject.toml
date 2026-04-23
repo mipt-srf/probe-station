@@ -20,10 +20,10 @@ dependencies = [
 ]
 
 [project.scripts]
-probe-station = "probe_station.launcher:main"
+probe-station = "probe_station.measurements.launcher:main"
 
 [project.gui-scripts]
-probe-station-gui = "probe_station.launcher:main"
+probe-station-gui = "probe_station.measurements.launcher:main"
 
 [project.optional-dependencies]
 docs = [
