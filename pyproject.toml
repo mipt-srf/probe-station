@@ -19,6 +19,12 @@ dependencies = [
     "pyqt6>=6.9.1",
 ]
 
+[project.scripts]
+probe-station = "probe_station.launcher:main"
+
+[project.gui-scripts]
+probe-station-gui = "probe_station.launcher:main"
+
 [project.optional-dependencies]
 docs = [
     "docstrfmt>=1.10.0",

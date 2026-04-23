@@ -170,7 +170,7 @@ class Launcher(QWidget):
         thread.start()
 
 
-if __name__ == "__main__":
+def main():
     setup_file_logging("logs")
     app = QApplication(sys.argv)
 
@@ -178,3 +178,7 @@ if __name__ == "__main__":
     launcher.show()
 
     sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
