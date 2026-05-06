@@ -32,11 +32,11 @@ class BaseProcedure(Procedure):
     Adds ``start_time`` and ``end_time`` metadata fields recorded into the
     CSV header. ``start_time`` lands during the standard Pymeasure flow
     (``Worker.run``: ``startup`` → ``evaluate_metadata`` → ``store_metadata``
-    → ``execute``); ``end_time`` is filled in ``shutdown()`` and persisted by
-    a follow-up ``store_metadata`` call from
-    :class:`probe_station.measurements.workers.EndTimeWorker`. When a
-    procedure runs without that worker (e.g. the e2e test harness), the
-    end-time write is skipped silently.
+    → ``execute``); ``end_time`` is filled here in ``shutdown()`` and
+    persisted into the header by a follow-up ``store_metadata`` call from
+    :class:`probe_station.measurements.workers.EndTimeWorker`. Procedures
+    run without that worker (e.g. the e2e test harness) still get
+    ``end_time`` set on the instance — only the CSV write is skipped.
     """
 
     start_time = Metadata("Start time", default=0)
@@ -49,10 +49,6 @@ class BaseProcedure(Procedure):
     def shutdown(self):
         super().shutdown()
         self.end_time = datetime.now()
-        results = getattr(self, "_results", None)
-        if results is not None:
-            self.evaluate_metadata()
-            results.store_metadata()
 
 
 def take_screenshot(window, dest: str | Path, full_screen: bool = False) -> Path | None:
