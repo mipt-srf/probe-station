@@ -20,6 +20,7 @@ from pymeasure.instruments.agilent.agilentB1500 import (
 
 from probe_station import B1500
 from probe_station.logging_setup import add_file_log_dir
+from probe_station.measurements import workers as _workers  # noqa: F401  -- patches pymeasure.display.manager.Worker
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -28,15 +29,30 @@ log.addHandler(logging.NullHandler())
 class BaseProcedure(Procedure):
     """Base class for all probe-station procedures.
 
-    Adds a ``start_time`` metadata field that is automatically recorded in
-    the CSV header when a measurement begins.
+    Adds ``start_time`` and ``end_time`` metadata fields recorded into the
+    CSV header. ``start_time`` lands during the standard Pymeasure flow
+    (``Worker.run``: ``startup`` → ``evaluate_metadata`` → ``store_metadata``
+    → ``execute``); ``end_time`` is filled in ``shutdown()`` and persisted by
+    a follow-up ``store_metadata`` call from
+    :class:`probe_station.measurements.workers.EndTimeWorker`. When a
+    procedure runs without that worker (e.g. the e2e test harness), the
+    end-time write is skipped silently.
     """
 
     start_time = Metadata("Start time", default=0)
+    end_time = Metadata("End time", default=0)
 
     def startup(self):
         super().startup()
         self.start_time = datetime.now()
+
+    def shutdown(self):
+        super().shutdown()
+        self.end_time = datetime.now()
+        results = getattr(self, "_results", None)
+        if results is not None:
+            self.evaluate_metadata()
+            results.store_metadata()
 
 
 def take_screenshot(window, dest: str | Path, full_screen: bool = False) -> Path | None:

@@ -10,7 +10,8 @@ import numpy as np
 from keysight_b1530a.enums import WGFMUMeasureCurrentRange
 from matplotlib import pyplot as plt
 from pymeasure.experiment import Results
-from pymeasure.experiment.workers import Worker
+
+from probe_station.measurements.workers import EndTimeWorker as Worker
 
 from probe_station.measurements.cycling.PG.procedure import PgCyclingProcedure
 from probe_station.measurements.voltage_sweeps.CV.procedure import CvSweepProcedure
