@@ -18,8 +18,9 @@ if TYPE_CHECKING:  # replace with lazy imports (py>=3.15) https://peps.python.or
     from .measurements.b1500 import B1500
     from .measurements.common import connect_instrument
     from .measurements.keithley import Keithley2450Extended
+    from .measurements.session import Session
 
-__all__ = ["Dataset", "connect_instrument", "B1500", "Keithley2450Extended"]
+__all__ = ["Dataset", "connect_instrument", "B1500", "Keithley2450Extended", "Session"]
 
 
 def __getattr__(name: str):
@@ -39,4 +40,8 @@ def __getattr__(name: str):
         from .measurements.keithley import Keithley2450Extended
 
         return Keithley2450Extended
+    if name == "Session":
+        from .measurements.session import Session
+
+        return Session
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
