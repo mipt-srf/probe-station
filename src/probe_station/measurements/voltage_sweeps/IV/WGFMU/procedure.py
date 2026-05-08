@@ -148,8 +148,6 @@ class WgfmuIvSweepProcedure(WgfmuBaseProcedure):
             polarization = calculate_polarization(times, filtered_polarization_current, self.pad_size)
             log.info("Polarization (Pr): %s", polarization)
 
-        self.b1500.close_wgfmu_session()
-
 
 class MainWindow(BaseWindow):
     def __init__(self):

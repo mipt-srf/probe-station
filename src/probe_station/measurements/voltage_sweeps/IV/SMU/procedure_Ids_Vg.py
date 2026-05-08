@@ -11,11 +11,11 @@ from probe_station.logging_setup import setup_file_logging
 from probe_station.measurements.common import (
     BaseProcedure,
     BaseWindow,
-    connect_instrument,
     get_smu_by_number,
     max_compliance,
     run_app,
 )
+from probe_station.measurements.session import Session
 from probe_station.measurements.voltage_sweeps.IV.widgets import IvPlotWidget
 
 log = logging.getLogger(__name__)
@@ -43,7 +43,7 @@ class RandomProcedure(BaseProcedure):
 
     def startup(self):
         super().startup()
-        self.b1500 = connect_instrument()
+        self.b1500 = Session.acquire()
 
     def execute(self):
         # self.smu_source = self.b1500.smus[self.source]

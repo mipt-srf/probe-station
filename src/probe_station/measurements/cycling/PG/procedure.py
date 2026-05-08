@@ -7,7 +7,8 @@ from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParame
 
 from probe_station.logging_setup import setup_file_logging
 from probe_station.measurements.common import BaseProcedure, BaseWindow, max_compliance, run_app
-from probe_station.measurements.cycling.PG.script import connect_instrument, run
+from probe_station.measurements.cycling.PG.script import run
+from probe_station.measurements.session import Session
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -35,7 +36,7 @@ class PgCyclingProcedure(BaseProcedure):
 
     def startup(self):
         super().startup()
-        self.b1500 = connect_instrument()
+        self.b1500 = Session.acquire()
         open_session()
 
     def execute(self):
@@ -66,8 +67,6 @@ class PgCyclingProcedure(BaseProcedure):
 
         if self.dc_bias:
             dc_smu.force("Voltage", 0, 0)
-
-        # close_session()
 
     def get_estimates(self, sequence_length=None, sequence=None):
         delay_2nd = 2 * self.width

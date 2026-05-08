@@ -4,7 +4,8 @@ from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter
 
 from probe_station.logging_setup import setup_file_logging
-from probe_station.measurements.common import BaseProcedure, BaseWindow, connect_instrument, run_app
+from probe_station.measurements.common import BaseProcedure, BaseWindow, run_app
+from probe_station.measurements.session import Session
 from probe_station.measurements.voltage_sweeps.IV.SMU.script_Ids_Vds import get_data, run
 from probe_station.measurements.voltage_sweeps.IV.widgets import IvPlotWidget
 
@@ -29,7 +30,7 @@ class IvSweepProcedure(BaseProcedure):
 
     def startup(self):
         super().startup()
-        self.b1500 = connect_instrument(timeout=60000, reset=False)
+        self.b1500 = Session.acquire(timeout=60000, reset=False)
 
     def execute(self):
         log.info(f"Starting the {self.__class__}")

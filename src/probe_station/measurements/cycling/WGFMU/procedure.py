@@ -49,8 +49,6 @@ class CyclingProcedure(WgfmuBaseProcedure):
             measure=False,
         )
 
-        self.b1500.close_wgfmu_session()
-
 
 class MainWindow(BaseWindow):
     def __init__(self):

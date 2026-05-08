@@ -8,7 +8,8 @@ from pymeasure.experiment import (
 )
 
 from probe_station.measurements.b1500 import WGFMUMeasureCurrentRange
-from probe_station.measurements.common import BaseProcedure, connect_instrument
+from probe_station.measurements.common import BaseProcedure
+from probe_station.measurements.session import Session
 from probe_station.measurements.wgfmu_common import SweepMode
 
 
@@ -45,6 +46,6 @@ class WgfmuBaseProcedure(BaseProcedure):
 
     def startup(self):
         super().startup()
-        self.b1500 = connect_instrument(timeout=60000, reset=False)
+        self.b1500 = Session.acquire(timeout=60000, reset=False)
         self.b1500.clear_wgfmu()
         self.b1500.initialize_wgfmu()
