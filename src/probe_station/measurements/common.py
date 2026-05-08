@@ -33,7 +33,7 @@ class BaseProcedure(Procedure):
     CSV header. ``start_time`` lands during the standard Pymeasure flow
     (``Worker.run``: ``startup`` → ``evaluate_metadata`` → ``store_metadata``
     → ``execute``); ``end_time`` is filled here in ``shutdown()`` and
-    persisted into the header by a follow-up ``store_metadata`` call from
+    patched into the existing header in place by
     :class:`probe_station.measurements.workers.EndTimeWorker`. Procedures
     run without that worker (e.g. the e2e test harness) still get
     ``end_time`` set on the instance — only the CSV write is skipped.
