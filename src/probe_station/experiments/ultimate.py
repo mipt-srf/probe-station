@@ -4,14 +4,12 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from time import sleep
 
-from probe_station.logging_setup import add_file_log_dir, setup_file_logging
-
 import numpy as np
 from keysight_b1530a.enums import WGFMUMeasureCurrentRange
 from matplotlib import pyplot as plt
 from pymeasure.experiment import Results
-from pymeasure.experiment.workers import Worker
 
+from probe_station.logging_setup import add_file_log_dir, setup_file_logging
 from probe_station.measurements.cycling.PG.procedure import PgCyclingProcedure
 from probe_station.measurements.voltage_sweeps.CV.procedure import CvSweepProcedure
 from probe_station.measurements.voltage_sweeps.IV.SMU.built_in_procedure import (
@@ -20,6 +18,7 @@ from probe_station.measurements.voltage_sweeps.IV.SMU.built_in_procedure import 
 from probe_station.measurements.voltage_sweeps.IV.WGFMU.procedure import (
     WgfmuIvSweepProcedure,
 )
+from probe_station.measurements.workers import EndTimeWorker as Worker
 
 folder = "results"
 experiment_counter = itertools.count(1)
