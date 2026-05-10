@@ -20,7 +20,6 @@ def run_procedure(procedure):
         procedure.startup()
         procedure.execute()
         procedure.shutdown()
-        procedure.b1500.close_wgfmu_session()
     return emitted
 
 

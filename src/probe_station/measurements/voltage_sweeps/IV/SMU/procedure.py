@@ -13,12 +13,12 @@ from probe_station.measurements.common import (
     BaseProcedure,
     BaseWindow,
     RSUOutputMode,
-    connect_instrument,
     get_smu_by_number,
     max_compliance,
     run_app,
     setup_rsu_output,
 )
+from probe_station.measurements.session import Session
 from probe_station.measurements.voltage_sweeps.IV.SMU.script import measure_at_voltage
 from probe_station.measurements.voltage_sweeps.IV.widgets import IvPlotWidget
 
@@ -37,7 +37,7 @@ class IvSweepProcedure(BaseProcedure):
 
     def startup(self):
         super().startup()
-        self.b1500 = connect_instrument(timeout=10000)
+        self.b1500 = Session.acquire(timeout=10000)
         # self.b1500.reset()
 
     def execute(self):
@@ -63,6 +63,7 @@ class IvSweepProcedure(BaseProcedure):
                 log.warning("Caught the stop flag in the procedure")
                 self.b1500.abort()
                 self.b1500.force_gnd()
+                Session.close()
                 return
 
             self.emit("progress", i / self.steps * 100)

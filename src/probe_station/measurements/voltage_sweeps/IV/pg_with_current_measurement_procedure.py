@@ -4,7 +4,8 @@ from datetime import datetime, timedelta
 from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter
 
 from probe_station.logging_setup import setup_file_logging
-from probe_station.measurements.common import BaseProcedure, BaseWindow, connect_instrument, run_app
+from probe_station.measurements.common import BaseProcedure, BaseWindow, run_app
+from probe_station.measurements.session import Session
 from probe_station.measurements.voltage_sweeps.IV.pg_with_current_measurement import run
 
 log = logging.getLogger(__name__)
@@ -31,7 +32,7 @@ class PgCyclingProcedure(BaseProcedure):
 
     def startup(self):
         super().startup()
-        self.b1500 = connect_instrument()
+        self.b1500 = Session.acquire()
 
     def execute(self):
         log.info("Starting the loop of %d repetitions" % self.repetitions)
@@ -57,9 +58,8 @@ class PgCyclingProcedure(BaseProcedure):
                 log.warning("Caught the stop flag in the procedure")
                 self.b1500.abort()
                 self.b1500.force_gnd()
+                Session.close()
                 return
-
-        self.b1500.close_wgfmu_session()
 
     def get_estimates(self, sequence_length=None, sequence=None):
         duration = self.repetitions * self.period

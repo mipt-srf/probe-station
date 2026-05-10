@@ -13,12 +13,12 @@ from probe_station.measurements.common import (
     BaseProcedure,
     BaseWindow,
     RSUOutputMode,
-    connect_instrument,
     get_smu_by_number,
     max_compliance,
     run_app,
     setup_rsu_output,
 )
+from probe_station.measurements.session import Session
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -33,7 +33,7 @@ class DcProcedure(BaseProcedure):
 
     def startup(self):
         super().startup()
-        self.b1500 = connect_instrument()
+        self.b1500 = Session.acquire()
         setup_rsu_output(self.b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
         setup_rsu_output(self.b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
 

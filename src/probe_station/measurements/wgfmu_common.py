@@ -184,7 +184,6 @@ def run_waveforms(
     except WGFMUError:
         log.error(f"{get_error_summary()}")
         b1500.clear_wgfmu()
-        b1500.close_wgfmu_session()
         raise
 
     if not measure:
@@ -269,7 +268,6 @@ def run_waveforms_split(
         except WGFMUError:
             log.error(f"{get_error_summary()}")
             b1500.clear_wgfmu()
-            b1500.close_wgfmu_session()
             raise
 
         top_data = get_data(b1500=b1500, channel=top_ch, repetitions=1, points=half_points)
