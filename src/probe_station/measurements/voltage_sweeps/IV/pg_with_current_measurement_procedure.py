@@ -33,6 +33,7 @@ class PgCyclingProcedure(BaseProcedure):
     def startup(self):
         super().startup()
         self.b1500 = Session.acquire()
+        self.b1500.clear_buffer()
 
     def execute(self):
         log.info("Starting the loop of %d repetitions" % self.repetitions)

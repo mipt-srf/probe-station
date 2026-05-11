@@ -27,6 +27,7 @@ class CvSweepProcedure(BaseProcedure):
     def startup(self):
         super().startup()
         self.b1500 = Session.acquire(reset=False)
+        self.b1500.clear_buffer()
 
     def execute(self):
         log.info(f"Starting the {self.__class__}")
