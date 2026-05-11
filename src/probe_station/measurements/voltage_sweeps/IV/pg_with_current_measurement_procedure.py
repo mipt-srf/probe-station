@@ -58,7 +58,6 @@ class PgCyclingProcedure(BaseProcedure):
                 log.warning("Caught the stop flag in the procedure")
                 self.b1500.abort()
                 self.b1500.force_gnd()
-                Session.close()
                 return
 
     def get_estimates(self, sequence_length=None, sequence=None):
