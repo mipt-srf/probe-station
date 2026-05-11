@@ -1,7 +1,6 @@
 import logging
 from datetime import datetime, timedelta
 
-from keysight_b1530a._bindings.initialization import open_session
 from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter
 
@@ -37,7 +36,6 @@ class PgCyclingProcedure(BaseProcedure):
     def startup(self):
         super().startup()
         self.b1500 = Session.acquire()
-        open_session()
 
     def execute(self):
         log.info("Starting the loop of %d repetitions" % self.repetitions)
