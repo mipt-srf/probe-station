@@ -187,7 +187,7 @@ class BaseWindow(ManagedWindowBase):
         if not self.store_measurement:
             return
         procedure = experiment.procedure
-        dest = Path(self.directory) / f"{procedure.start_time:%Y%m%d_%H%M%S}_screenshot.png"
+        dest = Path(self.directory) / f"{procedure.start_time:%Y%m%d_%H%M%S}_{type(procedure).__name__}.png"
         take_screenshot(self, dest)
 
     def load_experiment_from_file(self, filename: str) -> None:
