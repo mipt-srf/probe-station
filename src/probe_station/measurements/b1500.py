@@ -120,7 +120,7 @@ class B1500(AgilentB1500):
                         if token:
                             return float(token[3:])
                         break  # empty token (e.g. \n after \r), keep scanning
-                buf.extend(resource.read_bytes(16))
+                buf.extend(resource.read_bytes(16, break_on_termchar=True))
 
         for _ in range(total_steps):
             yield tuple(next_value() for _ in range(values_per_step))
