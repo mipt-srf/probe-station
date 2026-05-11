@@ -64,7 +64,7 @@ class Session:
         raise TypeError("Session is not instantiable; use Session.acquire().")
 
     @classmethod
-    def acquire(cls, *, timeout: int = 60_000, reset: bool = False) -> B1500:
+    def acquire(cls, *, timeout: int = 60_000, reset: bool = True) -> B1500:
         """Return the shared B1500 handle, opening lazily on first use.
 
         :param timeout: VISA timeout in milliseconds. Only applied when
@@ -119,6 +119,7 @@ class Session:
             return
         try:
             cls._instance.adapter.close()
+            cls._instance.close_wgfmu_session()
         except Exception:
             log.exception("Error closing B1500 adapter")
         finally:
