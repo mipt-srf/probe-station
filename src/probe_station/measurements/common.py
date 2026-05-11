@@ -79,6 +79,25 @@ def take_screenshot(window, dest: str | Path, full_screen: bool = False) -> Path
 
 
 _BASE_WINDOW_INSTANCES: "weakref.WeakSet[BaseWindow]" = weakref.WeakSet()
+_BUSY_PREDICATES: list = []
+
+
+def register_busy_predicate(fn) -> None:
+    """Register a callable returning a busy description, or ``None`` if idle.
+
+    Used by :meth:`BaseWindow._queue` to gate queueing against non-window
+    instrument users (e.g. the launcher's reset action). Predicates are
+    polled on every queue click; keep them cheap.
+    """
+    _BUSY_PREDICATES.append(fn)
+
+
+def any_window_running() -> str | None:
+    """Return the title of any in-process window currently measuring, else None."""
+    for w in _BASE_WINDOW_INSTANCES:
+        if w.manager.is_running():
+            return w.windowTitle()
+    return None
 
 
 class BaseWindow(ManagedWindowBase):
@@ -148,6 +167,10 @@ class BaseWindow(ManagedWindowBase):
         # the B1500 is a single shared resource (see Session singleton), and
         # two concurrent Workers would corrupt each other's VISA traffic.
         busy = [w.windowTitle() for w in _BASE_WINDOW_INSTANCES if w is not self and w.manager.is_running()]
+        for fn in _BUSY_PREDICATES:
+            desc = fn()
+            if desc:
+                busy.append(desc)
         if busy:
             msg = f"Cannot queue: another measurement is running ({', '.join(busy)})"
             log.warning(msg)
