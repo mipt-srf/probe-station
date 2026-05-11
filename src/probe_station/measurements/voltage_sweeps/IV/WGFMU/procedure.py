@@ -32,7 +32,6 @@ class WgfmuIvSweepProcedure(WgfmuBaseProcedure):
     steps = IntegerParameter("Steps per pulse", default=200, group_by="advanced_config")
     rise_to_hold_ratio = FloatParameter("Rise to hold time ratio", default=100, group_by="advanced_config")
 
-    measure_points = IntegerParameter("Points to measure", default=20_000, group_by="advanced_config")
     plot_points = IntegerParameter("Points to plot", default=1000, group_by="advanced_config")
 
     compute_polarization = BooleanParameter("Calculate Polarization", default=False)
