@@ -95,11 +95,15 @@ def run(b1500: B1500, repetitions, amplitude, rise, tail, channel=102, smu_ch=1,
 
     elapsed = 0
     start_time = time.perf_counter()
-    while True:
-        if spgu.complete:
-            break
-        elapsed = time.perf_counter() - start_time
-    log.info(f"Elapsed: {elapsed:.1f}s / {period * repetitions:.1f}s")
+    try:
+        while True:
+            if spgu.complete:
+                break
+            elapsed = time.perf_counter() - start_time
+        log.info(f"Elapsed: {elapsed:.1f}s / {period * repetitions:.1f}s")
+    finally:
+        spgu.output = False
+        pg.enabled = False
 
     # df: pandas.DataFrame = b1500.read_data(points)
     # if log.isEnabledFor(logging.DEBUG):

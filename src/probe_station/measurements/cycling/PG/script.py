@@ -71,11 +71,15 @@ def run(b1500, repetitions, amplitude, width, rise, tail, channel=102, bipolar=F
     spgu.output = True
     elapsed = 0
     start_time = time.perf_counter()
-    while True:
-        if spgu.complete:
-            break
-        elapsed = time.perf_counter() - start_time
-    log.info(f"Elapsed: {elapsed:.1f}s / {period * repetitions:.1f}s")
+    try:
+        while True:
+            if spgu.complete:
+                break
+            elapsed = time.perf_counter() - start_time
+        log.info(f"Elapsed: {elapsed:.1f}s / {period * repetitions:.1f}s")
+    finally:
+        spgu.output = False
+        pg.enabled = False
 
     check_all_errors(b1500)
 
