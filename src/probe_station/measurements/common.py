@@ -1,6 +1,7 @@
 """Common utilities for instrument connection and RSU/SMU configuration."""
 
 import logging
+import weakref
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
@@ -77,6 +78,28 @@ def take_screenshot(window, dest: str | Path, full_screen: bool = False) -> Path
         return None
 
 
+_BASE_WINDOW_INSTANCES: "weakref.WeakSet[BaseWindow]" = weakref.WeakSet()
+_BUSY_PREDICATES: list = []
+
+
+def register_busy_predicate(fn) -> None:
+    """Register a callable returning a busy description, or ``None`` if idle.
+
+    Used by :meth:`BaseWindow._queue` to gate queueing against non-window
+    instrument users (e.g. the launcher's reset action). Predicates are
+    polled on every queue click; keep them cheap.
+    """
+    _BUSY_PREDICATES.append(fn)
+
+
+def any_window_running() -> str | None:
+    """Return the title of any in-process window currently measuring, else None."""
+    for w in _BASE_WINDOW_INSTANCES:
+        if w.manager.is_running():
+            return w.windowTitle()
+    return None
+
+
 class BaseWindow(ManagedWindowBase):
     """Base class for all probe-station measurement windows.
 
@@ -137,8 +160,22 @@ class BaseWindow(ManagedWindowBase):
 
         self.setWindowTitle(self.procedure_class.__name__)
         self.store_measurement = False
+        _BASE_WINDOW_INSTANCES.add(self)
 
     def _queue(self, checked):
+        # Serialize measurements across all open windows in the same process:
+        # the B1500 is a single shared resource (see Session singleton), and
+        # two concurrent Workers would corrupt each other's VISA traffic.
+        busy = [w.windowTitle() for w in _BASE_WINDOW_INSTANCES if w is not self and w.manager.is_running()]
+        for fn in _BUSY_PREDICATES:
+            desc = fn()
+            if desc:
+                busy.append(desc)
+        if busy:
+            msg = f"Cannot queue: another measurement is running ({', '.join(busy)})"
+            log.warning(msg)
+            self.statusBar().showMessage(msg, 5000)
+            return
         if self.store_measurement:
             add_file_log_dir(Path(self.directory) / "logs")
         super()._queue(checked)

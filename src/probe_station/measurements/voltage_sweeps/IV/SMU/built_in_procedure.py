@@ -4,7 +4,14 @@ from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter
 
 from probe_station.logging_setup import setup_file_logging
-from probe_station.measurements.common import BaseProcedure, BaseWindow, run_app
+from probe_station.measurements.common import (
+    RSU,
+    BaseProcedure,
+    BaseWindow,
+    RSUOutputMode,
+    run_app,
+    setup_rsu_output,
+)
 from probe_station.measurements.session import Session
 from probe_station.measurements.voltage_sweeps.IV.SMU.built_in_script import run
 from probe_station.measurements.voltage_sweeps.IV.widgets import IvPlotWidget
@@ -29,6 +36,9 @@ class IvSweepProcedure(BaseProcedure):
     def startup(self):
         super().startup()
         self.b1500 = Session.acquire(timeout=60000, reset=False)
+        self.b1500.clear_buffer()
+        setup_rsu_output(self.b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
+        setup_rsu_output(self.b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
 
     def execute(self):
         log.info(f"Starting the {self.__class__}")
@@ -61,7 +71,6 @@ class IvSweepProcedure(BaseProcedure):
                 log.warning("Caught the stop flag in the procedure")
                 self.b1500.abort()
                 self.b1500.force_gnd()
-                Session.close()
                 return
 
         self.b1500.force_gnd()
