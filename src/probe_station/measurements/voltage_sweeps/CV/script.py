@@ -41,6 +41,7 @@ def run(b1500: B1500, first_bias=-3, second_bias=3, avg_per_point=1, plot=False)
     b1500.send_trigger()
 
     cmu.force_dc_bias(0)
+    cmu.voltage_ac = 0
 
 
 def get_results(b1500: B1500, plot=False):
