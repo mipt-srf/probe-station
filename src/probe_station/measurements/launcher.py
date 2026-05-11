@@ -1,21 +1,31 @@
 import importlib
 import logging
+import os
 import subprocess
 import sys
 
+from pymeasure.display.widgets import PlotWidget, ResultsDialog
+from pymeasure.experiment import Results
 from qtpy.QtCore import QLocale, Qt, QThread
 from qtpy.QtGui import QFont
 from qtpy.QtWidgets import (
     QApplication,
     QFrame,
     QLabel,
+    QMessageBox,
     QPushButton,
+    QTabWidget,
+    QTreeWidgetItem,
     QVBoxLayout,
     QWidget,
 )
 
 from probe_station.logging_setup import setup_file_logging
-from probe_station.measurements.common import any_window_running, register_busy_predicate
+from probe_station.measurements.common import (
+    any_window_running,
+    read_procedure_class,
+    register_busy_predicate,
+)
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -105,6 +115,71 @@ class ModernButton(QPushButton):
         rgb = tuple(int(hex_color[i : i + 2], 16) for i in (0, 2, 4))
         darkened = tuple(int(c * factor) for c in rgb)
         return f"#{darkened[0]:02x}{darkened[1]:02x}{darkened[2]:02x}"
+
+
+class CrossProcedureResultsDialog(ResultsDialog):
+    """``ResultsDialog`` that infers the procedure class from each clicked file
+    and swaps a matching plot-preview tab on the fly.
+
+    Pymeasure's stock dialog expects a single ``procedure_class`` + ``widget_list``
+    fixed at construction time. The launcher's data reader browses files across
+    procedures, so we override ``update_preview`` to (1) sniff the producing
+    procedure from the file header, (2) build (and cache) a ``PlotWidget``
+    preview keyed off that procedure's ``DATA_COLUMNS``, and (3) repopulate
+    parameters/metadata from the reconstructed procedure.
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(procedure_class=None, widget_list=(), parent=parent)
+        # The preview tab built by ``_setup_ui`` is the only QTabWidget child.
+        self._preview_tab: QTabWidget = self.findChild(QTabWidget)
+        self._plot_container = QWidget()
+        self._plot_layout = QVBoxLayout()
+        self._plot_layout.setContentsMargins(0, 0, 0, 0)
+        self._plot_container.setLayout(self._plot_layout)
+        self._preview_tab.insertTab(0, self._plot_container, "Results Graph")
+        self._preview_tab.setCurrentIndex(0)
+        self._plot_cache: dict[type, PlotWidget | None] = {}
+        self._current_plot: PlotWidget | None = None
+
+    def _ensure_plot_preview(self, procedure_class: type) -> None:
+        if procedure_class in self._plot_cache:
+            new_widget = self._plot_cache[procedure_class]
+        else:
+            columns = getattr(procedure_class, "DATA_COLUMNS", None)
+            new_widget = PlotWidget("Plot preview", columns) if columns else None
+            self._plot_cache[procedure_class] = new_widget
+        if new_widget is self._current_plot:
+            return
+        if self._current_plot is not None:
+            self._plot_layout.removeWidget(self._current_plot)
+            self._current_plot.setParent(None)
+        if new_widget is not None:
+            self._plot_layout.addWidget(new_widget)
+        self._current_plot = new_widget
+
+    def update_preview(self, filename: str) -> None:
+        if os.path.isdir(filename) or filename == "":
+            return
+        try:
+            results = Results.load(str(filename))
+        except ValueError:
+            return
+
+        self._ensure_plot_preview(type(results.procedure))
+        if self._current_plot is not None:
+            self._current_plot.clear_widget()
+            self._current_plot.load(self._current_plot.new_curve(results))
+
+        self.preview_param.clear()
+        for _, param in results.procedure.parameter_objects().items():
+            self.preview_param.addTopLevelItem(QTreeWidgetItem([param.name, str(param)]))
+        self.preview_param.sortItems(0, Qt.AscendingOrder)
+
+        self.preview_metadata.clear()
+        for _, metadata in results.procedure.metadata_objects().items():
+            self.preview_metadata.addTopLevelItem(QTreeWidgetItem([metadata.name, str(metadata)]))
+        self.preview_metadata.sortItems(0, Qt.AscendingOrder)
 
 
 class Launcher(QWidget):
@@ -210,6 +285,15 @@ class Launcher(QWidget):
 
         layout.addStretch()
 
+        reader_separator = QFrame()
+        reader_separator.setFrameShape(QFrame.HLine)
+        reader_separator.setStyleSheet("background-color: #555555; height: 2px;")
+        layout.addWidget(reader_separator)
+
+        open_data_button = ModernButton("📁 Open data…", "#9C27B0")
+        open_data_button.clicked.connect(self.open_data)
+        layout.addWidget(open_data_button)
+
         # Footer
         footer = QLabel("Click any button to launch a measurement script")
         footer.setAlignment(Qt.AlignCenter)
@@ -262,6 +346,51 @@ class Launcher(QWidget):
             self.threads.remove(runner)
         except ValueError:
             pass
+
+    def open_data(self):
+        # No parent: keep the launcher's dark stylesheet from cascading into the
+        # dialog, so it matches the look of Pymeasure's stock Open dialog.
+        dialog = CrossProcedureResultsDialog()
+        dialog.setWindowTitle("Open results file")
+        if not dialog.exec():
+            return
+        filenames = dialog.selectedFiles()
+        if not filenames:
+            return
+        # Group selected files by window class so multiple files from the same
+        # procedure stack as curves in a single window, matching Pymeasure's
+        # native Open behavior.
+        windows: dict[type, QWidget] = {}
+        for filename in filenames:
+            try:
+                _, window_class = read_procedure_class(filename)
+            except ValueError as e:
+                QMessageBox.warning(self, "Cannot open file", str(e))
+                continue
+            window = windows.get(window_class)
+            if window is None:
+                try:
+                    window = window_class()
+                except Exception:
+                    log.exception("Failed to construct %s for %s", window_class.__name__, filename)
+                    QMessageBox.warning(
+                        self,
+                        "Cannot open file",
+                        f"Failed to construct {window_class.__name__}. See logs for details.",
+                    )
+                    continue
+                self.child_windows.append(window)
+                window.show()
+                windows[window_class] = window
+            try:
+                window.load_experiment_from_file(filename)
+            except Exception:
+                log.exception("Failed to load %s into %s", filename, window_class.__name__)
+                QMessageBox.warning(
+                    self,
+                    "Cannot open file",
+                    f"Failed to load data from {filename}. See logs for details.",
+                )
 
 
 def main():

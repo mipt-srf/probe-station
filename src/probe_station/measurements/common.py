@@ -1,6 +1,7 @@
 """Common utilities for instrument connection and RSU/SMU configuration."""
 
 import logging
+import sys
 import weakref
 from datetime import datetime
 from enum import Enum
@@ -11,7 +12,8 @@ from keysight_b1530a._bindings.configuration import set_operation_mode
 from keysight_b1530a.enums import WGFMUOperationMode
 from pymeasure.display.widgets import LogWidget, PlotWidget
 from pymeasure.display.windows import ManagedWindowBase
-from pymeasure.experiment import Metadata, Parameter, Procedure
+from pymeasure.experiment import Metadata, Parameter, Procedure, Results
+from pymeasure.experiment.procedure import UnknownProcedure
 from pymeasure.instruments.agilent.agilentB1500 import (
     AgilentB1500,
     ControlMode,
@@ -187,6 +189,52 @@ class BaseWindow(ManagedWindowBase):
         procedure = experiment.procedure
         dest = Path(self.directory) / f"{procedure.start_time:%Y%m%d_%H%M%S}_screenshot.png"
         take_screenshot(self, dest)
+
+    def load_experiment_from_file(self, filename: str) -> None:
+        """Load a saved Pymeasure CSV into this window as a new curve.
+
+        Mirrors the inner load loop of
+        :meth:`pymeasure.display.windows.managed_window.ManagedWindowBase.open_experiment`
+        so a file picked outside the window's own Open dialog (e.g. via the
+        launcher's data reader) is added with the same curve and per-experiment
+        metadata browser entry as the toolbar Open action.
+        """
+        if filename in self.manager.experiments:
+            return
+        results = Results.load(filename)
+        experiment = self.new_experiment(results)
+        for curve in experiment.curve_list:
+            if curve:
+                curve.update_data()
+        experiment.browser_item.progressbar.setValue(100)
+        self.manager.load(experiment)
+
+
+def read_procedure_class(path: str | Path) -> tuple[type[Procedure], type[BaseWindow]]:
+    """Resolve the procedure and window class for a Pymeasure results CSV.
+
+    Parses the file header via :meth:`Results.load` — which imports the
+    procedure module and rebuilds the procedure instance — then looks up the
+    ``MainWindow`` defined in the same module by convention.
+
+    Raises :class:`ValueError` with a user-readable message if the header
+    is missing the ``Procedure`` line, the module cannot be imported, or
+    no ``MainWindow`` is defined alongside the procedure.
+    """
+    try:
+        results = Results.load(str(path))
+    except Exception as e:
+        raise ValueError(f"Could not read Pymeasure header from {path}: {e}") from e
+    procedure_class = type(results.procedure)
+    if procedure_class is UnknownProcedure:
+        raise ValueError(
+            f"The Procedure class referenced in {path} could not be imported. " "It may have been renamed or removed."
+        )
+    module = sys.modules.get(procedure_class.__module__)
+    window_class = getattr(module, "MainWindow", None) if module is not None else None
+    if window_class is None:
+        raise ValueError(f"No MainWindow defined in {procedure_class.__module__} " f"for {procedure_class.__name__}")
+    return procedure_class, window_class
 
 
 class RSUOutputMode(Enum):
