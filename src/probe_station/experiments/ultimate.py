@@ -27,75 +27,61 @@ experiment_counter = itertools.count(1)
 logger = logging.getLogger(__name__)
 
 
-def run_cv():
+def run(proc, *, timeout=30, startup_delay=0, suffix=""):
     exp_num = next(experiment_counter)
     logger.info(f"=================== Measurement number: {exp_num} ===================")
-    proc = CvSweepProcedure()
-    proc.first_voltage = -3.2
-    proc.second_voltage = 3.2
-
-    results = Results(proc, f"{folder}/{exp_num}_{proc.__class__.__name__}.csv")
+    name = f"{exp_num}_{proc.__class__.__name__}{suffix}"
+    results = Results(proc, f"{folder}/{name}.csv")
     worker = Worker(results)
     worker.start()
-    worker.join(timeout=120)
+    if startup_delay:
+        sleep(startup_delay)
+    worker.join(timeout=timeout)
+    return results
 
 
-def run_dc_iv():
-    exp_num = next(experiment_counter)
-    logger.info(f"=================== Measurement number: {exp_num} ===================")
-    proc = IvSweepProcedure()
-    proc.first_voltage = -2.6
-    proc.second_voltage = 2.6
-    proc.top_channel = 4
-    proc.bottom_channel = 3
-
-    results = Results(proc, f"{folder}/{exp_num}_{proc.__class__.__name__}.csv")
-    worker = Worker(results)
-    worker.start()
-    worker.join(timeout=30)
+def cycling_proc(cycles=1000, width=1e-5, amplitude=2.6, channel=2, bipolar_pulses=False, pulse_separation=False):
+    return PgCyclingProcedure(
+        repetitions=cycles,
+        width=width,
+        rise=width / 10,
+        tail=width / 10,
+        amplitude=amplitude,
+        channel=channel,
+        bipolar_pulses=bipolar_pulses,
+        pulse_separation=pulse_separation,
+    )
 
 
-def run_iv_sweep(mode="PUND", voltage_first=5, voltage_second=-5):
-    exp_num = next(experiment_counter)
-    logger.info(f"=================== Measurement number: {exp_num} ===================")
-    proc = WgfmuIvSweepProcedure()
-    proc.voltage_top_first = voltage_first
-    proc.voltage_top_second = voltage_second
-    proc.current_range = WGFMUMeasureCurrentRange.RANGE_100_UA.name
-    proc.top = 2
-    proc.pulse_time = 2e-4
-    proc.mode = mode
-    results = Results(proc, f"{folder}/{exp_num}_{proc.__class__.__name__}.csv")
-    worker = Worker(results)
-    worker.start()
-    worker.join(timeout=30)
+def wgfmu_iv_proc(
+    mode="PUND",
+    voltage_first=5,
+    voltage_second=-5,
+    pulse_time=2e-4,
+    top=2,
+    current_range=WGFMUMeasureCurrentRange.RANGE_100_UA.name,
+):
+    return WgfmuIvSweepProcedure(
+        voltage_top_first=voltage_first,
+        voltage_top_second=voltage_second,
+        pulse_time=pulse_time,
+        mode=mode,
+        top=top,
+        current_range=current_range,
+    )
 
 
-def run_cycling(cycles=1000, width=1e-5):
-    exp_num = next(experiment_counter)
-    logger.info(f"=================== Measurement number: {exp_num} ===================")
-    proc = PgCyclingProcedure()
-    proc.width = width
-    proc.repetitions = cycles
-    proc.amplitude = 2.6
-    proc.bipolar_pulses = False
-    proc.channel = 2
-    proc.pulse_separation = False
-    proc.rise = width / 10
-    proc.tail = width / 10
+def dc_iv_proc(voltage_first=-2.6, voltage_second=2.6, top_channel=4, bottom_channel=3):
+    return IvSweepProcedure(
+        first_voltage=voltage_first,
+        second_voltage=voltage_second,
+        top_channel=top_channel,
+        bottom_channel=bottom_channel,
+    )
 
-    results = Results(proc, f"{folder}/{exp_num}_{proc.__class__.__name__}_{cycles}cycles.csv")
-    worker = Worker(results)
-    worker.start()
 
-    # delay_2nd = 2 * proc.width
-    # period = (delay_2nd + (proc.rise + proc.width + proc.tail) * 2) + delay_2nd
-    # duration = proc.repetitions * period
-    # sleep(duration * 1.5)
-
-    sleep(5)
-
-    worker.join(timeout=60 * 60 * 24 * 3)
+def cv_proc(voltage_first=-3.2, voltage_second=3.2):
+    return CvSweepProcedure(first_voltage=voltage_first, second_voltage=voltage_second)
 
 
 def log_points(start, stop, per_decade=5):
@@ -172,7 +158,7 @@ if __name__ == "__main__":
     # run_cv()
 
     experiment_counter = itertools.count(1)
-    run_iv_sweep()
+    run(wgfmu_iv_proc())
     sleep(3)
     plt.figure(figsize=(10, 6))
     ds = Results.load(f"{folder}/{1}_WgfmuIvSweepProcedure.csv")
@@ -188,7 +174,7 @@ if __name__ == "__main__":
     plt.show()
     sleep(3)
 
-    run_dc_iv()
+    run(dc_iv_proc())
 
     plt.figure(figsize=(10, 6))
     ds = Results.load(f"{folder}/{2}_IvSweepProcedure.csv")
@@ -204,7 +190,7 @@ if __name__ == "__main__":
     plt.show()
     sleep(3)
 
-    run_cv()
+    run(cv_proc(), timeout=120)
 
     plt.figure(figsize=(10, 6))
     ds = Results.load(f"{folder}/{3}_CvSweepProcedure.csv")
@@ -238,12 +224,12 @@ if __name__ == "__main__":
         logger.info(
             f"Total cycles (start): {total} || {datetime.now()} || {datetime.now() + timedelta(seconds=cycles * 1e-5 * 3)}"
         )
-        run_cycling(cycles)
-        run_iv_sweep(voltage_first=2.6, voltage_second=-2.6)
-        run_iv_sweep(mode="DEFAULT", voltage_first=2.6, voltage_second=-2.6)
-        run_iv_sweep(voltage_first=5, voltage_second=-5)
-        run_iv_sweep(mode="DEFAULT", voltage_first=5, voltage_second=-5)
-        run_dc_iv()
-        run_cv()
+        run(cycling_proc(cycles), timeout=60 * 60 * 24 * 3, startup_delay=5, suffix=f"_{cycles}cycles")
+        run(wgfmu_iv_proc(voltage_first=2.6, voltage_second=-2.6))
+        run(wgfmu_iv_proc(mode="DEFAULT", voltage_first=2.6, voltage_second=-2.6))
+        run(wgfmu_iv_proc(voltage_first=5, voltage_second=-5))
+        run(wgfmu_iv_proc(mode="DEFAULT", voltage_first=5, voltage_second=-5))
+        run(dc_iv_proc())
+        run(cv_proc(), timeout=120)
 
         #!!!!!!!!!!!!!!!!! bipolar false
