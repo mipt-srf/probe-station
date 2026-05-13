@@ -12,7 +12,7 @@ log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-class PgCyclingProcedure(BaseProcedure):
+class SpguCyclingWithCurrentProcedure(BaseProcedure):
     """Pulse-generator cycling procedure for fatigue/wake-up experiments.
 
     Sends bipolar or unipolar voltage pulses via the B1500 SPGU and
@@ -80,7 +80,7 @@ class PgCyclingProcedure(BaseProcedure):
 class MainWindow(BaseWindow):
     def __init__(self):
         super().__init__(
-            procedure_class=PgCyclingProcedure,
+            procedure_class=SpguCyclingWithCurrentProcedure,
             logger=log,
         )
         self.filename = "width={Pulse width}_num={Number of cycles}_ampl={Pulse amplitude:.0f}"

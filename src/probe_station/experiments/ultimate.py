@@ -11,10 +11,10 @@ from matplotlib import pyplot as plt
 from pymeasure.experiment import Results
 
 from probe_station.logging_setup import add_file_log_dir, setup_file_logging
-from probe_station.measurements.cycling.PG.procedure import PgCyclingProcedure
-from probe_station.measurements.voltage_sweeps.CV.procedure import CvSweepProcedure
+from probe_station.measurements.cycling.PG.procedure import SpguCyclingProcedure
+from probe_station.measurements.voltage_sweeps.CV.procedure import CmuCvSweepProcedure
 from probe_station.measurements.voltage_sweeps.IV.SMU.built_in_procedure import (
-    IvSweepProcedure,
+    SmuIvSweepProcedure,
 )
 from probe_station.measurements.voltage_sweeps.IV.WGFMU.procedure import (
     WgfmuIvSweepProcedure,
@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 def run_cv():
     exp_num = next(experiment_counter)
     logger.info(f"=================== Measurement number: {exp_num} ===================")
-    proc = CvSweepProcedure()
+    proc = CmuCvSweepProcedure()
     proc.first_voltage = -3.2
     proc.second_voltage = 3.2
 
@@ -43,7 +43,7 @@ def run_cv():
 def run_dc_iv():
     exp_num = next(experiment_counter)
     logger.info(f"=================== Measurement number: {exp_num} ===================")
-    proc = IvSweepProcedure()
+    proc = SmuIvSweepProcedure()
     proc.first_voltage = -2.6
     proc.second_voltage = 2.6
     proc.top_channel = 4
@@ -74,7 +74,7 @@ def run_iv_sweep(mode="PUND", voltage_first=5, voltage_second=-5):
 def run_cycling(cycles=1000, width=1e-5):
     exp_num = next(experiment_counter)
     logger.info(f"=================== Measurement number: {exp_num} ===================")
-    proc = PgCyclingProcedure()
+    proc = SpguCyclingProcedure()
     proc.width = width
     proc.repetitions = cycles
     proc.amplitude = 2.6
@@ -191,7 +191,7 @@ if __name__ == "__main__":
     run_dc_iv()
 
     plt.figure(figsize=(10, 6))
-    ds = Results.load(f"{folder}/{2}_IvSweepProcedure.csv")
+    ds = Results.load(f"{folder}/{2}_SmuIvSweepProcedure.csv")
     plt.plot(
         ds.data["Voltage"],
         ds.data["Top electrode current"],
@@ -207,7 +207,7 @@ if __name__ == "__main__":
     run_cv()
 
     plt.figure(figsize=(10, 6))
-    ds = Results.load(f"{folder}/{3}_CvSweepProcedure.csv")
+    ds = Results.load(f"{folder}/{3}_CmuCvSweepProcedure.csv")
     plt.plot(
         ds.data["Voltage"],
         ds.data["Capacitance"],

@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-class CvSweepProcedure(BaseProcedure):
+class CmuCvSweepProcedure(BaseProcedure):
     """Capacitance-voltage sweep procedure using the B1500 built-in CV measurement."""
 
     first_voltage = FloatParameter("First voltage", units="V", default=-3)
@@ -57,7 +57,7 @@ class CvSweepProcedure(BaseProcedure):
 class MainWindow(BaseWindow):
     def __init__(self):
         super().__init__(
-            procedure_class=CvSweepProcedure,
+            procedure_class=CmuCvSweepProcedure,
             logger=log,
         )
 

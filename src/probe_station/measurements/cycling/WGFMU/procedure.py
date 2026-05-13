@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-class CyclingProcedure(WgfmuBaseProcedure):
+class WgfmuCyclingProcedure(WgfmuBaseProcedure):
     repetitions = IntegerParameter("Number of cycles", default=1e3)
 
     def execute(self):
@@ -53,7 +53,7 @@ class CyclingProcedure(WgfmuBaseProcedure):
 class MainWindow(BaseWindow):
     def __init__(self):
         super().__init__(
-            procedure_class=CyclingProcedure,
+            procedure_class=WgfmuCyclingProcedure,
             logger=log,
         )
 

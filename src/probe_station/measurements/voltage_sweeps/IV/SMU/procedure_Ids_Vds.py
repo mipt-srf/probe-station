@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-class IvSweepProcedure(BaseProcedure):
+class SmuFetIdsVdsProcedure(BaseProcedure):
     first_voltage = FloatParameter("First voltage", units="V", default=-3)
     second_voltage = FloatParameter("Second voltage", units="V", default=3)
     source_channel = IntegerParameter("Source channel", default=4)
@@ -79,11 +79,11 @@ class IvSweepProcedure(BaseProcedure):
 class MainWindow(BaseWindow):
     def __init__(self):
         widget_list = (
-            IvPlotWidget("Results Graph", IvSweepProcedure.DATA_COLUMNS),
+            IvPlotWidget("Results Graph", SmuFetIdsVdsProcedure.DATA_COLUMNS),
             LogWidget("Experiment Log"),
         )
         super().__init__(
-            procedure_class=IvSweepProcedure,
+            procedure_class=SmuFetIdsVdsProcedure,
             widget_list=widget_list,
             logger=log,
         )

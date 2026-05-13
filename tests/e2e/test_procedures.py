@@ -2,9 +2,11 @@ from unittest.mock import patch
 
 import pytest
 
-from probe_station.measurements.voltage_sweeps.CV.procedure import CvSweepProcedure
-from probe_station.measurements.voltage_sweeps.IV.pg_with_current_measurement_procedure import PgCyclingProcedure
-from probe_station.measurements.voltage_sweeps.IV.SMU.built_in_procedure import IvSweepProcedure
+from probe_station.measurements.voltage_sweeps.CV.procedure import CmuCvSweepProcedure
+from probe_station.measurements.voltage_sweeps.IV.pg_with_current_measurement_procedure import (
+    SpguCyclingWithCurrentProcedure,
+)
+from probe_station.measurements.voltage_sweeps.IV.SMU.built_in_procedure import SmuIvSweepProcedure
 from probe_station.measurements.voltage_sweeps.IV.WGFMU.procedure import WgfmuIvSweepProcedure
 
 pytestmark = pytest.mark.e2e
@@ -24,23 +26,23 @@ def run_procedure(procedure):
 
 
 def test_iv_sweep_procedure():
-    procedure = IvSweepProcedure()
+    procedure = SmuIvSweepProcedure()
     emitted = run_procedure(procedure)
 
     results = [(record_type, data) for record_type, data in emitted if record_type == "results"]
     assert len(results) == 2 * procedure.steps
     _, data = results[0]
-    assert set(data.keys()) == set(IvSweepProcedure.DATA_COLUMNS)
+    assert set(data.keys()) == set(SmuIvSweepProcedure.DATA_COLUMNS)
 
 
 def test_cv_procedure():
-    procedure = CvSweepProcedure()
+    procedure = CmuCvSweepProcedure()
     emitted = run_procedure(procedure)
 
     results = [(record_type, data) for record_type, data in emitted if record_type == "results"]
     assert len(results) > 0
     _, data = results[0]
-    assert set(data.keys()) == set(CvSweepProcedure.DATA_COLUMNS)
+    assert set(data.keys()) == set(CmuCvSweepProcedure.DATA_COLUMNS)
 
 
 def test_wgfmu_iv_procedure():
@@ -54,10 +56,10 @@ def test_wgfmu_iv_procedure():
 
 
 def test_pg_iv_procedure():
-    procedure = PgCyclingProcedure()
+    procedure = SpguCyclingWithCurrentProcedure()
     emitted = run_procedure(procedure)
 
     results = [(record_type, data) for record_type, data in emitted if record_type == "results"]
     assert len(results) > 0
     _, data = results[0]
-    assert set(data.keys()) == set(PgCyclingProcedure.DATA_COLUMNS)
+    assert set(data.keys()) == set(SpguCyclingWithCurrentProcedure.DATA_COLUMNS)
