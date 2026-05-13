@@ -6,7 +6,7 @@ from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParame
 from probe_station.logging_setup import setup_file_logging
 from probe_station.measurements.common import BaseProcedure, BaseWindow, run_app
 from probe_station.measurements.keithley.cycling import cycle
-from probe_station.measurements.keithley.device import connect_instrument, get_smu, set_smu
+from probe_station.measurements.keithley.instrument import connect_instrument, get_smu, set_smu
 from probe_station.measurements.keithley.launcher import ADDRESS
 from probe_station.measurements.keithley.PUND_waveform import create_waveform
 
@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-class PundProcedure(BaseProcedure):
+class KeithleyPundProcedure(BaseProcedure):
     terminal = Parameter("Terminal", default="rear")
     vf = FloatParameter("First voltage", units="V", default=-3)
     vs = FloatParameter("Second voltage", units="V", default=3)
@@ -103,11 +103,11 @@ class PundProcedure(BaseProcedure):
 class MainWindow(BaseWindow):
     def __init__(self):
         widget_list = (
-            PlotWidget("Results Graph", PundProcedure.DATA_COLUMNS, x_axis="Source", y_axis="Reading"),
+            PlotWidget("Results Graph", KeithleyPundProcedure.DATA_COLUMNS, x_axis="Source", y_axis="Reading"),
             LogWidget("Experiment Log"),
         )
         super().__init__(
-            procedure_class=PundProcedure,
+            procedure_class=KeithleyPundProcedure,
             widget_list=widget_list,
             logger=log,
         )

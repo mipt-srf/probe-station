@@ -5,9 +5,9 @@ from pymeasure.experiment import Results
 from probe_station._DC_IV import DC_IV
 from probe_station.analysis.handlers.cv import Cv
 from probe_station.analysis.handlers.iv import Iv
-from probe_station.measurements.voltage_sweeps.CV.procedure import CvSweepProcedure
-from probe_station.measurements.voltage_sweeps.IV.SMU.built_in_procedure import IvSweepProcedure
-from probe_station.measurements.voltage_sweeps.IV.WGFMU.procedure import WgfmuIvSweepProcedure
+from probe_station.measurements.cmu.cv_sweep import CmuCvSweepProcedure
+from probe_station.measurements.smu.iv_sweep import SmuIvSweepProcedure
+from probe_station.measurements.wgfmu.iv_sweep import WgfmuIvSweepProcedure
 
 
 class Dataset(Results):
@@ -37,7 +37,7 @@ class Dataset(Results):
         self.data_cut = self.data_cut.reset_index(drop=True)
 
         # mappings for old processing routines
-        old_mappings = {IvSweepProcedure: DC_IV}
+        old_mappings = {SmuIvSweepProcedure: DC_IV}
         self.handler_cls = old_mappings.get(self.procedure.__class__)
 
         if self.handler_cls is not None:
@@ -46,7 +46,7 @@ class Dataset(Results):
                 dataframes=[self._rename_data_columns(self.data_cut)],
             )
             return
-        new_mappings = {CvSweepProcedure: Cv, WgfmuIvSweepProcedure: Iv}
+        new_mappings = {CmuCvSweepProcedure: Cv, WgfmuIvSweepProcedure: Iv}
         self.handler_cls = new_mappings.get(self.procedure.__class__)
 
         if self.handler_cls is None:

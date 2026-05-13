@@ -19,14 +19,14 @@ from probe_station.measurements.common import (
     setup_rsu_output,
 )
 from probe_station.measurements.session import Session
-from probe_station.measurements.voltage_sweeps.IV.SMU.script import measure_at_voltage
-from probe_station.measurements.voltage_sweeps.IV.widgets import IvPlotWidget
+from probe_station.measurements.smu._widgets import IvPlotWidget
+from probe_station.measurements.smu.iv_step_runner import measure_at_voltage
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-class IvSweepProcedure(BaseProcedure):
+class SmuIvStepProcedure(BaseProcedure):
     first_voltage = FloatParameter("First voltage", units="V", default=-3)
     second_voltage = FloatParameter("Second voltage", units="V", default=3)
     top_channel = IntegerParameter("Top channel", default=4)
@@ -78,11 +78,11 @@ class IvSweepProcedure(BaseProcedure):
 class MainWindow(BaseWindow):
     def __init__(self):
         widget_list = (
-            IvPlotWidget("Results Graph", IvSweepProcedure.DATA_COLUMNS),
+            IvPlotWidget("Results Graph", SmuIvStepProcedure.DATA_COLUMNS),
             LogWidget("Experiment Log"),
         )
         super().__init__(
-            procedure_class=IvSweepProcedure,
+            procedure_class=SmuIvStepProcedure,
             widget_list=widget_list,
             logger=log,
         )

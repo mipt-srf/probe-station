@@ -5,17 +5,17 @@ from pymeasure.experiment import FloatParameter, Parameter
 
 from probe_station.logging_setup import setup_file_logging
 from probe_station.measurements.common import BaseWindow, run_app
-from probe_station.measurements.keithley.device import connect_instrument, set_smu
+from probe_station.measurements.keithley.instrument import connect_instrument, set_smu
 from probe_station.measurements.keithley.launcher import ADDRESS
-from probe_station.measurements.keithley.PUND_procedure import PundProcedure
+from probe_station.measurements.keithley.pund import KeithleyPundProcedure
 from probe_station.measurements.keithley.PUND_waveform import create_pulse
-from probe_station.measurements.voltage_sweeps.IV.widgets import IvPlotWidget
+from probe_station.measurements.smu._widgets import IvPlotWidget
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-class DcIvProcedure(PundProcedure):
+class KeithleyDcIvProcedure(KeithleyPundProcedure):
     int_time = FloatParameter("Integration time", units="s", default=2e-2)
     current_range = FloatParameter(
         "Current range", units="A", default=1e-6, group_by="autorange", group_condition=False
@@ -23,7 +23,7 @@ class DcIvProcedure(PundProcedure):
 
     _INPUTS = [
         name
-        for name, obj in PundProcedure.__dict__.items()
+        for name, obj in KeithleyPundProcedure.__dict__.items()
         if isinstance(obj, Parameter) and name not in ("space", "do_cycle", "n_precycles", "n_cycles", "hold")
     ]
 
@@ -35,13 +35,13 @@ class DcIvProcedure(PundProcedure):
 class MainWindow(BaseWindow):
     def __init__(self):
         widget_list = (
-            IvPlotWidget("Results Graph", DcIvProcedure.DATA_COLUMNS, x_axis="Time", y_axis="Reading"),
+            IvPlotWidget("Results Graph", KeithleyDcIvProcedure.DATA_COLUMNS, x_axis="Time", y_axis="Reading"),
             LogWidget("Experiment Log"),
         )
         super().__init__(
-            procedure_class=DcIvProcedure,
+            procedure_class=KeithleyDcIvProcedure,
             widget_list=widget_list,
-            inputs=DcIvProcedure._INPUTS,
+            inputs=KeithleyDcIvProcedure._INPUTS,
             logger=log,
         )
         from qtpy.QtWidgets import QLabel

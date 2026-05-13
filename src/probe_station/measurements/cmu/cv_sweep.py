@@ -8,13 +8,13 @@ from pymeasure.experiment import (
 from probe_station.logging_setup import setup_file_logging
 from probe_station.measurements.common import BaseProcedure, BaseWindow, run_app
 from probe_station.measurements.session import Session
-from probe_station.measurements.voltage_sweeps.CV.script import PLOT_POINTS, run
+from probe_station.measurements.cmu.cv_sweep_runner import PLOT_POINTS, run
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-class CvSweepProcedure(BaseProcedure):
+class CmuCvSweepProcedure(BaseProcedure):
     """Capacitance-voltage sweep procedure using the B1500 built-in CV measurement."""
 
     first_voltage = FloatParameter("First voltage", units="V", default=-3)
@@ -57,7 +57,7 @@ class CvSweepProcedure(BaseProcedure):
 class MainWindow(BaseWindow):
     def __init__(self):
         super().__init__(
-            procedure_class=CvSweepProcedure,
+            procedure_class=CmuCvSweepProcedure,
             logger=log,
         )
 

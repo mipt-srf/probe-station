@@ -8,9 +8,7 @@ from matplotlib import pyplot as plt
 from numpy import sqrt
 
 from probe_station.analysis.dataset import Dataset
-from probe_station.measurements.voltage_sweeps.IV.WGFMU.procedure import (
-    calculate_polarization,
-)
+from probe_station.measurements.wgfmu._waveforms import calculate_polarization
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -50,7 +48,7 @@ class CyclingExperiment:
 
     @property
     def smu_datasets(self):
-        return [Dataset(filename) for filename in self.csvs if "_IvSweep" in filename.name]
+        return [Dataset(filename) for filename in self.csvs if "SmuIvSweep" in filename.name]
 
     @property
     def wgfmu_datasets(self, top_voltage=5.0, mode="PUND"):
@@ -61,7 +59,7 @@ class CyclingExperiment:
         exp_cycles = [
             int(filename.name.split("_")[2].strip("cycles.csv"))
             for filename in self.csvs
-            if "PgCycling" in filename.name
+            if "SpguCycling" in filename.name
         ]
         cycles = list(itertools.accumulate(exp_cycles, initial=0))
         return cycles

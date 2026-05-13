@@ -5,17 +5,17 @@ from pymeasure.experiment import IntegerParameter
 from probe_station.logging_setup import setup_file_logging
 from probe_station.measurements.b1500 import WGFMUMeasureCurrentRange
 from probe_station.measurements.common import BaseWindow, run_app
-from probe_station.measurements.wgfmu_common import (
+from probe_station.measurements.wgfmu._base import WgfmuBaseProcedure
+from probe_station.measurements.wgfmu._waveforms import (
     get_sequence,
     run_waveforms,
 )
-from probe_station.measurements.wgfmu_procedure import WgfmuBaseProcedure
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-class CyclingProcedure(WgfmuBaseProcedure):
+class WgfmuCyclingProcedure(WgfmuBaseProcedure):
     repetitions = IntegerParameter("Number of cycles", default=1e3)
 
     def execute(self):
@@ -53,7 +53,7 @@ class CyclingProcedure(WgfmuBaseProcedure):
 class MainWindow(BaseWindow):
     def __init__(self):
         super().__init__(
-            procedure_class=CyclingProcedure,
+            procedure_class=WgfmuCyclingProcedure,
             logger=log,
         )
 

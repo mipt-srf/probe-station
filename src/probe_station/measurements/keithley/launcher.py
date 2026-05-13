@@ -6,7 +6,7 @@ from qtpy.QtCore import QLocale, QObject, QThread, Signal
 from qtpy.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QMessageBox, QPushButton, QVBoxLayout, QWidget
 
 from probe_station.logging_setup import setup_file_logging
-from probe_station.measurements.keithley.device import connect_instrument, get_smu, set_smu
+from probe_station.measurements.keithley.instrument import connect_instrument, get_smu, set_smu
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -103,14 +103,14 @@ class LauncherWindow(QWidget):
         QMessageBox.critical(self, "Connection failed", message)
 
     def _open_pund(self):
-        from probe_station.measurements.keithley.PUND_procedure import MainWindow
+        from probe_station.measurements.keithley.pund import MainWindow
 
         window = MainWindow()
         window.show()
         self._windows.append(window)
 
     def _open_dc_iv(self):
-        from probe_station.measurements.keithley.dc_iv_procedure import MainWindow
+        from probe_station.measurements.keithley.dc_iv import MainWindow
 
         window = MainWindow()
         window.show()

@@ -25,15 +25,15 @@ software and dispatches processing to the appropriate handler (``PQ_PUND``,
 PyMeasure CSV results
 ---------------------
 
-For data produced by the new measurement procedures (``IvSweepProcedure``,
-``CvSweepProcedure``, ``WgfmuIvSweepProcedure``), use the analysis
+For data produced by the new measurement procedures (``SmuIvSweepProcedure``,
+``CmuCvSweepProcedure``, ``WgfmuIvSweepProcedure``), use the analysis
 `~probe_station.analysis.dataset.Dataset`:
 
 .. code-block:: python
 
     from probe_station.analysis.dataset import Dataset
 
-    ds = Dataset("results/1_IvSweepProcedure.csv")
+    ds = Dataset("results/1_SmuIvSweepProcedure.csv")
     ds.plot()
 
 Batch analysis of cycling experiments

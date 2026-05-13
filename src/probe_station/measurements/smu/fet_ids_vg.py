@@ -19,7 +19,7 @@ from probe_station.measurements.common import (
     setup_rsu_output,
 )
 from probe_station.measurements.session import Session
-from probe_station.measurements.voltage_sweeps.IV.widgets import IvPlotWidget
+from probe_station.measurements.smu._widgets import IvPlotWidget
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -32,7 +32,7 @@ def parse(string):
     return values
 
 
-class RandomProcedure(BaseProcedure):
+class SmuFetIdsVgProcedure(BaseProcedure):
     source = IntegerParameter("Source channel", default=4)
     drain = IntegerParameter("Drain channel", default=3)
     gate = IntegerParameter("Gate channel", default=1)
@@ -102,11 +102,11 @@ class RandomProcedure(BaseProcedure):
 class MainWindow(BaseWindow):
     def __init__(self):
         widget_list = (
-            IvPlotWidget("Results Graph", RandomProcedure.DATA_COLUMNS),
+            IvPlotWidget("Results Graph", SmuFetIdsVgProcedure.DATA_COLUMNS),
             LogWidget("Experiment Log"),
         )
         super().__init__(
-            procedure_class=RandomProcedure,
+            procedure_class=SmuFetIdsVgProcedure,
             widget_list=widget_list,
             logger=log,
         )

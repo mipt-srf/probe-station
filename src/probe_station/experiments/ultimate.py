@@ -11,14 +11,10 @@ from matplotlib import pyplot as plt
 from pymeasure.experiment import Results
 
 from probe_station.logging_setup import add_file_log_dir, setup_file_logging
-from probe_station.measurements.cycling.PG.procedure import PgCyclingProcedure
-from probe_station.measurements.voltage_sweeps.CV.procedure import CvSweepProcedure
-from probe_station.measurements.voltage_sweeps.IV.SMU.built_in_procedure import (
-    IvSweepProcedure,
-)
-from probe_station.measurements.voltage_sweeps.IV.WGFMU.procedure import (
-    WgfmuIvSweepProcedure,
-)
+from probe_station.measurements.cmu.cv_sweep import CmuCvSweepProcedure
+from probe_station.measurements.smu.iv_sweep import SmuIvSweepProcedure
+from probe_station.measurements.spgu.cycling import SpguCyclingProcedure
+from probe_station.measurements.wgfmu.iv_sweep import WgfmuIvSweepProcedure
 from probe_station.measurements.workers import EndTimeWorker as Worker
 
 folder = "results"
@@ -54,7 +50,7 @@ def run_and_plot(proc, x_col, y_col, *, timeout=30):
 
 
 def cycling_proc(cycles=1000, width=1e-5, amplitude=2.6, channel=2, bipolar_pulses=True, pulse_separation=False):
-    return PgCyclingProcedure(
+    return SpguCyclingProcedure(
         repetitions=cycles,
         width=width,
         rise=width / 10,
@@ -85,7 +81,7 @@ def wgfmu_iv_proc(
 
 
 def dc_iv_proc(voltage_first=-2.6, voltage_second=2.6, top_channel=4, bottom_channel=3):
-    return IvSweepProcedure(
+    return SmuIvSweepProcedure(
         first_voltage=voltage_first,
         second_voltage=voltage_second,
         top_channel=top_channel,
@@ -94,7 +90,7 @@ def dc_iv_proc(voltage_first=-2.6, voltage_second=2.6, top_channel=4, bottom_cha
 
 
 def cv_proc(voltage_first=-3.2, voltage_second=3.2):
-    return CvSweepProcedure(first_voltage=voltage_first, second_voltage=voltage_second)
+    return CmuCvSweepProcedure(first_voltage=voltage_first, second_voltage=voltage_second)
 
 
 def log_points(start, stop, per_decade=5):
@@ -105,7 +101,7 @@ def log_points(start, stop, per_decade=5):
     cumsum_final = [start]
     rounded_steps = []
 
-    # Improved rounding rule — smoother between powers of ten
+    # Improved rounding rule - smoother between powers of ten
     def round_nice(x):
         if x <= 0:
             return 0
