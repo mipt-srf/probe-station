@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 from numpy import sqrt
 
 from probe_station.analysis.dataset import Dataset
-from probe_station.measurements.voltage_sweeps.IV.WGFMU.procedure import (
+from probe_station.measurements.voltage_sweeps.IV.WGFMU.iv_sweep import (
     calculate_polarization,
 )
 

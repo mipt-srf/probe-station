@@ -6,7 +6,7 @@ from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParame
 
 from probe_station.logging_setup import setup_file_logging
 from probe_station.measurements.common import BaseProcedure, BaseWindow, max_compliance, run_app
-from probe_station.measurements.cycling.PG.script import run
+from probe_station.measurements.cycling.PG.cycling_runner import run
 from probe_station.measurements.session import Session
 
 log = logging.getLogger(__name__)

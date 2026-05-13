@@ -6,7 +6,7 @@ from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParame
 from probe_station.logging_setup import setup_file_logging
 from probe_station.measurements.common import BaseProcedure, BaseWindow, run_app
 from probe_station.measurements.keithley.cycling import cycle
-from probe_station.measurements.keithley.device import connect_instrument, get_smu, set_smu
+from probe_station.measurements.keithley.instrument import connect_instrument, get_smu, set_smu
 from probe_station.measurements.keithley.launcher import ADDRESS
 from probe_station.measurements.keithley.PUND_waveform import create_waveform
 

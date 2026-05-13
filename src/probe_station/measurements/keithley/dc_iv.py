@@ -5,11 +5,11 @@ from pymeasure.experiment import FloatParameter, Parameter
 
 from probe_station.logging_setup import setup_file_logging
 from probe_station.measurements.common import BaseWindow, run_app
-from probe_station.measurements.keithley.device import connect_instrument, set_smu
+from probe_station.measurements.keithley.instrument import connect_instrument, set_smu
 from probe_station.measurements.keithley.launcher import ADDRESS
-from probe_station.measurements.keithley.PUND_procedure import KeithleyPundProcedure
+from probe_station.measurements.keithley.pund import KeithleyPundProcedure
 from probe_station.measurements.keithley.PUND_waveform import create_pulse
-from probe_station.measurements.voltage_sweeps.IV.widgets import IvPlotWidget
+from probe_station.measurements.voltage_sweeps.IV._widgets import IvPlotWidget
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())

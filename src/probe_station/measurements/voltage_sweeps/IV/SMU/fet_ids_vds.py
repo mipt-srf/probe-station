@@ -13,8 +13,8 @@ from probe_station.measurements.common import (
     setup_rsu_output,
 )
 from probe_station.measurements.session import Session
-from probe_station.measurements.voltage_sweeps.IV.SMU.script_Ids_Vds import get_data, run
-from probe_station.measurements.voltage_sweeps.IV.widgets import IvPlotWidget
+from probe_station.measurements.voltage_sweeps.IV.SMU.fet_ids_vds_runner import get_data, run
+from probe_station.measurements.voltage_sweeps.IV._widgets import IvPlotWidget
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())

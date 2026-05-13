@@ -6,7 +6,7 @@ from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParame
 from probe_station.logging_setup import setup_file_logging
 from probe_station.measurements.common import BaseProcedure, BaseWindow, run_app
 from probe_station.measurements.session import Session
-from probe_station.measurements.voltage_sweeps.IV.pg_with_current_measurement import run
+from probe_station.measurements.voltage_sweeps.IV.cycling_with_current_runner import run
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())

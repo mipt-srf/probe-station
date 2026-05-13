@@ -11,12 +11,12 @@ from matplotlib import pyplot as plt
 from pymeasure.experiment import Results
 
 from probe_station.logging_setup import add_file_log_dir, setup_file_logging
-from probe_station.measurements.cycling.PG.procedure import SpguCyclingProcedure
-from probe_station.measurements.voltage_sweeps.CV.procedure import CmuCvSweepProcedure
-from probe_station.measurements.voltage_sweeps.IV.SMU.built_in_procedure import (
+from probe_station.measurements.cycling.PG.cycling import SpguCyclingProcedure
+from probe_station.measurements.voltage_sweeps.CV.cv_sweep import CmuCvSweepProcedure
+from probe_station.measurements.voltage_sweeps.IV.SMU.iv_sweep import (
     SmuIvSweepProcedure,
 )
-from probe_station.measurements.voltage_sweeps.IV.WGFMU.procedure import (
+from probe_station.measurements.voltage_sweeps.IV.WGFMU.iv_sweep import (
     WgfmuIvSweepProcedure,
 )
 from probe_station.measurements.workers import EndTimeWorker as Worker
