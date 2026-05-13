@@ -1,6 +1,5 @@
 import itertools
 import logging
-import shutil
 from datetime import datetime, timedelta
 from pathlib import Path
 from time import sleep
@@ -53,7 +52,7 @@ def run_and_plot(proc, x_col, y_col, *, timeout=30):
     return results
 
 
-def cycling_proc(cycles=1000, width=1e-5, amplitude=2.6, channel=2, bipolar_pulses=False, pulse_separation=False):
+def cycling_proc(cycles=1000, width=1e-5, amplitude=2.6, channel=2, bipolar_pulses=True, pulse_separation=False):
     return PgCyclingProcedure(
         repetitions=cycles,
         width=width,
@@ -70,7 +69,7 @@ def wgfmu_iv_proc(
     mode="PUND",
     voltage_first=5,
     voltage_second=-5,
-    pulse_time=2e-4,
+    pulse_time=1e-4,
     top=2,
     current_range=WGFMUMeasureCurrentRange.RANGE_100_UA.name,
 ):
@@ -151,54 +150,39 @@ def log_points(start, stop, per_decade=5):
             rounded_steps.append(s)
             cumsum_final.append(cumsum_final[-1] + s)
 
-    return np.array([start] + rounded_steps).astype(int)
-
-
-# log_points(10, 1000, per_decade=2) # From 10 to 1000, with 2 additional points per decade (so 3 points: 10, p1, p2, 100,)
+    return np.array([start] + rounded_steps).astype(int).tolist()
 
 
 if __name__ == "__main__":
-    shutil.rmtree(Path(folder), ignore_errors=True)
     Path(folder).mkdir(exist_ok=True)
     setup_file_logging()
     add_file_log_dir(Path(folder) / "logs")
 
-    # run_cycling(100)
-    # run_iv_sweep()
-
-    # run_dc_iv()
-
-    # run_cv()
-
-    experiment_counter = itertools.count(1)
     run_and_plot(wgfmu_iv_proc(), "Top electrode voltage", "Top electrode Current")
     run_and_plot(dc_iv_proc(), "Voltage", "Top electrode current")
     run_and_plot(cv_proc(), "Voltage", "Capacitance", timeout=120)
+
     total = 0
-    for cycles in [
-        # *[25] * 4,
-        # *[100] * 9,
-        # *[1000] * 9,
-        # *[10000] * 9,
-        # *[100_000] * 9,
-        # *[1_000_000] * 999,
-        # *log_points(10, 1e6, per_decade=4).tolist(),
-        *log_points(10, 1e10, per_decade=10).tolist()[:],
-        # *[1_000_000] * 999,
-        # *[1_000_000] * 1000,
-        # *[10**7] * 100
-    ]:
-        cycles = int(cycles)
+    for cycles in log_points(10, 1e10, per_decade=10):
         total += cycles
         logger.info(
             f"Total cycles (start): {total} || {datetime.now()} || {datetime.now() + timedelta(seconds=cycles * 1e-5 * 3)}"
         )
-        run(cycling_proc(cycles), timeout=60 * 60 * 24 * 3, startup_delay=5, suffix=f"_{cycles}cycles")
-        run(wgfmu_iv_proc(voltage_first=2.6, voltage_second=-2.6))
-        run(wgfmu_iv_proc(mode="DEFAULT", voltage_first=2.6, voltage_second=-2.6))
-        run(wgfmu_iv_proc(voltage_first=5, voltage_second=-5))
-        run(wgfmu_iv_proc(mode="DEFAULT", voltage_first=5, voltage_second=-5))
-        run(dc_iv_proc())
-        run(cv_proc(), timeout=120)
 
-        #!!!!!!!!!!!!!!!!! bipolar false
+        cycling_pulse_time = 1e-5
+        iv_time = 1e-4
+
+        run(
+            cycling_proc(cycles=cycles, width=cycling_pulse_time, amplitude=2.6, bipolar_pulses=True),
+            timeout=60 * 60 * 24 * 3,
+            startup_delay=5,
+            suffix=f"_{cycles}cycles",
+        )
+
+        run(wgfmu_iv_proc(voltage_first=2.6, voltage_second=-2.6, pulse_time=iv_time))
+        run(wgfmu_iv_proc(mode="DEFAULT", voltage_first=2.6, voltage_second=-2.6, pulse_time=iv_time))
+        run(wgfmu_iv_proc(voltage_first=5, voltage_second=-5, pulse_time=iv_time))
+        run(wgfmu_iv_proc(mode="DEFAULT", voltage_first=5, voltage_second=-5, pulse_time=iv_time))
+
+        run(dc_iv_proc(voltage_first=2.6, voltage_second=-2.6))
+        run(cv_proc(voltage_first=-3.2, voltage_second=3.2), timeout=120)
