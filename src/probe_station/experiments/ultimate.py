@@ -40,6 +40,19 @@ def run(proc, *, timeout=30, startup_delay=0, suffix=""):
     return results
 
 
+def run_and_plot(proc, x_col, y_col, *, timeout=30):
+    results = run(proc, timeout=timeout)
+    sleep(3)
+    plt.figure(figsize=(10, 6))
+    plt.plot(results.data[x_col], results.data[y_col])
+    plt.xlabel(x_col)
+    plt.ylabel(y_col)
+    plt.grid(True)
+    plt.show()
+    sleep(3)
+    return results
+
+
 def cycling_proc(cycles=1000, width=1e-5, amplitude=2.6, channel=2, bipolar_pulses=False, pulse_separation=False):
     return PgCyclingProcedure(
         repetitions=cycles,
@@ -158,53 +171,9 @@ if __name__ == "__main__":
     # run_cv()
 
     experiment_counter = itertools.count(1)
-    run(wgfmu_iv_proc())
-    sleep(3)
-    plt.figure(figsize=(10, 6))
-    ds = Results.load(f"{folder}/{1}_WgfmuIvSweepProcedure.csv")
-    plt.plot(
-        ds.data["Top electrode voltage"],
-        ds.data["Top electrode Current"],
-    )
-
-    plt.xlabel("Voltage")
-    plt.ylabel("Top electrode current")
-    plt.legend()
-    plt.grid(True)
-    plt.show()
-    sleep(3)
-
-    run(dc_iv_proc())
-
-    plt.figure(figsize=(10, 6))
-    ds = Results.load(f"{folder}/{2}_IvSweepProcedure.csv")
-    plt.plot(
-        ds.data["Voltage"],
-        ds.data["Top electrode current"],
-    )
-
-    plt.xlabel("Voltage")
-    plt.ylabel("Top electrode current")
-    plt.legend()
-    plt.grid(True)
-    plt.show()
-    sleep(3)
-
-    run(cv_proc(), timeout=120)
-
-    plt.figure(figsize=(10, 6))
-    ds = Results.load(f"{folder}/{3}_CvSweepProcedure.csv")
-    plt.plot(
-        ds.data["Voltage"],
-        ds.data["Capacitance"],
-    )
-
-    plt.xlabel("Voltage")
-    plt.ylabel("Top electrode current")
-    plt.legend()
-    plt.grid(True)
-    plt.show()
-    sleep(3)
+    run_and_plot(wgfmu_iv_proc(), "Top electrode voltage", "Top electrode Current")
+    run_and_plot(dc_iv_proc(), "Voltage", "Top electrode current")
+    run_and_plot(cv_proc(), "Voltage", "Capacitance", timeout=120)
     total = 0
     for cycles in [
         # *[25] * 4,
