@@ -1,5 +1,6 @@
 import itertools
 import logging
+import shutil
 from datetime import datetime, timedelta
 from pathlib import Path
 from time import sleep
@@ -69,7 +70,7 @@ def wgfmu_iv_proc(
     mode="PUND",
     voltage_first=5,
     voltage_second=-5,
-    pulse_time=1e-4,
+    pulse_time=2e-4,
     top=2,
     current_range=WGFMUMeasureCurrentRange.RANGE_100_UA.name,
 ):
@@ -154,6 +155,7 @@ def log_points(start, stop, per_decade=5):
 
 
 if __name__ == "__main__":
+    shutil.rmtree(Path(folder), ignore_errors=True)
     Path(folder).mkdir(exist_ok=True)
     setup_file_logging()
     add_file_log_dir(Path(folder) / "logs")
