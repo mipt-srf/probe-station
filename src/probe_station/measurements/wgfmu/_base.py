@@ -10,7 +10,7 @@ from pymeasure.experiment import (
 from probe_station.measurements.b1500 import WGFMUMeasureCurrentRange
 from probe_station.measurements.common import BaseProcedure
 from probe_station.measurements.session import Session
-from probe_station.measurements.wgfmu_common import SweepMode
+from probe_station.measurements.wgfmu._waveforms import SweepMode
 
 
 class WgfmuBaseProcedure(BaseProcedure):

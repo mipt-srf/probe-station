@@ -8,7 +8,7 @@ from pymeasure.experiment import (
 from probe_station.logging_setup import setup_file_logging
 from probe_station.measurements.common import BaseProcedure, BaseWindow, run_app
 from probe_station.measurements.session import Session
-from probe_station.measurements.voltage_sweeps.CV.cv_sweep_runner import PLOT_POINTS, run
+from probe_station.measurements.cmu.cv_sweep_runner import PLOT_POINTS, run
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())

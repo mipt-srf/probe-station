@@ -8,9 +8,7 @@ from matplotlib import pyplot as plt
 from numpy import sqrt
 
 from probe_station.analysis.dataset import Dataset
-from probe_station.measurements.voltage_sweeps.IV.WGFMU.iv_sweep import (
-    calculate_polarization,
-)
+from probe_station.measurements.wgfmu._waveforms import calculate_polarization
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())

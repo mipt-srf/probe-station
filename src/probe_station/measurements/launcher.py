@@ -225,46 +225,46 @@ class Launcher(QWidget):
         # Script buttons.  4th element is the launch ``kind``:
         # "subprocess" (default) | "in_process" | "notebook".
         scripts = [
-            ("🔄 Cycling Procedure (SPGU)", "probe_station.measurements.cycling.PG.cycling", "#4CAF50", "in_process"),
+            ("🔄 Cycling Procedure (SPGU)", "probe_station.measurements.spgu.cycling", "#4CAF50", "in_process"),
             (
                 "🔄 IV Procedure (SPGU) - experimental",
-                "probe_station.measurements.voltage_sweeps.IV.cycling_with_current",
+                "probe_station.measurements.spgu.cycling_with_current",
                 "#4CAF50",
                 "in_process",
             ),
             (
                 "🔄 Cycling Procedure (WGFMU)",
-                "probe_station.measurements.cycling.WGFMU.cycling",
+                "probe_station.measurements.wgfmu.cycling",
                 "#2196F3",
                 "in_process",
             ),
             (
                 "📊 Fast IV Procedure (WGFMU)",
-                "probe_station.measurements.voltage_sweeps.IV.WGFMU.iv_sweep",
+                "probe_station.measurements.wgfmu.iv_sweep",
                 "#2196F3",
                 "in_process",
             ),
             (
                 "📊 CV Sweep Procedure (CMU)",
-                "probe_station.measurements.voltage_sweeps.CV.cv_sweep",
+                "probe_station.measurements.cmu.cv_sweep",
                 "#C224BA",
                 "in_process",
             ),
             (
                 "📊 IV Sweep Procedure (SMU)",
-                "probe_station.measurements.voltage_sweeps.IV.SMU.iv_sweep",
+                "probe_station.measurements.smu.iv_sweep",
                 "#D1B122",
                 "in_process",
             ),
             (
                 "📊 Ids (Vg)",
-                "probe_station.measurements.voltage_sweeps.IV.SMU.fet_ids_vg",
+                "probe_station.measurements.smu.fet_ids_vg",
                 "#D1B122",
                 "in_process",
             ),
             (
                 "📊 Ids (Vds)",
-                "probe_station.measurements.voltage_sweeps.IV.SMU.fet_ids_vds",
+                "probe_station.measurements.smu.fet_ids_vds",
                 "#D1B122",
                 "in_process",
             ),

@@ -9,7 +9,7 @@ from probe_station.measurements.keithley.instrument import connect_instrument, s
 from probe_station.measurements.keithley.launcher import ADDRESS
 from probe_station.measurements.keithley.pund import KeithleyPundProcedure
 from probe_station.measurements.keithley.PUND_waveform import create_pulse
-from probe_station.measurements.voltage_sweeps.IV._widgets import IvPlotWidget
+from probe_station.measurements.smu._widgets import IvPlotWidget
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())

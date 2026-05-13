@@ -12,14 +12,14 @@ from pymeasure.experiment import (
 from probe_station.logging_setup import setup_file_logging
 from probe_station.measurements.b1500 import WGFMUMeasureCurrentRange
 from probe_station.measurements.common import BaseWindow, run_app
-from probe_station.measurements.wgfmu_common import (
+from probe_station.measurements.wgfmu._base import WgfmuBaseProcedure
+from probe_station.measurements.wgfmu._waveforms import (
     SweepMode,
     calculate_polarization,
     get_sequence,
     run_waveforms,
     run_waveforms_split,
 )
-from probe_station.measurements.wgfmu_procedure import WgfmuBaseProcedure
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())

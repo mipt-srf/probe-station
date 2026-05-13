@@ -19,8 +19,8 @@ from probe_station.measurements.common import (
     setup_rsu_output,
 )
 from probe_station.measurements.session import Session
-from probe_station.measurements.voltage_sweeps.IV.SMU.iv_step_runner import measure_at_voltage
-from probe_station.measurements.voltage_sweeps.IV._widgets import IvPlotWidget
+from probe_station.measurements.smu._widgets import IvPlotWidget
+from probe_station.measurements.smu.iv_step_runner import measure_at_voltage
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())

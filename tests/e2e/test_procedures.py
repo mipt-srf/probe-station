@@ -2,12 +2,10 @@ from unittest.mock import patch
 
 import pytest
 
-from probe_station.measurements.voltage_sweeps.CV.cv_sweep import CmuCvSweepProcedure
-from probe_station.measurements.voltage_sweeps.IV.cycling_with_current import (
-    SpguCyclingWithCurrentProcedure,
-)
-from probe_station.measurements.voltage_sweeps.IV.SMU.iv_sweep import SmuIvSweepProcedure
-from probe_station.measurements.voltage_sweeps.IV.WGFMU.iv_sweep import WgfmuIvSweepProcedure
+from probe_station.measurements.cmu.cv_sweep import CmuCvSweepProcedure
+from probe_station.measurements.smu.iv_sweep import SmuIvSweepProcedure
+from probe_station.measurements.spgu.cycling_with_current import SpguCyclingWithCurrentProcedure
+from probe_station.measurements.wgfmu.iv_sweep import WgfmuIvSweepProcedure
 
 pytestmark = pytest.mark.e2e
 

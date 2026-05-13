@@ -169,10 +169,10 @@ _____
 Voltage sweep procedures
 =========================
 
-`probe_station.measurements.voltage_sweeps.CV.cv_sweep`
----------------------------------------------------------
+`probe_station.measurements.cmu.cv_sweep`
+-----------------------------------------
 
-.. automodule:: probe_station.measurements.voltage_sweeps.CV.cv_sweep
+.. automodule:: probe_station.measurements.cmu.cv_sweep
     :members:
     :undoc-members:
 
@@ -181,10 +181,10 @@ _____
 Cycling procedures
 ==================
 
-`probe_station.measurements.cycling.PG.cycling`
---------------------------------------------------
+`probe_station.measurements.spgu.cycling`
+-----------------------------------------
 
-.. automodule:: probe_station.measurements.cycling.PG.cycling
+.. automodule:: probe_station.measurements.spgu.cycling
     :members:
     :undoc-members:
 
