@@ -168,7 +168,7 @@ if __name__ == "__main__":
         )
 
         cycling_pulse_time = 1e-5
-        iv_time = 1e-4
+        iv_time = 2e-4
 
         run(
             cycling_proc(cycles=cycles, width=cycling_pulse_time, amplitude=2.6, bipolar_pulses=True),
