@@ -23,75 +23,74 @@ experiment_counter = itertools.count(1)
 logger = logging.getLogger(__name__)
 
 
-def run_cv():
+def run(proc, *, timeout=30, startup_delay=0, suffix=""):
     exp_num = next(experiment_counter)
     logger.info(f"=================== Measurement number: {exp_num} ===================")
-    proc = CmuCvSweepProcedure()
-    proc.first_voltage = -3.2
-    proc.second_voltage = 3.2
-
-    results = Results(proc, f"{folder}/{exp_num}_{proc.__class__.__name__}.csv")
+    name = f"{exp_num}_{proc.__class__.__name__}{suffix}"
+    results = Results(proc, f"{folder}/{name}.csv")
     worker = Worker(results)
     worker.start()
-    worker.join(timeout=120)
+    if startup_delay:
+        sleep(startup_delay)
+    worker.join(timeout=timeout)
+    return results
 
 
-def run_dc_iv():
-    exp_num = next(experiment_counter)
-    logger.info(f"=================== Measurement number: {exp_num} ===================")
-    proc = SmuIvSweepProcedure()
-    proc.first_voltage = -2.6
-    proc.second_voltage = 2.6
-    proc.top_channel = 4
-    proc.bottom_channel = 3
-
-    results = Results(proc, f"{folder}/{exp_num}_{proc.__class__.__name__}.csv")
-    worker = Worker(results)
-    worker.start()
-    worker.join(timeout=30)
+def run_and_plot(proc, x_col, y_col, *, timeout=30):
+    results = run(proc, timeout=timeout)
+    sleep(3)
+    plt.figure(figsize=(10, 6))
+    plt.plot(results.data[x_col], results.data[y_col])
+    plt.xlabel(x_col)
+    plt.ylabel(y_col)
+    plt.grid(True)
+    plt.show()
+    sleep(3)
+    return results
 
 
-def run_iv_sweep(mode="PUND", voltage_first=5, voltage_second=-5):
-    exp_num = next(experiment_counter)
-    logger.info(f"=================== Measurement number: {exp_num} ===================")
-    proc = WgfmuIvSweepProcedure()
-    proc.voltage_top_first = voltage_first
-    proc.voltage_top_second = voltage_second
-    proc.current_range = WGFMUMeasureCurrentRange.RANGE_100_UA.name
-    proc.top = 2
-    proc.pulse_time = 2e-4
-    proc.mode = mode
-    results = Results(proc, f"{folder}/{exp_num}_{proc.__class__.__name__}.csv")
-    worker = Worker(results)
-    worker.start()
-    worker.join(timeout=30)
+def cycling_proc(cycles=1000, width=1e-5, amplitude=2.6, channel=2, bipolar_pulses=True, pulse_separation=False):
+    return SpguCyclingProcedure(
+        repetitions=cycles,
+        width=width,
+        rise=width / 10,
+        tail=width / 10,
+        amplitude=amplitude,
+        channel=channel,
+        bipolar_pulses=bipolar_pulses,
+        pulse_separation=pulse_separation,
+    )
 
 
-def run_cycling(cycles=1000, width=1e-5):
-    exp_num = next(experiment_counter)
-    logger.info(f"=================== Measurement number: {exp_num} ===================")
-    proc = SpguCyclingProcedure()
-    proc.width = width
-    proc.repetitions = cycles
-    proc.amplitude = 2.6
-    proc.bipolar_pulses = False
-    proc.channel = 2
-    proc.pulse_separation = False
-    proc.rise = width / 10
-    proc.tail = width / 10
+def wgfmu_iv_proc(
+    mode="PUND",
+    voltage_first=5,
+    voltage_second=-5,
+    pulse_time=2e-4,
+    top=2,
+    current_range=WGFMUMeasureCurrentRange.RANGE_100_UA.name,
+):
+    return WgfmuIvSweepProcedure(
+        voltage_top_first=voltage_first,
+        voltage_top_second=voltage_second,
+        pulse_time=pulse_time,
+        mode=mode,
+        top=top,
+        current_range=current_range,
+    )
 
-    results = Results(proc, f"{folder}/{exp_num}_{proc.__class__.__name__}_{cycles}cycles.csv")
-    worker = Worker(results)
-    worker.start()
 
-    # delay_2nd = 2 * proc.width
-    # period = (delay_2nd + (proc.rise + proc.width + proc.tail) * 2) + delay_2nd
-    # duration = proc.repetitions * period
-    # sleep(duration * 1.5)
+def dc_iv_proc(voltage_first=-2.6, voltage_second=2.6, top_channel=4, bottom_channel=3):
+    return SmuIvSweepProcedure(
+        first_voltage=voltage_first,
+        second_voltage=voltage_second,
+        top_channel=top_channel,
+        bottom_channel=bottom_channel,
+    )
 
-    sleep(5)
 
-    worker.join(timeout=60 * 60 * 24 * 3)
+def cv_proc(voltage_first=-3.2, voltage_second=3.2):
+    return CmuCvSweepProcedure(first_voltage=voltage_first, second_voltage=voltage_second)
 
 
 def log_points(start, stop, per_decade=5):
@@ -102,7 +101,7 @@ def log_points(start, stop, per_decade=5):
     cumsum_final = [start]
     rounded_steps = []
 
-    # Improved rounding rule — smoother between powers of ten
+    # Improved rounding rule - smoother between powers of ten
     def round_nice(x):
         if x <= 0:
             return 0
@@ -148,10 +147,7 @@ def log_points(start, stop, per_decade=5):
             rounded_steps.append(s)
             cumsum_final.append(cumsum_final[-1] + s)
 
-    return np.array([start] + rounded_steps).astype(int)
-
-
-# log_points(10, 1000, per_decade=2) # From 10 to 1000, with 2 additional points per decade (so 3 points: 10, p1, p2, 100,)
+    return np.array([start] + rounded_steps).astype(int).tolist()
 
 
 if __name__ == "__main__":
@@ -160,86 +156,31 @@ if __name__ == "__main__":
     setup_file_logging()
     add_file_log_dir(Path(folder) / "logs")
 
-    # run_cycling(100)
-    # run_iv_sweep()
+    run_and_plot(wgfmu_iv_proc(), "Top electrode voltage", "Top electrode Current")
+    run_and_plot(dc_iv_proc(), "Voltage", "Top electrode current")
+    run_and_plot(cv_proc(), "Voltage", "Capacitance", timeout=120)
 
-    # run_dc_iv()
-
-    # run_cv()
-
-    experiment_counter = itertools.count(1)
-    run_iv_sweep()
-    sleep(3)
-    plt.figure(figsize=(10, 6))
-    ds = Results.load(f"{folder}/{1}_WgfmuIvSweepProcedure.csv")
-    plt.plot(
-        ds.data["Top electrode voltage"],
-        ds.data["Top electrode Current"],
-    )
-
-    plt.xlabel("Voltage")
-    plt.ylabel("Top electrode current")
-    plt.legend()
-    plt.grid(True)
-    plt.show()
-    sleep(3)
-
-    run_dc_iv()
-
-    plt.figure(figsize=(10, 6))
-    ds = Results.load(f"{folder}/{2}_SmuIvSweepProcedure.csv")
-    plt.plot(
-        ds.data["Voltage"],
-        ds.data["Top electrode current"],
-    )
-
-    plt.xlabel("Voltage")
-    plt.ylabel("Top electrode current")
-    plt.legend()
-    plt.grid(True)
-    plt.show()
-    sleep(3)
-
-    run_cv()
-
-    plt.figure(figsize=(10, 6))
-    ds = Results.load(f"{folder}/{3}_CmuCvSweepProcedure.csv")
-    plt.plot(
-        ds.data["Voltage"],
-        ds.data["Capacitance"],
-    )
-
-    plt.xlabel("Voltage")
-    plt.ylabel("Top electrode current")
-    plt.legend()
-    plt.grid(True)
-    plt.show()
-    sleep(3)
     total = 0
-    for cycles in [
-        # *[25] * 4,
-        # *[100] * 9,
-        # *[1000] * 9,
-        # *[10000] * 9,
-        # *[100_000] * 9,
-        # *[1_000_000] * 999,
-        # *log_points(10, 1e6, per_decade=4).tolist(),
-        *log_points(10, 1e10, per_decade=10).tolist()[:],
-        # *[1_000_000] * 999,
-        # *[1_000_000] * 1000,
-        # *[10**7] * 100
-    ]:
-        cycles = int(cycles)
+    for cycles in log_points(10, 1e10, per_decade=10):
         total += cycles
         logger.info(
             f"Total cycles (start): {total} || {datetime.now()} || {datetime.now() + timedelta(seconds=cycles * 1e-5 * 3)}"
         )
-        run_cycling(cycles)
-        run_iv_sweep(voltage_first=2.6, voltage_second=-2.6)
-        run_iv_sweep(mode="DEFAULT", voltage_first=2.6, voltage_second=-2.6)
-        run_iv_sweep(voltage_first=5, voltage_second=-5)
-        run_iv_sweep(mode="DEFAULT", voltage_first=5, voltage_second=-5)
-        run_dc_iv()
-        run_cv()
 
-        #!!!!!!!!!!!!!!!!! bipolar false
+        cycling_pulse_time = 1e-5
+        iv_time = 2e-4
+
+        run(
+            cycling_proc(cycles=cycles, width=cycling_pulse_time, amplitude=2.6, bipolar_pulses=True),
+            timeout=60 * 60 * 24 * 3,
+            startup_delay=5,
+            suffix=f"_{cycles}cycles",
+        )
+
+        run(wgfmu_iv_proc(voltage_first=2.6, voltage_second=-2.6, pulse_time=iv_time))
+        run(wgfmu_iv_proc(mode="DEFAULT", voltage_first=2.6, voltage_second=-2.6, pulse_time=iv_time))
+        run(wgfmu_iv_proc(voltage_first=5, voltage_second=-5, pulse_time=iv_time))
+        run(wgfmu_iv_proc(mode="DEFAULT", voltage_first=5, voltage_second=-5, pulse_time=iv_time))
+
+        run(dc_iv_proc(voltage_first=2.6, voltage_second=-2.6))
+        run(cv_proc(voltage_first=-3.2, voltage_second=3.2), timeout=120)
