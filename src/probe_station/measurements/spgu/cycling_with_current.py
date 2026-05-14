@@ -23,8 +23,9 @@ class SpguCyclingWithCurrentProcedure(BaseProcedure):
     amplitude = FloatParameter("Pulse amplitude", units="V", default=3.0)
     rise = FloatParameter("Pulse rise time", units="s", default=5e-2)
     tail = FloatParameter("Pulse tail time", units="s", default=5e-2)
-    channel = IntegerParameter("Channel", default=2)
+    channel = IntegerParameter("SPGU Channel", default=2)
     bipolar_pulses = BooleanParameter("Bipolar Pulses", default=True)
+    smu_channel = IntegerParameter("SMU Channel", default=3)
 
     period = 2 * (rise.value + tail.value)
 
@@ -46,6 +47,7 @@ class SpguCyclingWithCurrentProcedure(BaseProcedure):
             tail=self.tail,
             channel=self.channel + 100 if self.channel < 10 else self.channel,
             bipolar=self.bipolar_pulses,
+            smu_ch=self.smu_channel,
         )
 
         points = int(self.period * self.repetitions / 2e-3)
