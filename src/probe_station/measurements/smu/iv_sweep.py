@@ -30,6 +30,8 @@ class SmuIvSweepProcedure(BaseProcedure):
     steps = IntegerParameter("Steps", default=100, group_by="advanced_config")
     mode = IntegerParameter("Mode", default=1, group_by="advanced_config")
     # compliance = FloatParameter("Current compliance", units="A", default=0.1, group_by="advanced_config")
+    calculate_resistance = BooleanParameter("Calculate resistance", default=False)
+    resistance_voltage = FloatParameter("Resistance voltage", units="V", default=1.0, group_by="calculate_resistance")
 
     DATA_COLUMNS = ["Voltage", "Top electrode current", "Time"]
 
@@ -87,6 +89,79 @@ class MainWindow(BaseWindow):
             widget_list=widget_list,
             logger=log,
         )
+
+        from qtpy.QtWidgets import QLabel
+
+        self._resistance_label = QLabel()
+        self.inputs.layout().addWidget(self._resistance_label)
+        self.inputs.calculate_resistance.toggled.connect(self._update_resistance_visibility)
+        self._update_resistance_visibility()
+
+    def _update_resistance_visibility(self):
+        enabled = self.inputs.calculate_resistance.value()
+        self._resistance_label.setVisible(enabled)
+        if not enabled:
+            self._resistance_label.clear()
+
+    def finished(self, experiment):
+        super().finished(experiment)
+        procedure = experiment.procedure
+        if not getattr(procedure, "calculate_resistance", False):
+            return
+        self._resistance_label.setText(
+            compute_branch_resistances(experiment.results.data, procedure.resistance_voltage)
+        )
+
+
+def compute_branch_resistances(data, target_voltage: float) -> str:
+    """Compute R = V/I on the forward and backward branches of a LINEAR_DOUBLE sweep.
+
+    Returns a human-readable summary string with both branch resistances and the
+    ratio R_max / R_min. Splits the dataset in half by index: first half is the
+    forward branch, second half is the backward branch.
+    """
+    if data.empty:
+        return "Resistance: n/a (no data)"
+
+    half = len(data) // 2
+    forward = _resistance_at(data.iloc[:half], target_voltage)
+    backward = _resistance_at(data.iloc[half:], target_voltage)
+
+    lines = [
+        f"Forward:  {_format_r(forward)}",
+        f"Backward: {_format_r(backward)}",
+    ]
+    if forward and backward:
+        r_fwd, r_bwd = forward[0], backward[0]
+        r_max, r_min = max(r_fwd, r_bwd), min(r_fwd, r_bwd)
+        if r_min != 0:
+            lines.append(f"R_max / R_min: {r_max / r_min:.3f}")
+
+    log.info("Resistance — " + " | ".join(lines))
+    return "\n".join(lines)
+
+
+def _resistance_at(branch, target_voltage: float):
+    """Find the row closest to *target_voltage* in *branch* and return (R, V, I).
+
+    Returns ``None`` if the branch is empty or I=0 at the closest point.
+    """
+    if branch.empty:
+        return None
+    idx = (branch["Voltage"] - target_voltage).abs().idxmin()
+    v = branch["Voltage"][idx]
+    i = branch["Top electrode current"][idx]
+    if i == 0:
+        log.warning(f"Cannot compute resistance: current is 0 at V={v:.4f} V")
+        return None
+    return v / i, v, i
+
+
+def _format_r(result) -> str:
+    if result is None:
+        return "n/a"
+    r, v, _ = result
+    return f"{r:.3e} Ω (V={v:.3f} V)"
 
 
 if __name__ == "__main__":
