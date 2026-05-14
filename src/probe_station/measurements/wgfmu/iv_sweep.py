@@ -2,6 +2,7 @@ import logging
 
 import numpy as np
 import scipy
+from pymeasure.display.widgets import PlotWidget
 from pymeasure.experiment import (
     BooleanParameter,
     FloatParameter,
@@ -154,6 +155,10 @@ class MainWindow(BaseWindow):
             procedure_class=WgfmuIvSweepProcedure,
             logger=log,
         )
+        # temporary bug fix for incorrect autoscaling in the plot
+        plot = next(w for w in self.widget_list if isinstance(w, PlotWidget))
+        plot.plot.setXRange(-5, 5, padding=0)
+        plot.plot.setLimits(xMin=-5, xMax=5)
 
 
 if __name__ == "__main__":
