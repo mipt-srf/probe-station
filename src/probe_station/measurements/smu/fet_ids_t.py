@@ -25,7 +25,7 @@ log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-class FetCurrentMeasurementProcedure(BaseProcedure):
+class SmuFetIdsTimeProcedure(BaseProcedure):
     """Measure drain and gate current of a FET at specified bias voltages."""
 
     gate_voltage = FloatParameter("Gate voltage", units="V", default=10.0)
@@ -93,7 +93,7 @@ class MainWindow(BaseWindow):
     def __init__(self):
         widget_list = (LogWidget("Experiment Log"),)
         super().__init__(
-            procedure_class=FetCurrentMeasurementProcedure,
+            procedure_class=SmuFetIdsTimeProcedure,
             widget_list=widget_list,
             logger=log,
         )

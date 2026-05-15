@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-class DcProcedure(BaseProcedure):
+class SmuDcVoltageProcedure(BaseProcedure):
     """Apply a constant DC voltage on a selected SMU channel for a given duration."""
 
     voltage = FloatParameter("Voltage", units="V", default=10.0)
@@ -53,7 +53,7 @@ class DcProcedure(BaseProcedure):
 class MainWindow(BaseWindow):
     def __init__(self):
         super().__init__(
-            procedure_class=DcProcedure,
+            procedure_class=SmuDcVoltageProcedure,
             logger=log,
         )
 
