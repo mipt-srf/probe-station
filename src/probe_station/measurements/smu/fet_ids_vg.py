@@ -15,6 +15,7 @@ from probe_station.measurements.common import (
     RSUOutputMode,
     get_smu_by_number,
     max_compliance,
+    parse_data,
     run_app,
     setup_rsu_output,
 )
@@ -23,13 +24,6 @@ from probe_station.measurements.smu._widgets import IvPlotWidget
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
-
-
-# TODO: replace with parse_data from common
-def parse(string):
-    value_strings = string.split(",")
-    values = [float(value_str[3:]) for value_str in value_strings]
-    return values
 
 
 class SmuFetIdsVgProcedure(BaseProcedure):
@@ -78,9 +72,9 @@ class SmuFetIdsVgProcedure(BaseProcedure):
         self.smu_gate.force("voltage", 0, 0, max_compliance(self.smu_gate, gate_peak))
         for voltage in voltages:
             self.smu_gate.force("voltage", 0, voltage)  # 4 ms between steps, 10 ms with measuring
-            time, current, voltage_meas = parse(self.b1500.ask(f"TTIV {self.smu_source.channel}, 0, 0"))
+            time, current, voltage_meas = parse_data(self.b1500.ask(f"TTIV {self.smu_source.channel}, 0, 0"))
             # sleep(0.05)
-            # time, gate_current, voltage_meas = parse(
+            # time, gate_current, voltage_meas = parse_data(
             #     self.b1500.ask(f"TTIV {self.smu_gate.name[-1]}, 15, 0")
             # )
             data = {
