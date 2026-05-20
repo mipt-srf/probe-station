@@ -15,8 +15,7 @@ import pandas as pd
 import scipy
 from scipy.optimize import curve_fit
 
-import probe_station
-from probe_station.common import plot_vlines
+from probe_station.analysis.matlab.common import get_coercive_voltages, plot_vlines
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -380,9 +379,7 @@ class PQ_PUND:  # noqa: N801
         currents = df_cycle["Polarization Current"]
         voltages = df_cycle["Voltages"]
 
-        negative_coercive_field, positive_coercive_field = probe_station.common.get_coercive_voltages(
-            voltages, currents
-        )
+        negative_coercive_field, positive_coercive_field = get_coercive_voltages(voltages, currents)
 
         if plot:
             plt.plot(voltages, currents)
