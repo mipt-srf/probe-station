@@ -2,7 +2,7 @@
 
 The class is designed to be used with the `Dataset` class from the `dataset` module to
 parse, analyze, and visualize data from DC IV experiments.
-"""  # noqa: N999
+"""
 
 from collections.abc import Sequence
 
@@ -11,7 +11,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from scipy.interpolate import interp1d
 
-from .analysis.common import find_x_at_min_y, get_y_at_x
+from probe_station.analysis.common import find_x_at_min_y, get_y_at_x
 
 
 class DC_IV:  # noqa: N801

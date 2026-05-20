@@ -12,7 +12,7 @@ from colour import Color
 from labellines import labelLines
 from scipy.interpolate import interp1d
 
-from probe_station.dataset import Dataset
+from probe_station.analysis.matlab import Dataset
 
 plt.style.use(["science", "no-latex", "notebook"])
 
@@ -64,7 +64,7 @@ def plot_colored_line_by_param(
     y_col="Ids",
     color_col="Vds",
     cmap=None,
-    norm=None,  # <- added norm parameter
+    norm=None,
     figsize=(8, 6),
     linewidth=3,
     xlabel=None,

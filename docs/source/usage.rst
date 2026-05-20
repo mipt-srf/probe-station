@@ -4,16 +4,16 @@ Usage
 Legacy data files
 -----------------
 
-The legacy `Dataset` class reads ``.data`` files produced by the probe station
+The `MatlabDataset` class reads ``.data`` files produced by the probe station
 software and dispatches processing to the appropriate handler (``PQ_PUND``,
 ``DC_IV``, ``CV``, or ``PUND_double``):
 
 .. code-block:: python
 
-    from probe_station import Dataset as DS
+    from probe_station import MatlabDataset
     import matplotlib.pyplot as plt
 
-    ds = DS(r"path\to\data.data")
+    ds = MatlabDataset(r"path\to\data.data")
 
     # Quick plot via the handler
     ds.plot()

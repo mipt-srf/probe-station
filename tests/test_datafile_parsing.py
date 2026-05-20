@@ -2,18 +2,18 @@ from pathlib import Path
 
 import pytest
 
-from probe_station import Dataset
-from probe_station._CV import CV
-from probe_station._DC_IV import DC_IV
-from probe_station._PQ_PUND import PQ_PUND
-from probe_station._PUND_double import PUND_double
+from probe_station import MatlabDataset
+from probe_station.analysis.matlab.cv import CV
+from probe_station.analysis.matlab.dc_iv import DC_IV
+from probe_station.analysis.matlab.pq_pund import PQ_PUND
+from probe_station.analysis.matlab.pund_double import PUND_double
 
 
 @pytest.fixture
 def dataset_loader():
     def _load(filename):
         pq_pund_file = Path(__file__).parent / "data" / filename
-        return Dataset(pq_pund_file)
+        return MatlabDataset(pq_pund_file)
 
     return _load
 
