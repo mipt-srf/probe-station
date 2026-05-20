@@ -12,12 +12,8 @@ from pymeasure.instruments.agilent.agilentB1500 import (
 )
 
 from probe_station.measurements.b1500 import B1500
-from probe_station.measurements.common import (
-    RSU,
-    RSUOutputMode,
-    connect_instrument,
-    setup_rsu_output,
-)
+from probe_station.measurements.b1500_helpers import connect_instrument
+from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())

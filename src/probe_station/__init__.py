@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:  # replace with lazy imports (py>=3.15) https://peps.python.org/pep-0810/
     from .analysis.matlab import Dataset as MatlabDataset
     from .measurements.b1500 import B1500
-    from .measurements.common import connect_instrument
+    from .measurements.b1500_helpers import connect_instrument
     from .measurements.keithley import Keithley2450Extended
     from .measurements.session import Session
 
@@ -33,7 +33,7 @@ def __getattr__(name: str):
 
         return B1500
     if name == "connect_instrument":
-        from .measurements.common import connect_instrument
+        from .measurements.b1500_helpers import connect_instrument
 
         return connect_instrument
     if name == "Keithley2450Extended":

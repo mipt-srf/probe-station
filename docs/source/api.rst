@@ -139,10 +139,28 @@ _____
 Measurements
 ============
 
-`probe_station.measurements.common`
-------------------------------------
+`probe_station.measurements.pymeasure_base`
+--------------------------------------------
 
-.. automodule:: probe_station.measurements.common
+.. automodule:: probe_station.measurements.pymeasure_base
+    :members:
+    :undoc-members:
+
+_____
+
+`probe_station.measurements.b1500_helpers`
+-------------------------------------------
+
+.. automodule:: probe_station.measurements.b1500_helpers
+    :members:
+    :undoc-members:
+
+_____
+
+`probe_station.measurements.rsu`
+---------------------------------
+
+.. automodule:: probe_station.measurements.rsu
     :members:
     :undoc-members:
 

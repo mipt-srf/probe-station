@@ -5,7 +5,8 @@ from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter
 
 from probe_station.logging_setup import setup_file_logging
-from probe_station.measurements.common import BaseProcedure, BaseWindow, max_compliance, run_app
+from probe_station.measurements.b1500_helpers import max_compliance
+from probe_station.measurements.pymeasure_base import BaseProcedure, BaseWindow, run_app
 from probe_station.measurements.spgu.cycling_runner import run
 from probe_station.measurements.session import Session
 

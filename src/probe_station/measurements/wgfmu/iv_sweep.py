@@ -12,7 +12,7 @@ from pymeasure.experiment import (
 
 from probe_station.logging_setup import setup_file_logging
 from probe_station.measurements.b1500 import WGFMUMeasureCurrentRange
-from probe_station.measurements.common import BaseWindow, run_app
+from probe_station.measurements.pymeasure_base import BaseWindow, run_app
 from probe_station.measurements.wgfmu._base import WgfmuBaseProcedure
 from probe_station.measurements.wgfmu._waveforms import (
     SweepMode,

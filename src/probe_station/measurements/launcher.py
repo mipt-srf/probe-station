@@ -21,7 +21,7 @@ from qtpy.QtWidgets import (
 )
 
 from probe_station.logging_setup import setup_file_logging
-from probe_station.measurements.common import (
+from probe_station.measurements.pymeasure_base import (
     any_window_running,
     read_procedure_class,
     register_busy_predicate,
