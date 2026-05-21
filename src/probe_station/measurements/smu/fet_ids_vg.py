@@ -22,6 +22,7 @@ class SmuFetIdsVgProcedure(BaseProcedure):
     source = IntegerParameter("Source channel", default=4)
     drain = IntegerParameter("Drain channel", default=3)
     gate = IntegerParameter("Gate channel", default=1)
+    base = IntegerParameter("Base channel", default=2)
 
     voltage_ds = FloatParameter("Drain-source voltage", units="V", default=1.0)
     voltage_gate_first = FloatParameter("Gate voltage (first)", units="V", default=-20.0)
@@ -45,10 +46,15 @@ class SmuFetIdsVgProcedure(BaseProcedure):
         # self.smu_drain = self.b1500.smus[self.drain]
         self.smu_drain = get_smu_by_number(self.b1500, self.drain)  # temp fix, while SMU rework is not merged
         self.smu_drain.enable()
+        self.smu_drain.force("voltage", 0, 0, max_compliance(self.smu_drain, 0))
 
         # self.smu_gate = self.b1500.smus[self.gate]
         self.smu_gate = get_smu_by_number(self.b1500, self.gate)  # temp fix, while SMU rework is not merged
         self.smu_gate.enable()
+
+        self.smu_base = get_smu_by_number(self.b1500, self.base)
+        self.smu_base.enable()
+        self.smu_base.force("voltage", 0, 0, max_compliance(self.smu_base, 0))
 
         self.b1500.clear_timer()
 
@@ -83,6 +89,7 @@ class SmuFetIdsVgProcedure(BaseProcedure):
 
         self.smu_source.force("voltage", 0, 0)
         self.smu_gate.force("voltage", 0, 0)
+        self.smu_base.force("voltage", 0, 0)
 
 
 class MainWindow(BaseWindow):
