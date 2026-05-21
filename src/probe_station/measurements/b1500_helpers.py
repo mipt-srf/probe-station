@@ -89,23 +89,6 @@ def check_all_errors(b1500):
             break
 
 
-def get_smu_by_number(b1500, smu_number):
-    """Return the SMU reference matching the given channel number.
-
-    :param b1500: Connected ``AgilentB1500`` instance.
-    :param smu_number: Channel number (e.g. 1, 2, 3, 4).
-    :return: The matching SMU object.
-    :raises ValueError: If the SMU is not found.
-    """
-    target_name = f"SMU{smu_number}"
-
-    for smu in b1500.smu_references:
-        if smu.name == target_name:
-            return smu
-
-    raise ValueError(f"SMU{smu_number} not found in smu_references")
-
-
 def parse_data(string):
     """Parse a comma-separated measurement data string into a list of floats.
 

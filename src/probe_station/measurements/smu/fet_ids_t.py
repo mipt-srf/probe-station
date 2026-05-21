@@ -10,7 +10,6 @@ from pymeasure.experiment import (
 )
 from pymeasure.instruments.agilent.agilentB1500 import ADCType
 
-from probe_station.measurements.b1500_helpers import get_smu_by_number
 from probe_station.measurements.pymeasure_base import BaseProcedure, BaseWindow, run_app
 from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 from probe_station.measurements.session import Session
@@ -46,10 +45,10 @@ class SmuFetIdsTimeProcedure(BaseProcedure):
     def execute(self):
         log.info(f"Starting the {self.__class__}")
 
-        gate_smu = get_smu_by_number(self.b1500, self.gate_channel)
-        drain_smu = get_smu_by_number(self.b1500, self.drain_channel)
-        source_smu = get_smu_by_number(self.b1500, self.source_channel)
-        base_smu = get_smu_by_number(self.b1500, self.base_channel)
+        gate_smu = self.b1500.smus[self.gate_channel]
+        drain_smu = self.b1500.smus[self.drain_channel]
+        source_smu = self.b1500.smus[self.source_channel]
+        base_smu = self.b1500.smus[self.base_channel]
 
         self.b1500.adc_averaging = self.averaging
         drain_smu.adc_type = ADCType.HSADC

@@ -8,7 +8,7 @@ from pymeasure.experiment import (
 )
 
 from probe_station.logging_setup import setup_file_logging
-from probe_station.measurements.b1500_helpers import get_smu_by_number, max_compliance, parse_data
+from probe_station.measurements.b1500_helpers import max_compliance, parse_data
 from probe_station.measurements.pymeasure_base import BaseProcedure, BaseWindow, run_app
 from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 from probe_station.measurements.session import Session
@@ -39,20 +39,17 @@ class SmuFetIdsVgProcedure(BaseProcedure):
         setup_rsu_output(self.b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
 
     def execute(self):
-        # self.smu_source = self.b1500.smus[self.source]
-        self.smu_source = get_smu_by_number(self.b1500, self.source)  # temp fix, while SMU rework is not merged
+        self.smu_source = self.b1500.smus[self.source]
         self.smu_source.enable()
 
-        # self.smu_drain = self.b1500.smus[self.drain]
-        self.smu_drain = get_smu_by_number(self.b1500, self.drain)  # temp fix, while SMU rework is not merged
+        self.smu_drain = self.b1500.smus[self.drain]
         self.smu_drain.enable()
         self.smu_drain.force("voltage", 0, 0, max_compliance(self.smu_drain, 0))
 
-        # self.smu_gate = self.b1500.smus[self.gate]
-        self.smu_gate = get_smu_by_number(self.b1500, self.gate)  # temp fix, while SMU rework is not merged
+        self.smu_gate = self.b1500.smus[self.gate]
         self.smu_gate.enable()
 
-        self.smu_base = get_smu_by_number(self.b1500, self.base)
+        self.smu_base = self.b1500.smus[self.base]
         self.smu_base.enable()
         self.smu_base.force("voltage", 0, 0, max_compliance(self.smu_base, 0))
 

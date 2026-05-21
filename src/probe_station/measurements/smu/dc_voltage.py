@@ -8,7 +8,7 @@ from pymeasure.experiment import (
     IntegerParameter,
 )
 
-from probe_station.measurements.b1500_helpers import get_smu_by_number, max_compliance
+from probe_station.measurements.b1500_helpers import max_compliance
 from probe_station.measurements.pymeasure_base import BaseProcedure, BaseWindow, run_app
 from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 from probe_station.measurements.session import Session
@@ -33,7 +33,7 @@ class SmuDcVoltageProcedure(BaseProcedure):
     def execute(self):
         log.info(f"Starting the {self.__class__}")
 
-        top_smu = get_smu_by_number(self.b1500, self.channel)
+        top_smu = self.b1500.smus[self.channel]
         top_smu.enable()
         top_smu.force("voltage", 0, self.voltage, max_compliance(top_smu, abs(self.voltage)))
         self.time -= 0.1  # compensation for the time spent on commands
