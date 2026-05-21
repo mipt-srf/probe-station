@@ -8,7 +8,7 @@ from probe_station.measurements.pymeasure_base import BaseProcedure, BaseWindow,
 from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 from probe_station.measurements.session import Session
 from probe_station.measurements.smu._widgets import IvPlotWidget
-from probe_station.measurements.smu.fet_ids_vds_runner import get_data, run
+from probe_station.measurements.smu.fet_ids_vds_runner import run
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -51,23 +51,25 @@ class SmuFetIdsVdsProcedure(BaseProcedure):
             gate=self.gate_channel,
             gate_voltage=self.gate_voltage,
         )
-        times, voltages, currents = get_data(self.b1500)
-        # print(f"len(times) = {len(times), len(voltages), len(currents)}")
-        # print(voltages[:20])
 
-        self.emit(
-            "batch results",
-            {"Time": times, "Voltage": voltages, "Source electrode current": currents},
-        )
+        if self.mode == 2:
+            total_steps = 2 * self.steps - 1
+        else:
+            total_steps = 2 * self.steps
 
-        times, voltages, currents = get_data(self.b1500)
-        # print(f"len(times) = {len(times), len(voltages), len(currents)}")
-        # print(currents[:20])
+        for emitted, (time, current, voltage) in enumerate(self.b1500.iter_output(total_steps, 3), start=1):
+            self.emit("progress", emitted / total_steps * 100)
+            self.emit(
+                "results",
+                {"Time": time, "Voltage": voltage, "Source electrode current": current},
+            )
+            if self.should_stop():
+                log.warning("Caught the stop flag in the procedure")
+                self.b1500.abort()
+                self.b1500.force_gnd()
+                return
 
-        self.emit(
-            "batch results",
-            {"Time": times, "Voltage": voltages, "Source electrode current": currents},
-        )
+        self.b1500.force_gnd()
 
 
 class MainWindow(BaseWindow):
