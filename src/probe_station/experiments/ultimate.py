@@ -23,7 +23,20 @@ experiment_counter = itertools.count(1)
 logger = logging.getLogger(__name__)
 
 
-def run(proc, *, timeout=30, startup_delay=0, suffix=""):
+def plot_results(results, x_col, y_col, *, log=False):
+    sleep(3)
+    y = np.abs(results.data[y_col]) if log else results.data[y_col]
+    plt.figure(figsize=(10, 6))
+    plt.plot(results.data[x_col], y)
+    plt.yscale("log" if log else "linear")
+    plt.xlabel(x_col)
+    plt.ylabel(f"|{y_col}|" if log else y_col)
+    plt.grid(True, which="both" if log else "major")
+    plt.show()
+    sleep(3)
+
+
+def run(proc, *, timeout=30, startup_delay=0, suffix="", plot=False, x_col=None, y_col=None, log=False):
     exp_num = next(experiment_counter)
     logger.info(f"=================== Measurement number: {exp_num} ===================")
     name = f"{exp_num}_{proc.__class__.__name__}{suffix}"
@@ -33,19 +46,10 @@ def run(proc, *, timeout=30, startup_delay=0, suffix=""):
     if startup_delay:
         sleep(startup_delay)
     worker.join(timeout=timeout)
-    return results
 
+    if plot:
+        plot_results(results, x_col, y_col, log=log)
 
-def run_and_plot(proc, x_col, y_col, *, timeout=30):
-    results = run(proc, timeout=timeout)
-    sleep(3)
-    plt.figure(figsize=(10, 6))
-    plt.plot(results.data[x_col], results.data[y_col])
-    plt.xlabel(x_col)
-    plt.ylabel(y_col)
-    plt.grid(True)
-    plt.show()
-    sleep(3)
     return results
 
 
@@ -156,9 +160,9 @@ if __name__ == "__main__":
     setup_file_logging()
     add_file_log_dir(Path(folder) / "logs")
 
-    run_and_plot(wgfmu_iv_proc(), "Top electrode voltage", "Top electrode Current")
-    run_and_plot(dc_iv_proc(), "Voltage", "Top electrode current")
-    run_and_plot(cv_proc(), "Voltage", "Capacitance", timeout=120)
+    run(wgfmu_iv_proc(), plot=True, x_col="Top electrode voltage", y_col="Top electrode Current")
+    run(dc_iv_proc(), plot=True, x_col="Voltage", y_col="Top electrode current")
+    run(cv_proc(), plot=True, x_col="Voltage", y_col="Capacitance", timeout=120)
 
     total = 0
     for cycles in log_points(10, 1e10, per_decade=10):
