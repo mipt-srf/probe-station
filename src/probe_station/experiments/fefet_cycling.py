@@ -3,14 +3,22 @@ import shutil
 from datetime import datetime, timedelta
 from pathlib import Path
 
+from keysight_b1530a.enums import WGFMUMeasureCurrentRange
+
 from probe_station.experiments.ultimate import folder, log_points, run
 from probe_station.logging_setup import add_file_log_dir, setup_file_logging
 from probe_station.measurements.smu.fet_ids_vg import SmuFetIdsVgProcedure
 from probe_station.measurements.spgu.cycling import SpguCyclingProcedure
+from probe_station.measurements.wgfmu.fet_ids_vg import WgfmuFetIdsVgProcedure
 
 logger = logging.getLogger(__name__)
 
 GATE_SPGU_CHANNEL = 2
+
+# Probe the transfer curve with the fast WGFMU sweep instead of the SMU sweep.
+# Both procedures emit "Gate Voltage" / "Drain-Source Current", so the rest of
+# the experiment (and the plotting columns) is unaffected by the choice.
+USE_WGFMU_IDS_VG = False
 
 
 def cycling_proc(
@@ -55,6 +63,33 @@ def ids_vg_proc(
     )
 
 
+def wgfmu_ids_vg_proc(
+    voltage_ds=0.25,
+    voltage_gate_first=0,
+    voltage_gate_second=4,
+    pulse_time=1e-3,
+    mode="DEFAULT",
+    gate=2,
+    drain=1,
+    current_range=WGFMUMeasureCurrentRange.RANGE_100_UA.name,
+):
+    return WgfmuFetIdsVgProcedure(
+        voltage_ds=voltage_ds,
+        voltage_gate_first=voltage_gate_first,
+        voltage_gate_second=voltage_gate_second,
+        pulse_time=pulse_time,
+        mode=mode,
+        gate=gate,
+        drain=drain,
+        current_range=current_range,
+    )
+
+
+def transfer_proc():
+    """Build the Ids(Vg) transfer-curve procedure for the current backend."""
+    return wgfmu_ids_vg_proc() if USE_WGFMU_IDS_VG else ids_vg_proc()
+
+
 if __name__ == "__main__":
     shutil.rmtree(Path(folder), ignore_errors=True)
     Path(folder).mkdir(exist_ok=True)
@@ -64,7 +99,7 @@ if __name__ == "__main__":
     cycling_pulse_time = 1e-5
     cycling_amplitude = 6
 
-    run(ids_vg_proc(), plot=False, x_col="Gate Voltage", y_col="Drain-Source Current")
+    run(transfer_proc(), plot=False, x_col="Gate Voltage", y_col="Drain-Source Current")
 
     total = 0
     for cycles in log_points(10, 1e7, per_decade=2):
@@ -86,4 +121,4 @@ if __name__ == "__main__":
             suffix=f"_{cycles}cycles",
         )
 
-        run(ids_vg_proc(), plot=False, x_col="Gate Voltage", y_col="Drain-Source Current")
+        run(transfer_proc(), plot=False, x_col="Gate Voltage", y_col="Drain-Source Current")
