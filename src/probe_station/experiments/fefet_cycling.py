@@ -15,11 +15,6 @@ logger = logging.getLogger(__name__)
 
 GATE_SPGU_CHANNEL = 2
 
-# Probe the transfer curve with the fast WGFMU sweep instead of the SMU sweep.
-# Both procedures emit "Gate Voltage" / "Drain-Source Current", so the rest of
-# the experiment (and the plotting columns) is unaffected by the choice.
-USE_WGFMU_IDS_VG = False
-
 
 def cycling_proc(
     cycles=1000,
@@ -85,11 +80,6 @@ def wgfmu_ids_vg_proc(
     )
 
 
-def transfer_proc():
-    """Build the Ids(Vg) transfer-curve procedure for the current backend."""
-    return wgfmu_ids_vg_proc() if USE_WGFMU_IDS_VG else ids_vg_proc()
-
-
 if __name__ == "__main__":
     shutil.rmtree(Path(folder), ignore_errors=True)
     Path(folder).mkdir(exist_ok=True)
@@ -99,7 +89,7 @@ if __name__ == "__main__":
     cycling_pulse_time = 1e-5
     cycling_amplitude = 6
 
-    run(transfer_proc(), plot=False, x_col="Gate Voltage", y_col="Drain-Source Current")
+    run(ids_vg_proc(), plot=False, x_col="Gate Voltage", y_col="Drain-Source Current")
 
     total = 0
     for cycles in log_points(10, 1e7, per_decade=2):
@@ -121,4 +111,4 @@ if __name__ == "__main__":
             suffix=f"_{cycles}cycles",
         )
 
-        run(transfer_proc(), plot=False, x_col="Gate Voltage", y_col="Drain-Source Current")
+        run(ids_vg_proc(), plot=False, x_col="Gate Voltage", y_col="Drain-Source Current")
