@@ -13,31 +13,23 @@ from probe_station.measurements.session import Session
 from probe_station.measurements.wgfmu._waveforms import SweepMode
 
 
-class WgfmuBaseProcedure(BaseProcedure):
-    """Shared parameters and startup for WGFMU-based procedures."""
+class WgfmuSweepProcedure(BaseProcedure):
+    """Generic WGFMU startup and sweep parameters (no electrode topology).
+
+    Holds the parameters and instrument setup common to every WGFMU-based
+    procedure, regardless of how the device under test is wired. Subclass this
+    directly when the top/bottom electrode model in :class:`WgfmuBaseProcedure`
+    does not fit (e.g. a FET with separate gate and drain channels).
+    """
 
     mode = ListParameter("Mode", default=SweepMode.DEFAULT.name, choices=[e.name for e in SweepMode])
     pulse_time = FloatParameter("Pulse time", units="s", default=1e-5)
 
-    voltage_top_first = FloatParameter("Top electrode voltage (first)", units="V", default=5.0)
-    voltage_top_second = FloatParameter("Top electrode voltage (second)", units="V", default=-5.0)
-
-    top = IntegerParameter("Top channel", default=2)
     current_range = ListParameter(
         "Current range",
         default=WGFMUMeasureCurrentRange.RANGE_100_UA.name,
         choices=[e.name for e in WGFMUMeasureCurrentRange],
     )
-
-    enable_bottom = BooleanParameter("Enable bottom bias and measurement", default=False)
-
-    voltage_bottom_first = FloatParameter(
-        "Bottom electrode voltage (first)", units="V", default=-5.0, group_by="enable_bottom"
-    )
-    voltage_bottom_second = FloatParameter(
-        "Bottom electrode voltage (second)", units="V", default=5.0, group_by="enable_bottom"
-    )
-    bottom = IntegerParameter("Bottom channel", default=1, group_by="enable_bottom")
 
     advanced_config = BooleanParameter("Advanced config", default=False)
 
@@ -49,3 +41,22 @@ class WgfmuBaseProcedure(BaseProcedure):
         self.b1500 = Session.acquire(timeout=60000, reset=False)
         self.b1500.clear_wgfmu()
         self.b1500.initialize_wgfmu()
+
+
+class WgfmuBaseProcedure(WgfmuSweepProcedure):
+    """Shared parameters for two-electrode (top/bottom) WGFMU sweeps."""
+
+    voltage_top_first = FloatParameter("Top electrode voltage (first)", units="V", default=5.0)
+    voltage_top_second = FloatParameter("Top electrode voltage (second)", units="V", default=-5.0)
+
+    top = IntegerParameter("Top channel", default=2)
+
+    enable_bottom = BooleanParameter("Enable bottom bias and measurement", default=False)
+
+    voltage_bottom_first = FloatParameter(
+        "Bottom electrode voltage (first)", units="V", default=-5.0, group_by="enable_bottom"
+    )
+    voltage_bottom_second = FloatParameter(
+        "Bottom electrode voltage (second)", units="V", default=5.0, group_by="enable_bottom"
+    )
+    bottom = IntegerParameter("Bottom channel", default=1, group_by="enable_bottom")

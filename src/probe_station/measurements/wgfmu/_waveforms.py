@@ -60,6 +60,22 @@ def get_sequence(
     return PulseSequence([positive, negative])
 
 
+def get_constant_sequence(voltage, duration, edge_time=None):
+    """A flat-top pulse holding *voltage* for *duration* seconds.
+
+    Used to bias a second WGFMU channel at a constant level while another
+    channel sweeps (e.g. a FET drain held at Vds during a gate sweep). The
+    short rise/fall edges keep the total duration equal to *duration* so the
+    measure points stay time-aligned with the sweeping channel.
+    """
+    if edge_time is None:
+        edge_time = duration / 1000
+    pulse_width = duration - 2 * edge_time
+    return PulseSequence(
+        [TrapezoidalPulse(amplitude=voltage, pulse_width=pulse_width, rise_time=edge_time, fall_time=edge_time)]
+    )
+
+
 def set_waveform(
     b1500: B1500,
     sequence,
