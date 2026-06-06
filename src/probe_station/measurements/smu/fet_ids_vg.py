@@ -41,10 +41,10 @@ class SmuFetIdsVgProcedure(BaseProcedure):
     def execute(self):
         self.smu_source = self.b1500.smus[self.source]
         self.smu_source.enable()
+        self.smu_source.force("voltage", 0, 0, max_compliance(self.smu_source, 0))
 
         self.smu_drain = self.b1500.smus[self.drain]
         self.smu_drain.enable()
-        self.smu_drain.force("voltage", 0, 0, max_compliance(self.smu_drain, 0))
 
         self.smu_gate = self.b1500.smus[self.gate]
         self.smu_gate.enable()
@@ -62,12 +62,12 @@ class SmuFetIdsVgProcedure(BaseProcedure):
                 np.linspace(self.voltage_gate_second, 0, self.points // 3),
             ),
         )
-        self.smu_source.force("voltage", 0, self.voltage_ds, max_compliance(self.smu_source, abs(self.voltage_ds)))
+        self.smu_drain.force("voltage", 0, self.voltage_ds, max_compliance(self.smu_drain, abs(self.voltage_ds)))
         gate_peak = max(abs(self.voltage_gate_first), abs(self.voltage_gate_second))
         self.smu_gate.force("voltage", 0, 0, max_compliance(self.smu_gate, gate_peak))
         for voltage in voltages:
             self.smu_gate.force("voltage", 0, voltage)  # 4 ms between steps, 10 ms with measuring
-            time, current, voltage_meas = parse_data(self.b1500.ask(f"TTIV {self.smu_source.channel}, 0, 0"))
+            time, current, voltage_meas = parse_data(self.b1500.ask(f"TTIV {self.smu_drain.channel}, 0, 0"))
             # sleep(0.05)
             # time, gate_current, voltage_meas = parse_data(
             #     self.b1500.ask(f"TTIV {self.smu_gate.name[-1]}, 15, 0")
@@ -84,7 +84,7 @@ class SmuFetIdsVgProcedure(BaseProcedure):
                 self.b1500.force_gnd()
                 break
 
-        self.smu_source.force("voltage", 0, 0)
+        self.smu_drain.force("voltage", 0, 0)
         self.smu_gate.force("voltage", 0, 0)
         self.smu_base.force("voltage", 0, 0)
 
