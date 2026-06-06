@@ -39,7 +39,7 @@ Repositories/
 Then run from `probe-station`:
 
 ```bash
-uv sync --extra measurements
+uv sync --extra measurements --extra tests
 uv run python -m pytest --ignore=tests/e2e
 ```
 
