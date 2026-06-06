@@ -39,18 +39,18 @@ class WgfmuFetIdsVgProcedure(WgfmuProcedure):
     # section. The sweep parameters are shared with WgfmuBaseProcedure but cannot
     # be inherited without scrambling that order, so they are declared here too.
     mode = ListParameter("Mode", default=SweepMode.DEFAULT.name, choices=[e.name for e in SweepMode])
-    pulse_time = FloatParameter("Pulse time", units="s", default=1e-5)
+    pulse_time = FloatParameter("Pulse time", units="s", default=1e-3)
 
     gate = IntegerParameter("Gate channel", default=2)
     drain = IntegerParameter("Drain channel", default=1)
 
-    voltage_ds = FloatParameter("Drain-source voltage", units="V", default=1.0)
+    voltage_ds = FloatParameter("Drain-source voltage", units="V", default=0.25)
     voltage_gate_first = FloatParameter("Gate voltage (first)", units="V", default=-5.0)
     voltage_gate_second = FloatParameter("Gate voltage (second)", units="V", default=5.0)
 
     current_range = ListParameter(
         "Current range",
-        default=WGFMUMeasureCurrentRange.RANGE_100_UA.name,
+        default=WGFMUMeasureCurrentRange.RANGE_10_MA.name,
         choices=[e.name for e in WGFMUMeasureCurrentRange],
     )
 
@@ -58,7 +58,7 @@ class WgfmuFetIdsVgProcedure(WgfmuProcedure):
     steps = IntegerParameter("Steps per pulse", default=100, group_by="advanced_config")
     rise_to_hold_ratio = FloatParameter("Rise to hold time ratio", default=1, group_by="advanced_config")
 
-    plot_points = IntegerParameter("Points to plot", default=1000, group_by="advanced_config")
+    plot_points = IntegerParameter("Points to plot", default=200, group_by="advanced_config")
 
     DATA_COLUMNS = ["Gate Voltage", "Drain-Source Current", "Gate Current", "Time"]
 
@@ -110,8 +110,6 @@ class MainWindow(BaseWindow):
             widget_list=widget_list,
             logger=log,
         )
-        self.setWindowTitle("Ids (Vg) - WGFMU")
-        self.filename = "voltage_ds={Drain-source voltage}"
 
 
 if __name__ == "__main__":

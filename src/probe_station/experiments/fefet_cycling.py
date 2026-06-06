@@ -61,12 +61,12 @@ def ids_vg_proc(
 def wgfmu_ids_vg_proc(
     voltage_ds=0.25,
     voltage_gate_first=0,
-    voltage_gate_second=4,
+    voltage_gate_second=10,
     pulse_time=1e-3,
     mode="DEFAULT",
     gate=2,
     drain=1,
-    current_range=WGFMUMeasureCurrentRange.RANGE_100_UA.name,
+    current_range=WGFMUMeasureCurrentRange.RANGE_10_MA.name,
 ):
     return WgfmuFetIdsVgProcedure(
         voltage_ds=voltage_ds,
@@ -86,10 +86,10 @@ if __name__ == "__main__":
     setup_file_logging()
     add_file_log_dir(Path(folder) / "logs")
 
-    cycling_pulse_time = 1e-5
-    cycling_amplitude = 6
+    cycling_pulse_time = 1e-3
+    cycling_amplitude = 10
 
-    run(ids_vg_proc(), plot=False, x_col="Gate Voltage", y_col="Drain-Source Current")
+    run(wgfmu_ids_vg_proc(), plot=False, x_col="Gate Voltage", y_col="Drain-Source Current")
 
     total = 0
     for cycles in log_points(10, 1e7, per_decade=2):
@@ -111,4 +111,4 @@ if __name__ == "__main__":
             suffix=f"_{cycles}cycles",
         )
 
-        run(ids_vg_proc(), plot=False, x_col="Gate Voltage", y_col="Drain-Source Current")
+        run(wgfmu_ids_vg_proc(), plot=False, x_col="Gate Voltage", y_col="Drain-Source Current")
