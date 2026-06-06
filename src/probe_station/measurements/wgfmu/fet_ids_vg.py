@@ -2,8 +2,10 @@ import logging
 
 from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import (
+    BooleanParameter,
     FloatParameter,
     IntegerParameter,
+    ListParameter,
 )
 
 from probe_station.logging_setup import setup_file_logging
@@ -12,6 +14,7 @@ from probe_station.measurements.pymeasure_base import BaseWindow, run_app
 from probe_station.measurements.smu._widgets import IvPlotWidget
 from probe_station.measurements.wgfmu._base import WgfmuSweepProcedure
 from probe_station.measurements.wgfmu._waveforms import (
+    SweepMode,
     get_constant_sequence,
     get_sequence,
     run_waveforms,
@@ -31,12 +34,29 @@ class WgfmuFetIdsVgProcedure(WgfmuSweepProcedure):
     WGFMU waveform path like the WGFMU IV sweep.
     """
 
+    # Parameters are declared in GUI order (see WgfmuSweepProcedure): sweep
+    # timing, channels, voltages, current range, then the advanced-config
+    # section. The sweep parameters are shared with WgfmuBaseProcedure but cannot
+    # be inherited without scrambling that order, so they are declared here too.
+    mode = ListParameter("Mode", default=SweepMode.DEFAULT.name, choices=[e.name for e in SweepMode])
+    pulse_time = FloatParameter("Pulse time", units="s", default=1e-5)
+
     gate = IntegerParameter("Gate channel", default=2)
     drain = IntegerParameter("Drain channel", default=1)
 
     voltage_ds = FloatParameter("Drain-source voltage", units="V", default=1.0)
     voltage_gate_first = FloatParameter("Gate voltage (first)", units="V", default=-5.0)
     voltage_gate_second = FloatParameter("Gate voltage (second)", units="V", default=5.0)
+
+    current_range = ListParameter(
+        "Current range",
+        default=WGFMUMeasureCurrentRange.RANGE_100_UA.name,
+        choices=[e.name for e in WGFMUMeasureCurrentRange],
+    )
+
+    advanced_config = BooleanParameter("Advanced config", default=False)
+    steps = IntegerParameter("Steps per pulse", default=100, group_by="advanced_config")
+    rise_to_hold_ratio = FloatParameter("Rise to hold time ratio", default=1, group_by="advanced_config")
 
     plot_points = IntegerParameter("Points to plot", default=1000, group_by="advanced_config")
 
