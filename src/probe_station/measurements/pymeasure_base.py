@@ -151,6 +151,7 @@ class BaseWindow(ManagedWindowBase):
 
         self.setWindowTitle(self.procedure_class.__name__)
         self.store_measurement = False
+        self.filename = f"{{date}}_{{time}}_{self.procedure_class.__name__}"
         _BASE_WINDOW_INSTANCES.add(self)
 
     def _queue(self, checked):
@@ -175,8 +176,8 @@ class BaseWindow(ManagedWindowBase):
         super().finished(experiment)
         if not self.store_measurement:
             return
-        procedure = experiment.procedure
-        dest = Path(self.directory) / f"{procedure.start_time:%Y%m%d_%H%M%S}_{type(procedure).__name__}.png"
+        # Save the screenshot next to the results file, sharing its name.
+        dest = Path(experiment.results.data_filename).with_suffix(".png")
         take_screenshot(self, dest)
 
     def load_experiment_from_file(self, filename: str) -> None:
