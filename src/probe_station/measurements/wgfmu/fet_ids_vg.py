@@ -12,7 +12,7 @@ from probe_station.logging_setup import setup_file_logging
 from probe_station.measurements.b1500 import WGFMUMeasureCurrentRange
 from probe_station.measurements.pymeasure_base import BaseWindow, run_app
 from probe_station.measurements.smu._widgets import IvPlotWidget
-from probe_station.measurements.wgfmu._base import WgfmuSweepProcedure
+from probe_station.measurements.wgfmu._base import WgfmuProcedure
 from probe_station.measurements.wgfmu._waveforms import (
     SweepMode,
     get_constant_sequence,
@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-class WgfmuFetIdsVgProcedure(WgfmuSweepProcedure):
+class WgfmuFetIdsVgProcedure(WgfmuProcedure):
     """FET transfer (Ids-Vg) sweep on the WGFMU.
 
     The gate channel is driven with a triangular voltage sweep while the drain
@@ -34,7 +34,7 @@ class WgfmuFetIdsVgProcedure(WgfmuSweepProcedure):
     WGFMU waveform path like the WGFMU IV sweep.
     """
 
-    # Parameters are declared in GUI order (see WgfmuSweepProcedure): sweep
+    # Parameters are declared in GUI order (see WgfmuProcedure): sweep
     # timing, channels, voltages, current range, then the advanced-config
     # section. The sweep parameters are shared with WgfmuBaseProcedure but cannot
     # be inherited without scrambling that order, so they are declared here too.

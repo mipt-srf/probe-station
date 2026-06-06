@@ -13,7 +13,7 @@ from probe_station.measurements.session import Session
 from probe_station.measurements.wgfmu._waveforms import SweepMode
 
 
-class WgfmuSweepProcedure(BaseProcedure):
+class WgfmuProcedure(BaseProcedure):
     """WGFMU instrument startup shared by all WGFMU-based procedures.
 
     Holds only the instrument setup common to every WGFMU procedure, regardless
@@ -35,10 +35,10 @@ class WgfmuSweepProcedure(BaseProcedure):
         self.b1500.initialize_wgfmu()
 
 
-class WgfmuBaseProcedure(WgfmuSweepProcedure):
+class WgfmuBaseProcedure(WgfmuProcedure):
     """Shared parameters for two-electrode (top/bottom) WGFMU sweeps.
 
-    Parameters are declared in GUI order (see :class:`WgfmuSweepProcedure`).
+    Parameters are declared in GUI order (see :class:`WgfmuProcedure`).
     """
 
     mode = ListParameter("Mode", default=SweepMode.DEFAULT.name, choices=[e.name for e in SweepMode])
