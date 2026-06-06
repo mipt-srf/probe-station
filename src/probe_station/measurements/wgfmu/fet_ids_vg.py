@@ -10,6 +10,7 @@ from pymeasure.experiment import (
 
 from probe_station.logging_setup import setup_file_logging
 from probe_station.measurements.b1500 import WGFMUMeasureCurrentRange
+from probe_station.measurements.b1500_helpers import max_compliance
 from probe_station.measurements.pymeasure_base import BaseWindow, run_app
 from probe_station.measurements.smu._widgets import IvPlotWidget
 from probe_station.measurements.wgfmu._base import WgfmuProcedure
@@ -32,6 +33,11 @@ class WgfmuFetIdsVgProcedure(WgfmuProcedure):
     time points, so the drain current sampled against the gate voltage gives the
     transfer curve. Mirrors the SMU ``Ids (Vg)`` procedure but uses the fast
     WGFMU waveform path like the WGFMU IV sweep.
+
+    The two idle terminals -- source and substrate (base) -- are held at 0 V via
+    SMU channels for the duration of the sweep, matching the grounding done by
+    the SMU ``Ids (Vg)`` procedure (textbook setup: source grounded, Vds on the
+    drain). These are plain SMU probes, so they need no RSU routing change.
     """
 
     # Parameters are declared in GUI order (see WgfmuProcedure): sweep
@@ -41,8 +47,10 @@ class WgfmuFetIdsVgProcedure(WgfmuProcedure):
     mode = ListParameter("Mode", default=SweepMode.DEFAULT.name, choices=[e.name for e in SweepMode])
     pulse_time = FloatParameter("Pulse time", units="s", default=1e-3)
 
-    gate = IntegerParameter("Gate channel", default=2)
-    drain = IntegerParameter("Drain channel", default=1)
+    gate = IntegerParameter("Gate channel (WGFMU)", default=2)
+    drain = IntegerParameter("Drain channel (WGFMU)", default=1)
+    source = IntegerParameter("Source channel (SMU, grounded)", default=1)
+    base = IntegerParameter("Base channel (SMU, grounded)", default=2)
 
     voltage_ds = FloatParameter("Drain-source voltage", units="V", default=0.25)
     voltage_gate_first = FloatParameter("Gate voltage (first)", units="V", default=-5.0)
@@ -63,6 +71,13 @@ class WgfmuFetIdsVgProcedure(WgfmuProcedure):
     DATA_COLUMNS = ["Gate Voltage", "Drain-Source Current", "Gate Current", "Time"]
 
     def execute(self):
+        # Hold the idle terminals (source, substrate) at 0 V via SMUs for the
+        # whole sweep, mirroring the SMU Ids(Vg) grounding.
+        for channel in (self.source, self.base):
+            smu = self.b1500.smus[channel]
+            smu.enable()
+            smu.force("voltage", 0, 0, max_compliance(smu, 0))
+
         seq_gate = get_sequence(
             sequence_type=self.mode.lower(),
             pulse_time=self.pulse_time,
