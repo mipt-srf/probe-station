@@ -51,13 +51,30 @@ def get_sequence(
 
     if sequence_type == "pund":
         pulses = [positive] * 2 + [negative] * 2
-        if trailing_pulse:
-            # delay pulse so the last measurement points are not clipped
-            pulses.append(
-                TrapezoidalPulse(amplitude=0.0, pulse_width=edge_time, rise_time=10 * edge_time, fall_time=edge_time)
-            )
-        return PulseSequence(pulses)
-    return PulseSequence([positive, negative])
+    else:
+        pulses = [positive, negative]
+    if trailing_pulse:
+        # delay pulse so the last measurement points are not clipped
+        pulses.append(
+            TrapezoidalPulse(amplitude=0.0, pulse_width=edge_time, rise_time=10 * edge_time, fall_time=edge_time)
+        )
+    return PulseSequence(pulses)
+
+
+def get_constant_sequence(voltage, duration, edge_time=None):
+    """A flat-top pulse holding *voltage* for *duration* seconds.
+
+    Used to bias a second WGFMU channel at a constant level while another
+    channel sweeps (e.g. a FET drain held at Vds during a gate sweep). The
+    short rise/fall edges keep the total duration equal to *duration* so the
+    measure points stay time-aligned with the sweeping channel.
+    """
+    if edge_time is None:
+        edge_time = duration / 1000
+    pulse_width = duration - 2 * edge_time
+    return PulseSequence(
+        [TrapezoidalPulse(amplitude=voltage, pulse_width=pulse_width, rise_time=edge_time, fall_time=edge_time)]
+    )
 
 
 def set_waveform(
