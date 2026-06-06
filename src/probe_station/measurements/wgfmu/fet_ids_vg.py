@@ -70,7 +70,10 @@ class WgfmuFetIdsVgProcedure(WgfmuProcedure):
             min_voltage=self.voltage_gate_second,
             steps=self.steps,
             rise_to_hold_ratio=self.rise_to_hold_ratio,
+            trailing_pulse=True,
         )
+        # Built after seq_gate so the constant drain bias spans the full gate
+        # duration, including the trailing pulse, keeping both channels aligned.
         seq_drain = get_constant_sequence(self.voltage_ds, seq_gate.total_duration)
 
         gate_data, drain_data = run_waveforms(

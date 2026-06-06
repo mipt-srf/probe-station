@@ -51,13 +51,14 @@ def get_sequence(
 
     if sequence_type == "pund":
         pulses = [positive] * 2 + [negative] * 2
-        if trailing_pulse:
-            # delay pulse so the last measurement points are not clipped
-            pulses.append(
-                TrapezoidalPulse(amplitude=0.0, pulse_width=edge_time, rise_time=10 * edge_time, fall_time=edge_time)
-            )
-        return PulseSequence(pulses)
-    return PulseSequence([positive, negative])
+    else:
+        pulses = [positive, negative]
+    if trailing_pulse:
+        # delay pulse so the last measurement points are not clipped
+        pulses.append(
+            TrapezoidalPulse(amplitude=0.0, pulse_width=edge_time, rise_time=10 * edge_time, fall_time=edge_time)
+        )
+    return PulseSequence(pulses)
 
 
 def get_constant_sequence(voltage, duration, edge_time=None):
