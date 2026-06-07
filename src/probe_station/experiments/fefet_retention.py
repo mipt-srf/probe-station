@@ -6,8 +6,44 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
-from probe_station.experiments.fefet_common import cycling_proc, fet_current_proc, folder, run
+from probe_station.experiments.common import run
 from probe_station.logging_setup import add_file_log_dir, setup_file_logging
+from probe_station.measurements.smu.fet_ids_t import SmuFetIdsTimeProcedure
+from probe_station.measurements.spgu.cycling import SpguCyclingProcedure
+
+folder = "results"
+
+GATE = 4
+DRAIN = 3
+SOURCE = 2
+BASE = 1
+
+
+def cycling_proc(cycles=1000, width=1e-5, amplitude=3.0, channel=GATE, bipolar_pulses=True, pulse_separation=False):
+    return SpguCyclingProcedure(
+        repetitions=cycles,
+        width=width,
+        rise=width / 10,
+        tail=width / 10,
+        amplitude=amplitude,
+        channel=channel,
+        bipolar_pulses=bipolar_pulses,
+        pulse_separation=pulse_separation,
+    )
+
+
+def fet_current_proc(gate_voltage=1.0, drain_voltage=-0.5, source_voltage=0.0, base_voltage=0.0, averaging=1023):
+    return SmuFetIdsTimeProcedure(
+        gate_voltage=gate_voltage,
+        drain_voltage=drain_voltage,
+        source_voltage=source_voltage,
+        base_voltage=base_voltage,
+        gate_channel=GATE,
+        drain_channel=DRAIN,
+        source_channel=SOURCE,
+        base_channel=BASE,
+        averaging=averaging,
+    )
 
 
 def retention(precondition_cycles=1000, amplitude=3.0, width=1e-5, delays=None, gate_read_voltage=0.0):
@@ -17,6 +53,7 @@ def retention(precondition_cycles=1000, amplitude=3.0, width=1e-5, delays=None, 
 
     run(
         cycling_proc(cycles=precondition_cycles, width=width, amplitude=amplitude, bipolar_pulses=True),
+        folder=folder,
         timeout=60 * 60,
         startup_delay=5,
         suffix=f"_{precondition_cycles}cycles_precondition",
@@ -25,7 +62,7 @@ def retention(precondition_cycles=1000, amplitude=3.0, width=1e-5, delays=None, 
     rows = []
     for delay in delays:
         sleep(float(delay))
-        results = run(fet_current_proc(gate_voltage=gate_read_voltage), suffix=f"_delay_{delay:.3f}s")
+        results = run(fet_current_proc(gate_voltage=gate_read_voltage), folder=folder, suffix=f"_delay_{delay:.3f}s")
         rows.append(
             {
                 "Delay": float(delay),
