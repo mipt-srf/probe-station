@@ -6,9 +6,10 @@ cycling. Instead of pulsing between measurements, the transfer sweep's second
 running one Ids(Vg) sweep per value (useful for, e.g., memory-window vs
 program-voltage studies).
 
-The recipe below uses the WGFMU transfer procedure; for the SMU variant call
-``ids_vg_proc`` in place of ``wgfmu_ids_vg_proc`` (both share the
-``voltage_gate_second`` parameter and the same data columns).
+Both the SMU (``ids_vg_proc``) and WGFMU (``wgfmu_ids_vg_proc``) transfer
+procedures are available; the recipe below uses the WGFMU one. They share the
+``voltage_gate_second`` parameter and the same data columns, so either can be
+swapped into the loop.
 """
 
 import logging
@@ -81,7 +82,7 @@ if __name__ == "__main__":
     for voltage_second in np.linspace(2.0, 10.0, 9):
         logger.info(f"=================== Gate peak voltage: {voltage_second} V ===================")
         run(
-            ids_vg_proc(voltage_gate_second=voltage_second),
+            wgfmu_ids_vg_proc(voltage_gate_second=voltage_second),
             folder=folder,
             plot=False,
             x_col="Gate Voltage",

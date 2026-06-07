@@ -11,8 +11,8 @@ Each transfer file is suffixed with both the peak voltage and the cumulative
 cycle count (e.g. ``_vg2=6.0_1000cycles``) so the curves can be sorted back
 out during processing.
 
-Uses the WGFMU transfer procedure; call ``ids_vg_proc`` instead of
-``wgfmu_ids_vg_proc`` for the SMU variant.
+Both the SMU (``ids_vg_proc``) and WGFMU (``wgfmu_ids_vg_proc``) transfer
+procedures are available; the recipe below uses the WGFMU one.
 """
 
 import logging
@@ -33,14 +33,12 @@ folder = "results"
 
 logger = logging.getLogger(__name__)
 
-GATE_SPGU_CHANNEL = 2
-
 
 def cycling_proc(
     cycles=1000,
     width=1e-5,
     amplitude=2.6,
-    channel=GATE_SPGU_CHANNEL,
+    channel=2,
     bipolar_pulses=True,
     pulse_separation=False,
 ):
@@ -134,7 +132,7 @@ if __name__ == "__main__":
 
         for voltage_second in peak_voltages:
             run(
-                ids_vg_proc(voltage_gate_second=voltage_second),
+                wgfmu_ids_vg_proc(voltage_gate_second=voltage_second),
                 folder=folder,
                 plot=False,
                 x_col="Gate Voltage",
