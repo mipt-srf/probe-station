@@ -4,7 +4,7 @@ from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import FloatParameter, Parameter
 
 from probe_station.logging_setup import setup_file_logging
-from probe_station.measurements.common import BaseWindow, run_app
+from probe_station.measurements.pymeasure_base import BaseWindow, run_app
 from probe_station.measurements.keithley.instrument import connect_instrument, set_smu
 from probe_station.measurements.keithley.launcher import ADDRESS
 from probe_station.measurements.keithley.pund import KeithleyPundProcedure

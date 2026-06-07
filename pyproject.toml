@@ -12,7 +12,7 @@ dependencies = [
     "matplotlib>=3.9.2",
     "numpy>=2.1.3",
     "pandas>=2.2.3",
-    "pymeasure",
+    "pymeasure @ git+https://github.com/pymeasure/pymeasure.git@master",
     "qtpy>=2.4.3",
     "scienceplots>=2.1.1",
     "scipy>=1.14.1",
@@ -42,8 +42,8 @@ tests = [
     "pytest>=8.3.5",
 ]
 measurements = [
-    "keysight-b1530a",
-    "waveform-generator",
+    "keysight-b1530a @ git+https://github.com/ilev-sergey/keysight-b1530a.git@master",
+    "waveform-generator @ git+https://github.com/ilev-sergey/waveform-generator.git@main",
 ]
 
 [build-system]
@@ -74,8 +74,6 @@ dev = [
 ]
 
 [tool.uv.sources]
-# waveform-generator = { git = "https://github.com/ilev-sergey/waveform-generator.git" }
 waveform-generator = { path = "../waveform-generator", editable = true }
-# keysight-b1530a = { git = "https://github.com/ilev-sergey/keysight-b1530a.git" }
 keysight-b1530a = { path = "../keysight-b1530a", editable = true }
 pymeasure = { path = "../pymeasure", editable = true }

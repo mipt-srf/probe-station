@@ -8,16 +8,9 @@ from pymeasure.experiment import (
 )
 
 from probe_station.logging_setup import setup_file_logging
-from probe_station.measurements.common import (
-    RSU,
-    BaseProcedure,
-    BaseWindow,
-    RSUOutputMode,
-    get_smu_by_number,
-    max_compliance,
-    run_app,
-    setup_rsu_output,
-)
+from probe_station.measurements.b1500_helpers import max_compliance
+from probe_station.measurements.pymeasure_base import BaseProcedure, BaseWindow, run_app
+from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 from probe_station.measurements.session import Session
 from probe_station.measurements.smu._widgets import IvPlotWidget
 from probe_station.measurements.smu.iv_step_runner import measure_at_voltage
@@ -46,8 +39,8 @@ class SmuIvStepProcedure(BaseProcedure):
         setup_rsu_output(self.b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
         setup_rsu_output(self.b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
 
-        top_smu = get_smu_by_number(self.b1500, self.top_channel)
-        bottom_smu = get_smu_by_number(self.b1500, self.bottom_channel)
+        top_smu = self.b1500.smus[self.top_channel]
+        bottom_smu = self.b1500.smus[self.bottom_channel]
 
         top_smu.enable()
         bottom_smu.enable()

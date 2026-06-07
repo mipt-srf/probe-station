@@ -2,8 +2,8 @@
 
 from pymeasure.experiment import Results
 
-from probe_station._DC_IV import DC_IV
 from probe_station.analysis.handlers.cv import Cv
+from probe_station.analysis.matlab.dc_iv import DC_IV
 from probe_station.analysis.handlers.iv import Iv
 from probe_station.measurements.cmu.cv_sweep import CmuCvSweepProcedure
 from probe_station.measurements.smu.iv_sweep import SmuIvSweepProcedure

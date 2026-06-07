@@ -2,7 +2,7 @@
 
 The class is designed to be used with the `Dataset` class from the `dataset` module to parse,
 analyze, and visualize data from PUND Double experiments.
-"""  # noqa: N999
+"""
 
 from __future__ import annotations
 

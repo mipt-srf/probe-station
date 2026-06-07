@@ -8,13 +8,38 @@ from pymeasure.experiment import (
 )
 
 from probe_station.measurements.b1500 import WGFMUMeasureCurrentRange
-from probe_station.measurements.common import BaseProcedure
+from probe_station.measurements.pymeasure_base import BaseProcedure
 from probe_station.measurements.session import Session
 from probe_station.measurements.wgfmu._waveforms import SweepMode
 
 
-class WgfmuBaseProcedure(BaseProcedure):
-    """Shared parameters and startup for WGFMU-based procedures."""
+class WgfmuProcedure(BaseProcedure):
+    """WGFMU instrument startup shared by all WGFMU-based procedures.
+
+    Holds only the instrument setup common to every WGFMU procedure, regardless
+    of how the device under test is wired. Subclass this directly when the
+    top/bottom electrode model in :class:`WgfmuBaseProcedure` does not fit (e.g.
+    a FET with separate gate and drain channels).
+
+    Parameters are intentionally *not* declared here. ``BaseWindow`` lays the GUI
+    out by walking the MRO parent-first, so any parameter on a shared parent
+    sorts before a subclass's own parameters and scrambles the on-screen order.
+    Keeping this base parameter-free lets each concrete procedure declare its
+    inputs in a single flat body, where declaration order is the GUI order.
+    """
+
+    def startup(self):
+        super().startup()
+        self.b1500 = Session.acquire(timeout=60000, reset=False)
+        self.b1500.clear_wgfmu()
+        self.b1500.initialize_wgfmu()
+
+
+class WgfmuBaseProcedure(WgfmuProcedure):
+    """Shared parameters for two-electrode (top/bottom) WGFMU sweeps.
+
+    Parameters are declared in GUI order (see :class:`WgfmuProcedure`).
+    """
 
     mode = ListParameter("Mode", default=SweepMode.DEFAULT.name, choices=[e.name for e in SweepMode])
     pulse_time = FloatParameter("Pulse time", units="s", default=1e-5)
@@ -43,9 +68,3 @@ class WgfmuBaseProcedure(BaseProcedure):
 
     steps = IntegerParameter("Steps per pulse", default=100, group_by="advanced_config")
     rise_to_hold_ratio = FloatParameter("Rise to hold time ratio", default=1, group_by="advanced_config")
-
-    def startup(self):
-        super().startup()
-        self.b1500 = Session.acquire(timeout=60000, reset=False)
-        self.b1500.clear_wgfmu()
-        self.b1500.initialize_wgfmu()

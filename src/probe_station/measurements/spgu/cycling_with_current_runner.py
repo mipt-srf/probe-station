@@ -13,13 +13,8 @@ from pymeasure.instruments.agilent.agilentB1500 import (
 )
 
 from probe_station.measurements.b1500 import B1500
-from probe_station.measurements.common import (
-    RSU,
-    RSUOutputMode,
-    connect_instrument,
-    get_smu_by_number,
-    setup_rsu_output,
-)
+from probe_station.measurements.b1500_helpers import connect_instrument
+from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -71,8 +66,8 @@ def run(b1500: B1500, repetitions, amplitude, rise, tail, channel=102, smu_ch=1,
 
     pg.apply_setup()
 
-    smu: SMU = get_smu_by_number(b1500, smu_ch)
-    smu_voltage: SMU = get_smu_by_number(b1500, 4)
+    smu: SMU = b1500.smus[smu_ch]
+    smu_voltage: SMU = b1500.smus[4]
 
     b1500.time_stamp = True
     b1500.meas_mode(MeasMode.SAMPLING, smu)

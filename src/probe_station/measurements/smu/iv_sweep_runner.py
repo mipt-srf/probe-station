@@ -9,14 +9,8 @@ from pymeasure.instruments.agilent.agilentB1500 import (
 )
 
 from probe_station.measurements.b1500 import B1500
-from probe_station.measurements.common import (
-    RSU,
-    RSUOutputMode,
-    connect_instrument,
-    get_smu_by_number,
-    max_compliance,
-    setup_rsu_output,
-)
+from probe_station.measurements.b1500_helpers import connect_instrument, max_compliance
+from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 
 
 def run(b1500: B1500, start, end, steps, average=127, top=4, bottom=3, mode=1):
@@ -24,10 +18,10 @@ def run(b1500: B1500, start, end, steps, average=127, top=4, bottom=3, mode=1):
     setup_rsu_output(b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
     setup_rsu_output(b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
 
-    smu = get_smu_by_number(b1500, top)
+    smu = b1500.smus[top]
     smu.enable()
 
-    smu_bottom = get_smu_by_number(b1500, bottom)
+    smu_bottom = b1500.smus[bottom]
     smu_bottom.enable()
 
     peak = max(abs(start), abs(end))

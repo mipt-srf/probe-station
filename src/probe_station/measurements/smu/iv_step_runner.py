@@ -1,15 +1,8 @@
 import numpy as np
 
 from probe_station.measurements.b1500 import B1500
-from probe_station.measurements.common import (
-    RSU,
-    RSUOutputMode,
-    connect_instrument,
-    get_smu_by_number,
-    max_compliance,
-    parse_data,
-    setup_rsu_output,
-)
+from probe_station.measurements.b1500_helpers import connect_instrument, max_compliance, parse_data
+from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 
 
 def run(b1500: B1500, start, end, steps, top=4, bottom=3):
@@ -22,8 +15,8 @@ def run(b1500: B1500, start, end, steps, top=4, bottom=3):
     currents = np.zeros(steps)
     voltages_measured = np.zeros(steps)
 
-    top_smu = get_smu_by_number(b1500, top)
-    bottom_smu = get_smu_by_number(b1500, bottom)
+    top_smu = b1500.smus[top]
+    bottom_smu = b1500.smus[bottom]
 
     b1500.force_gnd()
 
@@ -46,7 +39,7 @@ def run(b1500: B1500, start, end, steps, top=4, bottom=3):
 
 
 def measure_at_voltage(b1500: B1500, voltage, top=4, bottom=3):
-    top_smu = get_smu_by_number(b1500, top)
+    top_smu = b1500.smus[top]
     top_smu.force("voltage", 0, voltage)  # 4 ms between steps, 10 ms with measuring
     if top == 4:
         time, current, voltage_measured = parse_data(b1500.ask("TTIV 8, 11, 0"))

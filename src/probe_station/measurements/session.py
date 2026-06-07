@@ -29,7 +29,7 @@ import logging
 import threading
 
 from probe_station.measurements.b1500 import B1500
-from probe_station.measurements.common import connect_instrument
+from probe_station.measurements.b1500_helpers import connect_instrument
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())

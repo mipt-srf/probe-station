@@ -10,3 +10,7 @@ build/
 *.csv
 
 **/logs/
+
+# Personal, untracked experiment runners: copies of experiment __main__ recipes
+# tweaked for ad-hoc runs.
+scratch/

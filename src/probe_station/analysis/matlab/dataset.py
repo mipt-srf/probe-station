@@ -14,10 +14,10 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
-from probe_station._CV import CV
-from probe_station._DC_IV import DC_IV
-from probe_station._PQ_PUND import PQ_PUND
-from probe_station._PUND_double import PUND_double
+from probe_station.analysis.matlab.cv import CV
+from probe_station.analysis.matlab.dc_iv import DC_IV
+from probe_station.analysis.matlab.pq_pund import PQ_PUND
+from probe_station.analysis.matlab.pund_double import PUND_double
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Sequence

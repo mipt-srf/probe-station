@@ -6,7 +6,7 @@ from pymeasure.experiment import (
 )
 
 from probe_station.logging_setup import setup_file_logging
-from probe_station.measurements.common import BaseProcedure, BaseWindow, run_app
+from probe_station.measurements.pymeasure_base import BaseProcedure, BaseWindow, run_app
 from probe_station.measurements.session import Session
 from probe_station.measurements.cmu.cv_sweep_runner import PLOT_POINTS, run
 

@@ -21,7 +21,7 @@ from qtpy.QtWidgets import (
 )
 
 from probe_station.logging_setup import setup_file_logging
-from probe_station.measurements.common import (
+from probe_station.measurements.pymeasure_base import (
     any_window_running,
     read_procedure_class,
     register_busy_predicate,
@@ -266,6 +266,12 @@ class Launcher(QWidget):
                 "📊 Ids (Vds)",
                 "probe_station.measurements.smu.fet_ids_vds",
                 "#D1B122",
+                "in_process",
+            ),
+            (
+                "📊 Ids (Vg) (WGFMU)",
+                "probe_station.measurements.wgfmu.fet_ids_vg",
+                "#2196F3",
                 "in_process",
             ),
             ("✨ Вжух", "probe_station.measurements.magic", "#D1B122", "action"),
