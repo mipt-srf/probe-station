@@ -5,11 +5,13 @@ from pathlib import Path
 
 from keysight_b1530a.enums import WGFMUMeasureCurrentRange
 
-from probe_station.experiments.ultimate import folder, log_points, run
+from probe_station.experiments.common import log_points, run
 from probe_station.logging_setup import add_file_log_dir, setup_file_logging
 from probe_station.measurements.smu.fet_ids_vg import SmuFetIdsVgProcedure
 from probe_station.measurements.spgu.cycling import SpguCyclingProcedure
 from probe_station.measurements.wgfmu.fet_ids_vg import WgfmuFetIdsVgProcedure
+
+folder = "results"
 
 logger = logging.getLogger(__name__)
 
@@ -89,7 +91,7 @@ if __name__ == "__main__":
     cycling_pulse_time = 1e-3
     cycling_amplitude = 10
 
-    run(wgfmu_ids_vg_proc(), plot=False, x_col="Gate Voltage", y_col="Drain-Source Current")
+    run(wgfmu_ids_vg_proc(), folder=folder, plot=False, x_col="Gate Voltage", y_col="Drain-Source Current")
 
     total = 0
     for cycles in log_points(10, 1e7, per_decade=2):
@@ -106,9 +108,10 @@ if __name__ == "__main__":
                 amplitude=cycling_amplitude,
                 bipolar_pulses=True,
             ),
+            folder=folder,
             timeout=60 * 60 * 24 * 3,
             startup_delay=5,
             suffix=f"_{cycles}cycles",
         )
 
-        run(wgfmu_ids_vg_proc(), plot=False, x_col="Gate Voltage", y_col="Drain-Source Current")
+        run(wgfmu_ids_vg_proc(), folder=folder, plot=False, x_col="Gate Voltage", y_col="Drain-Source Current")
