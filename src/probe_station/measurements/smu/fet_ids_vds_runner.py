@@ -7,7 +7,7 @@ from pymeasure.instruments.agilent.agilentB1500 import (
 )
 
 from probe_station.measurements.b1500 import B1500
-from probe_station.measurements.b1500_helpers import channel_letter, connect_instrument, max_compliance
+from probe_station.measurements.b1500_helpers import connect_instrument, max_compliance, parse_data
 from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 
 
@@ -89,37 +89,13 @@ def run(b1500: B1500, start, end, steps, average=127, top=4, bottom=3, mode=1, g
         b1500.send_trigger()
 
 
-def get_data(b1500: B1500, top=4, gate=1):
-    """Parse one batch readout into ``(times, voltages, currents, gate_currents)``.
+def get_data(b1500: B1500):
+    data = parse_data(b1500.read())
 
-    Routes each value by its ``FMT1`` channel/type prefix (``T`` time, ``I`` current,
-    ``V`` source voltage) rather than by a fixed token order, so drain and gate columns
-    cannot silently transpose if the instrument interleaves the channels differently.
-
-    :param top: Channel number of the swept source / drain-current electrode.
-    :param gate: Channel number of the gate.
-    """
-    top_letter = channel_letter(top)
-    gate_letter = channel_letter(gate)
-
-    times: list[float] = []
-    voltages: list[float] = []
-    currents: list[float] = []
-    gate_currents: list[float] = []
-    for token in b1500.read().split(","):
-        if len(token) < 4:
-            continue
-        channel = token[1]
-        data_type = token[2]
-        value = float(token[3:])
-        if data_type == "T" and channel == top_letter:
-            times.append(value)
-        elif data_type == "I" and channel == top_letter:
-            currents.append(value)
-        elif data_type == "I" and channel == gate_letter:
-            gate_currents.append(value)
-        elif data_type == "V":
-            voltages.append(value)
+    times = data[::5]
+    currents = data[1::5]
+    gate_currents = data[3::5]
+    voltages = data[4::5]
 
     return times, voltages, currents, gate_currents
 
@@ -127,5 +103,5 @@ def get_data(b1500: B1500, top=4, gate=1):
 if __name__ == "__main__":
     b1500 = connect_instrument(reset=True)
     run(b1500, start=-3, end=3, steps=100, top=4, gate=1)
-    get_data(b1500, top=4, gate=1)
+    get_data(b1500)
     b1500.close_wgfmu_session()

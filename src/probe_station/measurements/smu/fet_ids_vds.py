@@ -4,7 +4,6 @@ from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter
 
 from probe_station.logging_setup import setup_file_logging
-from probe_station.measurements.b1500_helpers import channel_letter
 from probe_station.measurements.pymeasure_base import BaseProcedure, BaseWindow, run_app
 from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 from probe_station.measurements.session import Session
@@ -59,27 +58,11 @@ class SmuFetIdsVdsProcedure(BaseProcedure):
         else:
             total_steps = 2 * self.steps
 
-        source_letter = channel_letter(self.source_channel)
-        gate_letter = channel_letter(self.gate_channel)
-
-        # Each step returns 5 tokens: time + current for the swept (drain) and gate
-        # channels, plus the swept source voltage. Route them by channel/type prefix so
-        # the columns stay correct regardless of the instrument's token order.
-        for emitted, tokens in enumerate(self.b1500.iter_output(total_steps, 5, raw=True), start=1):
-            time = voltage = current = gate_current = None
-            for token in tokens:
-                channel = token[1]
-                data_type = token[2]
-                value = float(token[3:])
-                if data_type == "T" and channel == source_letter:
-                    time = value
-                elif data_type == "I" and channel == source_letter:
-                    current = value
-                elif data_type == "I" and channel == gate_letter:
-                    gate_current = value
-                elif data_type == "V":
-                    voltage = value
-
+        # Each step returns 5 values: time + current for the swept (drain) and gate
+        # channels, then the swept source voltage.
+        for emitted, (time, current, _gate_time, gate_current, voltage) in enumerate(
+            self.b1500.iter_output(total_steps, 5), start=1
+        ):
             self.emit("progress", emitted / total_steps * 100)
             self.emit(
                 "results",

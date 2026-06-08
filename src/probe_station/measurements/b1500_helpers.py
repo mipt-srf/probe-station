@@ -98,16 +98,3 @@ def parse_data(string):
     value_strings = string.split(",")
     values = [float(value_str[3:]) for value_str in value_strings]
     return values
-
-
-def channel_letter(channel: int) -> str:
-    """Return the ``FMT1`` data-output channel letter for an SMU channel number.
-
-    Each value the instrument returns is prefixed by ``<status><channel><type>``
-    (e.g. ``NDI+1.234E-05``); the channel character is ``A`` for channel 1, ``B``
-    for 2, and so on.  Matching on it lets readout code route values by channel
-    instead of relying on a fixed token order.
-
-    :param channel: SMU channel number (1-based).
-    """
-    return chr(ord("A") + channel - 1)
