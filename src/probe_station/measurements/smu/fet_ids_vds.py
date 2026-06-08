@@ -27,7 +27,7 @@ class SmuFetIdsVdsProcedure(BaseProcedure):
     gate_voltage = FloatParameter("Gate voltage", units="V", default=0)
     # compliance = FloatParameter("Current compliance", units="A", default=0.1, group_by="advanced_config")
 
-    DATA_COLUMNS = ["Voltage", "Source electrode current", "Time"]
+    DATA_COLUMNS = ["Voltage", "Source electrode current", "Gate current", "Time"]
 
     def startup(self):
         super().startup()
@@ -45,6 +45,7 @@ class SmuFetIdsVdsProcedure(BaseProcedure):
             self.second_voltage,
             self.steps,
             top=self.source_channel,
+            bottom=self.drain_channel,
             # current_comp=self.compliance,
             average=self.average,
             mode=self.mode,
@@ -57,11 +58,20 @@ class SmuFetIdsVdsProcedure(BaseProcedure):
         else:
             total_steps = 2 * self.steps
 
-        for emitted, (time, current, voltage) in enumerate(self.b1500.iter_output(total_steps, 3), start=1):
+        # Each step returns 5 values: time + current for the swept (drain) and gate
+        # channels, then the swept source voltage.
+        for emitted, (time, current, _gate_time, gate_current, voltage) in enumerate(
+            self.b1500.iter_output(total_steps, 5), start=1
+        ):
             self.emit("progress", emitted / total_steps * 100)
             self.emit(
                 "results",
-                {"Time": time, "Voltage": voltage, "Source electrode current": current},
+                {
+                    "Time": time,
+                    "Voltage": voltage,
+                    "Source electrode current": current,
+                    "Gate current": gate_current,
+                },
             )
             if self.should_stop():
                 log.warning("Caught the stop flag in the procedure")
