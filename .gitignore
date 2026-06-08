@@ -1,4 +1,5 @@
 __pycache__/
+src/probe_station/_version.py
 docs/build/
 *.egg-info/
 build/
@@ -7,3 +8,9 @@ build/
 .vscode/
 
 *.csv
+
+**/logs/
+
+# Personal, untracked experiment runners: copies of experiment __main__ recipes
+# tweaked for ad-hoc runs.
+scratch/

@@ -1,0 +1,306 @@
+"""Shared WGFMU helpers for voltage-sweep and cycling procedures."""
+
+import logging
+import time
+from enum import Enum
+
+import numpy as np
+import scipy
+from keysight_b1530a._bindings.errors import get_error_summary
+from keysight_b1530a.errors import WGFMUError
+from waveform_generator import PulseSequence, TrapezoidalPulse, TriangularSweep
+
+from probe_station.measurements.b1500 import (
+    B1500,
+    WGFMUMeasureCurrentRange,
+    WGFMUMeasureEvent,
+    WGFMUMeasureMode,
+    WGFMUOperationMode,
+)
+
+log = logging.getLogger(__name__)
+log.addHandler(logging.NullHandler())
+
+
+class SweepMode(Enum):
+    DEFAULT = "default"
+    PUND = "pund"
+
+
+def calculate_polarization(times, currents, pad_size_um):
+    charge = scipy.integrate.simpson(y=np.abs(currents), x=times)
+    area = (pad_size_um * 1e-4) ** 2
+    return charge / area * 1e6
+
+
+def get_sequence(
+    sequence_type="pund",
+    pulse_time=2e-4,
+    steps=200,
+    max_voltage=4,
+    min_voltage=-4,
+    rise_to_hold_ratio=0.01,
+    *,
+    trailing_pulse: bool = False,
+):
+    time_step = pulse_time / steps / (1 + rise_to_hold_ratio)
+    edge_time = time_step * rise_to_hold_ratio
+
+    positive = TriangularSweep(end_voltage=max_voltage, time_step=time_step, steps=steps, edge_time=edge_time)
+    negative = TriangularSweep(end_voltage=min_voltage, time_step=time_step, steps=steps, edge_time=edge_time)
+
+    if sequence_type == "pund":
+        pulses = [positive] * 2 + [negative] * 2
+    else:
+        pulses = [positive, negative]
+    if trailing_pulse:
+        # delay pulse so the last measurement points are not clipped
+        pulses.append(
+            TrapezoidalPulse(amplitude=0.0, pulse_width=edge_time, rise_time=10 * edge_time, fall_time=edge_time)
+        )
+    return PulseSequence(pulses)
+
+
+def get_constant_sequence(voltage, duration, edge_time=None):
+    """A flat-top pulse holding *voltage* for *duration* seconds.
+
+    Used to bias a second WGFMU channel at a constant level while another
+    channel sweeps (e.g. a FET drain held at Vds during a gate sweep). The
+    short rise/fall edges keep the total duration equal to *duration* so the
+    measure points stay time-aligned with the sweeping channel.
+    """
+    if edge_time is None:
+        edge_time = duration / 1000
+    pulse_width = duration - 2 * edge_time
+    return PulseSequence(
+        [TrapezoidalPulse(amplitude=voltage, pulse_width=pulse_width, rise_time=edge_time, fall_time=edge_time)]
+    )
+
+
+def set_waveform(
+    b1500: B1500,
+    sequence,
+    *,
+    repetitions=1,
+    channel=1,
+    measure=True,
+    measure_points=1600,
+    pattern_name="sequence",
+):
+    pattern_name += f"_wgfmu{channel}"
+    b1500.create_wgfmu_pattern(pattern_name, sequence.pulses[0].dc_bias)
+    times, voltages = sequence.to_vectors()
+    seq_time = sequence.total_duration
+    log.info(f"Waveform for {pattern_name}: {len(voltages)} samples, {seq_time:.6g} s, {len(sequence.pulses)} pulses")
+    b1500.add_vectors_to_wgfmu_pattern(pattern_name, times, voltages)
+    if measure:
+        b1500.set_wgfmu_measure_event(
+            pattern_name=pattern_name,
+            event_name="event",
+            points=measure_points,
+            interval=seq_time / measure_points,
+            average=seq_time / measure_points,
+            mode=WGFMUMeasureEvent.AVERAGED,
+        )
+    wgfmu = b1500.wgfmus[channel]
+    wgfmu.add_sequence(pattern_name, repetitions=repetitions)
+
+
+def run(
+    b1500: B1500,
+    *,
+    channels=None,
+    mode=WGFMUOperationMode.FASTIV,
+    measure_range=WGFMUMeasureCurrentRange.RANGE_1_UA,
+    configure_measure_mode: bool = True,
+):
+    if channels is None:
+        channels = [2]
+    for channel in channels:
+        wgfmu = b1500.wgfmus[channel]
+        wgfmu.set_operation_mode(mode)
+        if configure_measure_mode:
+            wgfmu.set_measure_mode(WGFMUMeasureMode.CURRENT)
+            wgfmu.set_measure_current_range(measure_range)
+        wgfmu.enable()
+    b1500.run_wgfmu_measurement()
+
+
+def get_data(
+    b1500: B1500,
+    *,
+    channel=2,
+    repetitions=1,
+    points: int | None = None,
+):
+    wgfmu = b1500.wgfmus[channel]
+    times, currents = wgfmu.get_measurement_data()
+    voltages = wgfmu.get_voltage_data()
+
+    if points is None:
+        log.debug(f"Raw data length: {len(voltages)}")
+        return times, voltages, currents
+
+    times = np.split(np.array(times), repetitions)[-1]
+    currents = np.split(np.array(currents), repetitions)[-1]
+    voltages = np.split(np.array(voltages), repetitions)[-1]
+    log.debug(f"Raw voltage array length (last rep): {len(voltages)}")
+
+    times = np.mean(times.reshape(-1, len(voltages) // points), axis=1)
+    currents = np.mean(currents.reshape(-1, len(voltages) // points), axis=1)
+    voltages = np.mean(voltages.reshape(-1, len(voltages) // points), axis=1)
+    log.debug(f"Decimated voltage array length: {len(voltages)}")
+
+    return times, voltages, currents
+
+
+def run_waveforms(
+    b1500: B1500,
+    *,
+    top_seq,
+    top_ch: int,
+    bottom_seq=None,
+    bottom_ch: int | None = None,
+    repetitions: int,
+    current_range: WGFMUMeasureCurrentRange,
+    measure: bool,
+    plot_points: int | None = None,
+):
+    """Set waveforms on top (and optional bottom), run, optionally fetch data.
+
+    Returns ``None`` when ``measure`` is False; otherwise returns
+    ``(top_data, bottom_data)`` where each entry is ``(times, voltages, currents)``
+    (and ``bottom_data`` is ``None`` when no bottom channel is provided).
+    """
+    set_waveform(
+        b1500=b1500,
+        sequence=top_seq,
+        repetitions=repetitions,
+        channel=top_ch,
+        measure=measure,
+        measure_points=plot_points or 0,
+    )
+    if bottom_seq is not None:
+        set_waveform(
+            b1500=b1500,
+            sequence=bottom_seq,
+            repetitions=repetitions,
+            channel=bottom_ch,
+            measure=measure,
+            measure_points=plot_points or 0,
+        )
+
+    channels = [top_ch] if bottom_ch is None else [top_ch, bottom_ch]
+    try:
+        run(
+            b1500=b1500,
+            channels=channels,
+            measure_range=current_range,
+            configure_measure_mode=measure,
+        )
+    except WGFMUError:
+        log.error(f"{get_error_summary()}")
+        b1500.clear_wgfmu()
+        raise
+
+    if not measure:
+        return None
+
+    top_data = get_data(b1500=b1500, channel=top_ch, repetitions=repetitions, points=plot_points)
+    bottom_data = None
+    if bottom_ch is not None:
+        bottom_data = get_data(b1500=b1500, channel=bottom_ch, repetitions=repetitions, points=plot_points)
+    return top_data, bottom_data
+
+
+def _stitch(chunk_a, chunk_b):
+    t1, v1, c1 = chunk_a
+    t2, v2, c2 = chunk_b
+    return (
+        np.concatenate([t1, t2]),
+        np.concatenate([v1, v2]),
+        np.concatenate([c1, c2]),
+    )
+
+
+def run_waveforms_split(
+    b1500: B1500,
+    *,
+    top_seq,
+    top_ch: int,
+    bottom_seq,
+    bottom_ch: int,
+    current_range: WGFMUMeasureCurrentRange,
+    plot_points: int,
+):
+    """Split a PUND sequence into positive/negative halves and run each separately.
+
+    Used when the top/bottom differential exceeds the 10 V per-channel limit:
+    biasing one electrode negative while driving the other positive doubles
+    the addressable range, but only one polarity can be applied at a time.
+    Requires a bottom electrode and always measures; data is stitched across
+    the two halves.
+    """
+    n = len(top_seq.pulses)
+    if n != len(bottom_seq.pulses):
+        raise ValueError("top and bottom sequences must have the same pulse count")
+    if n < 2:
+        raise ValueError(f"split path requires at least 2 pulses, got {n}")
+    half = n // 2
+    half_points = plot_points // 2
+
+    halves = [
+        ("pu", PulseSequence(top_seq.pulses[:half]), PulseSequence(bottom_seq.pulses[:half])),
+        ("nd", PulseSequence(top_seq.pulses[half:]), PulseSequence(bottom_seq.pulses[half:])),
+    ]
+
+    top_chunks = []
+    bottom_chunks = []
+    for i, (name, half_top, half_bot) in enumerate(halves):
+        set_waveform(
+            b1500=b1500,
+            sequence=half_top,
+            repetitions=1,
+            channel=top_ch,
+            measure=True,
+            measure_points=half_points,
+            pattern_name=f"top_{name}",
+        )
+        set_waveform(
+            b1500=b1500,
+            sequence=half_bot,
+            repetitions=1,
+            channel=bottom_ch,
+            measure=True,
+            measure_points=half_points,
+            pattern_name=f"bottom_{name}",
+        )
+        try:
+            run(
+                b1500=b1500,
+                channels=[top_ch, bottom_ch],
+                measure_range=current_range,
+                configure_measure_mode=True,
+            )
+        except WGFMUError:
+            log.error(f"{get_error_summary()}")
+            b1500.clear_wgfmu()
+            raise
+
+        top_data = get_data(b1500=b1500, channel=top_ch, repetitions=1, points=half_points)
+        bottom_data = get_data(b1500=b1500, channel=bottom_ch, repetitions=1, points=half_points)
+
+        run_start = time.perf_counter()
+        if i == 0:
+            first_run_start = run_start
+            b1500.clear_wgfmu()
+        else:
+            shift = run_start - first_run_start
+            log.info(f"Inter-half delay before {name}: {shift:.4f} s")
+            top_data = (top_data[0] + shift, top_data[1], top_data[2])
+            bottom_data = (bottom_data[0] + shift, bottom_data[1], bottom_data[2])
+
+        top_chunks.append(top_data)
+        bottom_chunks.append(bottom_data)
+
+    return _stitch(*top_chunks), _stitch(*bottom_chunks)

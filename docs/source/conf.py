@@ -1,6 +1,7 @@
 import datetime
 import pathlib
 import sys
+from importlib.metadata import version as _version
 
 path = pathlib.Path(__file__).parents[2] / "src"
 sys.path.insert(0, path.resolve().as_posix())
@@ -8,7 +9,7 @@ sys.path.insert(0, path.resolve().as_posix())
 project = "Probe Station"
 author = "Sergey Ilyev"
 copyright = f"{datetime.datetime.now().year}, {author}"
-release = "0.6"
+release = _version("probe-station")
 rst_prolog = f"""
 .. |name| replace:: {project}
 """

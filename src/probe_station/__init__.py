@@ -2,15 +2,46 @@
 
 Provides:
 
-* :class:`Dataset` — parse legacy ``.data`` files and select the appropriate handler.
+* :class:`MatlabDataset` — parse legacy ``.data`` files and select the appropriate handler.
 * :func:`connect_instrument` — connect to the Agilent/Keysight B1500 over USB.
 * ``analysis`` sub-package — batch processing, CV/IV handlers, helper functions.
 * ``measurements`` sub-package — PyMeasure procedures for IV, CV, PUND, and cycling.
 * ``experiments`` sub-package — high-level experiment orchestration scripts.
 """
 
-from .dataset import Dataset
-from .measurements.b1500 import B1500
-from .measurements.common import connect_instrument
+from __future__ import annotations
 
-__all__ = ["Dataset", "connect_instrument", "B1500"]
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:  # replace with lazy imports (py>=3.15) https://peps.python.org/pep-0810/
+    from .analysis.matlab import Dataset as MatlabDataset
+    from .measurements.b1500 import B1500
+    from .measurements.b1500_helpers import connect_instrument
+    from .measurements.keithley import Keithley2450Extended
+    from .measurements.session import Session
+
+__all__ = ["MatlabDataset", "connect_instrument", "B1500", "Keithley2450Extended", "Session"]
+
+
+def __getattr__(name: str):
+    if name == "MatlabDataset":
+        from .analysis.matlab import Dataset
+
+        return Dataset
+    if name == "B1500":
+        from .measurements.b1500 import B1500
+
+        return B1500
+    if name == "connect_instrument":
+        from .measurements.b1500_helpers import connect_instrument
+
+        return connect_instrument
+    if name == "Keithley2450Extended":
+        from .measurements.keithley import Keithley2450Extended
+
+        return Keithley2450Extended
+    if name == "Session":
+        from .measurements.session import Session
+
+        return Session
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

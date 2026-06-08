@@ -1,1 +1,0 @@
-"""WGFMU-based cycling procedure."""

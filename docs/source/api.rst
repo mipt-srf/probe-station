@@ -8,50 +8,50 @@ _____
 Data parsing (legacy)
 =====================
 
-`probe_station.dataset`
------------------------
+`probe_station.analysis.matlab.dataset`
+---------------------------------------
 
-.. automodule:: probe_station.dataset
+.. automodule:: probe_station.analysis.matlab.dataset
     :members:
     :undoc-members:
     :private-members:
 
 _____
 
-`probe_station._PQ_PUND`
-------------------------
+`probe_station.analysis.matlab.pq_pund`
+---------------------------------------
 
-.. automodule:: probe_station._PQ_PUND
+.. automodule:: probe_station.analysis.matlab.pq_pund
     :members:
     :undoc-members:
     :private-members:
 
 _____
 
-`probe_station._DC_IV`
-----------------------
+`probe_station.analysis.matlab.dc_iv`
+-------------------------------------
 
-.. automodule:: probe_station._DC_IV
+.. automodule:: probe_station.analysis.matlab.dc_iv
     :members:
     :undoc-members:
     :private-members:
 
 _____
 
-`probe_station._CV`
--------------------
+`probe_station.analysis.matlab.cv`
+----------------------------------
 
-.. automodule:: probe_station._CV
+.. automodule:: probe_station.analysis.matlab.cv
     :members:
     :undoc-members:
     :private-members:
 
 _____
 
-`probe_station._PUND_double`
-----------------------------
+`probe_station.analysis.matlab.pund_double`
+-------------------------------------------
 
-.. automodule:: probe_station._PUND_double
+.. automodule:: probe_station.analysis.matlab.pund_double
     :members:
     :undoc-members:
     :private-members:
@@ -139,10 +139,28 @@ _____
 Measurements
 ============
 
-`probe_station.measurements.common`
-------------------------------------
+`probe_station.measurements.pymeasure_base`
+--------------------------------------------
 
-.. automodule:: probe_station.measurements.common
+.. automodule:: probe_station.measurements.pymeasure_base
+    :members:
+    :undoc-members:
+
+_____
+
+`probe_station.measurements.b1500_helpers`
+-------------------------------------------
+
+.. automodule:: probe_station.measurements.b1500_helpers
+    :members:
+    :undoc-members:
+
+_____
+
+`probe_station.measurements.rsu`
+---------------------------------
+
+.. automodule:: probe_station.measurements.rsu
     :members:
     :undoc-members:
 
@@ -169,10 +187,10 @@ _____
 Voltage sweep procedures
 =========================
 
-`probe_station.measurements.voltage_sweeps.CV.procedure`
----------------------------------------------------------
+`probe_station.measurements.cmu.cv_sweep`
+-----------------------------------------
 
-.. automodule:: probe_station.measurements.voltage_sweeps.CV.procedure
+.. automodule:: probe_station.measurements.cmu.cv_sweep
     :members:
     :undoc-members:
 
@@ -181,10 +199,10 @@ _____
 Cycling procedures
 ==================
 
-`probe_station.measurements.cycling.PG.procedure`
---------------------------------------------------
+`probe_station.measurements.spgu.cycling`
+-----------------------------------------
 
-.. automodule:: probe_station.measurements.cycling.PG.procedure
+.. automodule:: probe_station.measurements.spgu.cycling
     :members:
     :undoc-members:
 
