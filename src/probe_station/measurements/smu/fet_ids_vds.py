@@ -46,6 +46,7 @@ class SmuFetIdsVdsProcedure(BaseProcedure):
             self.second_voltage,
             self.steps,
             top=self.source_channel,
+            bottom=self.drain_channel,
             # current_comp=self.compliance,
             average=self.average,
             mode=self.mode,
