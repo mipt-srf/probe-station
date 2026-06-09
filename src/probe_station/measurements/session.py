@@ -127,6 +127,9 @@ class Session:
 
     @staticmethod
     def _probe_alive(b1500: B1500) -> bool:
+        # b1500.id issues *IDN?, which B1500's synchronized I/O serializes
+        # against any in-flight sweep: probing mid-measurement blocks until the
+        # sweep releases the I/O lock rather than corrupting its data stream.
         try:
             return bool(b1500.id)
         except Exception:
