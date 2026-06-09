@@ -78,6 +78,8 @@ class SmuFetIdsTimeProcedure(BaseProcedure):
         log.debug(f"Gate SMU measurement: {tuples}")
         gate_current = tuples[1][1]
 
+        log.info(f"Drain current: {drain_current:.6e} A, Gate current: {gate_current:.6e} A")
+
         self.emit("results", {"Drain Current": drain_current, "Gate Current": gate_current})
 
         gate_smu.force("voltage", 0, 0)
