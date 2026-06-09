@@ -40,6 +40,11 @@ class SmuFetIdsTimeProcedure(BaseProcedure):
     def startup(self):
         super().startup()
         self.b1500 = Session.acquire()
+        # Restore a clean WGFMU state: a preceding WGFMU run leaves the
+        # channels in FASTIV mode, and clear + initialize releases them back
+        # to SMU control (same recovery the WGFMU procedures do in startup()).
+        self.b1500.clear_wgfmu()
+        self.b1500.initialize_wgfmu()
         self.b1500.clear_buffer()
         setup_rsu_output(self.b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
         setup_rsu_output(self.b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
