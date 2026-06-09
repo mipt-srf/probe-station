@@ -10,8 +10,9 @@ from probe_station.experiments.common import run
 from probe_station.logging_setup import add_file_log_dir, setup_file_logging
 from probe_station.measurements.smu.fet_ids_t import SmuFetIdsTimeProcedure
 from probe_station.measurements.spgu.cycling import SpguCyclingProcedure
+from probe_station.measurements.wgfmu.cycling import WgfmuCyclingProcedure
 
-folder = "results"
+folder = "1t1c3_retention"
 
 
 def cycling_proc(cycles=1000, width=1e-5, amplitude=3.0, channel=2, bipolar_pulses=True, pulse_separation=False):
@@ -27,9 +28,19 @@ def cycling_proc(cycles=1000, width=1e-5, amplitude=3.0, channel=2, bipolar_puls
     )
 
 
+def wgfmu_cycling_proc(cycles=10, width=1e-4, amplitude=-8.0, channel=2, bipolar_pulses=True, pulse_separation=False):
+    return WgfmuCyclingProcedure(
+        repetitions=cycles,
+        pulse_time=width,
+        voltage_top_first=0.0,
+        voltage_top_second=amplitude,
+        top=channel,
+    )
+
+
 def fet_current_proc(
-    gate_voltage=1.0,
-    drain_voltage=-0.5,
+    gate_voltage=3.75,
+    drain_voltage=0.25,
     source_voltage=0.0,
     base_voltage=0.0,
     gate=4,
@@ -51,18 +62,18 @@ def fet_current_proc(
     )
 
 
-def retention(precondition_cycles=1000, amplitude=3.0, width=1e-5, delays=None, gate_read_voltage=0.0):
+def retention(precondition_cycles=10, amplitude=3.0, width=1e-4, delays=None, gate_read_voltage=3.75):
     """Precondition the gate with cycling, then sample the drain current at increasing delays."""
     if delays is None:
         delays = np.logspace(0, 2, num=10, base=10)
 
-    run(
-        cycling_proc(cycles=precondition_cycles, width=width, amplitude=amplitude, bipolar_pulses=True),
-        folder=folder,
-        timeout=60 * 60,
-        startup_delay=5,
-        suffix=f"_{precondition_cycles}cycles_precondition",
-    )
+    # run(
+    #     wgfmu_cycling_proc(),
+    #     folder=folder,
+    #     timeout=60 * 60,
+    #     startup_delay=5,
+    #     suffix=f"_{precondition_cycles}cycles_precondition",
+    # )
 
     rows = []
     for delay in delays:
