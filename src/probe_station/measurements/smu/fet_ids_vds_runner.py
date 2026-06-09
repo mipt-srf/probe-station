@@ -11,7 +11,7 @@ from probe_station.measurements.b1500_helpers import connect_instrument, max_com
 from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 
 
-def run(b1500: B1500, start, end, steps, average=127, top=4, bottom=3, mode=1, gate=1, gate_voltage=1):
+def run(b1500: B1500, start, end, steps, average=127, top=4, bottom=3, mode=1, gate=1, gate_voltage=1, base=2):
     # b1500.reset()
     setup_rsu_output(b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
     setup_rsu_output(b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
@@ -25,10 +25,14 @@ def run(b1500: B1500, start, end, steps, average=127, top=4, bottom=3, mode=1, g
     gate_smu = b1500.smus[gate]
     gate_smu.enable()
 
+    base_smu = b1500.smus[base]
+    base_smu.enable()
+
     peak = max(abs(start), abs(end))
     smu.force("voltage", 0, 0, max_compliance(smu, peak))
     smu_bottom.force("voltage", 0, 0, max_compliance(smu_bottom, 0))
     gate_smu.force("voltage", 0, gate_voltage, max_compliance(gate_smu, abs(gate_voltage)))
+    base_smu.force("voltage", 0, 0, max_compliance(base_smu, 0))
 
     # b1500.write("SSP 9,3")
     # b1500.adc_auto_zero = True

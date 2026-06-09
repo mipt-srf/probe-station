@@ -25,6 +25,7 @@ class SmuFetIdsVdsProcedure(BaseProcedure):
     mode = IntegerParameter("Mode", default=1, group_by="advanced_config")
     gate_channel = IntegerParameter("Gate channel", default=1)
     gate_voltage = FloatParameter("Gate voltage", units="V", default=0)
+    base_channel = IntegerParameter("Base channel", default=2)
     # compliance = FloatParameter("Current compliance", units="A", default=0.1, group_by="advanced_config")
 
     DATA_COLUMNS = ["Voltage", "Source electrode current", "Gate current", "Time"]
@@ -51,6 +52,7 @@ class SmuFetIdsVdsProcedure(BaseProcedure):
             mode=self.mode,
             gate=self.gate_channel,
             gate_voltage=self.gate_voltage,
+            base=self.base_channel,
         )
 
         if self.mode == 2:
