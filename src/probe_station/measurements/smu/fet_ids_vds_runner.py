@@ -11,7 +11,7 @@ from probe_station.measurements.b1500_helpers import connect_instrument, max_com
 from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 
 
-def run(b1500: B1500, start, end, steps, average=127, top=4, bottom=3, mode=1, gate=1, gate_voltage=1):
+def run(b1500: B1500, start, end, steps, average=127, top=4, bottom=3, mode=1, gate=1, gate_voltage=1, base=2):
     # b1500.reset()
     setup_rsu_output(b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
     setup_rsu_output(b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
@@ -25,19 +25,26 @@ def run(b1500: B1500, start, end, steps, average=127, top=4, bottom=3, mode=1, g
     gate_smu = b1500.smus[gate]
     gate_smu.enable()
 
+    base_smu = b1500.smus[base]
+    base_smu.enable()
+
     peak = max(abs(start), abs(end))
     smu.force("voltage", 0, 0, max_compliance(smu, peak))
     smu_bottom.force("voltage", 0, 0, max_compliance(smu_bottom, 0))
     gate_smu.force("voltage", 0, gate_voltage, max_compliance(gate_smu, abs(gate_voltage)))
+    base_smu.force("voltage", 0, 0, max_compliance(base_smu, 0))
 
     # b1500.write("SSP 9,3")
     # b1500.adc_auto_zero = True
     b1500.time_stamp = True
     b1500.adc_averaging(10)
-    b1500.meas_mode(MeasMode.STAIRCASE_SWEEP, smu)  # drain
+    b1500.meas_mode(MeasMode.STAIRCASE_SWEEP, smu, gate_smu)  # drain + gate
     smu.meas_op_mode = MeasOpMode.CURRENT
+    gate_smu.meas_op_mode = MeasOpMode.CURRENT
     smu.meas_range_current = 0
+    gate_smu.meas_range_current = 0
     smu.adc_type = 1
+    gate_smu.adc_type = 1
 
     b1500.adc_setup(ADCType.HRADC, ADCMode.MANUAL, average)
     # smu.sweep_timing()
@@ -89,15 +96,16 @@ def run(b1500: B1500, start, end, steps, average=127, top=4, bottom=3, mode=1, g
 def get_data(b1500: B1500):
     data = parse_data(b1500.read())
 
-    times = data[::3]
-    currents = data[1::3]
-    voltages = data[2::3]
+    times = data[::5]
+    currents = data[1::5]
+    gate_currents = data[3::5]
+    voltages = data[4::5]
 
-    return times, voltages, currents
+    return times, voltages, currents, gate_currents
 
 
 if __name__ == "__main__":
     b1500 = connect_instrument(reset=True)
-    run(b1500, start=-3, end=3, steps=100, top=4)
+    run(b1500, start=-3, end=3, steps=100, top=4, gate=1)
     get_data(b1500)
     b1500.close_wgfmu_session()
