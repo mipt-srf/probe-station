@@ -162,7 +162,7 @@ def run_waveforms(
     bottom_seq=None,
     bottom_ch: int | None = None,
     repetitions: int,
-    current_range: WGFMUMeasureCurrentRange,
+    current_range: WGFMUMeasureCurrentRange | None = None,
     measure: bool,
     plot_points: int | None = None,
 ):
@@ -171,6 +171,9 @@ def run_waveforms(
     Returns ``None`` when ``measure`` is False; otherwise returns
     ``(top_data, bottom_data)`` where each entry is ``(times, voltages, currents)``
     (and ``bottom_data`` is ``None`` when no bottom channel is provided).
+
+    ``current_range`` is only applied when ``measure`` is True; callers that do
+    not measure (e.g. cycling) may omit it.
     """
     set_waveform(
         b1500=b1500,

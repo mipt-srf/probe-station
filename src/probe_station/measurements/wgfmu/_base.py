@@ -7,7 +7,6 @@ from pymeasure.experiment import (
     ListParameter,
 )
 
-from probe_station.measurements.b1500 import WGFMUMeasureCurrentRange
 from probe_station.measurements.pymeasure_base import BaseProcedure
 from probe_station.measurements.session import Session
 from probe_station.measurements.wgfmu._waveforms import SweepMode
@@ -48,11 +47,6 @@ class WgfmuBaseProcedure(WgfmuProcedure):
     voltage_top_second = FloatParameter("Top electrode voltage (second)", units="V", default=-5.0)
 
     top = IntegerParameter("Top channel", default=2)
-    current_range = ListParameter(
-        "Current range",
-        default=WGFMUMeasureCurrentRange.RANGE_100_UA.name,
-        choices=[e.name for e in WGFMUMeasureCurrentRange],
-    )
 
     enable_bottom = BooleanParameter("Enable bottom bias and measurement", default=False)
 

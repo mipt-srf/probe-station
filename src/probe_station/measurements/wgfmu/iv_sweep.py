@@ -30,6 +30,12 @@ class WgfmuIvSweepProcedure(WgfmuBaseProcedure):
     mode = ListParameter("Mode", default=SweepMode.PUND.name, choices=[e.name for e in SweepMode])
     pulse_time = FloatParameter("Pulse time", units="s", default=2e-4)
 
+    current_range = ListParameter(
+        "Current range",
+        default=WGFMUMeasureCurrentRange.RANGE_100_UA.name,
+        choices=[e.name for e in WGFMUMeasureCurrentRange],
+    )
+
     steps = IntegerParameter("Steps per pulse", default=200, group_by="advanced_config")
     rise_to_hold_ratio = FloatParameter("Rise to hold time ratio", default=100, group_by="advanced_config")
 
