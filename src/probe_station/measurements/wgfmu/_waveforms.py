@@ -27,6 +27,35 @@ class SweepMode(Enum):
     PUND = "pund"
 
 
+WGFMU_TIMING_RESOLUTION = 1e-8
+"""Hardware timing grid (10 ns) for both pattern vectors and measure events."""
+
+
+def _quantize_segment_times(times):
+    """Round segment durations to the WGFMU 10 ns grid, as the hardware will.
+
+    The instrument silently rounds every vector duration to the nearest 10 ns,
+    so a waveform built from off-grid segments plays for a different time than
+    the software computes and the measure event then covers only part of it
+    (e.g. 5 ns segments become 10 ns, doubling the sweep). Raise instead of
+    letting the hardware distort the waveform; zero-length segments are passed
+    through, the instrument drops them without affecting timing.
+    """
+    times = np.asarray(times, dtype=float)
+    quantized = np.round(times / WGFMU_TIMING_RESOLUTION) * WGFMU_TIMING_RESOLUTION
+    nonzero = times > 0
+    error = np.abs(quantized[nonzero] - times[nonzero]) / times[nonzero]
+    bad = (quantized[nonzero] < WGFMU_TIMING_RESOLUTION) | (error > 0.05)
+    if np.any(bad):
+        worst = np.min(times[nonzero][bad])
+        raise ValueError(
+            f"Waveform has segments as short as {worst:.3g} s that cannot be represented "
+            f"on the WGFMU 10 ns timing grid; increase the pulse time, reduce the number "
+            f"of steps, or adjust the rise to hold ratio"
+        )
+    return quantized
+
+
 def calculate_polarization(times, currents, pad_size_um):
     charge = scipy.integrate.simpson(y=np.abs(currents), x=times)
     area = (pad_size_um * 1e-4) ** 2
@@ -90,16 +119,25 @@ def set_waveform(
     pattern_name += f"_wgfmu{channel}"
     b1500.create_wgfmu_pattern(pattern_name, sequence.pulses[0].dc_bias)
     times, voltages = sequence.to_vectors()
-    seq_time = sequence.total_duration
+    times = _quantize_segment_times(times)
+    # sum the on-grid segments instead of sequence.total_duration so the
+    # measure event spans exactly what the hardware plays
+    seq_time = float(np.sum(times))
     log.info(f"Waveform for {pattern_name}: {len(voltages)} samples, {seq_time:.6g} s, {len(sequence.pulses)} pulses")
-    b1500.add_vectors_to_wgfmu_pattern(pattern_name, times, voltages)
+    b1500.add_vectors_to_wgfmu_pattern(pattern_name, times.tolist(), voltages)
     if measure:
+        interval = np.floor(seq_time / measure_points / WGFMU_TIMING_RESOLUTION) * WGFMU_TIMING_RESOLUTION
+        if interval < WGFMU_TIMING_RESOLUTION:
+            raise ValueError(
+                f"{measure_points} measure points do not fit into the {seq_time:.3g} s waveform "
+                f"at the WGFMU 10 ns sampling resolution; reduce the number of points to plot"
+            )
         b1500.set_wgfmu_measure_event(
             pattern_name=pattern_name,
             event_name="event",
             points=measure_points,
-            interval=seq_time / measure_points,
-            average=seq_time / measure_points,
+            interval=interval,
+            average=min(interval, 0.02),  # averaging time is capped at ~20 ms by hardware
             mode=WGFMUMeasureEvent.AVERAGED,
         )
     wgfmu = b1500.wgfmus[channel]
