@@ -57,17 +57,23 @@ def _quantize_segment_times(times):
 
 
 def calculate_polarization(times, currents, pad_size_um):
+    """Switched polarization 2Pr (uC/cm^2) from a PUND polarization-current trace.
+
+    *currents* must hold both the P-U and N-D subtracted humps; integrating
+    |current| over the record sums the positive and negative switched charge
+    (2 x 2Pr for a symmetric loop), so the total is halved to report 2Pr.
+    """
     charge = scipy.integrate.simpson(y=np.abs(currents), x=times)
     area = (pad_size_um * 1e-4) ** 2
-    return charge / area * 1e6
+    return charge / area * 1e6 / 2
 
 
 def get_sequence(
     sequence_type="pund",
     pulse_time=2e-4,
     steps=200,
-    max_voltage=4,
-    min_voltage=-4,
+    first_voltage=4,
+    second_voltage=-4,
     rise_to_hold_ratio=0.01,
     *,
     trailing_pulse: bool = False,
@@ -75,13 +81,13 @@ def get_sequence(
     time_step = pulse_time / steps / (1 + rise_to_hold_ratio)
     edge_time = time_step * rise_to_hold_ratio
 
-    positive = TriangularSweep(end_voltage=max_voltage, time_step=time_step, steps=steps, edge_time=edge_time)
-    negative = TriangularSweep(end_voltage=min_voltage, time_step=time_step, steps=steps, edge_time=edge_time)
+    first = TriangularSweep(end_voltage=first_voltage, time_step=time_step, steps=steps, edge_time=edge_time)
+    second = TriangularSweep(end_voltage=second_voltage, time_step=time_step, steps=steps, edge_time=edge_time)
 
     if sequence_type == "pund":
-        pulses = [positive] * 2 + [negative] * 2
+        pulses = [first] * 2 + [second] * 2
     else:
-        pulses = [positive, negative]
+        pulses = [first, second]
     if trailing_pulse:
         # delay pulse so the last measurement points are not clipped
         pulses.append(

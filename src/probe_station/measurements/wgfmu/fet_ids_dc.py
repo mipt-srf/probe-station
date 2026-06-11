@@ -71,7 +71,7 @@ class WgfmuFetIdsDcProcedure(WgfmuProcedure):
     DATA_COLUMNS = ["Drain Current", "Gate Current"]
 
     def execute(self):
-        log.info(f"Starting the {self.__class__}")
+        log.info(f"Starting the {self.__class__.__name__}")
 
         # Hold the idle terminals (source, substrate) at 0 V via SMUs, mirroring
         # the WGFMU Ids(Vg) grounding.

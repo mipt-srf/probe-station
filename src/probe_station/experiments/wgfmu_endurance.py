@@ -5,10 +5,10 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from keysight_b1530a.enums import WGFMUMeasureCurrentRange
 from matplotlib import pyplot as plt
 
 from probe_station.experiments.common import log_points, run
+from probe_station.measurements.b1500 import WGFMUMeasureCurrentRange
 from probe_station.logging_setup import add_file_log_dir, setup_file_logging
 from probe_station.measurements.wgfmu._waveforms import calculate_polarization
 from probe_station.measurements.wgfmu.cycling import WgfmuCyclingProcedure

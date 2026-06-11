@@ -81,8 +81,8 @@ class WgfmuFetIdsVgProcedure(WgfmuProcedure):
         seq_gate = get_sequence(
             sequence_type=self.mode.lower(),
             pulse_time=self.pulse_time,
-            max_voltage=self.voltage_gate_first,
-            min_voltage=self.voltage_gate_second,
+            first_voltage=self.voltage_gate_first,
+            second_voltage=self.voltage_gate_second,
             steps=self.steps,
             rise_to_hold_ratio=self.rise_to_hold_ratio,
             trailing_pulse=True,

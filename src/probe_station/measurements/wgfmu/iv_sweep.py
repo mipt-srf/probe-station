@@ -58,8 +58,8 @@ class WgfmuIvSweepProcedure(WgfmuBaseProcedure):
         seq_top = get_sequence(
             sequence_type=self.mode.lower(),
             pulse_time=self.pulse_time,
-            max_voltage=self.voltage_top_first,
-            min_voltage=self.voltage_top_second,
+            first_voltage=self.voltage_top_first,
+            second_voltage=self.voltage_top_second,
             steps=self.steps,
             rise_to_hold_ratio=self.rise_to_hold_ratio,
             trailing_pulse=True,
@@ -69,8 +69,8 @@ class WgfmuIvSweepProcedure(WgfmuBaseProcedure):
             seq_bottom = get_sequence(
                 sequence_type=self.mode.lower(),
                 pulse_time=self.pulse_time,
-                max_voltage=self.voltage_bottom_first,
-                min_voltage=self.voltage_bottom_second,
+                first_voltage=self.voltage_bottom_first,
+                second_voltage=self.voltage_bottom_second,
                 steps=self.steps,
                 rise_to_hold_ratio=self.rise_to_hold_ratio,
                 trailing_pulse=True,
@@ -109,50 +109,46 @@ class WgfmuIvSweepProcedure(WgfmuBaseProcedure):
 
         times, voltages, currents = top_data
 
-        polarization_positive = np.concatenate(
-            (
-                currents[: len(currents) // 4] - currents[len(currents) // 4 : len(currents) // 2],
-                np.zeros(len(currents) // 4),
-            )
-        )
-        polarization_negative = np.concatenate(
-            (
-                currents[len(currents) // 2 : 3 * len(currents) // 4] - currents[3 * len(currents) // 4 :],
-                np.zeros(len(currents) // 4),
-            )
-        )
-        polarization_current = np.concatenate((polarization_positive, polarization_negative))
-        filtered_polarization_current = scipy.ndimage.gaussian_filter1d(polarization_current, sigma=3)
-
+        data = {
+            "Top electrode voltage": voltages,
+            "Top electrode Current": currents,
+            "Time": times,
+        }
         if bottom_data is not None:
-            times_bottom, voltages_bottom, currents_bottom = bottom_data
-            self.emit(
-                "batch results",
-                {
-                    "Top electrode voltage": voltages,
-                    "Top electrode Current": currents,
-                    "Time": times,
-                    "Bottom electrode voltage": voltages_bottom,
-                    "Bottom time": times_bottom,
-                    "Bottom electrode current": currents_bottom,
-                    "Polarization current": polarization_current,
-                    "Filtered Polarization current": filtered_polarization_current,
-                },
+            _, voltages_bottom, currents_bottom = bottom_data
+            data["Bottom electrode voltage"] = voltages_bottom
+            data["Bottom electrode current"] = currents_bottom
+
+        # The P-U / N-D subtraction assumes the four equal PUND quarters; in
+        # DEFAULT mode there are only two pulses and the result is meaningless.
+        is_pund = self.mode == SweepMode.PUND.name
+        filtered_polarization_current = None
+        if is_pund:
+            polarization_positive = np.concatenate(
+                (
+                    currents[: len(currents) // 4] - currents[len(currents) // 4 : len(currents) // 2],
+                    np.zeros(len(currents) // 4),
+                )
             )
-        else:
-            self.emit(
-                "batch results",
-                {
-                    "Top electrode voltage": voltages,
-                    "Time": times,
-                    "Top electrode Current": currents,
-                    "Polarization current": polarization_current,
-                    "Filtered Polarization current": filtered_polarization_current,
-                },
+            polarization_negative = np.concatenate(
+                (
+                    currents[len(currents) // 2 : 3 * len(currents) // 4] - currents[3 * len(currents) // 4 :],
+                    np.zeros(len(currents) // 4),
+                )
             )
+            polarization_current = np.concatenate((polarization_positive, polarization_negative))
+            filtered_polarization_current = scipy.ndimage.gaussian_filter1d(polarization_current, sigma=3)
+            data["Polarization current"] = polarization_current
+            data["Filtered Polarization current"] = filtered_polarization_current
+
+        self.emit("batch results", data)
+
         if self.compute_polarization:
-            polarization = calculate_polarization(times, filtered_polarization_current, self.pad_size)
-            log.info("Polarization (Pr): %s", polarization)
+            if is_pund:
+                polarization = calculate_polarization(times, filtered_polarization_current, self.pad_size)
+                log.info("Polarization (2Pr): %s", polarization)
+            else:
+                log.warning("Polarization calculation requires PUND mode; skipping")
 
 
 class MainWindow(BaseWindow):
