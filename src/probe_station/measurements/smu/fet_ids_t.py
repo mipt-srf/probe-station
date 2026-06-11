@@ -10,6 +10,7 @@ from pymeasure.experiment import (
 )
 from pymeasure.instruments.agilent.agilentB1500 import ADCType
 
+from probe_station.measurements.b1500_helpers import max_compliance
 from probe_station.measurements.pymeasure_base import BaseProcedure, BaseWindow, run_app
 from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 from probe_station.measurements.session import Session
@@ -39,6 +40,12 @@ class SmuFetIdsTimeProcedure(BaseProcedure):
     def startup(self):
         super().startup()
         self.b1500 = Session.acquire()
+        # Restore a clean WGFMU state: a preceding WGFMU run leaves the
+        # channels in FASTIV mode, and clear + initialize releases them back
+        # to SMU control (same recovery the WGFMU procedures do in startup()).
+        self.b1500.clear_wgfmu()
+        self.b1500.initialize_wgfmu()
+        self.b1500.clear_buffer()
         setup_rsu_output(self.b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
         setup_rsu_output(self.b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
 
@@ -58,10 +65,10 @@ class SmuFetIdsTimeProcedure(BaseProcedure):
         source_smu.enable()
         base_smu.enable()
 
-        gate_smu.force("voltage", 0, self.gate_voltage)
-        drain_smu.force("voltage", 0, self.drain_voltage)
-        source_smu.force("voltage", 0, self.source_voltage)
-        base_smu.force("voltage", 0, self.base_voltage)
+        gate_smu.force("voltage", 0, self.gate_voltage, max_compliance(gate_smu, abs(self.gate_voltage)))
+        drain_smu.force("voltage", 0, self.drain_voltage, max_compliance(drain_smu, abs(self.drain_voltage)))
+        source_smu.force("voltage", 0, self.source_voltage, max_compliance(source_smu, abs(self.source_voltage)))
+        base_smu.force("voltage", 0, self.base_voltage, max_compliance(base_smu, abs(self.base_voltage)))
 
         tuples = drain_smu.measure_point()
         log.debug(f"Drain SMU measurement: {tuples}")
@@ -70,6 +77,8 @@ class SmuFetIdsTimeProcedure(BaseProcedure):
         tuples = gate_smu.measure_point()
         log.debug(f"Gate SMU measurement: {tuples}")
         gate_current = tuples[1][1]
+
+        log.info(f"Drain current: {drain_current:.6e} A, Gate current: {gate_current:.6e} A")
 
         self.emit("results", {"Drain Current": drain_current, "Gate Current": gate_current})
 

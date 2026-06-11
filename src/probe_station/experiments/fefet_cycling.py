@@ -15,14 +15,12 @@ folder = "results"
 
 logger = logging.getLogger(__name__)
 
-GATE_SPGU_CHANNEL = 2
-
 
 def cycling_proc(
     cycles=1000,
     width=1e-5,
     amplitude=2.6,
-    channel=GATE_SPGU_CHANNEL,
+    channel=2,
     bipolar_pulses=True,
     pulse_separation=False,
 ):

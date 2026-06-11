@@ -274,6 +274,12 @@ class Launcher(QWidget):
                 "#2196F3",
                 "in_process",
             ),
+            (
+                "📊 Ids @ DC bias (WGFMU)",
+                "probe_station.measurements.wgfmu.fet_ids_dc",
+                "#2196F3",
+                "in_process",
+            ),
             ("✨ Вжух", "probe_station.measurements.magic", "#D1B122", "action"),
             # ("📈 Staircase Sweep", "test_staircase_sweep_source.ipynb", "#FF9800", "notebook"),
         ]
