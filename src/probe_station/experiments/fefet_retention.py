@@ -1,4 +1,6 @@
+import logging
 import shutil
+from datetime import datetime, timedelta
 from pathlib import Path
 from time import sleep
 
@@ -85,10 +87,14 @@ def fet_current_proc(
     )
 
 
-def retention(precondition_cycles=10, amplitude=3.0, width=1e-4, delays=None, gate_read_voltage=0.3):
+def retention(delays=None, gate_read_voltage=0.3):
     """Precondition the gate with cycling, then sample the drain current at increasing delays."""
     if delays is None:
-        delays = np.logspace(-1, 3, num=40, base=10)
+        delays = np.logspace(-1, 2.8, num=40, base=10)
+
+    estimated_time = sum(delays)
+    estimated_finish = datetime.now() + timedelta(seconds=estimated_time)
+    logging.info(f"Estimated retention time: {estimated_time:.2f}s, estimated finish: {estimated_finish}")
 
     # run(
     #     cycling_proc(),
@@ -115,28 +121,23 @@ def retention(precondition_cycles=10, amplitude=3.0, width=1e-4, delays=None, ga
             suffix=f"_delay_{delay:.5f}s",
         )
         drain_current = results.data["Drain Current"]
-        if not drain_current.empty:
-            drain_current = drain_current.iloc[-1]
-        else:
-            drain_current = None
-            rows.append(
-                {
-                    "Delay": float(delay),
-                    "Drain Current After Negative Pulses (A)": drain_current,
-                }
-            )
+        rows.append(
+            {
+                "Delay": float(delay),
+                "Drain Current (A)": drain_current.iloc[-1] if not drain_current.empty else None,
+            }
+        )
         pd.DataFrame(rows).to_csv(f"{folder}/retention_results.csv", index=False)
 
     df = pd.DataFrame(rows)
 
     plt.figure(figsize=(10, 6))
-    plt.plot(df["Delay"], df["Drain Current After Negative Pulses (A)"], marker="o", label="Negative pulse")
+    plt.plot(df["Delay"], df["Drain Current (A)"], marker="o")
     plt.xscale("log")
     plt.xlabel("Delay (s)")
     plt.ylabel("Drain Current (A)")
     plt.title("Drain Current vs Retention Delay")
     plt.grid(True)
-    plt.legend()
     plt.savefig(f"{folder}/retention_plot.png")
 
     return df
