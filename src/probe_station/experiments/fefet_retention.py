@@ -67,11 +67,11 @@ def wgfmu_cycling_proc(cycles=10, width=1e-4, amplitude=8.0, channel=2, bipolar_
 def wgfmu_ids_vg_proc(
     voltage_ds=0.25,
     voltage_gate_first=0,
-    voltage_gate_second=-9,
-    pulse_time=1e-3,
+    voltage_gate_second=9,
+    pulse_time=1e-6,
     gate=2,
     drain=1,
-    source=3,
+    source=1,
     base=2,
 ):
     return WgfmuFetIdsVgProcedure(
@@ -139,11 +139,10 @@ def retention(delays=None, gate_read_voltage=0.3):
     )
 
     run(
-        cycling_proc(),
+        wgfmu_ids_vg_proc(),
         folder=folder,
         timeout=60 * 60,
         startup_delay=5,
-        suffix=f"_{1}cycles_precondition",
     )
 
     rows = []

@@ -29,16 +29,12 @@ log.addHandler(logging.NullHandler())
 class WgfmuFetIdsVgProcedure(WgfmuProcedure):
     """FET transfer (Ids-Vg) sweep on the WGFMU.
 
-    The gate channel is driven with a triangular voltage sweep while the drain
-    channel is held at a constant Vds. Both channels measure current at aligned
-    time points, so the drain current sampled against the gate voltage gives the
-    transfer curve. Mirrors the SMU ``Ids (Vg)`` procedure but uses the fast
-    WGFMU waveform path like the WGFMU IV sweep.
-
-    The two idle terminals -- source and substrate (base) -- are held at 0 V via
-    SMU channels for the duration of the sweep, matching the grounding done by
-    the SMU ``Ids (Vg)`` procedure (textbook setup: source grounded, Vds on the
-    drain). These are plain SMU probes, so they need no RSU routing change.
+    The gate WGFMU channel is driven with a triangular voltage sweep while the
+    second WGFMU channel grounds the source at 0 V; both measure current at
+    aligned time points, so the source current sampled against the gate voltage
+    gives the transfer curve (Is = Id + Ig). The drain only needs a constant
+    Vds, so it is biased by its SMU, freeing the second WGFMU channel for the
+    source. The substrate (base) is grounded via a plain SMU probe.
     """
 
     # Parameters are declared in GUI order (see WgfmuProcedure): sweep
@@ -49,8 +45,8 @@ class WgfmuFetIdsVgProcedure(WgfmuProcedure):
     pulse_time = FloatParameter("Pulse time", units="s", default=1e-3)
 
     gate = IntegerParameter("Gate channel (WGFMU)", default=2)
-    drain = IntegerParameter("Drain channel (WGFMU)", default=1)
-    source = IntegerParameter("Source channel (SMU, grounded)", default=1)
+    source = IntegerParameter("Source channel (WGFMU, grounded)", default=1)
+    drain = IntegerParameter("Drain channel (SMU, biased)", default=1)
     base = IntegerParameter("Base channel (SMU, grounded)", default=2)
 
     voltage_ds = FloatParameter("Drain-source voltage", units="V", default=0.25)
@@ -69,15 +65,19 @@ class WgfmuFetIdsVgProcedure(WgfmuProcedure):
 
     plot_points = IntegerParameter("Points to plot", default=200, group_by="advanced_config")
 
-    DATA_COLUMNS = ["Gate Voltage", "Drain-Source Current", "Gate Current", "Time"]
+    DATA_COLUMNS = ["Gate Voltage", "Source Current", "Gate Current", "Time"]
 
     def execute(self):
-        # Hold the idle terminals (source, substrate) at 0 V via SMUs for the
-        # whole sweep, mirroring the SMU Ids(Vg) grounding.
-        for channel in (self.source, self.base):
-            smu = self.b1500.smus[channel]
-            smu.enable()
-            smu.force("voltage", 0, 0, max_compliance(smu, 0))
+        # Bias the drain at a constant Vds via its SMU and ground the substrate
+        # (base); the source is grounded and measured by the second WGFMU
+        # channel below.
+        smu_drain = self.b1500.smus[self.drain]
+        smu_drain.enable()
+        smu_drain.force("voltage", 0, self.voltage_ds, max_compliance(smu_drain, abs(self.voltage_ds)))
+
+        smu_base = self.b1500.smus[self.base]
+        smu_base.enable()
+        smu_base.force("voltage", 0, 0, max_compliance(smu_base, 0))
 
         seq_gate = get_sequence(
             sequence_type=self.mode.lower(),
@@ -88,33 +88,35 @@ class WgfmuFetIdsVgProcedure(WgfmuProcedure):
             rise_to_hold_ratio=self.rise_to_hold_ratio,
             trailing_pulse=True,
         )
-        # Built after seq_gate so the constant drain bias spans the full gate
-        # duration, including the trailing pulse, keeping both channels aligned.
-        # The on-grid duration is what the hardware actually plays; the nominal
-        # total_duration would skew the channels apart at short pulse times
-        # where per-segment 10 ns rounding accumulates.
-        seq_drain = get_constant_sequence(self.voltage_ds, on_grid_duration(seq_gate))
+        # Built after seq_gate so the source ground spans the full gate
+        # duration, including the trailing pulse, keeping both channels
+        # aligned. The on-grid duration is what the hardware actually plays;
+        # the nominal total_duration would skew the channels apart at short
+        # pulse times where per-segment 10 ns rounding accumulates.
+        seq_source = get_constant_sequence(0.0, on_grid_duration(seq_gate))
 
-        gate_data, drain_data = run_waveforms(
+        gate_data, source_data = run_waveforms(
             b1500=self.b1500,
             top_seq=seq_gate,
             top_ch=self.gate,
-            bottom_seq=seq_drain,
-            bottom_ch=self.drain,
+            bottom_seq=seq_source,
+            bottom_ch=self.source,
             repetitions=1,
             current_range=WGFMUMeasureCurrentRange[self.current_range],
             measure=True,
             plot_points=self.plot_points,
         )
 
+        smu_drain.force("voltage", 0, 0)
+
         times, gate_voltages, gate_currents = gate_data
-        _, _, drain_currents = drain_data
+        _, _, source_currents = source_data
 
         self.emit(
             "batch results",
             {
                 "Gate Voltage": gate_voltages,
-                "Drain-Source Current": drain_currents,
+                "Source Current": source_currents,
                 "Gate Current": gate_currents,
                 "Time": times,
             },
