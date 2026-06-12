@@ -6,7 +6,7 @@ import sys
 
 from pymeasure.display.widgets import PlotWidget, ResultsDialog
 from pymeasure.experiment import Results
-from qtpy.QtCore import QLocale, Qt, QThread
+from qtpy.QtCore import QLocale, Qt, QThread, QUrl
 from qtpy.QtGui import QFont
 from qtpy.QtWidgets import (
     QApplication,
@@ -33,6 +33,11 @@ log.addHandler(logging.NullHandler())
 # Name of the in-flight action (e.g. "Вжух"), or None if idle. Read by the
 # busy predicate so procedure windows refuse to queue while it's running.
 _running_action: str | None = None
+
+# Network share where measurement data is archived. Qt's non-native file
+# dialog (forced by pymeasure's ResultsDialog for the preview tabs) has no
+# "Network" sidebar entry, so UNC locations must be pinned explicitly.
+NAS_DATA_ROOT = r"\\nasnasnas.mipt.su\Users\Ilyev"
 
 
 def _action_busy() -> str | None:
@@ -141,6 +146,11 @@ class CrossProcedureResultsDialog(ResultsDialog):
         self._preview_tab.setCurrentIndex(0)
         self._plot_cache: dict[type, PlotWidget | None] = {}
         self._current_plot: PlotWidget | None = None
+        sidebar = self.sidebarUrls()
+        nas_url = QUrl.fromLocalFile(NAS_DATA_ROOT)
+        if nas_url not in sidebar:
+            sidebar.append(nas_url)
+            self.setSidebarUrls(sidebar)
 
     def _ensure_plot_preview(self, procedure_class: type) -> None:
         if procedure_class in self._plot_cache:
