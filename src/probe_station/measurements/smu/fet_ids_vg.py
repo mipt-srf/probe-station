@@ -19,9 +19,9 @@ log.addHandler(logging.NullHandler())
 
 
 class SmuFetIdsVgProcedure(BaseProcedure):
-    source = IntegerParameter("Source channel", default=4)
-    drain = IntegerParameter("Drain channel", default=3)
-    gate = IntegerParameter("Gate channel", default=1)
+    source = IntegerParameter("Source channel", default=3)
+    drain = IntegerParameter("Drain channel", default=1)
+    gate = IntegerParameter("Gate channel", default=4)
     base = IntegerParameter("Base channel", default=2)
 
     voltage_ds = FloatParameter("Drain-source voltage", units="V", default=1.0)
