@@ -117,9 +117,13 @@ def get_constant_sequence(voltage, duration, edge_time=None):
     measure points stay time-aligned with the sweeping channel.
     """
     if edge_time is None:
-        # clamp to the timing grid so short waveforms (~us) don't produce
-        # sub-10 ns edges that the hardware cannot represent
-        edge_time = max(duration / 1000, WGFMU_TIMING_RESOLUTION)
+        # snap the auto edge to the 10 ns timing grid: duration/1000 is an
+        # arbitrary fraction that can land between grid points (e.g. 21.2 ns
+        # for a ~21 us waveform) and then fail the quantization tolerance
+        edge_time = max(
+            round(duration / 1000 / WGFMU_TIMING_RESOLUTION) * WGFMU_TIMING_RESOLUTION,
+            WGFMU_TIMING_RESOLUTION,
+        )
     pulse_width = duration - 2 * edge_time
     if pulse_width <= 0:
         raise ValueError(f"Duration {duration:.3g} s is too short for {edge_time:.3g} s rise/fall edges")
