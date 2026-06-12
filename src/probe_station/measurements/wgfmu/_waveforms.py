@@ -56,6 +56,18 @@ def _quantize_segment_times(times):
     return quantized
 
 
+def on_grid_duration(sequence):
+    """Total time the hardware actually plays *sequence*, i.e. the sum of its
+    segment durations after rounding each one to the 10 ns grid.
+
+    Use this instead of ``sequence.total_duration`` when another channel's
+    waveform must span the same time, otherwise per-segment rounding skews the
+    two channels apart.
+    """
+    times, _ = sequence.to_vectors()
+    return float(np.sum(_quantize_segment_times(times)))
+
+
 def calculate_polarization(times, currents, pad_size_um):
     """Switched polarization 2Pr (uC/cm^2) from a PUND polarization-current trace.
 
@@ -105,8 +117,12 @@ def get_constant_sequence(voltage, duration, edge_time=None):
     measure points stay time-aligned with the sweeping channel.
     """
     if edge_time is None:
-        edge_time = duration / 1000
+        # clamp to the timing grid so short waveforms (~us) don't produce
+        # sub-10 ns edges that the hardware cannot represent
+        edge_time = max(duration / 1000, WGFMU_TIMING_RESOLUTION)
     pulse_width = duration - 2 * edge_time
+    if pulse_width <= 0:
+        raise ValueError(f"Duration {duration:.3g} s is too short for {edge_time:.3g} s rise/fall edges")
     return PulseSequence(
         [TrapezoidalPulse(amplitude=voltage, pulse_width=pulse_width, rise_time=edge_time, fall_time=edge_time)]
     )

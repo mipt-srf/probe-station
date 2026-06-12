@@ -18,6 +18,7 @@ from probe_station.measurements.wgfmu._waveforms import (
     SweepMode,
     get_constant_sequence,
     get_sequence,
+    on_grid_duration,
     run_waveforms,
 )
 
@@ -63,7 +64,7 @@ class WgfmuFetIdsVgProcedure(WgfmuProcedure):
     )
 
     advanced_config = BooleanParameter("Advanced config", default=False)
-    steps = IntegerParameter("Steps per pulse", default=100, group_by="advanced_config")
+    steps = IntegerParameter("Steps per pulse", default=50, group_by="advanced_config")
     rise_to_hold_ratio = FloatParameter("Rise to hold time ratio", default=1, group_by="advanced_config")
 
     plot_points = IntegerParameter("Points to plot", default=200, group_by="advanced_config")
@@ -89,7 +90,10 @@ class WgfmuFetIdsVgProcedure(WgfmuProcedure):
         )
         # Built after seq_gate so the constant drain bias spans the full gate
         # duration, including the trailing pulse, keeping both channels aligned.
-        seq_drain = get_constant_sequence(self.voltage_ds, seq_gate.total_duration)
+        # The on-grid duration is what the hardware actually plays; the nominal
+        # total_duration would skew the channels apart at short pulse times
+        # where per-segment 10 ns rounding accumulates.
+        seq_drain = get_constant_sequence(self.voltage_ds, on_grid_duration(seq_gate))
 
         gate_data, drain_data = run_waveforms(
             b1500=self.b1500,
