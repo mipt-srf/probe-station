@@ -87,6 +87,18 @@ def fet_current_proc(
     )
 
 
+def save_retention_plot(df):
+    fig = plt.figure(figsize=(10, 6))
+    plt.plot(df["Delay"], df["Drain Current (A)"], marker="o")
+    plt.xscale("log")
+    plt.xlabel("Delay (s)")
+    plt.ylabel("Drain Current (A)")
+    plt.title("Drain Current vs Retention Delay")
+    plt.grid(True)
+    plt.savefig(f"{folder}/retention_plot.png")
+    plt.close(fig)
+
+
 def retention(delays=None, gate_read_voltage=0.3):
     """Precondition the gate with cycling, then sample the drain current at increasing delays."""
     if delays is None:
@@ -128,17 +140,11 @@ def retention(delays=None, gate_read_voltage=0.3):
             }
         )
         pd.DataFrame(rows).to_csv(f"{folder}/retention_results.csv", index=False)
+        if delay > 10:
+            save_retention_plot(pd.DataFrame(rows))
 
     df = pd.DataFrame(rows)
-
-    plt.figure(figsize=(10, 6))
-    plt.plot(df["Delay"], df["Drain Current (A)"], marker="o")
-    plt.xscale("log")
-    plt.xlabel("Delay (s)")
-    plt.ylabel("Drain Current (A)")
-    plt.title("Drain Current vs Retention Delay")
-    plt.grid(True)
-    plt.savefig(f"{folder}/retention_plot.png")
+    save_retention_plot(df)
 
     return df
 
