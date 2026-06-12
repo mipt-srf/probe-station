@@ -68,14 +68,11 @@ class SmuFetIdsVgProcedure(BaseProcedure):
         for voltage in voltages:
             self.smu_gate.force("voltage", 0, voltage)  # 4 ms between steps, 10 ms with measuring
             time, current, voltage_meas = parse_data(self.b1500.ask(f"TTIV {self.smu_drain.channel}, 0, 0"))
-            # sleep(0.05)
-            # time, gate_current, voltage_meas = parse_data(
-            #     self.b1500.ask(f"TTIV {self.smu_gate.name[-1]}, 15, 0")
-            # )
+            _, gate_current, _ = parse_data(self.b1500.ask(f"TTIV {self.smu_gate.channel}, 0, 0"))
             data = {
                 "Gate Voltage": voltage,
                 "Drain-Source Current": current,
-                # "Gate Current": gate_current,
+                "Gate Current": gate_current,
             }
             self.emit("results", data)
             if self.should_stop():
