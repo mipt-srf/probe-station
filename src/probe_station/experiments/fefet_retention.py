@@ -14,6 +14,7 @@ from probe_station.measurements.smu.fet_ids_t import SmuFetIdsTimeProcedure
 from probe_station.measurements.smu.fet_ids_vg import SmuFetIdsVgProcedure
 from probe_station.measurements.spgu.cycling import SpguCyclingProcedure
 from probe_station.measurements.wgfmu.cycling import WgfmuCyclingProcedure
+from probe_station.measurements.wgfmu.fet_ids_vg import WgfmuFetIdsVgProcedure
 
 folder = "1t1c3_retention_final_-9_smu"
 
@@ -63,6 +64,28 @@ def wgfmu_cycling_proc(cycles=10, width=1e-4, amplitude=8.0, channel=2, bipolar_
     )
 
 
+def wgfmu_ids_vg_proc(
+    voltage_ds=0.25,
+    voltage_gate_first=0,
+    voltage_gate_second=-9,
+    pulse_time=1e-3,
+    gate=2,
+    drain=1,
+    source=3,
+    base=2,
+):
+    return WgfmuFetIdsVgProcedure(
+        voltage_ds=voltage_ds,
+        voltage_gate_first=voltage_gate_first,
+        voltage_gate_second=voltage_gate_second,
+        pulse_time=pulse_time,
+        gate=gate,
+        drain=drain,
+        source=source,
+        base=base,
+    )
+
+
 def fet_current_proc(
     gate_voltage=3.75,
     drain_voltage=0.25,
@@ -108,19 +131,19 @@ def retention(delays=None, gate_read_voltage=0.3):
     estimated_finish = datetime.now() + timedelta(seconds=estimated_time)
     logging.info(f"Estimated retention time: {estimated_time:.2f}s, estimated finish: {estimated_finish}")
 
-    # run(
-    #     cycling_proc(),
-    #     folder=folder,
-    #     timeout=60 * 60,
-    #     startup_delay=5,
-    #     suffix=f"_{precondition_cycles}cycles_precondition",
-    # )
-
     run(
         ids_vg_proc(),
         folder=folder,
         timeout=60 * 60,
         startup_delay=5,
+    )
+
+    run(
+        cycling_proc(),
+        folder=folder,
+        timeout=60 * 60,
+        startup_delay=5,
+        suffix=f"_{1}cycles_precondition",
     )
 
     rows = []
