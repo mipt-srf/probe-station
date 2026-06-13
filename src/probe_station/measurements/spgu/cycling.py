@@ -52,20 +52,23 @@ class SpguCyclingProcedure(BaseProcedure):
 
             log.info("Starting output of %f V at %d", self.dc_bias_value, self.dc_channel)
 
-        run(
-            b1500=self.b1500,
-            repetitions=self.repetitions,
-            amplitude=self.amplitude,
-            width=self.width,
-            rise=self.rise,
-            tail=self.tail,
-            channel=self.channel + 100 if self.channel < 10 else self.channel,
-            bipolar=self.bipolar_pulses,
-            pulse_separation=self.pulse_separation,
-        )
-
-        if self.dc_bias:
-            dc_smu.force("Voltage", 0, 0)
+        try:
+            run(
+                b1500=self.b1500,
+                repetitions=self.repetitions,
+                amplitude=self.amplitude,
+                width=self.width,
+                rise=self.rise,
+                tail=self.tail,
+                channel=self.channel + 100 if self.channel < 10 else self.channel,
+                bipolar=self.bipolar_pulses,
+                pulse_separation=self.pulse_separation,
+            )
+        finally:
+            # Always drop the DC bias so a failed cycling run does not leave
+            # the SMU biased on the device.
+            if self.dc_bias:
+                dc_smu.force("Voltage", 0, 0)
 
     def get_estimates(self, sequence_length=None, sequence=None):
         delay_2nd = 2 * self.width

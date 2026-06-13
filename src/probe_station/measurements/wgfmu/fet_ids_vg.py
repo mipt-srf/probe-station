@@ -95,19 +95,22 @@ class WgfmuFetIdsVgProcedure(WgfmuProcedure):
         # pulse times where per-segment 10 ns rounding accumulates.
         seq_source = get_constant_sequence(0.0, on_grid_duration(seq_gate))
 
-        gate_data, source_data = run_waveforms(
-            b1500=self.b1500,
-            top_seq=seq_gate,
-            top_ch=self.gate,
-            bottom_seq=seq_source,
-            bottom_ch=self.source,
-            repetitions=1,
-            current_range=WGFMUMeasureCurrentRange[self.current_range],
-            measure=True,
-            plot_points=self.plot_points,
-        )
-
-        smu_drain.force("voltage", 0, 0)
+        try:
+            gate_data, source_data = run_waveforms(
+                b1500=self.b1500,
+                top_seq=seq_gate,
+                top_ch=self.gate,
+                bottom_seq=seq_source,
+                bottom_ch=self.source,
+                repetitions=1,
+                current_range=WGFMUMeasureCurrentRange[self.current_range],
+                measure=True,
+                plot_points=self.plot_points,
+            )
+        finally:
+            # Always return the drain SMU to 0 V so a failed sweep does not
+            # leave the FET biased, which would rewrite its state.
+            smu_drain.force("voltage", 0, 0)
 
         times, gate_voltages, gate_currents = gate_data
         _, _, source_currents = source_data

@@ -96,20 +96,26 @@ class WgfmuFetIdsDcProcedure(WgfmuProcedure):
 
             drain_current = drain_wgfmu.dc_measure_averaged_value(self.average_points, self.sample_interval)
             gate_current = gate_wgfmu.dc_measure_averaged_value(self.average_points, self.sample_interval)
+
+            log.info(f"Drain current: {drain_current:.6e} A, Gate current: {gate_current:.6e} A")
+
+            self.emit("results", {"Drain Current": drain_current, "Gate Current": gate_current})
+
+            # Return both channels to 0 V and release them.
+            gate_wgfmu.dc_force_voltage(0)
+            drain_wgfmu.dc_force_voltage(0)
+            gate_wgfmu.disable()
+            drain_wgfmu.disable()
         except WGFMUError:
             log.error(f"{get_error_summary()}")
             self.b1500.clear_wgfmu()
             raise
-
-        log.info(f"Drain current: {drain_current:.6e} A, Gate current: {gate_current:.6e} A")
-
-        self.emit("results", {"Drain Current": drain_current, "Gate Current": gate_current})
-
-        # Return both channels to 0 V and release them.
-        gate_wgfmu.dc_force_voltage(0)
-        drain_wgfmu.dc_force_voltage(0)
-        gate_wgfmu.disable()
-        drain_wgfmu.disable()
+        except Exception:
+            # Any other failure must not leave the FET gate/drain biased;
+            # clearing the WGFMU returns the channels to a safe 0 V state.
+            log.exception("FET DC measurement failed; clearing WGFMU")
+            self.b1500.clear_wgfmu()
+            raise
 
 
 class MainWindow(BaseWindow):

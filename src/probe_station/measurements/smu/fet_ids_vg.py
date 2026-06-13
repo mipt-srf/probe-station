@@ -62,28 +62,31 @@ class SmuFetIdsVgProcedure(BaseProcedure):
                 np.linspace(self.voltage_gate_second, 0, self.points // 3),
             ),
         )
-        self.smu_drain.force("voltage", 0, self.voltage_ds, max_compliance(self.smu_drain, abs(self.voltage_ds)))
-        gate_peak = max(abs(self.voltage_gate_first), abs(self.voltage_gate_second))
-        self.smu_gate.force("voltage", 0, 0, max_compliance(self.smu_gate, gate_peak))
-        for voltage in voltages:
-            self.smu_gate.force("voltage", 0, voltage)  # 4 ms between steps, 10 ms with measuring
-            time, current, voltage_meas = parse_data(self.b1500.ask(f"TTIV {self.smu_drain.channel}, 0, 0"))
-            _, gate_current, _ = parse_data(self.b1500.ask(f"TTIV {self.smu_gate.channel}, 0, 0"))
-            data = {
-                "Gate Voltage": voltage,
-                "Drain-Source Current": current,
-                "Gate Current": gate_current,
-            }
-            self.emit("results", data)
-            if self.should_stop():
-                log.warning("Caught the stop flag in the procedure")
-                self.b1500.abort()
-                self.b1500.force_gnd()
-                break
-
-        self.smu_drain.force("voltage", 0, 0)
-        self.smu_gate.force("voltage", 0, 0)
-        self.smu_base.force("voltage", 0, 0)
+        try:
+            self.smu_drain.force("voltage", 0, self.voltage_ds, max_compliance(self.smu_drain, abs(self.voltage_ds)))
+            gate_peak = max(abs(self.voltage_gate_first), abs(self.voltage_gate_second))
+            self.smu_gate.force("voltage", 0, 0, max_compliance(self.smu_gate, gate_peak))
+            for voltage in voltages:
+                self.smu_gate.force("voltage", 0, voltage)  # 4 ms between steps, 10 ms with measuring
+                time, current, voltage_meas = parse_data(self.b1500.ask(f"TTIV {self.smu_drain.channel}, 0, 0"))
+                _, gate_current, _ = parse_data(self.b1500.ask(f"TTIV {self.smu_gate.channel}, 0, 0"))
+                data = {
+                    "Gate Voltage": voltage,
+                    "Drain-Source Current": current,
+                    "Gate Current": gate_current,
+                }
+                self.emit("results", data)
+                if self.should_stop():
+                    log.warning("Caught the stop flag in the procedure")
+                    self.b1500.abort()
+                    self.b1500.force_gnd()
+                    break
+        finally:
+            # Always return electrodes to 0 V: a failed query mid-sweep must
+            # not leave the FET gate biased, which would rewrite its state.
+            self.smu_drain.force("voltage", 0, 0)
+            self.smu_gate.force("voltage", 0, 0)
+            self.smu_base.force("voltage", 0, 0)
 
 
 class MainWindow(BaseWindow):
