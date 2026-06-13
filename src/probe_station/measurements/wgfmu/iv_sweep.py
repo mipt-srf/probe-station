@@ -1,6 +1,5 @@
 import logging
 
-import numpy as np
 import scipy
 from pymeasure.display.widgets import PlotWidget
 from pymeasure.experiment import (
@@ -19,6 +18,7 @@ from probe_station.measurements.wgfmu._waveforms import (
     WaveformShape,
     calculate_polarization,
     get_sequence,
+    pund_polarization_current,
     run_waveforms,
     run_waveforms_split,
 )
@@ -133,19 +133,7 @@ class WgfmuIvSweepProcedure(WgfmuBaseProcedure):
         is_pund = self.mode == SweepMode.PUND.name
         filtered_polarization_current = None
         if is_pund:
-            polarization_positive = np.concatenate(
-                (
-                    currents[: len(currents) // 4] - currents[len(currents) // 4 : len(currents) // 2],
-                    np.zeros(len(currents) // 4),
-                )
-            )
-            polarization_negative = np.concatenate(
-                (
-                    currents[len(currents) // 2 : 3 * len(currents) // 4] - currents[3 * len(currents) // 4 :],
-                    np.zeros(len(currents) // 4),
-                )
-            )
-            polarization_current = np.concatenate((polarization_positive, polarization_negative))
+            polarization_current = pund_polarization_current(voltages, currents)
             filtered_polarization_current = scipy.ndimage.gaussian_filter1d(polarization_current, sigma=3)
             data["Polarization current"] = polarization_current
             data["Filtered Polarization current"] = filtered_polarization_current

@@ -3,14 +3,19 @@ import shutil
 from datetime import datetime, timedelta
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
 from probe_station.experiments.common import log_points, run
 from probe_station.logging_setup import add_file_log_dir, setup_file_logging
 from probe_station.measurements.b1500 import WGFMUMeasureCurrentRange
-from probe_station.measurements.wgfmu._waveforms import WaveformShape, calculate_polarization
+from probe_station.measurements.wgfmu._waveforms import (
+    WaveformShape,
+    calculate_polarization,
+)
+from probe_station.measurements.wgfmu._waveforms import (
+    pund_polarization_current as _pund_polarization_current,
+)
 from probe_station.measurements.wgfmu.cycling import WgfmuCyclingProcedure
 from probe_station.measurements.wgfmu.iv_sweep import WgfmuIvSweepProcedure
 
@@ -66,16 +71,15 @@ def wgfmu_iv_proc(
 def pund_polarization_current(results):
     """P-U / N-D subtracted bottom electrode current of a PUND sweep, without filtering.
 
-    Returns the sweep data together with the polarization current, both clipped to
-    whole quarters (a partial row can be parsed while the writer is still flushing).
+    Returns the sweep data together with the polarization current (the same
+    length as the record), with the trailing settle pulse excluded from the
+    quarter split so the subtraction stays aligned.
     """
     data = results.data[["Time", "Top electrode voltage", "Bottom electrode current"]].dropna()
-    quarter = len(data) // 4
-    data = data.iloc[: 4 * quarter]
-    currents = data["Bottom electrode current"].to_numpy()
-    positive = np.concatenate((currents[:quarter] - currents[quarter : 2 * quarter], np.zeros(quarter)))
-    negative = np.concatenate((currents[2 * quarter : 3 * quarter] - currents[3 * quarter :], np.zeros(quarter)))
-    return data, np.concatenate((positive, negative))
+    polarization = _pund_polarization_current(
+        data["Top electrode voltage"].to_numpy(), data["Bottom electrode current"].to_numpy()
+    )
+    return data, polarization
 
 
 def pund_polarization(results):

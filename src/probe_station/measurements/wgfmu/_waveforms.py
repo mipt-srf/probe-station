@@ -80,6 +80,44 @@ def on_grid_duration(sequence):
     return float(np.sum(_quantize_segment_times(times)))
 
 
+def pund_quarter_length(voltages, *, threshold_fraction=0.01):
+    """Samples per PUND quarter, excluding the trailing settle pulse.
+
+    A PUND record is the four sweeps (P, U, N, D) followed by the trailing pulse
+    that ``get_sequence`` appends to keep the last measured points from being
+    clipped. That tail sits at 0 V, so splitting the raw record into four equal
+    quarters lets it bleed into the N-D quarter and misaligns the P-U / N-D
+    subtraction. Find the last sample still driven above ``threshold_fraction``
+    of the peak amplitude, treat everything after as the tail, and divide the
+    remaining sweep samples into four quarters.
+    """
+    magnitude = np.abs(np.asarray(voltages))
+    if magnitude.size == 0:
+        return 0
+    driven = np.where(magnitude > threshold_fraction * magnitude.max())[0]
+    sweep_length = int(driven[-1]) + 1 if driven.size else magnitude.size
+    return sweep_length // 4
+
+
+def pund_polarization_current(voltages, currents):
+    """P-U / N-D subtracted polarization current, aligned to *currents*.
+
+    Returns an array the same length as *currents*: the P-U hump in the first
+    quarter, the N-D hump in the third, and zeros elsewhere (including the
+    trailing-pulse tail), so it integrates and plots against the full record
+    without the tail distorting the quarter alignment.
+    """
+    currents = np.asarray(currents)
+    quarter = pund_quarter_length(voltages)
+    polarization = np.zeros(len(currents))
+    if quarter:
+        p, u = currents[:quarter], currents[quarter : 2 * quarter]
+        n, d = currents[2 * quarter : 3 * quarter], currents[3 * quarter : 4 * quarter]
+        polarization[:quarter] = p - u
+        polarization[2 * quarter : 3 * quarter] = n - d
+    return polarization
+
+
 def calculate_polarization(times, currents, pad_size_um):
     """Switched polarization 2Pr (uC/cm^2) from a PUND polarization-current trace.
 
