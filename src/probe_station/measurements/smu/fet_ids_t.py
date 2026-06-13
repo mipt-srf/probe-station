@@ -29,7 +29,7 @@ class SmuFetIdsTimeProcedure(BaseProcedure):
     drain_channel = IntegerParameter("Drain Channel", default=1)
 
     advanced_config = BooleanParameter("Advanced config", default=False)
-    averaging = IntegerParameter("Averaging", default=1023, minimum=1, maximum=1023, group_by="advanced_config")
+    averaging = IntegerParameter("Averaging", default=10, minimum=1, maximum=1023, group_by="advanced_config")
     source_channel = IntegerParameter("Source Channel", default=3, group_by="advanced_config")
     base_channel = IntegerParameter("Base Channel", default=2, group_by="advanced_config")
     source_voltage = FloatParameter("Source voltage", units="V", default=0.0, group_by="advanced_config")
@@ -57,7 +57,7 @@ class SmuFetIdsTimeProcedure(BaseProcedure):
         source_smu = self.b1500.smus[self.source_channel]
         base_smu = self.b1500.smus[self.base_channel]
 
-        self.b1500.adc_averaging = self.averaging
+        self.b1500.adc_averaging(self.averaging)
         drain_smu.adc_type = ADCType.HSADC
 
         gate_smu.enable()
