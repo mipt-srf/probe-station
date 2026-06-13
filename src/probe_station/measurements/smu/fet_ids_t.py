@@ -65,27 +65,30 @@ class SmuFetIdsTimeProcedure(BaseProcedure):
         source_smu.enable()
         base_smu.enable()
 
-        gate_smu.force("voltage", 0, self.gate_voltage, max_compliance(gate_smu, abs(self.gate_voltage)))
-        drain_smu.force("voltage", 0, self.drain_voltage, max_compliance(drain_smu, abs(self.drain_voltage)))
-        source_smu.force("voltage", 0, self.source_voltage, max_compliance(source_smu, abs(self.source_voltage)))
-        base_smu.force("voltage", 0, self.base_voltage, max_compliance(base_smu, abs(self.base_voltage)))
+        try:
+            gate_smu.force("voltage", 0, self.gate_voltage, max_compliance(gate_smu, abs(self.gate_voltage)))
+            drain_smu.force("voltage", 0, self.drain_voltage, max_compliance(drain_smu, abs(self.drain_voltage)))
+            source_smu.force("voltage", 0, self.source_voltage, max_compliance(source_smu, abs(self.source_voltage)))
+            base_smu.force("voltage", 0, self.base_voltage, max_compliance(base_smu, abs(self.base_voltage)))
 
-        tuples = drain_smu.measure_point()
-        log.debug(f"Drain SMU measurement: {tuples}")
-        drain_current = tuples[1][1]
+            tuples = drain_smu.measure_point()
+            log.debug(f"Drain SMU measurement: {tuples}")
+            drain_current = tuples[1][1]
 
-        tuples = gate_smu.measure_point()
-        log.debug(f"Gate SMU measurement: {tuples}")
-        gate_current = tuples[1][1]
+            tuples = gate_smu.measure_point()
+            log.debug(f"Gate SMU measurement: {tuples}")
+            gate_current = tuples[1][1]
 
-        log.info(f"Drain current: {drain_current:.6e} A, Gate current: {gate_current:.6e} A")
+            log.info(f"Drain current: {drain_current:.6e} A, Gate current: {gate_current:.6e} A")
 
-        self.emit("results", {"Drain Current": drain_current, "Gate Current": gate_current})
-
-        gate_smu.force("voltage", 0, 0)
-        drain_smu.force("voltage", 0, 0)
-        source_smu.force("voltage", 0, 0)
-        base_smu.force("voltage", 0, 0)
+            self.emit("results", {"Drain Current": drain_current, "Gate Current": gate_current})
+        finally:
+            # Always return electrodes to 0 V: a mid-measurement failure must
+            # not leave the FET gate biased, which would rewrite its state.
+            gate_smu.force("voltage", 0, 0)
+            drain_smu.force("voltage", 0, 0)
+            source_smu.force("voltage", 0, 0)
+            base_smu.force("voltage", 0, 0)
 
     # def shutdown(self):
     #     close_session()
