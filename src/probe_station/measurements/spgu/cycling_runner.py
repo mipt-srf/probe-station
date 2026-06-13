@@ -14,7 +14,18 @@ log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-def run(b1500, repetitions, amplitude, width, rise, tail, channel=102, bipolar=False, pulse_separation=True):
+def run(
+    b1500,
+    repetitions,
+    amplitude,
+    width,
+    rise,
+    tail,
+    channel=102,
+    bipolar=False,
+    pulse_separation=True,
+    should_stop=None,
+):
     if pulse_separation:
         delay_2nd = width
     else:
@@ -64,13 +75,17 @@ def run(b1500, repetitions, amplitude, width, rise, tail, channel=102, bipolar=F
 
     pg.apply_setup()
     spgu.output = True
-    elapsed = 0
     start_time = time.perf_counter()
     try:
-        while True:
-            if spgu.complete:
+        # Sleep between status polls so the loop does not peg a CPU core or
+        # flood the VISA bus on multi-day runs; check the stop flag so the
+        # GUI Stop button actually aborts the output.
+        while not spgu.complete:
+            if should_stop is not None and should_stop():
+                log.warning("Stop requested; aborting SPGU cycling")
                 break
-            elapsed = time.perf_counter() - start_time
+            time.sleep(0.05)
+        elapsed = time.perf_counter() - start_time
         log.info(f"Elapsed: {elapsed:.1f}s / {period * repetitions:.1f}s")
     finally:
         spgu.output = False

@@ -63,6 +63,7 @@ class SpguCyclingProcedure(BaseProcedure):
                 channel=self.channel + 100 if self.channel < 10 else self.channel,
                 bipolar=self.bipolar_pulses,
                 pulse_separation=self.pulse_separation,
+                should_stop=self.should_stop,
             )
         finally:
             # Always drop the DC bias so a failed cycling run does not leave
