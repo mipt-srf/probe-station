@@ -9,7 +9,7 @@ from pymeasure.experiment import (
 
 from probe_station.measurements.pymeasure_base import BaseProcedure
 from probe_station.measurements.session import Session
-from probe_station.measurements.wgfmu._waveforms import SweepMode
+from probe_station.measurements.wgfmu._waveforms import SweepMode, WaveformShape
 
 
 class WgfmuProcedure(BaseProcedure):
@@ -61,4 +61,10 @@ class WgfmuBaseProcedure(WgfmuProcedure):
     advanced_config = BooleanParameter("Advanced config", default=False)
 
     steps = IntegerParameter("Steps per pulse", default=100, group_by="advanced_config")
+    waveform_shape = ListParameter(
+        "Waveform shape",
+        default=WaveformShape.STAIRCASE.name,
+        choices=[e.name for e in WaveformShape],
+        group_by="advanced_config",
+    )
     rise_to_hold_ratio = FloatParameter("Rise to hold time ratio", default=1, group_by="advanced_config")

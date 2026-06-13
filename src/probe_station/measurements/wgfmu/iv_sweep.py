@@ -16,6 +16,7 @@ from probe_station.measurements.pymeasure_base import BaseWindow, run_app
 from probe_station.measurements.wgfmu._base import WgfmuBaseProcedure
 from probe_station.measurements.wgfmu._waveforms import (
     SweepMode,
+    WaveformShape,
     calculate_polarization,
     get_sequence,
     run_waveforms,
@@ -37,6 +38,12 @@ class WgfmuIvSweepProcedure(WgfmuBaseProcedure):
     )
 
     steps = IntegerParameter("Steps per pulse", default=200, group_by="advanced_config")
+    waveform_shape = ListParameter(
+        "Waveform shape",
+        default=WaveformShape.STAIRCASE.name,
+        choices=[e.name for e in WaveformShape],
+        group_by="advanced_config",
+    )
     rise_to_hold_ratio = FloatParameter("Rise to hold time ratio", default=100, group_by="advanced_config")
 
     plot_points = IntegerParameter("Points to plot", default=1000, group_by="advanced_config")
@@ -62,6 +69,7 @@ class WgfmuIvSweepProcedure(WgfmuBaseProcedure):
             second_voltage=self.voltage_top_second,
             steps=self.steps,
             rise_to_hold_ratio=self.rise_to_hold_ratio,
+            shape=self.waveform_shape.lower(),
             trailing_pulse=True,
         )
         seq_bottom = None
@@ -73,6 +81,7 @@ class WgfmuIvSweepProcedure(WgfmuBaseProcedure):
                 second_voltage=self.voltage_bottom_second,
                 steps=self.steps,
                 rise_to_hold_ratio=self.rise_to_hold_ratio,
+                shape=self.waveform_shape.lower(),
                 trailing_pulse=True,
             )
 
@@ -100,7 +109,7 @@ class WgfmuIvSweepProcedure(WgfmuBaseProcedure):
                 top_ch=self.top,
                 bottom_seq=seq_bottom,
                 bottom_ch=self.bottom if self.enable_bottom else None,
-                repetitions=2,
+                repetitions=1,
                 current_range=WGFMUMeasureCurrentRange[self.current_range],
                 measure=True,
                 plot_points=self.plot_points,

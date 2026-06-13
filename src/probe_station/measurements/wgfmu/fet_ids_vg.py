@@ -16,6 +16,7 @@ from probe_station.measurements.smu._widgets import IvPlotWidget
 from probe_station.measurements.wgfmu._base import WgfmuProcedure
 from probe_station.measurements.wgfmu._waveforms import (
     SweepMode,
+    WaveformShape,
     get_constant_sequence,
     get_sequence,
     on_grid_duration,
@@ -61,6 +62,12 @@ class WgfmuFetIdsVgProcedure(WgfmuProcedure):
 
     advanced_config = BooleanParameter("Advanced config", default=False)
     steps = IntegerParameter("Steps per pulse", default=50, group_by="advanced_config")
+    waveform_shape = ListParameter(
+        "Waveform shape",
+        default=WaveformShape.STAIRCASE.name,
+        choices=[e.name for e in WaveformShape],
+        group_by="advanced_config",
+    )
     rise_to_hold_ratio = FloatParameter("Rise to hold time ratio", default=1, group_by="advanced_config")
 
     plot_points = IntegerParameter("Points to plot", default=200, group_by="advanced_config")
@@ -86,6 +93,7 @@ class WgfmuFetIdsVgProcedure(WgfmuProcedure):
             second_voltage=self.voltage_gate_second,
             steps=self.steps,
             rise_to_hold_ratio=self.rise_to_hold_ratio,
+            shape=self.waveform_shape.lower(),
             trailing_pulse=True,
         )
         # Built after seq_gate so the source ground spans the full gate

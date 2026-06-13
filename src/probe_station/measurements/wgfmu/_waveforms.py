@@ -27,6 +27,11 @@ class SweepMode(Enum):
     PUND = "pund"
 
 
+class WaveformShape(Enum):
+    STAIRCASE = "staircase"
+    TRIANGLE = "triangle"
+
+
 WGFMU_TIMING_RESOLUTION = 1e-8
 """Hardware timing grid (10 ns) for both pattern vectors and measure events."""
 
@@ -37,17 +42,24 @@ def _quantize_segment_times(times):
     The instrument silently rounds every vector duration to the nearest 10 ns,
     so a waveform built from off-grid segments plays for a different time than
     the software computes and the measure event then covers only part of it
-    (e.g. 5 ns segments become 10 ns, doubling the sweep). Raise instead of
-    letting the hardware distort the waveform; zero-length segments are passed
-    through, the instrument drops them without affecting timing.
+    (e.g. a 6 ns segment becomes 10 ns, stretching the sweep). Raise instead of
+    letting the hardware distort the waveform.
+
+    Segments that round to zero are dropped by the instrument, not stretched, so
+    they are passed through without raising: a high rise-to-hold-ratio sweep is
+    deliberately built from long ramp edges and sub-grid holds, and dropping
+    those holds yields exactly the intended smooth triangular ramp.
     """
     times = np.asarray(times, dtype=float)
     quantized = np.round(times / WGFMU_TIMING_RESOLUTION) * WGFMU_TIMING_RESOLUTION
-    nonzero = times > 0
-    error = np.abs(quantized[nonzero] - times[nonzero]) / times[nonzero]
-    bad = (quantized[nonzero] < WGFMU_TIMING_RESOLUTION) | (error > 0.05)
+    # only a segment that survives on the grid can distort the timing; one that
+    # rounds to zero is simply dropped and contributes its (sub-5 ns) duration
+    # to neither the software- nor the hardware-computed waveform length
+    kept = quantized > 0
+    error = np.abs(quantized[kept] - times[kept]) / times[kept]
+    bad = error > 0.05
     if np.any(bad):
-        worst = np.min(times[nonzero][bad])
+        worst = np.min(times[kept][bad])
         raise ValueError(
             f"Waveform has segments as short as {worst:.3g} s that cannot be represented "
             f"on the WGFMU 10 ns timing grid; increase the pulse time, reduce the number "
@@ -88,10 +100,19 @@ def get_sequence(
     second_voltage=-4,
     rise_to_hold_ratio=0.01,
     *,
+    shape=WaveformShape.STAIRCASE.value,
     trailing_pulse: bool = False,
 ):
-    time_step = pulse_time / steps / (1 + rise_to_hold_ratio)
-    edge_time = time_step * rise_to_hold_ratio
+    if shape == WaveformShape.TRIANGLE.value:
+        # Plateau-free: every per-step interval is a rising edge and the hold is
+        # zero, so the staircase collapses into a smooth triangular ramp. The
+        # zero-length holds are dropped in set_waveform before reaching the
+        # hardware, and rise_to_hold_ratio is irrelevant without holds.
+        time_step = 0.0
+        edge_time = pulse_time / steps
+    else:
+        time_step = pulse_time / steps / (1 + rise_to_hold_ratio)
+        edge_time = time_step * rise_to_hold_ratio
 
     first = TriangularSweep(end_voltage=first_voltage, time_step=time_step, steps=steps, edge_time=edge_time)
     second = TriangularSweep(end_voltage=second_voltage, time_step=time_step, steps=steps, edge_time=edge_time)
@@ -146,11 +167,19 @@ def set_waveform(
     b1500.create_wgfmu_pattern(pattern_name, sequence.pulses[0].dc_bias)
     times, voltages = sequence.to_vectors()
     times = _quantize_segment_times(times)
+    # WGFMU_addVectors rejects any vector shorter than the 10 ns grid as "out of
+    # range" (B1530A reference, addVector/addVectors), so a sub-grid hold would
+    # be silently skipped by the hardware. Drop those segments here instead: the
+    # preceding ramp already reaches the same voltage, so the waveform is
+    # unchanged, and we never hand an out-of-range duration to the library.
+    keep = times > 0
+    times = times[keep]
+    voltages = np.asarray(voltages)[keep]
     # sum the on-grid segments instead of sequence.total_duration so the
     # measure event spans exactly what the hardware plays
     seq_time = float(np.sum(times))
     log.info(f"Waveform for {pattern_name}: {len(voltages)} samples, {seq_time:.6g} s, {len(sequence.pulses)} pulses")
-    b1500.add_vectors_to_wgfmu_pattern(pattern_name, times.tolist(), voltages)
+    b1500.add_vectors_to_wgfmu_pattern(pattern_name, times.tolist(), voltages.tolist())
     if measure:
         interval = np.floor(seq_time / measure_points / WGFMU_TIMING_RESOLUTION) * WGFMU_TIMING_RESOLUTION
         if interval < WGFMU_TIMING_RESOLUTION:

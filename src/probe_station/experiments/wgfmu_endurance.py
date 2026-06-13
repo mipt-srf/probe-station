@@ -8,19 +8,19 @@ import pandas as pd
 from matplotlib import pyplot as plt
 
 from probe_station.experiments.common import log_points, run
-from probe_station.measurements.b1500 import WGFMUMeasureCurrentRange
 from probe_station.logging_setup import add_file_log_dir, setup_file_logging
-from probe_station.measurements.wgfmu._waveforms import calculate_polarization
+from probe_station.measurements.b1500 import WGFMUMeasureCurrentRange
+from probe_station.measurements.wgfmu._waveforms import WaveformShape, calculate_polarization
 from probe_station.measurements.wgfmu.cycling import WgfmuCyclingProcedure
 from probe_station.measurements.wgfmu.iv_sweep import WgfmuIvSweepProcedure
 
 folder = "endurance"
-pad_size_um = 16
+pad_size_um = 4
 
 logger = logging.getLogger(__name__)
 
 
-def cycling_proc(cycles=1000, width=1e-5, amplitude=2.6, channel=2):
+def cycling_proc(cycles=1000, width=1e-5, amplitude=2.6, channel=2, waveform_shape=WaveformShape.TRIANGLE.name):
     # DEFAULT mode runs one positive and one negative triangular sweep per repetition.
     # 50 steps keep the segments (width / steps / 2) on the WGFMU 10 ns timing grid
     # down to the 1 us cycling width.
@@ -31,6 +31,7 @@ def cycling_proc(cycles=1000, width=1e-5, amplitude=2.6, channel=2):
         voltage_top_second=-amplitude,
         top=channel,
         steps=50,
+        waveform_shape=waveform_shape,
     )
 
 
@@ -42,6 +43,7 @@ def wgfmu_iv_proc(
     top=2,
     bottom=1,
     current_range=WGFMUMeasureCurrentRange.RANGE_10_UA.name,
+    waveform_shape=WaveformShape.TRIANGLE.name,
 ):
     return WgfmuIvSweepProcedure(
         voltage_top_first=voltage_first,
@@ -56,6 +58,7 @@ def wgfmu_iv_proc(
         current_range=current_range,
         steps=50,
         rise_to_hold_ratio=1,
+        waveform_shape=waveform_shape,
         plot_points=200,
     )
 
@@ -108,10 +111,12 @@ def plot_pund_iv(results, total_cycles):
     plt.close()
 
 
-def measure_polarization(total_cycles, rows, iv_voltage, iv_time):
+def measure_polarization(total_cycles, rows, iv_voltage, iv_time, waveform_shape=WaveformShape.TRIANGLE.name):
     """Run PUND and DEFAULT sweeps, record 2Pr, and refresh the endurance plots."""
     pund_results = run(
-        wgfmu_iv_proc(voltage_first=iv_voltage, voltage_second=-iv_voltage, pulse_time=iv_time),
+        wgfmu_iv_proc(
+            voltage_first=iv_voltage, voltage_second=-iv_voltage, pulse_time=iv_time, waveform_shape=waveform_shape
+        ),
         folder=folder,
         timeout=60 * 10,
         suffix=f"_{total_cycles}cycles_pund",
@@ -122,26 +127,39 @@ def measure_polarization(total_cycles, rows, iv_voltage, iv_time):
     update_polarization_plot(df)
     plot_pund_iv(pund_results, total_cycles)
 
-    run(
-        wgfmu_iv_proc(mode="DEFAULT", voltage_first=iv_voltage, voltage_second=-iv_voltage, pulse_time=iv_time),
-        folder=folder,
-        timeout=60 * 10,
-        suffix=f"_{total_cycles}cycles_default",
-    )
+    # run(
+    #     wgfmu_iv_proc(
+    #         mode="DEFAULT",
+    #         voltage_first=iv_voltage,
+    #         voltage_second=-iv_voltage,
+    #         pulse_time=iv_time,
+    #         waveform_shape=waveform_shape,
+    #     ),
+    #     folder=folder,
+    #     timeout=60 * 10,
+    #     suffix=f"_{total_cycles}cycles_default",
+    # )
 
 
-def endurance(cycles_schedule=None, amplitude=5, cycling_pulse_time=1e-5, iv_voltage=5.0, iv_time=1e-5):
+def endurance(
+    cycles_schedule=None,
+    amplitude=5,
+    cycling_pulse_time=1e-5,
+    iv_voltage=5.0,
+    iv_time=1e-5,
+    waveform_shape=WaveformShape.TRIANGLE.name,
+):
     """Cycle the pad, running WGFMU PUND and DEFAULT sweeps after each cycling block.
 
     The 2Pr extracted from each PUND sweep is appended to polarization_results.csv and
     the polarization-vs-cycles plot is redrawn after every PUND measurement.
     """
     if cycles_schedule is None:
-        cycles_schedule = log_points(10, 2e8, per_decade=5)
+        cycles_schedule = log_points(10, 2e10, per_decade=5)
 
     rows = []
     total = 0
-    measure_polarization(total, rows, iv_voltage, iv_time)
+    measure_polarization(total, rows, iv_voltage, iv_time, waveform_shape=waveform_shape)
 
     for cycles in cycles_schedule:
         total += cycles
@@ -151,13 +169,13 @@ def endurance(cycles_schedule=None, amplitude=5, cycling_pulse_time=1e-5, iv_vol
         )
 
         run(
-            cycling_proc(cycles=cycles, width=cycling_pulse_time, amplitude=amplitude),
+            cycling_proc(cycles=cycles, width=cycling_pulse_time, amplitude=amplitude, waveform_shape=waveform_shape),
             folder=folder,
             timeout=60 * 60 * 24 * 3,
             startup_delay=5,
             suffix=f"_{cycles}cycles",
         )
-        measure_polarization(total, rows, iv_voltage, iv_time)
+        measure_polarization(total, rows, iv_voltage, iv_time, waveform_shape=waveform_shape)
 
     return pd.DataFrame(rows)
 

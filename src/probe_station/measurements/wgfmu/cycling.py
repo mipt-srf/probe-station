@@ -25,6 +25,7 @@ class WgfmuCyclingProcedure(WgfmuBaseProcedure):
             second_voltage=self.voltage_top_second,
             steps=self.steps,
             rise_to_hold_ratio=self.rise_to_hold_ratio,
+            shape=self.waveform_shape.lower(),
         )
         seq_bottom = None
         if self.enable_bottom:
@@ -35,6 +36,7 @@ class WgfmuCyclingProcedure(WgfmuBaseProcedure):
                 second_voltage=self.voltage_bottom_second,
                 steps=self.steps,
                 rise_to_hold_ratio=self.rise_to_hold_ratio,
+                shape=self.waveform_shape.lower(),
             )
 
         run_waveforms(
