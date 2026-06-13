@@ -55,11 +55,15 @@ class SmuFetIdsVgProcedure(BaseProcedure):
 
         self.b1500.clear_timer()
 
+        # Split the requested points across the three sweep legs so they sum to
+        # exactly self.points, and drop each leg's final point (endpoint=False)
+        # so the shared leg boundaries are not measured twice.
+        leg = self.points // 3
         voltages = np.concatenate(
             (
-                np.linspace(0, self.voltage_gate_first, self.points // 3),
-                np.linspace(self.voltage_gate_first, self.voltage_gate_second, self.points // 3),
-                np.linspace(self.voltage_gate_second, 0, self.points // 3),
+                np.linspace(0, self.voltage_gate_first, leg, endpoint=False),
+                np.linspace(self.voltage_gate_first, self.voltage_gate_second, leg, endpoint=False),
+                np.linspace(self.voltage_gate_second, 0, self.points - 2 * leg),
             ),
         )
         try:
