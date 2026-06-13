@@ -11,6 +11,7 @@ from qtpy.QtGui import QFont
 from qtpy.QtWidgets import (
     QApplication,
     QFrame,
+    QHBoxLayout,
     QLabel,
     QMessageBox,
     QPushButton,
@@ -254,12 +255,27 @@ class Launcher(QWidget):
                 "#2196F3",
                 "in_process",
             ),
-            (
-                "📊 CV Sweep Procedure (CMU)",
-                "probe_station.measurements.cmu.cv_sweep",
-                "#C224BA",
-                "in_process",
-            ),
+            # A nested list lays its buttons out in a single horizontal row.
+            [
+                (
+                    "📊 CV Sweep\n(CMU)",
+                    "probe_station.measurements.cmu.cv_sweep",
+                    "#C224BA",
+                    "in_process",
+                ),
+                (
+                    "📊 Quasi-static CV\n(SMU) - experimental",
+                    "probe_station.measurements.smu.quasistatic_cv",
+                    "#C224BA",
+                    "in_process",
+                ),
+                (
+                    "🛠 Offset Cancel\n(open tips) - experimental",
+                    "probe_station.measurements.smu.quasistatic_cv_offset",
+                    "#C224BA",
+                    "in_process",
+                ),
+            ],
             (
                 "📊 IV Sweep Procedure (SMU)",
                 "probe_station.measurements.smu.iv_sweep",
@@ -294,7 +310,7 @@ class Launcher(QWidget):
             # ("📈 Staircase Sweep", "test_staircase_sweep_source.ipynb", "#FF9800", "notebook"),
         ]
 
-        for script_data in scripts:
+        def make_button(script_data):
             if len(script_data) == 4:
                 name, module, color, kind = script_data
             else:
@@ -303,7 +319,16 @@ class Launcher(QWidget):
 
             button = ModernButton(name, color)
             button.clicked.connect(lambda checked, m=module, k=kind: self.run_script(m, k))
-            layout.addWidget(button)
+            return button
+
+        for entry in scripts:
+            if isinstance(entry, list):  # a list of specs becomes one horizontal row
+                row = QHBoxLayout()
+                for spec in entry:
+                    row.addWidget(make_button(spec))
+                layout.addLayout(row)
+            else:
+                layout.addWidget(make_button(entry))
 
         layout.addStretch()
 
