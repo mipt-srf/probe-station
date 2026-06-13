@@ -71,8 +71,8 @@ def connect_instrument(timeout=60000, reset=False):
         b1500.data_format(1, mode=1)  # 21 for new, 1 for old (?)
 
         return b1500
-    except Exception:
-        raise ConnectionError("Could not connect to the Agilent B1500 instrument.")
+    except Exception as e:
+        raise ConnectionError("Could not connect to the Agilent B1500 instrument.") from e
 
 
 def check_all_errors(b1500):
