@@ -19,7 +19,9 @@ class CmuCvSweepProcedure(BaseProcedure):
 
     first_voltage = FloatParameter("First voltage", units="V", default=-3)
     second_voltage = FloatParameter("Second voltage", units="V", default=3)
-    avg_per_point = IntegerParameter("Averages per point", default=1)
+    # CMU native averaging coefficient (ACT auto mode): samples averaged per
+    # point = avg_per_point * initial averaging. 1 = no extra averaging.
+    avg_per_point = IntegerParameter("Averages per point", default=1, minimum=1, maximum=1023)
     # channel = IntegerParameter("Channel", default=2)
 
     DATA_COLUMNS = ["Voltage", "Capacitance", "Resistance"]
@@ -38,8 +40,7 @@ class CmuCvSweepProcedure(BaseProcedure):
             second_bias=self.second_voltage,
             avg_per_point=self.avg_per_point,
         )
-        measure_points = self.avg_per_point * PLOT_POINTS
-        total_steps = 2 * measure_points  # LINEAR_DOUBLE sweep: forward + backward
+        total_steps = 2 * PLOT_POINTS  # LINEAR_DOUBLE sweep: forward + backward
 
         for i, (_, Cp, Rp, _ac, dc_measured, _dc_forced) in enumerate(self.b1500.iter_output(total_steps, 6)):
             self.emit("progress", (i + 1) / total_steps * 100)
