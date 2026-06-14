@@ -23,6 +23,16 @@ class Cv(BaseHandler):
             return self.data["Permittivity"]
         raise ValueError("Area and thickness must be set via set_geometry() before calculating epsilon")
 
+    def get_field(self):
+        """Return the electric field across the film (``Voltage / thickness``) in MV/cm.
+
+        :return: The electric field for every measured point, in MV/cm.
+        """
+        thickness = self.parameters.get("thickness")
+        if thickness is None:
+            raise ValueError("Thickness must be set via set_geometry() before calculating the field")
+        return self.data["Voltage"] / thickness * 1e-8  # V/m -> MV/cm
+
     def set_geometry(self, area: float, thickness: float) -> None:
         """Store sample geometry (area and thickness) on the handler and compute permittivity if possible."""
         self.parameters["area"] = area
@@ -54,15 +64,27 @@ class Cv(BaseHandler):
         color: str | None = None,
         label: float | str | None = None,
         alpha: float | None = None,
+        field: bool = True,
     ) -> None:
+        """Plot dielectric constant against electric field, or against voltage when ``field`` is unset.
+
+        :param field: If ``True`` (default), use electric field (``Voltage / thickness``, in MV/cm)
+            on the x-axis; if ``False``, use voltage.
+        """
         if area is not None and thickness is not None:
             self.set_geometry(area, thickness)
 
         epsilon = self.get_epsilon()
+        if field:
+            x_data = self.get_field()
+            xlabel = "Electric field, MV/cm"
+        else:
+            x_data = self.data["Voltage"]
+            xlabel = "Voltage, V"
         self.plot_base(
-            x_data=self.data["Voltage"],
+            x_data=x_data,
             y_data=epsilon,
-            xlabel="Voltage, V",
+            xlabel=xlabel,
             ylabel="Dielectric constant",
             label=label,
             color=color,
