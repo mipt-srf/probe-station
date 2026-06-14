@@ -84,8 +84,15 @@ def pund_polarization_current(results):
 
 
 def pund_polarization(results):
-    """Compute 2Pr from the unfiltered bottom electrode current of a PUND sweep."""
+    """Compute 2Pr from the unfiltered bottom electrode current of a PUND sweep.
+
+    A failed sweep returns no data (the worker swallows the error), so guard
+    against an empty record and report NaN instead of crashing the campaign.
+    """
     data, polarization_current = pund_polarization_current(results)
+    if len(data) < 4:
+        logger.warning("PUND sweep produced %d points (measurement likely failed); recording NaN 2Pr", len(data))
+        return float("nan")
     return calculate_polarization(data["Time"].to_numpy(), polarization_current, pad_size_um)
 
 
@@ -104,6 +111,9 @@ def update_polarization_plot(df):
 
 def plot_pund_iv(results, total_cycles):
     data, polarization_current = pund_polarization_current(results)
+    if len(data) < 4:
+        logger.warning("PUND sweep produced %d points; skipping IV plot for %d cycles", len(data), total_cycles)
+        return
     plt.figure(figsize=(10, 6))
     plt.plot(data["Top electrode voltage"], data["Bottom electrode current"], label="Bottom electrode current")
     plt.plot(data["Top electrode voltage"], polarization_current, label="Polarization current")
