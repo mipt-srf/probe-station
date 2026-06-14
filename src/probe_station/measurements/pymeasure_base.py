@@ -1,6 +1,9 @@
 """Pymeasure base classes and application scaffolding for probe-station procedures."""
 
+import importlib
 import logging
+import pkgutil
+import re
 import sys
 import weakref
 from datetime import datetime
@@ -191,7 +194,7 @@ class BaseWindow(ManagedWindowBase):
         """
         if filename in self.manager.experiments:
             return
-        results = Results.load(filename)
+        results = load_results(filename)
         experiment = self.new_experiment(results)
         for curve in experiment.curve_list:
             if curve:
@@ -200,10 +203,64 @@ class BaseWindow(ManagedWindowBase):
         self.manager.load(experiment)
 
 
+def _read_procedure_class_name(path: str | Path) -> str | None:
+    """Return the bare procedure class name from a results-file header, or ``None``."""
+    with open(path, encoding=Results.ENCODING) as f:
+        for line in f:
+            if not line.startswith(Results.COMMENT):
+                break
+            stripped = line[1:].strip()
+            if stripped.startswith("Procedure:"):
+                match = re.search(r"<(?:.*\.)?(?P<class>[^.>]+)>", stripped)
+                if match:
+                    return match.group("class")
+    return None
+
+
+def _find_procedure_class(class_name: str) -> type[Procedure] | None:
+    """Locate a :class:`Procedure` subclass by name within ``probe_station.measurements``.
+
+    Used to reconstruct procedures recorded as living in ``__main__`` -- i.e. run
+    as a standalone script rather than launched in-process. Imports each
+    submodule (skipping any that fail, e.g. a missing instrument backend) and
+    returns the class from the module that actually defines it.
+    """
+    import probe_station.measurements as pkg
+
+    for info in pkgutil.walk_packages(pkg.__path__, pkg.__name__ + "."):
+        try:
+            module = importlib.import_module(info.name)
+        except Exception:
+            continue
+        candidate = getattr(module, class_name, None)
+        if isinstance(candidate, type) and issubclass(candidate, Procedure) and candidate.__module__ == info.name:
+            return candidate
+    return None
+
+
+def load_results(path: str | Path) -> Results:
+    """Load a Pymeasure ``Results``, tolerating procedures run outside the launcher.
+
+    A procedure run as a standalone script records its class as living in
+    ``__main__``, so Pymeasure cannot reconstruct it from the header (it raises
+    ``AttributeError`` or ``ImportError``). In that case we locate the class by
+    name within ``probe_station.measurements`` and reload with it imported from
+    its real module.
+    """
+    try:
+        return Results.load(str(path))
+    except (AttributeError, ImportError):
+        class_name = _read_procedure_class_name(path)
+        procedure_cls = _find_procedure_class(class_name) if class_name else None
+        if procedure_cls is None:
+            raise
+        return Results.load(str(path), procedure_class=procedure_cls)
+
+
 def read_procedure_class(path: str | Path) -> tuple[type[Procedure], type[BaseWindow]]:
     """Resolve the procedure and window class for a Pymeasure results CSV.
 
-    Parses the file header via :meth:`Results.load` — which imports the
+    Parses the file header via :func:`load_results` — which imports the
     procedure module and rebuilds the procedure instance — then looks up the
     ``MainWindow`` defined in the same module by convention.
 
@@ -212,7 +269,7 @@ def read_procedure_class(path: str | Path) -> tuple[type[Procedure], type[BaseWi
     no ``MainWindow`` is defined alongside the procedure.
     """
     try:
-        results = Results.load(str(path))
+        results = load_results(path)
     except Exception as e:
         raise ValueError(f"Could not read Pymeasure header from {path}: {e}") from e
     procedure_class = type(results.procedure)

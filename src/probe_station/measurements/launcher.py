@@ -5,7 +5,6 @@ import subprocess
 import sys
 
 from pymeasure.display.widgets import PlotWidget, ResultsDialog
-from pymeasure.experiment import Results
 from qtpy.QtCore import QLocale, Qt, QThread, QUrl
 from qtpy.QtGui import QFont
 from qtpy.QtWidgets import (
@@ -24,6 +23,7 @@ from qtpy.QtWidgets import (
 from probe_station.logging_setup import setup_file_logging
 from probe_station.measurements.pymeasure_base import (
     any_window_running,
+    load_results,
     read_procedure_class,
     register_busy_predicate,
 )
@@ -173,8 +173,8 @@ class CrossProcedureResultsDialog(ResultsDialog):
         if os.path.isdir(filename) or filename == "":
             return
         try:
-            results = Results.load(str(filename))
-        except ValueError:
+            results = load_results(filename)
+        except (ValueError, AttributeError, ImportError):
             return
 
         self._ensure_plot_preview(type(results.procedure))
