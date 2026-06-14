@@ -47,7 +47,7 @@ def wgfmu_iv_proc(
     pulse_time=1e-6,
     top=2,
     bottom=1,
-    current_range=WGFMUMeasureCurrentRange.RANGE_10_UA.name,
+    current_range=WGFMUMeasureCurrentRange.RANGE_1_MA.name,
     waveform_shape=WaveformShape.TRIANGLE.name,
 ):
     return WgfmuIvSweepProcedure(
@@ -61,6 +61,7 @@ def wgfmu_iv_proc(
         voltage_bottom_second=0.0,
         bottom=bottom,
         current_range=current_range,
+        bottom_current_range=WGFMUMeasureCurrentRange.RANGE_10_UA.name,
         steps=50,
         rise_to_hold_ratio=1,
         waveform_shape=waveform_shape,

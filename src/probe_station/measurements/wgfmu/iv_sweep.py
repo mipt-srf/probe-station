@@ -36,6 +36,12 @@ class WgfmuIvSweepProcedure(WgfmuBaseProcedure):
         default=WGFMUMeasureCurrentRange.RANGE_100_UA.name,
         choices=[e.name for e in WGFMUMeasureCurrentRange],
     )
+    bottom_current_range = ListParameter(
+        "Bottom current range",
+        default=WGFMUMeasureCurrentRange.RANGE_100_UA.name,
+        choices=[e.name for e in WGFMUMeasureCurrentRange],
+        group_by="enable_bottom",
+    )
 
     steps = IntegerParameter("Steps per pulse", default=200, group_by="advanced_config")
     waveform_shape = ListParameter(
@@ -100,6 +106,7 @@ class WgfmuIvSweepProcedure(WgfmuBaseProcedure):
                 bottom_seq=seq_bottom,
                 bottom_ch=self.bottom,
                 current_range=WGFMUMeasureCurrentRange[self.current_range],
+                bottom_current_range=WGFMUMeasureCurrentRange[self.bottom_current_range],
                 plot_points=self.plot_points,
             )
         else:
@@ -111,6 +118,7 @@ class WgfmuIvSweepProcedure(WgfmuBaseProcedure):
                 bottom_ch=self.bottom if self.enable_bottom else None,
                 repetitions=1,
                 current_range=WGFMUMeasureCurrentRange[self.current_range],
+                bottom_current_range=WGFMUMeasureCurrentRange[self.bottom_current_range],
                 measure=True,
                 plot_points=self.plot_points,
             )

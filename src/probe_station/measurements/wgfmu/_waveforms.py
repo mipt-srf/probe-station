@@ -243,16 +243,20 @@ def run(
     channels=None,
     mode=WGFMUOperationMode.FASTIV,
     measure_range=WGFMUMeasureCurrentRange.RANGE_1_UA,
+    measure_ranges: dict[int, WGFMUMeasureCurrentRange] | None = None,
     configure_measure_mode: bool = True,
 ):
     if channels is None:
         channels = [2]
+    measure_ranges = measure_ranges or {}
     for channel in channels:
         wgfmu = b1500.wgfmus[channel]
         wgfmu.set_operation_mode(mode)
         if configure_measure_mode:
             wgfmu.set_measure_mode(WGFMUMeasureMode.CURRENT)
-            wgfmu.set_measure_current_range(measure_range)
+            # per-channel range when given (e.g. a bottom electrode that needs a
+            # different range than the top), otherwise the common measure_range
+            wgfmu.set_measure_current_range(measure_ranges.get(channel, measure_range))
         wgfmu.enable()
     b1500.run_wgfmu_measurement()
 
@@ -294,6 +298,7 @@ def run_waveforms(
     bottom_ch: int | None = None,
     repetitions: int,
     current_range: WGFMUMeasureCurrentRange | None = None,
+    bottom_current_range: WGFMUMeasureCurrentRange | None = None,
     measure: bool,
     plot_points: int | None = None,
 ):
@@ -302,6 +307,9 @@ def run_waveforms(
     Returns ``None`` when ``measure`` is False; otherwise returns
     ``(top_data, bottom_data)`` where each entry is ``(times, voltages, currents)``
     (and ``bottom_data`` is ``None`` when no bottom channel is provided).
+
+    ``bottom_current_range`` overrides ``current_range`` on the bottom channel
+    only; when omitted the bottom channel shares ``current_range``.
 
     ``current_range`` is only applied when ``measure`` is True; callers that do
     not measure (e.g. cycling) may omit it.
@@ -325,11 +333,15 @@ def run_waveforms(
         )
 
     channels = [top_ch] if bottom_ch is None else [top_ch, bottom_ch]
+    measure_ranges = None
+    if bottom_ch is not None and bottom_current_range is not None:
+        measure_ranges = {top_ch: current_range, bottom_ch: bottom_current_range}
     try:
         run(
             b1500=b1500,
             channels=channels,
             measure_range=current_range,
+            measure_ranges=measure_ranges,
             configure_measure_mode=measure,
         )
     except WGFMUError:
@@ -365,6 +377,7 @@ def run_waveforms_split(
     bottom_seq,
     bottom_ch: int,
     current_range: WGFMUMeasureCurrentRange,
+    bottom_current_range: WGFMUMeasureCurrentRange | None = None,
     plot_points: int,
 ):
     """Split a PUND sequence into positive/negative halves and run each separately.
@@ -409,11 +422,15 @@ def run_waveforms_split(
             measure_points=half_points,
             pattern_name=f"bottom_{name}",
         )
+        measure_ranges = None
+        if bottom_current_range is not None:
+            measure_ranges = {top_ch: current_range, bottom_ch: bottom_current_range}
         try:
             run(
                 b1500=b1500,
                 channels=[top_ch, bottom_ch],
                 measure_range=current_range,
+                measure_ranges=measure_ranges,
                 configure_measure_mode=True,
             )
         except WGFMUError:
