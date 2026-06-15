@@ -25,6 +25,7 @@ log.addHandler(logging.NullHandler())
 class SweepMode(Enum):
     DEFAULT = "default"
     PUND = "pund"
+    UNIPOLAR = "unipolar"
 
 
 class WaveformShape(Enum):
@@ -157,6 +158,9 @@ def get_sequence(
 
     if sequence_type == "pund":
         pulses = [first] * 2 + [second] * 2
+    elif sequence_type == "unipolar":
+        # single unipolar pulse (0 -> first_voltage -> 0); second_voltage is unused
+        pulses = [first]
     else:
         pulses = [first, second]
     if trailing_pulse:
