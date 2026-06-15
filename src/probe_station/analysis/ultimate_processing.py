@@ -8,7 +8,6 @@ from matplotlib import pyplot as plt
 from numpy import sqrt
 
 from probe_station.analysis.dataset import Dataset
-from probe_station.measurements.wgfmu._waveforms import calculate_polarization
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -35,7 +34,10 @@ class CyclingExperiment:
 
     @property
     def csvs(self):
-        csvs = list(Path(self.folder).glob("*.csv"))
+        # Numbered per-step result files only. Newer measurement procedures also
+        # drop summary CSVs (e.g. polarization_results.csv) into the folder, whose
+        # names do not start with a step index and must be skipped.
+        csvs = [csv for csv in Path(self.folder).glob("*.csv") if csv.name.split("_")[0].isdigit()]
         csvs = sorted(csvs, key=lambda x: int(x.name.split("_")[0]))  # sort by number
 
         if "Cycling" in csvs[-1].name:  # drop last if exp was interrupted and no data is measured
@@ -59,7 +61,7 @@ class CyclingExperiment:
         exp_cycles = [
             int(filename.name.split("_")[2].strip("cycles.csv"))
             for filename in self.csvs
-            if "SpguCycling" in filename.name
+            if "SpguCycling" in filename.name or "WgfmuCycling" in filename.name
         ]
         cycles = list(itertools.accumulate(exp_cycles, initial=0))
         return cycles
@@ -354,16 +356,12 @@ class WgfmuBatchProcessing:
             plt.legend(title="Cycles")
 
     def plot_polarization_cycles(self, color=None):
-        polarizations = []
         log.debug(f"Cycles: {len(self.cycles)}, datasets: {len(self.datasets)}")
-        for cycle, ds in zip(self.cycles, self.datasets):
-            if (filtered_polarization := ds.data.get("Filtered Polarization current")) is None:
-                log.debug("'Filtered Polarization current' column not found, falling back to 'Polarization current'")
-                filtered_polarization = ds.data["Polarization current"]
-            polarization = calculate_polarization(
-                ds.data["Time"], filtered_polarization, pad_size_um=sqrt(self.exp.area / 1e-12)
-            )
-            polarizations.append(polarization)
+        # The handler senses the switching current on the bottom electrode when
+        # available (see Iv.polarization_current); this matches the endurance
+        # measurement and avoids the driven top electrode's leakage current.
+        pad_size_um = sqrt(self.exp.area / 1e-12)
+        polarizations = [ds.polarization(pad_size_um) for ds in self.datasets]
         plt.plot(self.cycles, polarizations, "o", color=color, label=self.exp.folder)
         plt.ylim(0)
         plt.xscale("log")
