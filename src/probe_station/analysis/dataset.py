@@ -5,16 +5,21 @@ import re
 from pymeasure.experiment import Results
 
 from probe_station.analysis.handlers.cv import Cv
-from probe_station.analysis.matlab.dc_iv import DC_IV
+from probe_station.analysis.handlers.fet_ids_vds import FetIdsVds
 from probe_station.analysis.handlers.iv import Iv
+from probe_station.analysis.matlab.dc_iv import DC_IV
 from probe_station.measurements.cmu.cv_sweep import CmuCvSweepProcedure
+from probe_station.measurements.smu.fet_ids_vds import SmuFetIdsVdsProcedure
 from probe_station.measurements.smu.iv_sweep import SmuIvSweepProcedure
 from probe_station.measurements.wgfmu.iv_sweep import WgfmuIvSweepProcedure
 
 # Procedure classes keyed by their bare name.  Used to reconstruct procedures
 # recorded as living in ``__main__`` -- i.e. run as a standalone script rather
 # than launched in-process -- which PyMeasure cannot rebuild from the header.
-_PROCEDURE_CLASSES = {cls.__name__: cls for cls in (CmuCvSweepProcedure, SmuIvSweepProcedure, WgfmuIvSweepProcedure)}
+_PROCEDURE_CLASSES = {
+    cls.__name__: cls
+    for cls in (CmuCvSweepProcedure, SmuIvSweepProcedure, WgfmuIvSweepProcedure, SmuFetIdsVdsProcedure)
+}
 
 
 def _read_procedure_name(filename):
@@ -85,7 +90,11 @@ class Dataset(Results):
                 dataframes=[self._rename_data_columns(self.data_cut)],
             )
             return
-        new_mappings = {CmuCvSweepProcedure: Cv, WgfmuIvSweepProcedure: Iv}
+        new_mappings = {
+            CmuCvSweepProcedure: Cv,
+            WgfmuIvSweepProcedure: Iv,
+            SmuFetIdsVdsProcedure: FetIdsVds,
+        }
         self.handler_cls = new_mappings.get(self.procedure.__class__)
 
         if self.handler_cls is None:
