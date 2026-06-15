@@ -19,13 +19,16 @@ PLOT_POINTS = 100
 MAX_AVG_PER_POINT = 1023
 
 
-def run(b1500: B1500, first_bias=-3, second_bias=3, avg_per_point=1, plot=False):
+def run(b1500: B1500, first_bias=-3, second_bias=3, avg_per_point=1, ac_voltage=0.1, frequency=1e4, plot=False):
     """Run a B1500 CMU CV double sweep.
 
     :param avg_per_point: Native CMU averaging coefficient (``ACT`` auto mode):
         the A/D converter averages ``avg_per_point * initial averaging`` samples
         at each of the :data:`PLOT_POINTS` sweep points. 1 disables extra
         averaging; higher values trade sweep time for lower capacitance noise.
+    :param ac_voltage: CMU AC oscillator level (RMS) in V applied during the
+        capacitance measurement.
+    :param frequency: CMU AC oscillator frequency in Hz.
     """
     if not 1 <= avg_per_point <= MAX_AVG_PER_POINT:
         raise ValueError(f"avg_per_point must be between 1 and {MAX_AVG_PER_POINT}, got {avg_per_point}")
@@ -36,8 +39,8 @@ def run(b1500: B1500, first_bias=-3, second_bias=3, avg_per_point=1, plot=False)
     cmu.set_scuu_path(SCUUPath.CMU)
     cmu.enabled = True
     cmu.set_measurement_mode(MFCMUMeasurementMode.CP_RP)
-    cmu.voltage_ac = 0.1
-    cmu.frequency_ac = 1e4
+    cmu.voltage_ac = ac_voltage
+    cmu.frequency_ac = frequency
 
     # ACT 0,N: auto averaging mode, N samples per point measured and averaged by
     # the CMU itself, so every emitted point is one true reading at its voltage.

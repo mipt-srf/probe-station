@@ -19,6 +19,10 @@ class CmuCvSweepProcedure(BaseProcedure):
 
     first_voltage = FloatParameter("First voltage", units="V", default=-3)
     second_voltage = FloatParameter("Second voltage", units="V", default=3)
+    # CMU AC oscillator level (RMS) and frequency used during the capacitance
+    # measurement.
+    ac_voltage = FloatParameter("AC voltage", units="V", default=0.1)
+    frequency = FloatParameter("Frequency", units="Hz", default=1e4)
     # CMU native averaging coefficient (ACT auto mode): samples averaged per
     # point = avg_per_point * initial averaging. 1 = no extra averaging.
     avg_per_point = IntegerParameter("Averages per point", default=1, minimum=1, maximum=1023)
@@ -39,6 +43,8 @@ class CmuCvSweepProcedure(BaseProcedure):
             first_bias=self.first_voltage,
             second_bias=self.second_voltage,
             avg_per_point=self.avg_per_point,
+            ac_voltage=self.ac_voltage,
+            frequency=self.frequency,
         )
         total_steps = 2 * PLOT_POINTS  # LINEAR_DOUBLE sweep: forward + backward
 
