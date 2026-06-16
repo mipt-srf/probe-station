@@ -1,9 +1,11 @@
-"""Pulse-amplitude sweep: apply a single unipolar pulse, then run an IV sweep.
+"""Pulse-amplitude sweep: apply a single unipolar gate pulse, then run an Ids(Vg) sweep.
 
 For each amplitude in a linear range, a single unipolar triangular pulse
-(0 -> +amplitude -> 0) is applied to the top electrode and followed by a WGFMU
-IV sweep (0 -> +V -> -V -> 0). Each IV sweep is saved as its own CSV labelled
-with the pulse amplitude, mirroring the raw-run layout of :mod:`wgfmu_endurance`.
+(0 -> +amplitude -> 0) is applied to the gate and followed by a WGFMU FET
+transfer sweep (gate 0 -> +V -> -V -> 0). Both steps use
+:class:`WgfmuFetIdsVgProcedure` so the drain stays biased at Vds and the
+substrate grounded throughout. Each sweep is saved as its own CSV labelled with
+the pulse amplitude, mirroring the raw-run layout of :mod:`wgfmu_endurance`.
 """
 
 import logging
@@ -16,26 +18,26 @@ from probe_station.experiments.common import run
 from probe_station.logging_setup import add_file_log_dir, setup_file_logging
 from probe_station.measurements.b1500 import WGFMUMeasureCurrentRange
 from probe_station.measurements.wgfmu._waveforms import SweepMode, WaveformShape
-from probe_station.measurements.wgfmu.cycling import WgfmuCyclingProcedure
-from probe_station.measurements.wgfmu.iv_sweep import WgfmuIvSweepProcedure
+from probe_station.measurements.wgfmu.fet_ids_vg import WgfmuFetIdsVgProcedure
 
-folder = "pulse_iv"
+folder = "chosen_pulse_iv"
 
 logger = logging.getLogger(__name__)
 
 
-def pulse_proc(amplitude, pulse_time=1e-5, channel=2, steps=50):
-    """Single unipolar triangular pulse (0 -> +amplitude -> 0) on the top electrode.
+def pulse_proc(amplitude, pulse_time=1e-5, gate=2, steps=50, voltage_ds=0.0):
+    """Single unipolar triangular gate pulse (0 -> +amplitude -> 0).
 
-    Reuses the cycling procedure with one repetition and the UNIPOLAR sequence
-    type so only the positive half is played; no current is measured.
+    Reuses the FET Ids(Vg) procedure with the UNIPOLAR sequence type so only a
+    single conditioning pulse is played on the gate. The drain bias defaults to
+    0 V so the pulse only conditions the gate stack.
     """
-    return WgfmuCyclingProcedure(
+    return WgfmuFetIdsVgProcedure(
         mode=SweepMode.UNIPOLAR.name,
-        repetitions=1,
         pulse_time=pulse_time,
-        voltage_top_first=amplitude,
-        top=channel,
+        gate=gate,
+        voltage_ds=voltage_ds,
+        voltage_gate_first=amplitude,
         steps=steps,
         waveform_shape=WaveformShape.TRIANGLE.name,
     )
@@ -44,23 +46,21 @@ def pulse_proc(amplitude, pulse_time=1e-5, channel=2, steps=50):
 def iv_proc(
     voltage=5.0,
     pulse_time=1e-5,
-    top=2,
-    bottom=1,
+    gate=2,
+    voltage_ds=-0.25,
     current_range=WGFMUMeasureCurrentRange.RANGE_1_MA.name,
+    source_current_range=WGFMUMeasureCurrentRange.RANGE_10_MA.name,
 ):
-    """WGFMU IV sweep 0 -> +voltage -> -voltage -> 0 (DEFAULT triangular sweep)."""
-    return WgfmuIvSweepProcedure(
+    """FET transfer sweep with the gate swept 0 -> +voltage -> -voltage -> 0."""
+    return WgfmuFetIdsVgProcedure(
         mode=SweepMode.DEFAULT.name,
-        voltage_top_first=voltage,
-        voltage_top_second=-voltage,
         pulse_time=pulse_time,
-        top=top,
-        enable_bottom=True,
-        voltage_bottom_first=0.0,
-        voltage_bottom_second=0.0,
-        bottom=bottom,
+        gate=gate,
+        voltage_ds=voltage_ds,
+        voltage_gate_first=voltage,
+        voltage_gate_second=-voltage,
         current_range=current_range,
-        bottom_current_range=WGFMUMeasureCurrentRange.RANGE_10_UA.name,
+        source_current_range=source_current_range,
         steps=50,
         rise_to_hold_ratio=1,
         waveform_shape=WaveformShape.TRIANGLE.name,
@@ -69,19 +69,20 @@ def iv_proc(
 
 
 def pulse_iv(
-    amplitude_start=1.0,
-    amplitude_stop=5.0,
-    amplitude_step=0.5,
+    amplitude_start=0.0,
+    amplitude_stop=10.0,
+    amplitude_step=0.2,
     pulse_time=1e-5,
     iv_voltage=5.0,
     iv_time=1e-5,
     channel=2,
 ):
-    """Apply a single unipolar pulse then run an IV sweep, for each pulse amplitude.
+    """Apply a single unipolar gate pulse then run an Ids(Vg) sweep, per amplitude.
 
     Iterates the pulse amplitude over the inclusive linear range
     ``[amplitude_start, amplitude_stop]`` with ``amplitude_step`` spacing. Each
-    IV sweep is written to its own CSV in ``folder`` labelled with the amplitude.
+    transfer sweep is written to its own CSV in ``folder`` labelled with the
+    amplitude.
     """
     # add half a step so a *stop* that lands on the grid is included despite
     # floating-point rounding
@@ -90,14 +91,29 @@ def pulse_iv(
         logger.info(f"=================== Pulse amplitude: {amplitude} V ===================")
 
         run(
-            pulse_proc(amplitude, pulse_time=pulse_time, channel=channel),
+            pulse_proc(amplitude, pulse_time=pulse_time, gate=channel),
             folder=folder,
             timeout=60 * 5,
             startup_delay=5,
             suffix=f"_pulse_{amplitude:g}V",
         )
         run(
-            iv_proc(voltage=iv_voltage, pulse_time=iv_time, top=channel),
+            iv_proc(voltage=iv_voltage, pulse_time=iv_time, gate=channel),
+            folder=folder,
+            timeout=60 * 10,
+            suffix=f"_iv_{amplitude:g}V",
+        )
+
+        amplitude = -amplitude
+        run(
+            pulse_proc(amplitude, pulse_time=pulse_time, gate=channel),
+            folder=folder,
+            timeout=60 * 5,
+            startup_delay=5,
+            suffix=f"_pulse_{amplitude:g}V",
+        )
+        run(
+            iv_proc(voltage=iv_voltage, pulse_time=iv_time, gate=channel),
             folder=folder,
             timeout=60 * 10,
             suffix=f"_iv_{amplitude:g}V",

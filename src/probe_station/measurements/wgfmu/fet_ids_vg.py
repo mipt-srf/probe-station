@@ -59,6 +59,11 @@ class WgfmuFetIdsVgProcedure(WgfmuProcedure):
         default=WGFMUMeasureCurrentRange.RANGE_10_MA.name,
         choices=[e.name for e in WGFMUMeasureCurrentRange],
     )
+    source_current_range = ListParameter(
+        "Source current range",
+        default=WGFMUMeasureCurrentRange.RANGE_10_MA.name,
+        choices=[e.name for e in WGFMUMeasureCurrentRange],
+    )
 
     advanced_config = BooleanParameter("Advanced config", default=False)
     steps = IntegerParameter("Steps per pulse", default=50, group_by="advanced_config")
@@ -112,6 +117,7 @@ class WgfmuFetIdsVgProcedure(WgfmuProcedure):
                 bottom_ch=self.source,
                 repetitions=1,
                 current_range=WGFMUMeasureCurrentRange[self.current_range],
+                bottom_current_range=WGFMUMeasureCurrentRange[self.source_current_range],
                 measure=True,
                 plot_points=self.plot_points,
             )
