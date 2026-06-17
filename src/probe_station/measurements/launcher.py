@@ -276,13 +276,13 @@ class Launcher(QWidget):
                 (
                     "📊 Quasi-static CV Sweep\n(SMU) - experimental",
                     "probe_station.measurements.smu.quasistatic_cv",
-                    "#C224BA",
+                    "#D1B122",
                     "in_process",
                 ),
                 (
                     "🛠 Offset Cancel\n(open tips)",
                     "probe_station.measurements.smu.quasistatic_cv_offset",
-                    "#C224BA",
+                    "#D1B122",
                     "in_process",
                 ),
             ],
