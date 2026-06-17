@@ -312,7 +312,7 @@ class Launcher(QWidget):
                     "in_process",
                 ),
             ],
-            ("✨ Вжух", "probe_station.measurements.magic", "#D1B122", "action"),
+            ("✨ Вжух", "probe_station.measurements.magic", "#575656FF", "action"),
         ]
 
         def make_button(script_data):
@@ -342,7 +342,7 @@ class Launcher(QWidget):
         reader_separator.setStyleSheet("background-color: #555555; height: 2px;")
         layout.addWidget(reader_separator)
 
-        open_data_button = ModernButton("📁 Open data…", "#9C27B0")
+        open_data_button = ModernButton("📁 Open data…", "#575656FF")
         open_data_button.clicked.connect(self.open_data)
         layout.addWidget(open_data_button)
 
