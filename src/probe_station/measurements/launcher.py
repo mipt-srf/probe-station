@@ -236,25 +236,35 @@ class Launcher(QWidget):
         # Script buttons.  4th element is the launch ``kind``:
         # "subprocess" (default) | "in_process" | "notebook".
         scripts = [
-            ("🔄 Cycling Procedure (SPGU)", "probe_station.measurements.spgu.cycling", "#4CAF50", "in_process"),
-            (
-                "🔄 IV Procedure (SPGU) - experimental",
-                "probe_station.measurements.spgu.cycling_with_current",
-                "#4CAF50",
-                "in_process",
-            ),
-            (
-                "🔄 Cycling Procedure (WGFMU)",
-                "probe_station.measurements.wgfmu.cycling",
-                "#2196F3",
-                "in_process",
-            ),
-            (
-                "📊 Fast IV Procedure (WGFMU)",
-                "probe_station.measurements.wgfmu.iv_sweep",
-                "#2196F3",
-                "in_process",
-            ),
+            [
+                (
+                    "📊 IV Sweep (SMU)",
+                    "probe_station.measurements.smu.iv_sweep",
+                    "#D1B122",
+                    "in_process",
+                ),
+                (
+                    "📊 Fast IV Sweep (WGFMU)",
+                    "probe_station.measurements.wgfmu.iv_sweep",
+                    "#2196F3",
+                    "in_process",
+                ),
+                (
+                    "📊 IV Sweep (SPGU) - experimental",
+                    "probe_station.measurements.spgu.cycling_with_current",
+                    "#4CAF50",
+                    "in_process",
+                ),
+            ],
+            [
+                (
+                    "🔄 Cycling (WGFMU)",
+                    "probe_station.measurements.wgfmu.cycling",
+                    "#2196F3",
+                    "in_process",
+                ),
+                ("🔄 Cycling (SPGU)", "probe_station.measurements.spgu.cycling", "#4CAF50", "in_process"),
+            ],
             # A nested list lays its buttons out in a single horizontal row.
             [
                 (
@@ -264,50 +274,45 @@ class Launcher(QWidget):
                     "in_process",
                 ),
                 (
-                    "📊 Quasi-static CV\n(SMU) - experimental",
+                    "📊 Quasi-static CV Sweep\n(SMU) - experimental",
                     "probe_station.measurements.smu.quasistatic_cv",
-                    "#C224BA",
+                    "#D1B122",
                     "in_process",
                 ),
                 (
-                    "🛠 Offset Cancel\n(open tips) - experimental",
+                    "🛠 Offset Cancel\n(open tips)",
                     "probe_station.measurements.smu.quasistatic_cv_offset",
-                    "#C224BA",
+                    "#D1B122",
                     "in_process",
                 ),
             ],
-            (
-                "📊 IV Sweep Procedure (SMU)",
-                "probe_station.measurements.smu.iv_sweep",
-                "#D1B122",
-                "in_process",
-            ),
-            (
-                "📊 Ids (Vg)",
-                "probe_station.measurements.smu.fet_ids_vg",
-                "#D1B122",
-                "in_process",
-            ),
-            (
-                "📊 Ids (Vds)",
-                "probe_station.measurements.smu.fet_ids_vds",
-                "#D1B122",
-                "in_process",
-            ),
-            (
-                "📊 Ids (Vg) (WGFMU)",
-                "probe_station.measurements.wgfmu.fet_ids_vg",
-                "#2196F3",
-                "in_process",
-            ),
-            (
-                "📊 Ids @ DC bias (WGFMU)",
-                "probe_station.measurements.wgfmu.fet_ids_dc",
-                "#2196F3",
-                "in_process",
-            ),
-            ("✨ Вжух", "probe_station.measurements.magic", "#D1B122", "action"),
-            # ("📈 Staircase Sweep", "test_staircase_sweep_source.ipynb", "#FF9800", "notebook"),
+            [
+                (
+                    "📊 Ids (Vg) (SMU)",
+                    "probe_station.measurements.smu.fet_ids_vg",
+                    "#D1B122",
+                    "in_process",
+                ),
+                (
+                    "📊 Ids (Vds) (SMU)",
+                    "probe_station.measurements.smu.fet_ids_vds",
+                    "#D1B122",
+                    "in_process",
+                ),
+                (
+                    "📊 Ids (Vg) (WGFMU)",
+                    "probe_station.measurements.wgfmu.fet_ids_vg",
+                    "#2196F3",
+                    "in_process",
+                ),
+                (
+                    "📊 Ids @ DC bias (WGFMU) - experimental",
+                    "probe_station.measurements.wgfmu.fet_ids_dc",
+                    "#2196F3",
+                    "in_process",
+                ),
+            ],
+            ("✨ Вжух", "probe_station.measurements.magic", "#575656FF", "action"),
         ]
 
         def make_button(script_data):
@@ -337,7 +342,7 @@ class Launcher(QWidget):
         reader_separator.setStyleSheet("background-color: #555555; height: 2px;")
         layout.addWidget(reader_separator)
 
-        open_data_button = ModernButton("📁 Open data…", "#9C27B0")
+        open_data_button = ModernButton("📁 Open data…", "#575656FF")
         open_data_button.clicked.connect(self.open_data)
         layout.addWidget(open_data_button)
 

@@ -7,8 +7,8 @@ from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParame
 from probe_station.logging_setup import setup_file_logging
 from probe_station.measurements.b1500_helpers import max_compliance
 from probe_station.measurements.pymeasure_base import BaseProcedure, BaseWindow, run_app
-from probe_station.measurements.spgu.cycling_runner import run
 from probe_station.measurements.session import Session
+from probe_station.measurements.spgu.cycling_runner import run
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -97,7 +97,6 @@ class MainWindow(BaseWindow):
             widget_list=widget_list,
             logger=log,
         )
-        self.filename = "width={Pulse width}_num={Number of cycles}_ampl={Pulse amplitude:.0f}"
 
 
 if __name__ == "__main__":

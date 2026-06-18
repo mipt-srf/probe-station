@@ -85,7 +85,6 @@ class MainWindow(BaseWindow):
             procedure_class=SpguCyclingWithCurrentProcedure,
             logger=log,
         )
-        self.filename = "width={Pulse width}_num={Number of cycles}_ampl={Pulse amplitude:.0f}"
 
 
 if __name__ == "__main__":

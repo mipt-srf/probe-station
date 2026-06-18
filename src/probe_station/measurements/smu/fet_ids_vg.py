@@ -94,7 +94,6 @@ class MainWindow(BaseWindow):
             logger=log,
         )
         self.setWindowTitle("Ids (Vg)")
-        self.filename = "voltage_ds={Drain-source voltage}"
 
 
 if __name__ == "__main__":
