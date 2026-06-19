@@ -71,8 +71,8 @@ class WgfmuIvSweepProcedure(WgfmuBaseProcedure):
         seq_top = get_sequence(
             sequence_type=self.mode.lower(),
             pulse_time=self.pulse_time,
-            first_voltage=self.voltage_top_first,
-            second_voltage=self.voltage_top_second,
+            first_voltage=self.top_voltage_first,
+            second_voltage=self.top_voltage_second,
             steps=self.steps,
             rise_to_hold_ratio=self.rise_to_hold_ratio,
             shape=self.waveform_shape.lower(),
@@ -83,16 +83,16 @@ class WgfmuIvSweepProcedure(WgfmuBaseProcedure):
             seq_bottom = get_sequence(
                 sequence_type=self.mode.lower(),
                 pulse_time=self.pulse_time,
-                first_voltage=self.voltage_bottom_first,
-                second_voltage=self.voltage_bottom_second,
+                first_voltage=self.bottom_voltage_first,
+                second_voltage=self.bottom_voltage_second,
                 steps=self.steps,
                 rise_to_hold_ratio=self.rise_to_hold_ratio,
                 shape=self.waveform_shape.lower(),
                 trailing_pulse=True,
             )
 
-        top_span = abs(self.voltage_top_first - self.voltage_top_second)
-        bottom_span = abs(self.voltage_bottom_first - self.voltage_bottom_second) if self.enable_bottom else 0
+        top_span = abs(self.top_voltage_first - self.top_voltage_second)
+        bottom_span = abs(self.bottom_voltage_first - self.bottom_voltage_second) if self.enable_bottom else 0
         high_voltage = max(top_span, bottom_span) > 10
 
         if high_voltage:

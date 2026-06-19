@@ -50,9 +50,9 @@ class WgfmuFetIdsVgProcedure(WgfmuProcedure):
     drain_channel = IntegerParameter("Drain channel (SMU, biased)", default=1)
     base_channel = IntegerParameter("Base channel (SMU, grounded)", default=2)
 
-    voltage_ds = FloatParameter("Drain-source voltage", units="V", default=0.25)
-    voltage_gate_first = FloatParameter("Gate voltage (first)", units="V", default=-5.0)
-    voltage_gate_second = FloatParameter("Gate voltage (second)", units="V", default=5.0)
+    drain_voltage = FloatParameter("Drain voltage", units="V", default=0.25)
+    gate_voltage_first = FloatParameter("Gate voltage (first)", units="V", default=-5.0)
+    gate_voltage_second = FloatParameter("Gate voltage (second)", units="V", default=5.0)
 
     current_range = ListParameter(
         "Current range",
@@ -85,7 +85,7 @@ class WgfmuFetIdsVgProcedure(WgfmuProcedure):
         # channel below.
         smu_drain = self.b1500.smus[self.drain_channel]
         smu_drain.enable()
-        smu_drain.force("voltage", 0, self.voltage_ds, max_compliance(smu_drain, abs(self.voltage_ds)))
+        smu_drain.force("voltage", 0, self.drain_voltage, max_compliance(smu_drain, abs(self.drain_voltage)))
 
         smu_base = self.b1500.smus[self.base_channel]
         smu_base.enable()
@@ -94,8 +94,8 @@ class WgfmuFetIdsVgProcedure(WgfmuProcedure):
         seq_gate = get_sequence(
             sequence_type=self.mode.lower(),
             pulse_time=self.pulse_time,
-            first_voltage=self.voltage_gate_first,
-            second_voltage=self.voltage_gate_second,
+            first_voltage=self.gate_voltage_first,
+            second_voltage=self.gate_voltage_second,
             steps=self.steps,
             rise_to_hold_ratio=self.rise_to_hold_ratio,
             shape=self.waveform_shape.lower(),

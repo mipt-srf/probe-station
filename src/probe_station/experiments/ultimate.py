@@ -39,8 +39,8 @@ def wgfmu_iv_proc(
     current_range=WGFMUMeasureCurrentRange.RANGE_100_UA.name,
 ):
     return WgfmuIvSweepProcedure(
-        voltage_top_first=voltage_first,
-        voltage_top_second=voltage_second,
+        top_voltage_first=voltage_first,
+        top_voltage_second=voltage_second,
         pulse_time=pulse_time,
         mode=mode,
         top=top,

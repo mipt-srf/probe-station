@@ -15,9 +15,9 @@ logger.addHandler(logging.NullHandler())
 
 
 class SmuFetIdsVgProcedure(BaseProcedure):
-    voltage_gate_first = FloatParameter("Gate voltage (first)", units="V", default=-20.0)
-    voltage_gate_second = FloatParameter("Gate voltage (second)", units="V", default=20.0)
-    voltage_ds = FloatParameter("Drain-source voltage", units="V", default=1.0)
+    gate_voltage_first = FloatParameter("Gate voltage (first)", units="V", default=-20.0)
+    gate_voltage_second = FloatParameter("Gate voltage (second)", units="V", default=20.0)
+    drain_voltage = FloatParameter("Drain voltage", units="V", default=1.0)
     source_channel = IntegerParameter("Source channel", default=3)
     drain_channel = IntegerParameter("Drain channel", default=1)
     averaging = IntegerParameter("Integration coefficient", default=127, minimum=1, maximum=127)
@@ -41,15 +41,15 @@ class SmuFetIdsVgProcedure(BaseProcedure):
 
         run(
             self.b1500,
-            self.voltage_gate_first,
-            self.voltage_gate_second,
+            self.gate_voltage_first,
+            self.gate_voltage_second,
             self.steps,
             average=self.averaging,
             drain=self.drain_channel,
             source=self.source_channel,
             mode=self.mode,
             gate=self.gate_channel,
-            drain_voltage=self.voltage_ds,
+            drain_voltage=self.drain_voltage,
             base=self.base_channel,
         )
 

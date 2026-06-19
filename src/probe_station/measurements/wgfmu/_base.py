@@ -43,17 +43,17 @@ class WgfmuBaseProcedure(WgfmuProcedure):
     mode = ListParameter("Mode", default=SweepMode.DEFAULT.name, choices=[e.name for e in SweepMode])
     pulse_time = FloatParameter("Pulse time", units="s", default=1e-5)
 
-    voltage_top_first = FloatParameter("Top electrode voltage (first)", units="V", default=5.0)
-    voltage_top_second = FloatParameter("Top electrode voltage (second)", units="V", default=-5.0)
+    top_voltage_first = FloatParameter("Top electrode voltage (first)", units="V", default=5.0)
+    top_voltage_second = FloatParameter("Top electrode voltage (second)", units="V", default=-5.0)
 
     top = IntegerParameter("Top channel", default=2)
 
     enable_bottom = BooleanParameter("Enable bottom bias and measurement", default=False)
 
-    voltage_bottom_first = FloatParameter(
+    bottom_voltage_first = FloatParameter(
         "Bottom electrode voltage (first)", units="V", default=-5.0, group_by="enable_bottom"
     )
-    voltage_bottom_second = FloatParameter(
+    bottom_voltage_second = FloatParameter(
         "Bottom electrode voltage (second)", units="V", default=5.0, group_by="enable_bottom"
     )
     bottom = IntegerParameter("Bottom channel", default=1, group_by="enable_bottom")

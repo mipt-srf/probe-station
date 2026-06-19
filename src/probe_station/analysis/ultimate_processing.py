@@ -373,7 +373,7 @@ class WgfmuBatchProcessing:
         new_datasets = []
         for dataset in self.datasets:
             params = dataset.parameters
-            if params["mode"].value == mode and params["voltage_top_first"].value == top_voltage:
+            if params["mode"].value == mode and params["top_voltage_first"].value == top_voltage:
                 new_datasets.append(dataset)
         self.datasets = new_datasets
         if len(self.cycles) == len(self.datasets) + 1:

@@ -31,9 +31,9 @@ logger = logging.getLogger(__name__)
 
 
 def ids_vg_proc(
-    voltage_ds=0.25,
-    voltage_gate_first=0,
-    voltage_gate_second=-9,
+    drain_voltage=0.25,
+    gate_voltage_first=0,
+    gate_voltage_second=-9,
     points=200,
     source=3,
     drain=1,
@@ -41,9 +41,9 @@ def ids_vg_proc(
     base=2,
 ):
     return SmuFetIdsVgProcedure(
-        voltage_ds=voltage_ds,
-        voltage_gate_first=voltage_gate_first,
-        voltage_gate_second=voltage_gate_second,
+        drain_voltage=drain_voltage,
+        gate_voltage_first=gate_voltage_first,
+        gate_voltage_second=gate_voltage_second,
         points=points,
         source_channel=source,
         drain_channel=drain,
@@ -69,16 +69,16 @@ def wgfmu_cycling_proc(cycles=10, width=1e-4, amplitude=8.0, channel=2, bipolar_
     return WgfmuCyclingProcedure(
         repetitions=cycles,
         pulse_time=width,
-        voltage_top_first=0.0,
-        voltage_top_second=amplitude,
+        top_voltage_first=0.0,
+        top_voltage_second=amplitude,
         top=channel,
     )
 
 
 def wgfmu_ids_vg_proc(
-    voltage_ds=0.25,
-    voltage_gate_first=0,
-    voltage_gate_second=9,
+    drain_voltage=0.25,
+    gate_voltage_first=0,
+    gate_voltage_second=9,
     pulse_time=1e-6,
     gate=2,
     drain=1,
@@ -86,9 +86,9 @@ def wgfmu_ids_vg_proc(
     base=2,
 ):
     return WgfmuFetIdsVgProcedure(
-        voltage_ds=voltage_ds,
-        voltage_gate_first=voltage_gate_first,
-        voltage_gate_second=voltage_gate_second,
+        drain_voltage=drain_voltage,
+        gate_voltage_first=gate_voltage_first,
+        gate_voltage_second=gate_voltage_second,
         pulse_time=pulse_time,
         gate_channel=gate,
         drain_channel=drain,

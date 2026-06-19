@@ -2,13 +2,13 @@
 
 Like :mod:`probe_station.experiments.fefet_cycling`, but without endurance
 cycling. Instead of pulsing between measurements, the transfer sweep's second
-(peak) gate voltage ``voltage_gate_second`` is stepped across a list of values,
+(peak) gate voltage ``gate_voltage_second`` is stepped across a list of values,
 running one Ids(Vg) sweep per value (useful for, e.g., memory-window vs
 program-voltage studies).
 
 Both the SMU (``ids_vg_proc``) and WGFMU (``wgfmu_ids_vg_proc``) transfer
 procedures are available; the recipe below uses the WGFMU one. They share the
-``voltage_gate_second`` parameter and the same data columns, so either can be
+``gate_voltage_second`` parameter and the same data columns, so either can be
 swapped into the loop.
 """
 
@@ -30,9 +30,9 @@ logger = logging.getLogger(__name__)
 
 
 def ids_vg_proc(
-    voltage_ds=0.25,
-    voltage_gate_first=0,
-    voltage_gate_second=4,
+    drain_voltage=0.25,
+    gate_voltage_first=0,
+    gate_voltage_second=4,
     points=100,
     source=3,
     drain=1,
@@ -40,9 +40,9 @@ def ids_vg_proc(
     base=2,
 ):
     return SmuFetIdsVgProcedure(
-        voltage_ds=voltage_ds,
-        voltage_gate_first=voltage_gate_first,
-        voltage_gate_second=voltage_gate_second,
+        drain_voltage=drain_voltage,
+        gate_voltage_first=gate_voltage_first,
+        gate_voltage_second=gate_voltage_second,
         points=points,
         source_channel=source,
         drain_channel=drain,
@@ -52,9 +52,9 @@ def ids_vg_proc(
 
 
 def wgfmu_ids_vg_proc(
-    voltage_ds=0.25,
-    voltage_gate_first=0,
-    voltage_gate_second=10,
+    drain_voltage=0.25,
+    gate_voltage_first=0,
+    gate_voltage_second=10,
     pulse_time=1e-3,
     mode="DEFAULT",
     gate=2,
@@ -62,9 +62,9 @@ def wgfmu_ids_vg_proc(
     current_range=WGFMUMeasureCurrentRange.RANGE_10_MA.name,
 ):
     return WgfmuFetIdsVgProcedure(
-        voltage_ds=voltage_ds,
-        voltage_gate_first=voltage_gate_first,
-        voltage_gate_second=voltage_gate_second,
+        drain_voltage=drain_voltage,
+        gate_voltage_first=gate_voltage_first,
+        gate_voltage_second=gate_voltage_second,
         pulse_time=pulse_time,
         mode=mode,
         gate_channel=gate,
@@ -82,7 +82,7 @@ if __name__ == "__main__":
     for voltage_second in np.linspace(2.0, 10.0, 9):
         logger.info(f"=================== Gate peak voltage: {voltage_second} V ===================")
         run(
-            wgfmu_ids_vg_proc(voltage_gate_second=voltage_second),
+            wgfmu_ids_vg_proc(gate_voltage_second=voltage_second),
             folder=folder,
             plot=False,
             x_col="Gate Voltage",

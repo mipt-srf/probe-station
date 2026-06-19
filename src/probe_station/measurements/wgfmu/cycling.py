@@ -21,8 +21,8 @@ class WgfmuCyclingProcedure(WgfmuBaseProcedure):
         seq_top = get_sequence(
             sequence_type=self.mode.lower(),
             pulse_time=self.pulse_time,
-            first_voltage=self.voltage_top_first,
-            second_voltage=self.voltage_top_second,
+            first_voltage=self.top_voltage_first,
+            second_voltage=self.top_voltage_second,
             steps=self.steps,
             rise_to_hold_ratio=self.rise_to_hold_ratio,
             shape=self.waveform_shape.lower(),
@@ -32,8 +32,8 @@ class WgfmuCyclingProcedure(WgfmuBaseProcedure):
             seq_bottom = get_sequence(
                 sequence_type=self.mode.lower(),
                 pulse_time=self.pulse_time,
-                first_voltage=self.voltage_bottom_first,
-                second_voltage=self.voltage_bottom_second,
+                first_voltage=self.bottom_voltage_first,
+                second_voltage=self.bottom_voltage_second,
                 steps=self.steps,
                 rise_to_hold_ratio=self.rise_to_hold_ratio,
                 shape=self.waveform_shape.lower(),
