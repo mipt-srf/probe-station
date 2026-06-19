@@ -19,7 +19,7 @@ class SmuIvSweepProcedure(BaseProcedure):
     second_voltage = FloatParameter("Second voltage", units="V", default=3)
     top_channel = IntegerParameter("Top channel", default=4)
     bottom_channel = IntegerParameter("Bottom channel", default=3)
-    averaging = IntegerParameter("Intergration coefficient", default=127, minimum=1, maximum=127)
+    averaging = IntegerParameter("Integration coefficient", default=127, minimum=1, maximum=127)
     advanced_config = BooleanParameter("Advanced config", default=False)
     steps = IntegerParameter("Steps", default=100, group_by="advanced_config")
     mode = IntegerParameter("Mode", default=1, group_by="advanced_config")
