@@ -1,3 +1,12 @@
+"""FeFET endurance cycling with an Ids(Vg) transfer sweep between cycle batches.
+
+Runs SPGU bipolar gate cycling over a cumulative, log-spaced cycle schedule and
+records a WGFMU FET transfer (Ids-Vg) sweep before cycling and after every
+batch, so the transfer curve can be tracked as endurance accumulates. Both the
+SMU (``ids_vg_proc``) and WGFMU (``wgfmu_ids_vg_proc``) transfer procedures are
+provided; the recipe below uses the WGFMU one.
+"""
+
 import logging
 import shutil
 from datetime import datetime, timedelta

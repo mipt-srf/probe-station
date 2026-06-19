@@ -1,3 +1,12 @@
+"""FeFET retention: drain current sampled at increasing delays after a write.
+
+Preconditions the gate with an Ids(Vg) sweep, then samples the FET drain
+current at a fixed read bias over a log-spaced series of delays, writing the
+drain-current-vs-delay trace to retention_results.csv and refreshing the
+retention plot as it goes. SMU and WGFMU cycling/transfer factories are
+provided for preconditioning.
+"""
+
 import logging
 import shutil
 from datetime import datetime, timedelta
@@ -17,6 +26,8 @@ from probe_station.measurements.wgfmu.cycling import WgfmuCyclingProcedure
 from probe_station.measurements.wgfmu.fet_ids_vg import WgfmuFetIdsVgProcedure
 
 folder = "1t1c3_retention_final_-9_smu"
+
+logger = logging.getLogger(__name__)
 
 
 def ids_vg_proc(

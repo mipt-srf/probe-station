@@ -1,3 +1,14 @@
+"""FeFET endurance: drain current vs cycle count after negative/positive writes.
+
+For each cycle count in a log-spaced schedule, runs bipolar SPGU gate cycling
+and reads the FET drain current in the state left by the final negative pulse,
+then applies a single positive pulse and reads again. The two
+current-vs-cycles traces (after-negative and after-positive) are written to
+endurance_results.csv and plotted, capturing how the memory window evolves over
+endurance cycling.
+"""
+
+import logging
 import shutil
 from pathlib import Path
 
@@ -11,6 +22,8 @@ from probe_station.measurements.smu.fet_ids_t import SmuFetIdsTimeProcedure
 from probe_station.measurements.spgu.cycling import SpguCyclingProcedure
 
 folder = "results"
+
+logger = logging.getLogger(__name__)
 
 
 def cycling_proc(cycles=1000, width=1e-5, amplitude=3.0, channel=2, bipolar_pulses=True, pulse_separation=False):
