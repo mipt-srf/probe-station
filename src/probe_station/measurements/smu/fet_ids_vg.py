@@ -18,14 +18,14 @@ class SmuFetIdsVgProcedure(BaseProcedure):
     voltage_gate_first = FloatParameter("Gate voltage (first)", units="V", default=-20.0)
     voltage_gate_second = FloatParameter("Gate voltage (second)", units="V", default=20.0)
     voltage_ds = FloatParameter("Drain-source voltage", units="V", default=1.0)
-    source = IntegerParameter("Source channel", default=3)
-    drain = IntegerParameter("Drain channel", default=1)
+    source_channel = IntegerParameter("Source channel", default=3)
+    drain_channel = IntegerParameter("Drain channel", default=1)
     average = IntegerParameter("Intergration coefficient", default=127, minimum=1, maximum=127)
     advanced_config = BooleanParameter("Advanced config", default=False)
     steps = IntegerParameter("Steps", default=100, group_by="advanced_config")
     mode = IntegerParameter("Mode", default=1, group_by="advanced_config")
-    gate = IntegerParameter("Gate channel", default=4)
-    base = IntegerParameter("Base channel", default=2)
+    gate_channel = IntegerParameter("Gate channel", default=4)
+    base_channel = IntegerParameter("Base channel", default=2)
 
     DATA_COLUMNS = ["Gate Voltage", "Drain-Source Current", "Gate Current", "Time"]
 
@@ -45,12 +45,12 @@ class SmuFetIdsVgProcedure(BaseProcedure):
             self.voltage_gate_second,
             self.steps,
             average=self.average,
-            drain=self.drain,
-            source=self.source,
+            drain=self.drain_channel,
+            source=self.source_channel,
             mode=self.mode,
-            gate=self.gate,
+            gate=self.gate_channel,
             drain_voltage=self.voltage_ds,
-            base=self.base,
+            base=self.base_channel,
         )
 
         if self.mode == 2:

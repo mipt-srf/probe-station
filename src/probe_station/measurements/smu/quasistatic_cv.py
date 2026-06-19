@@ -42,10 +42,10 @@ class QscvProcedureBase(BaseProcedure):
     delay_time = FloatParameter("Delay time", units="s", default=0.0, group_by="advanced_config")
     auto_abort = BooleanParameter("Auto abort", default=True, group_by="advanced_config")
     current_compliance = FloatParameter("Current compliance", units="A", default=0.1, group_by="advanced_config")
-    gate = IntegerParameter("Gate channel", default=4, group_by="advanced_config")
-    drain = IntegerParameter("Drain channel", default=1, group_by="advanced_config")
-    source = IntegerParameter("Source channel", default=3, group_by="advanced_config")
-    base = IntegerParameter("Base channel", default=2, group_by="advanced_config")
+    gate_channel = IntegerParameter("Gate channel", default=4, group_by="advanced_config")
+    drain_channel = IntegerParameter("Drain channel", default=1, group_by="advanced_config")
+    source_channel = IntegerParameter("Source channel", default=3, group_by="advanced_config")
+    base_channel = IntegerParameter("Base channel", default=2, group_by="advanced_config")
 
     def startup(self):
         super().startup()
@@ -67,10 +67,10 @@ class QscvProcedureBase(BaseProcedure):
             "current_range": self.current_range,
             "current_comp": self.current_compliance,
             "auto_abort": self.auto_abort,
-            "gate": self.gate,
-            "drain": self.drain,
-            "source": self.source,
-            "base": self.base,
+            "gate": self.gate_channel,
+            "drain": self.drain_channel,
+            "source": self.source_channel,
+            "base": self.base_channel,
         }
 
     def _consume_pending_errors(self):

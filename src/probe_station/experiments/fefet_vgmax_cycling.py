@@ -69,10 +69,10 @@ def ids_vg_proc(
         voltage_gate_first=voltage_gate_first,
         voltage_gate_second=voltage_gate_second,
         points=points,
-        source=source,
-        drain=drain,
-        gate=gate,
-        base=base,
+        source_channel=source,
+        drain_channel=drain,
+        gate_channel=gate,
+        base_channel=base,
     )
 
 
@@ -92,8 +92,8 @@ def wgfmu_ids_vg_proc(
         voltage_gate_second=voltage_gate_second,
         pulse_time=pulse_time,
         mode=mode,
-        gate=gate,
-        drain=drain,
+        gate_channel=gate,
+        drain_channel=drain,
         current_range=current_range,
     )
 

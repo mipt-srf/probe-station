@@ -45,10 +45,10 @@ class WgfmuFetIdsVgProcedure(WgfmuProcedure):
     mode = ListParameter("Mode", default=SweepMode.DEFAULT.name, choices=[e.name for e in SweepMode])
     pulse_time = FloatParameter("Pulse time", units="s", default=1e-3)
 
-    gate = IntegerParameter("Gate channel (WGFMU)", default=2)
-    source = IntegerParameter("Source channel (WGFMU, grounded)", default=1)
-    drain = IntegerParameter("Drain channel (SMU, biased)", default=1)
-    base = IntegerParameter("Base channel (SMU, grounded)", default=2)
+    gate_channel = IntegerParameter("Gate channel (WGFMU)", default=2)
+    source_channel = IntegerParameter("Source channel (WGFMU, grounded)", default=1)
+    drain_channel = IntegerParameter("Drain channel (SMU, biased)", default=1)
+    base_channel = IntegerParameter("Base channel (SMU, grounded)", default=2)
 
     voltage_ds = FloatParameter("Drain-source voltage", units="V", default=0.25)
     voltage_gate_first = FloatParameter("Gate voltage (first)", units="V", default=-5.0)
@@ -83,11 +83,11 @@ class WgfmuFetIdsVgProcedure(WgfmuProcedure):
         # Bias the drain at a constant Vds via its SMU and ground the substrate
         # (base); the source is grounded and measured by the second WGFMU
         # channel below.
-        smu_drain = self.b1500.smus[self.drain]
+        smu_drain = self.b1500.smus[self.drain_channel]
         smu_drain.enable()
         smu_drain.force("voltage", 0, self.voltage_ds, max_compliance(smu_drain, abs(self.voltage_ds)))
 
-        smu_base = self.b1500.smus[self.base]
+        smu_base = self.b1500.smus[self.base_channel]
         smu_base.enable()
         smu_base.force("voltage", 0, 0, max_compliance(smu_base, 0))
 
@@ -112,9 +112,9 @@ class WgfmuFetIdsVgProcedure(WgfmuProcedure):
             gate_data, source_data = run_waveforms(
                 b1500=self.b1500,
                 top_seq=seq_gate,
-                top_ch=self.gate,
+                top_ch=self.gate_channel,
                 bottom_seq=seq_source,
-                bottom_ch=self.source,
+                bottom_ch=self.source_channel,
                 repetitions=1,
                 current_range=WGFMUMeasureCurrentRange[self.current_range],
                 bottom_current_range=WGFMUMeasureCurrentRange[self.source_current_range],

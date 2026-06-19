@@ -35,7 +35,7 @@ def pulse_proc(amplitude, pulse_time=1e-5, gate=2, steps=50, voltage_ds=0.0):
     return WgfmuFetIdsVgProcedure(
         mode=SweepMode.UNIPOLAR.name,
         pulse_time=pulse_time,
-        gate=gate,
+        gate_channel=gate,
         voltage_ds=voltage_ds,
         voltage_gate_first=amplitude,
         steps=steps,
@@ -55,7 +55,7 @@ def iv_proc(
     return WgfmuFetIdsVgProcedure(
         mode=SweepMode.DEFAULT.name,
         pulse_time=pulse_time,
-        gate=gate,
+        gate_channel=gate,
         voltage_ds=voltage_ds,
         voltage_gate_first=voltage,
         voltage_gate_second=-voltage,
