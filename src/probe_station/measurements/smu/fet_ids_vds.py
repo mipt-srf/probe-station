@@ -10,8 +10,8 @@ from probe_station.measurements.session import Session
 from probe_station.measurements.smu._widgets import IvPlotWidget
 from probe_station.measurements.smu.fet_ids_vds_runner import run
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 class SmuFetIdsVdsProcedure(BaseProcedure):
@@ -38,7 +38,7 @@ class SmuFetIdsVdsProcedure(BaseProcedure):
         setup_rsu_output(self.b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
 
     def execute(self):
-        log.info(f"Starting the {self.__class__}")
+        logger.info(f"Starting the {self.__class__}")
 
         run(
             self.b1500,
@@ -76,7 +76,7 @@ class SmuFetIdsVdsProcedure(BaseProcedure):
                 },
             )
             if self.should_stop():
-                log.warning("Caught the stop flag in the procedure")
+                logger.warning("Caught the stop flag in the procedure")
                 self.b1500.abort()
                 self.b1500.force_gnd()
                 return
@@ -93,7 +93,7 @@ class MainWindow(BaseWindow):
         super().__init__(
             procedure_class=SmuFetIdsVdsProcedure,
             widget_list=widget_list,
-            logger=log,
+            logger=logger,
         )
         self.setWindowTitle("Ids (Vds)")
 

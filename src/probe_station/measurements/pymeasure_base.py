@@ -17,8 +17,8 @@ from pymeasure.experiment.procedure import UnknownProcedure
 from probe_station.logging_setup import add_file_log_dir
 from probe_station.measurements import workers as _workers  # noqa: F401  -- patches pymeasure.display.manager.Worker
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 class BaseProcedure(Procedure):
@@ -63,12 +63,12 @@ def take_screenshot(window, dest: str | Path, full_screen: bool = False) -> Path
         else:
             pixmap = window.grab()
         if not pixmap.save(str(dest), "PNG"):
-            log.warning("Screenshot failed: could not save to %s", dest)
+            logger.warning("Screenshot failed: could not save to %s", dest)
             return None
-        log.info("Screenshot saved: %s", dest)
+        logger.info("Screenshot saved: %s", dest)
         return dest
     except Exception as e:
-        log.warning("Screenshot failed: %s", e)
+        logger.warning("Screenshot failed: %s", e)
         return None
 
 
@@ -168,7 +168,7 @@ class BaseWindow(ManagedWindowBase):
                 busy.append(desc)
         if busy:
             msg = f"Cannot queue: another measurement is running ({', '.join(busy)})"
-            log.warning(msg)
+            logger.warning(msg)
             self.statusBar().showMessage(msg, 5000)
             return
         if self.store_measurement:

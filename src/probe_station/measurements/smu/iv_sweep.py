@@ -10,8 +10,8 @@ from probe_station.measurements.session import Session
 from probe_station.measurements.smu._widgets import IvPlotWidget
 from probe_station.measurements.smu.iv_sweep_runner import run
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 class SmuIvSweepProcedure(BaseProcedure):
@@ -37,7 +37,7 @@ class SmuIvSweepProcedure(BaseProcedure):
         setup_rsu_output(self.b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
 
     def execute(self):
-        log.info(f"Starting the {self.__class__}")
+        logger.info(f"Starting the {self.__class__}")
 
         run(
             self.b1500,
@@ -64,7 +64,7 @@ class SmuIvSweepProcedure(BaseProcedure):
                 {"Time": time, "Voltage": voltage, "Top electrode current": current},
             )
             if self.should_stop():
-                log.warning("Caught the stop flag in the procedure")
+                logger.warning("Caught the stop flag in the procedure")
                 self.b1500.abort()
                 self.b1500.force_gnd()
                 return
@@ -81,7 +81,7 @@ class MainWindow(BaseWindow):
         super().__init__(
             procedure_class=SmuIvSweepProcedure,
             widget_list=widget_list,
-            logger=log,
+            logger=logger,
         )
 
         from qtpy.QtWidgets import QLabel
@@ -131,7 +131,7 @@ def compute_branch_resistances(data, target_voltage: float) -> str:
         if r_min != 0:
             lines.append(f"R_max / R_min: {r_max / r_min:.3f}")
 
-    log.info("Resistance — " + " | ".join(lines))
+    logger.info("Resistance — " + " | ".join(lines))
     return "\n".join(lines)
 
 
@@ -146,7 +146,7 @@ def _resistance_at(branch, target_voltage: float):
     v = branch["Voltage"][idx]
     i = branch["Top electrode current"][idx]
     if i == 0:
-        log.warning(f"Cannot compute resistance: current is 0 at V={v:.4f} V")
+        logger.warning(f"Cannot compute resistance: current is 0 at V={v:.4f} V")
         return None
     return v / i, v, i
 

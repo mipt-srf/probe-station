@@ -29,8 +29,8 @@ from probe_station.measurements.b1500_helpers import max_compliance
 from probe_station.measurements.pymeasure_base import BaseWindow, run_app
 from probe_station.measurements.wgfmu._base import WgfmuProcedure
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 class WgfmuFetIdsDcProcedure(WgfmuProcedure):
@@ -71,7 +71,7 @@ class WgfmuFetIdsDcProcedure(WgfmuProcedure):
     DATA_COLUMNS = ["Drain Current", "Gate Current"]
 
     def execute(self):
-        log.info(f"Starting the {self.__class__.__name__}")
+        logger.info(f"Starting the {self.__class__.__name__}")
 
         # Hold the idle terminals (source, substrate) at 0 V via SMUs, mirroring
         # the WGFMU Ids(Vg) grounding.
@@ -97,7 +97,7 @@ class WgfmuFetIdsDcProcedure(WgfmuProcedure):
             drain_current = drain_wgfmu.dc_measure_averaged_value(self.average_points, self.sample_interval)
             gate_current = gate_wgfmu.dc_measure_averaged_value(self.average_points, self.sample_interval)
 
-            log.info(f"Drain current: {drain_current:.6e} A, Gate current: {gate_current:.6e} A")
+            logger.info(f"Drain current: {drain_current:.6e} A, Gate current: {gate_current:.6e} A")
 
             self.emit("results", {"Drain Current": drain_current, "Gate Current": gate_current})
 
@@ -107,13 +107,13 @@ class WgfmuFetIdsDcProcedure(WgfmuProcedure):
             gate_wgfmu.disable()
             drain_wgfmu.disable()
         except WGFMUError:
-            log.error(f"{get_error_summary()}")
+            logger.error(f"{get_error_summary()}")
             self.b1500.clear_wgfmu()
             raise
         except Exception:
             # Any other failure must not leave the FET gate/drain biased;
             # clearing the WGFMU returns the channels to a safe 0 V state.
-            log.exception("FET DC measurement failed; clearing WGFMU")
+            logger.exception("FET DC measurement failed; clearing WGFMU")
             self.b1500.clear_wgfmu()
             raise
 
@@ -124,7 +124,7 @@ class MainWindow(BaseWindow):
         super().__init__(
             procedure_class=WgfmuFetIdsDcProcedure,
             widget_list=widget_list,
-            logger=log,
+            logger=logger,
         )
 
 

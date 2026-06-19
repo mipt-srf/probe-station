@@ -10,8 +10,8 @@ from probe_station.measurements.session import Session
 from probe_station.measurements.smu._widgets import IvPlotWidget
 from probe_station.measurements.smu.quasistatic_cv_runner import VALUES_PER_STEP, run
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 # After an auto abort the B1500 pads the remaining sweep points with dummy data
 # (199.999E+99). Any real capacitance or current is far below this.
@@ -88,7 +88,7 @@ class QscvProcedureBase(BaseProcedure):
                 self.b1500.check_errors()
             except Exception as e:  # noqa: BLE001 -- drain whatever the queue holds
                 if "242" in str(e):
-                    log.warning(
+                    logger.warning(
                         "QSCV measurement was aborted by the instrument (Error 242): the "
                         "capacitance current likely exceeded the measurement range, or the "
                         "SMU oscillated into the load. Widen the current range, increase the "
@@ -96,10 +96,10 @@ class QscvProcedureBase(BaseProcedure):
                         "Recorded data may be incomplete."
                     )
                 else:
-                    log.warning("Pending instrument error after QSCV: %s", e)
+                    logger.warning("Pending instrument error after QSCV: %s", e)
             else:
                 return
-        log.warning("Instrument error queue did not clear after QSCV.")
+        logger.warning("Instrument error queue did not clear after QSCV.")
 
 
 class SmuQuasistaticCvProcedure(QscvProcedureBase):
@@ -117,9 +117,9 @@ class SmuQuasistaticCvProcedure(QscvProcedureBase):
     DATA_COLUMNS = ["Voltage", "Capacitance", "Leakage current", "Time"]
 
     def execute(self):
-        log.info(f"Starting the {self.__class__}")
+        logger.info(f"Starting the {self.__class__}")
         if self.offset_cancel:
-            log.info(
+            logger.info(
                 "Offset cancel ON: subtracting the last measured open-terminal offset. "
                 "Run the QSCV offset calibration first if you have not for this current range."
             )
@@ -145,7 +145,7 @@ class SmuQuasistaticCvProcedure(QscvProcedureBase):
                         },
                     )
                 if self.should_stop():
-                    log.warning("Caught the stop flag in the procedure")
+                    logger.warning("Caught the stop flag in the procedure")
                     self.b1500.abort()
                     return
         finally:
@@ -166,7 +166,7 @@ class MainWindow(BaseWindow):
         super().__init__(
             procedure_class=SmuQuasistaticCvProcedure,
             widget_list=widget_list,
-            logger=log,
+            logger=logger,
         )
         self.setWindowTitle("Quasi-static CV")
 

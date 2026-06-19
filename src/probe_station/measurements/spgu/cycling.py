@@ -10,8 +10,8 @@ from probe_station.measurements.pymeasure_base import BaseProcedure, BaseWindow,
 from probe_station.measurements.session import Session
 from probe_station.measurements.spgu.cycling_runner import run
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 class SpguCyclingProcedure(BaseProcedure):
@@ -39,7 +39,7 @@ class SpguCyclingProcedure(BaseProcedure):
         self.b1500 = Session.acquire()
 
     def execute(self):
-        log.info("Starting the loop of %d repetitions" % self.repetitions)
+        logger.info("Starting the loop of %d repetitions" % self.repetitions)
 
         if self.dc_bias:
             dc_smu = None
@@ -50,7 +50,7 @@ class SpguCyclingProcedure(BaseProcedure):
             dc_smu.enable()
             dc_smu.force("voltage", 0, self.dc_bias_value, max_compliance(dc_smu, abs(self.dc_bias_value)))
 
-            log.info("Starting output of %f V at %d", self.dc_bias_value, self.dc_channel)
+            logger.info("Starting output of %f V at %d", self.dc_bias_value, self.dc_channel)
 
         try:
             run(
@@ -95,7 +95,7 @@ class MainWindow(BaseWindow):
         super().__init__(
             procedure_class=SpguCyclingProcedure,
             widget_list=widget_list,
-            logger=log,
+            logger=logger,
         )
 
 

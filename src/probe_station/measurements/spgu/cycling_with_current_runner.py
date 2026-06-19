@@ -16,8 +16,8 @@ from probe_station.measurements.b1500 import B1500
 from probe_station.measurements.b1500_helpers import connect_instrument
 from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 def run(b1500: B1500, repetitions, amplitude, rise, tail, channel=102, smu_ch=1, bipolar=False):
@@ -95,14 +95,14 @@ def run(b1500: B1500, repetitions, amplitude, rise, tail, channel=102, smu_ch=1,
             if spgu.complete:
                 break
             elapsed = time.perf_counter() - start_time
-        log.info(f"Elapsed: {elapsed:.1f}s / {period * repetitions:.1f}s")
+        logger.info(f"Elapsed: {elapsed:.1f}s / {period * repetitions:.1f}s")
     finally:
         spgu.output = False
         pg.enabled = False
 
     # df: pandas.DataFrame = b1500.read_data(points)
-    # if log.isEnabledFor(logging.DEBUG):
-    # log.debug(f"Measurement data (shape={df.shape}):\n{df.head()}")
+    # if logger.isEnabledFor(logging.DEBUG):
+    # logger.debug(f"Measurement data (shape={df.shape}):\n{df.head()}")
     # print(df)
     # df.plot(y=f"SMU{4} Voltage (V)")
     # df.plot(

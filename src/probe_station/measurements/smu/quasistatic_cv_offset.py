@@ -7,8 +7,8 @@ from probe_station.measurements.pymeasure_base import BaseWindow, run_app
 from probe_station.measurements.smu.quasistatic_cv import QscvProcedureBase
 from probe_station.measurements.smu.quasistatic_cv_runner import measure_offset
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 class QscvOffsetCancelProcedure(QscvProcedureBase):
@@ -26,10 +26,10 @@ class QscvOffsetCancelProcedure(QscvProcedureBase):
     DATA_COLUMNS = []
 
     def execute(self):
-        log.info("Measuring open-terminal QSCV offset -- ensure the probe tips are lifted (terminals open).")
+        logger.info("Measuring open-terminal QSCV offset -- ensure the probe tips are lifted (terminals open).")
         try:
             offset = measure_offset(self.b1500, **self._setup_kwargs())
-            log.info(
+            logger.info(
                 "Offset = %.4e F (%.3f pF). Offset cancel is now enabled for QSCV sweeps at this range.",
                 offset,
                 offset * 1e12,
@@ -46,7 +46,7 @@ class MainWindow(BaseWindow):
         super().__init__(
             procedure_class=QscvOffsetCancelProcedure,
             widget_list=(LogWidget("Experiment Log"),),
-            logger=log,
+            logger=logger,
         )
         self.setWindowTitle("QSCV Offset Cancel")
 

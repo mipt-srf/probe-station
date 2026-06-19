@@ -13,8 +13,8 @@ from probe_station.measurements.pymeasure_base import BaseProcedure, BaseWindow,
 from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 from probe_station.measurements.session import Session
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 class SmuDcVoltageProcedure(BaseProcedure):
@@ -31,7 +31,7 @@ class SmuDcVoltageProcedure(BaseProcedure):
         setup_rsu_output(self.b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
 
     def execute(self):
-        log.info(f"Starting the {self.__class__}")
+        logger.info(f"Starting the {self.__class__}")
 
         top_smu = self.b1500.smus[self.channel]
         top_smu.enable()
@@ -47,7 +47,7 @@ class MainWindow(BaseWindow):
     def __init__(self):
         super().__init__(
             procedure_class=SmuDcVoltageProcedure,
-            logger=log,
+            logger=logger,
         )
 
 

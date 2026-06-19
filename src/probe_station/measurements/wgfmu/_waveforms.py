@@ -18,8 +18,8 @@ from probe_station.measurements.b1500 import (
     WGFMUOperationMode,
 )
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 class SweepMode(Enum):
@@ -220,7 +220,7 @@ def set_waveform(
     # sum the on-grid segments instead of sequence.total_duration so the
     # measure event spans exactly what the hardware plays
     seq_time = float(np.sum(times))
-    log.info(f"Waveform for {pattern_name}: {len(voltages)} samples, {seq_time:.6g} s, {len(sequence.pulses)} pulses")
+    logger.info(f"Waveform for {pattern_name}: {len(voltages)} samples, {seq_time:.6g} s, {len(sequence.pulses)} pulses")
     b1500.add_vectors_to_wgfmu_pattern(pattern_name, times.tolist(), voltages.tolist())
     if measure:
         interval = np.floor(seq_time / measure_points / WGFMU_TIMING_RESOLUTION) * WGFMU_TIMING_RESOLUTION
@@ -277,18 +277,18 @@ def get_data(
     voltages = wgfmu.get_voltage_data()
 
     if points is None:
-        log.debug(f"Raw data length: {len(voltages)}")
+        logger.debug(f"Raw data length: {len(voltages)}")
         return times, voltages, currents
 
     times = np.split(np.array(times), repetitions)[-1]
     currents = np.split(np.array(currents), repetitions)[-1]
     voltages = np.split(np.array(voltages), repetitions)[-1]
-    log.debug(f"Raw voltage array length (last rep): {len(voltages)}")
+    logger.debug(f"Raw voltage array length (last rep): {len(voltages)}")
 
     times = np.mean(times.reshape(-1, len(voltages) // points), axis=1)
     currents = np.mean(currents.reshape(-1, len(voltages) // points), axis=1)
     voltages = np.mean(voltages.reshape(-1, len(voltages) // points), axis=1)
-    log.debug(f"Decimated voltage array length: {len(voltages)}")
+    logger.debug(f"Decimated voltage array length: {len(voltages)}")
 
     return times, voltages, currents
 
@@ -349,7 +349,7 @@ def run_waveforms(
             configure_measure_mode=measure,
         )
     except WGFMUError:
-        log.error(f"{get_error_summary()}")
+        logger.error(f"{get_error_summary()}")
         b1500.clear_wgfmu()
         raise
 
@@ -438,7 +438,7 @@ def run_waveforms_split(
                 configure_measure_mode=True,
             )
         except WGFMUError:
-            log.error(f"{get_error_summary()}")
+            logger.error(f"{get_error_summary()}")
             b1500.clear_wgfmu()
             raise
 
@@ -451,7 +451,7 @@ def run_waveforms_split(
             b1500.clear_wgfmu()
         else:
             shift = run_start - first_run_start
-            log.info(f"Inter-half delay before {name}: {shift:.4f} s")
+            logger.info(f"Inter-half delay before {name}: {shift:.4f} s")
             top_data = (top_data[0] + shift, top_data[1], top_data[2])
             bottom_data = (bottom_data[0] + shift, bottom_data[1], bottom_data[2])
 

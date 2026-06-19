@@ -10,8 +10,8 @@ from probe_station.measurements.keithley.instrument import connect_instrument, g
 from probe_station.measurements.keithley.launcher import ADDRESS
 from probe_station.measurements.keithley.PUND_waveform import create_waveform
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 class KeithleyPundProcedure(BaseProcedure):
@@ -40,12 +40,12 @@ class KeithleyPundProcedure(BaseProcedure):
         self.smu = get_smu()
 
     def execute(self):
-        log.info("Starting %s", self.__class__.__name__)
+        logger.info("Starting %s", self.__class__.__name__)
         self.smu.set_terminal(self.terminal)
         self.smu.raise_error()
 
         if self.do_cycle:
-            log.info("Pre-cycling %d times", self.n_precycles)
+            logger.info("Pre-cycling %d times", self.n_precycles)
             cycle(self.smu, self.n_precycles, self.vf, self.vs)
             if self.should_stop():
                 return
@@ -63,13 +63,13 @@ class KeithleyPundProcedure(BaseProcedure):
         self.smu.raise_error()
 
         waveform = self._create_waveform()
-        log.info("Initiating waveform with %d points", len(waveform))
+        logger.info("Initiating waveform with %d points", len(waveform))
         self.smu.voltage_list_sweep(waveform, self.n_cycles)
         self.smu.initiate()
         self.smu.wait(self.should_stop)
 
         if self.should_stop():
-            log.info("Aborted during sweep")
+            logger.info("Aborted during sweep")
             return
 
         self.smu.raise_error()
@@ -109,7 +109,7 @@ class MainWindow(BaseWindow):
         super().__init__(
             procedure_class=KeithleyPundProcedure,
             widget_list=widget_list,
-            logger=log,
+            logger=logger,
         )
         from qtpy.QtWidgets import QLabel
 

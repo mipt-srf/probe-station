@@ -22,8 +22,8 @@ from probe_station.measurements.b1500 import B1500
 from probe_station.measurements.b1500_helpers import connect_instrument, parse_data
 from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 # Data blocks returned per sweep step with the time stamp (TSC) and leakage
 # current data output (QSL) both enabled, in stream order:
@@ -124,7 +124,7 @@ def _setup_qscv(
     range_current = QSR_RANGE_CURRENTS.get(current_range)
     if range_current is not None and c_voltage > 0:
         c_max = range_current * integration_time / c_voltage
-        log.info(
+        logger.info(
             "QSCV current range %d (%g A) measures capacitance up to ~%.2e F at "
             "cinteg=%g s, cvoltage=%g V. Use a wider range for a larger device.",
             current_range,
@@ -190,7 +190,7 @@ def measure_offset(b1500: B1500, **setup):
     offset = parse_data(b1500.read())[-1]  # Single capacitance value, in F.
     b1500.write("QSZ 1")  # Enable offset cancel for subsequent sweeps.
     b1500.check_errors()
-    log.info("Open-terminal capacitance offset: %.4e F (%.3f pF); offset cancel enabled.", offset, offset * 1e12)
+    logger.info("Open-terminal capacitance offset: %.4e F (%.3f pF); offset cancel enabled.", offset, offset * 1e12)
     return offset
 
 

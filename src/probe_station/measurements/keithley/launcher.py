@@ -8,8 +8,8 @@ from qtpy.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QMessageBox, QPushBut
 from probe_station.logging_setup import setup_file_logging
 from probe_station.measurements.keithley.instrument import connect_instrument, get_smu, set_smu
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 ADDRESS = "TCPIP0::192.168.81.20::inst0::INSTR"
 
@@ -123,7 +123,7 @@ class LauncherWindow(QWidget):
         try:
             get_smu().adapter.close()
             set_smu(None)
-            log.info("Keithley disconnected")
+            logger.info("Keithley disconnected")
         except RuntimeError:
             pass
         event.accept()

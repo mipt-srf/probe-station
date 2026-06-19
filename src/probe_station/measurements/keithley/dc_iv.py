@@ -11,8 +11,8 @@ from probe_station.measurements.keithley.pund import KeithleyPundProcedure
 from probe_station.measurements.keithley.PUND_waveform import create_pulse
 from probe_station.measurements.smu._widgets import IvPlotWidget
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 class KeithleyDcIvProcedure(KeithleyPundProcedure):
@@ -42,7 +42,7 @@ class MainWindow(BaseWindow):
             procedure_class=KeithleyDcIvProcedure,
             widget_list=widget_list,
             inputs=KeithleyDcIvProcedure._INPUTS,
-            logger=log,
+            logger=logger,
         )
         from qtpy.QtWidgets import QLabel
 

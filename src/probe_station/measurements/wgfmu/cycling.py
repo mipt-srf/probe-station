@@ -10,8 +10,8 @@ from probe_station.measurements.wgfmu._waveforms import (
     run_waveforms,
 )
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 class WgfmuCyclingProcedure(WgfmuBaseProcedure):
@@ -54,7 +54,7 @@ class MainWindow(BaseWindow):
     def __init__(self):
         super().__init__(
             procedure_class=WgfmuCyclingProcedure,
-            logger=log,
+            logger=logger,
         )
 
 

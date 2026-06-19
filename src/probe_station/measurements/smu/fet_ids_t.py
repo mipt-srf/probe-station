@@ -15,8 +15,8 @@ from probe_station.measurements.pymeasure_base import BaseProcedure, BaseWindow,
 from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 from probe_station.measurements.session import Session
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 class SmuFetIdsTimeProcedure(BaseProcedure):
@@ -50,7 +50,7 @@ class SmuFetIdsTimeProcedure(BaseProcedure):
         setup_rsu_output(self.b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
 
     def execute(self):
-        log.info(f"Starting the {self.__class__}")
+        logger.info(f"Starting the {self.__class__}")
 
         gate_smu = self.b1500.smus[self.gate_channel]
         drain_smu = self.b1500.smus[self.drain_channel]
@@ -72,14 +72,14 @@ class SmuFetIdsTimeProcedure(BaseProcedure):
             base_smu.force("voltage", 0, self.base_voltage, max_compliance(base_smu, abs(self.base_voltage)))
 
             tuples = drain_smu.measure_point()
-            log.debug(f"Drain SMU measurement: {tuples}")
+            logger.debug(f"Drain SMU measurement: {tuples}")
             drain_current = tuples[1][1]
 
             tuples = gate_smu.measure_point()
-            log.debug(f"Gate SMU measurement: {tuples}")
+            logger.debug(f"Gate SMU measurement: {tuples}")
             gate_current = tuples[1][1]
 
-            log.info(f"Drain current: {drain_current:.6e} A, Gate current: {gate_current:.6e} A")
+            logger.info(f"Drain current: {drain_current:.6e} A, Gate current: {gate_current:.6e} A")
 
             self.emit("results", {"Drain Current": drain_current, "Gate Current": gate_current})
         finally:
@@ -100,7 +100,7 @@ class MainWindow(BaseWindow):
         super().__init__(
             procedure_class=SmuFetIdsTimeProcedure,
             widget_list=widget_list,
-            logger=log,
+            logger=logger,
         )
 
 

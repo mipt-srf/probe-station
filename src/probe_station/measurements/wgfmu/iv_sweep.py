@@ -23,8 +23,8 @@ from probe_station.measurements.wgfmu._waveforms import (
     run_waveforms_split,
 )
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 class WgfmuIvSweepProcedure(WgfmuBaseProcedure):
@@ -98,7 +98,7 @@ class WgfmuIvSweepProcedure(WgfmuBaseProcedure):
         if high_voltage:
             if not self.enable_bottom:
                 raise ValueError("Pulses exceeding 10 V require the bottom electrode to be enabled")
-            log.warning("High voltage mode is enabled. Current measurement might be inaccurate")
+            logger.warning("High voltage mode is enabled. Current measurement might be inaccurate")
             top_data, bottom_data = run_waveforms_split(
                 b1500=self.b1500,
                 top_seq=seq_top,
@@ -151,16 +151,16 @@ class WgfmuIvSweepProcedure(WgfmuBaseProcedure):
         if self.compute_polarization:
             if is_pund:
                 polarization = calculate_polarization(times, filtered_polarization_current, self.pad_size)
-                log.info("Polarization (2Pr): %s", polarization)
+                logger.info("Polarization (2Pr): %s", polarization)
             else:
-                log.warning("Polarization calculation requires PUND mode; skipping")
+                logger.warning("Polarization calculation requires PUND mode; skipping")
 
 
 class MainWindow(BaseWindow):
     def __init__(self):
         super().__init__(
             procedure_class=WgfmuIvSweepProcedure,
-            logger=log,
+            logger=logger,
         )
         # temporary bug fix for incorrect autoscaling in the plot
         plot = next(w for w in self.widget_list if isinstance(w, PlotWidget))

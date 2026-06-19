@@ -28,8 +28,8 @@ from probe_station.measurements.pymeasure_base import (
     register_busy_predicate,
 )
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 # Name of the in-flight action (e.g. "Вжух"), or None if idle. Read by the
 # busy predicate so procedure windows refuse to queue while it's running.
@@ -73,7 +73,7 @@ class ScriptRunner(QThread):
             else:
                 subprocess.Popen([sys.executable, "-m", self.script_module])
         except Exception as e:
-            log.exception(f"Error running {self.script_module}: {e}")
+            logger.exception(f"Error running {self.script_module}: {e}")
 
 
 class ActionRunner(QThread):
@@ -89,7 +89,7 @@ class ActionRunner(QThread):
             module = importlib.import_module(self.script_module)
             module.run()
         except Exception:
-            log.exception("Error running action %s", self.script_module)
+            logger.exception("Error running action %s", self.script_module)
 
 
 class ModernButton(QPushButton):
@@ -370,7 +370,7 @@ class Launcher(QWidget):
             module = importlib.import_module(script_module)
             window = module.MainWindow()
         except Exception:
-            log.exception("Failed to launch %s in-process", script_module)
+            logger.exception("Failed to launch %s in-process", script_module)
             return
         self.child_windows.append(window)
         window.show()
@@ -378,11 +378,11 @@ class Launcher(QWidget):
     def _launch_action(self, script_module):
         global _running_action
         if _running_action is not None:
-            log.warning("Cannot start %s: %s is already running", script_module, _running_action)
+            logger.warning("Cannot start %s: %s is already running", script_module, _running_action)
             return
         busy_window = any_window_running()
         if busy_window is not None:
-            log.warning("Cannot start %s: measurement in %s is running", script_module, busy_window)
+            logger.warning("Cannot start %s: measurement in %s is running", script_module, busy_window)
             return
         label = script_module.rsplit(".", 1)[-1]
         runner = ActionRunner(script_module, label)
@@ -424,7 +424,7 @@ class Launcher(QWidget):
                 try:
                     window = window_class()
                 except Exception:
-                    log.exception("Failed to construct %s for %s", window_class.__name__, filename)
+                    logger.exception("Failed to construct %s for %s", window_class.__name__, filename)
                     QMessageBox.warning(
                         self,
                         "Cannot open file",
@@ -437,7 +437,7 @@ class Launcher(QWidget):
             try:
                 window.load_experiment_from_file(filename)
             except Exception:
-                log.exception("Failed to load %s into %s", filename, window_class.__name__)
+                logger.exception("Failed to load %s into %s", filename, window_class.__name__)
                 QMessageBox.warning(
                     self,
                     "Cannot open file",
