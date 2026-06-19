@@ -114,7 +114,7 @@ class SmuQuasistaticCvProcedure(QscvProcedureBase):
 
     offset_cancel = BooleanParameter("Apply offset cancel", default=False)
 
-    DATA_COLUMNS = ["Voltage", "Capacitance", "Leakage current", "Time"]
+    DATA_COLUMNS = ["Voltage", "Capacitance", "Leakage Current", "Time"]
 
     def execute(self):
         logger.info(f"Starting the {self.__class__}")
@@ -141,7 +141,7 @@ class SmuQuasistaticCvProcedure(QscvProcedureBase):
                             "Time": time,
                             "Voltage": voltage,
                             "Capacitance": capacitance,
-                            "Leakage current": leakage,
+                            "Leakage Current": leakage,
                         },
                     )
                 if self.should_stop():

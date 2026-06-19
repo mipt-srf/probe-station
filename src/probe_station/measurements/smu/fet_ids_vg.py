@@ -27,7 +27,7 @@ class SmuFetIdsVgProcedure(BaseProcedure):
     gate_channel = IntegerParameter("Gate channel", default=4)
     base_channel = IntegerParameter("Base channel", default=2)
 
-    DATA_COLUMNS = ["Gate Voltage", "Drain-Source Current", "Gate Current", "Time"]
+    DATA_COLUMNS = ["Gate Voltage", "Drain Current", "Gate Current", "Time"]
 
     def startup(self):
         super().startup()
@@ -69,7 +69,7 @@ class SmuFetIdsVgProcedure(BaseProcedure):
                 {
                     "Time": time,
                     "Gate Voltage": voltage,
-                    "Drain-Source Current": current,
+                    "Drain Current": current,
                     "Gate Current": gate_current,
                 },
             )

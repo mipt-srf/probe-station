@@ -29,7 +29,7 @@ class SpguCyclingWithCurrentProcedure(BaseProcedure):
 
     period = 2 * (rise.value + tail.value)
 
-    DATA_COLUMNS = ["Time", "Top electrode current"]
+    DATA_COLUMNS = ["Time", "Top Electrode Current"]
 
     def startup(self):
         super().startup()
@@ -55,7 +55,7 @@ class SpguCyclingWithCurrentProcedure(BaseProcedure):
             self.emit("progress", emitted / points * 100)
             self.emit(
                 "results",
-                {"Time": time, "Top electrode current": current},
+                {"Time": time, "Top Electrode Current": current},
             )
             if self.should_stop():
                 logger.warning("Caught the stop flag in the procedure")

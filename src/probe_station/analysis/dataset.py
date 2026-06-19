@@ -112,5 +112,5 @@ class Dataset(Results):
 
     def _rename_data_columns(self, df):
         if self.handler_cls == DC_IV:
-            return df.rename(columns={"Voltage": "Bias", "Top electrode current": "Current"})
+            return df.rename(columns={"Voltage": "Bias", "Top Electrode Current": "Current"})
         return df

@@ -189,7 +189,7 @@ class SmuBatchProcessing:
             if ds.data.shape[0] == 0:
                 # print("dropped")
                 should_keep = False
-            elif sum(ds.data["Top electrode current"] < self.drop_below) > 0:
+            elif sum(ds.data["Top Electrode Current"] < self.drop_below) > 0:
                 # print(cycle)
                 should_keep = False
 
@@ -211,7 +211,7 @@ class SmuBatchProcessing:
         for cycle, ds in zip(self.cycles, self.datasets):
             should_keep = True
 
-            if sum(ds.data["Top electrode current"] > self.drop_above) > 0:
+            if sum(ds.data["Top Electrode Current"] > self.drop_above) > 0:
                 # print(cycle)
                 should_keep = False
 
@@ -303,7 +303,7 @@ class WgfmuBatchProcessing:
             if ds.data.shape[0] == 0:
                 # print("dropped")
                 should_keep = False
-            elif sum(ds.data["Top electrode Current"] < self.drop_below) > 0:
+            elif sum(ds.data["Top Electrode Current"] < self.drop_below) > 0:
                 # print(cycle)
                 should_keep = False
 
@@ -325,7 +325,7 @@ class WgfmuBatchProcessing:
         for cycle, ds in zip(self.cycles, self.datasets):
             should_keep = True
 
-            if sum(ds.data["Top electrode Current"] > self.drop_above) > 0:
+            if sum(ds.data["Top Electrode Current"] > self.drop_above) > 0:
                 # print(cycle)
                 should_keep = False
 

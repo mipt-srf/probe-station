@@ -136,6 +136,6 @@ if __name__ == "__main__":
                 folder=folder,
                 plot=False,
                 x_col="Gate Voltage",
-                y_col="Drain-Source Current",
+                y_col="Drain Current",
                 suffix=f"_vg2={voltage_second}_{total}cycles",
             )

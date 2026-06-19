@@ -67,8 +67,8 @@ if __name__ == "__main__":
     setup_file_logging()
     add_file_log_dir(Path(folder) / "logs")
 
-    run(wgfmu_iv_proc(), folder=folder, plot=True, x_col="Top electrode voltage", y_col="Top electrode Current")
-    run(dc_iv_proc(), folder=folder, plot=True, x_col="Voltage", y_col="Top electrode current")
+    run(wgfmu_iv_proc(), folder=folder, plot=True, x_col="Top Electrode Voltage", y_col="Top Electrode Current")
+    run(dc_iv_proc(), folder=folder, plot=True, x_col="Voltage", y_col="Top Electrode Current")
     run(cv_proc(), folder=folder, plot=True, x_col="Voltage", y_col="Capacitance", timeout=120)
 
     total = 0

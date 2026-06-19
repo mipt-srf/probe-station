@@ -27,7 +27,7 @@ class SmuIvSweepProcedure(BaseProcedure):
     calculate_resistance = BooleanParameter("Calculate resistance", default=False)
     resistance_voltage = FloatParameter("Resistance voltage", units="V", default=1.0, group_by="calculate_resistance")
 
-    DATA_COLUMNS = ["Voltage", "Top electrode current", "Time"]
+    DATA_COLUMNS = ["Voltage", "Top Electrode Current", "Time"]
 
     def startup(self):
         super().startup()
@@ -61,7 +61,7 @@ class SmuIvSweepProcedure(BaseProcedure):
             self.emit("progress", emitted / total_steps * 100)
             self.emit(
                 "results",
-                {"Time": time, "Voltage": voltage, "Top electrode current": current},
+                {"Time": time, "Voltage": voltage, "Top Electrode Current": current},
             )
             if self.should_stop():
                 logger.warning("Caught the stop flag in the procedure")
@@ -144,7 +144,7 @@ def _resistance_at(branch, target_voltage: float):
         return None
     idx = (branch["Voltage"] - target_voltage).abs().idxmin()
     v = branch["Voltage"][idx]
-    i = branch["Top electrode current"][idx]
+    i = branch["Top Electrode Current"][idx]
     if i == 0:
         logger.warning(f"Cannot compute resistance: current is 0 at V={v:.4f} V")
         return None

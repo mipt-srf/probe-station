@@ -98,7 +98,7 @@ if __name__ == "__main__":
     cycling_pulse_time = 1e-3
     cycling_amplitude = 10
 
-    run(wgfmu_ids_vg_proc(), folder=folder, plot=False, x_col="Gate Voltage", y_col="Drain-Source Current")
+    run(wgfmu_ids_vg_proc(), folder=folder, plot=False, x_col="Gate Voltage", y_col="Drain Current")
 
     total = 0
     for cycles in log_points(10, 1e7, per_decade=2):
@@ -121,4 +121,4 @@ if __name__ == "__main__":
             suffix=f"_{cycles}cycles",
         )
 
-        run(wgfmu_ids_vg_proc(), folder=folder, plot=False, x_col="Gate Voltage", y_col="Drain-Source Current")
+        run(wgfmu_ids_vg_proc(), folder=folder, plot=False, x_col="Gate Voltage", y_col="Drain Current")

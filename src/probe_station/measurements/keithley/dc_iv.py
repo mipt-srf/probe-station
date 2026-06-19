@@ -35,7 +35,7 @@ class KeithleyDcIvProcedure(KeithleyPundProcedure):
 class MainWindow(BaseWindow):
     def __init__(self):
         widget_list = (
-            IvPlotWidget("Results Graph", KeithleyDcIvProcedure.DATA_COLUMNS, x_axis="Time", y_axis="Reading"),
+            IvPlotWidget("Results Graph", KeithleyDcIvProcedure.DATA_COLUMNS, x_axis="Time", y_axis="Current"),
             LogWidget("Experiment Log"),
         )
         super().__init__(

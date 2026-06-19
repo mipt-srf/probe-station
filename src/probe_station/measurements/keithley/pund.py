@@ -33,7 +33,7 @@ class KeithleyPundProcedure(BaseProcedure):
     do_cycle = BooleanParameter("Pre-cycle", default=False)
     n_precycles = IntegerParameter("Pre-cycle count", default=50, group_by="do_cycle")
 
-    DATA_COLUMNS = ["Time", "Source", "Reading"]
+    DATA_COLUMNS = ["Time", "Voltage", "Current"]
 
     def startup(self):
         super().startup()
@@ -83,7 +83,7 @@ class KeithleyPundProcedure(BaseProcedure):
 
         total = len(time)
         for i, (t, src, r) in enumerate(zip(time, source, reading)):
-            self.emit("results", {"Time": t, "Source": src, "Reading": r})
+            self.emit("results", {"Time": t, "Voltage": src, "Current": r})
             self.emit("progress", (i + 1) / total * 100)
             if self.should_stop():
                 break
@@ -103,7 +103,7 @@ class KeithleyPundProcedure(BaseProcedure):
 class MainWindow(BaseWindow):
     def __init__(self):
         widget_list = (
-            PlotWidget("Results Graph", KeithleyPundProcedure.DATA_COLUMNS, x_axis="Source", y_axis="Reading"),
+            PlotWidget("Results Graph", KeithleyPundProcedure.DATA_COLUMNS, x_axis="Voltage", y_axis="Current"),
             LogWidget("Experiment Log"),
         )
         super().__init__(

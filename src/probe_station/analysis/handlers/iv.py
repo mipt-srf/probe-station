@@ -22,18 +22,18 @@ class Iv(BaseHandler):
         back to the stored (filtered) top-based column.
         """
         data = self.data
-        bottom = data.get("Bottom electrode current")
+        bottom = data.get("Bottom Electrode Current")
         if bottom is not None and bottom.notna().any():
-            clean = data[["Time", "Top electrode voltage", "Bottom electrode current"]].dropna()
+            clean = data[["Time", "Top Electrode Voltage", "Bottom Electrode Current"]].dropna()
             current = pund_polarization_current(
-                clean["Top electrode voltage"].to_numpy(), clean["Bottom electrode current"].to_numpy()
+                clean["Top Electrode Voltage"].to_numpy(), clean["Bottom Electrode Current"].to_numpy()
             )
-            return clean["Time"].to_numpy(), clean["Top electrode voltage"].to_numpy(), current
+            return clean["Time"].to_numpy(), clean["Top Electrode Voltage"].to_numpy(), current
 
-        current = data.get("Filtered Polarization current")
+        current = data.get("Filtered Polarization Current")
         if current is None:
-            current = data["Polarization current"]
-        return data["Time"].to_numpy(), data["Top electrode voltage"].to_numpy(), current.to_numpy()
+            current = data["Polarization Current"]
+        return data["Time"].to_numpy(), data["Top Electrode Voltage"].to_numpy(), current.to_numpy()
 
     def polarization(self, pad_size_um):
         """Switched polarization 2Pr (uC/cm^2) for the sweep, or NaN if it failed.
@@ -57,7 +57,7 @@ class Iv(BaseHandler):
             voltage,
             current,
             xlabel="Voltage",
-            ylabel="Polarization current",
+            ylabel="Polarization Current",
             color=color,
             label=label,
             alpha=alpha,

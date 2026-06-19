@@ -26,7 +26,7 @@ class SmuIvStepProcedure(BaseProcedure):
     bottom_channel = IntegerParameter("Bottom channel", default=3)
     steps = IntegerParameter("Steps", default=100)
 
-    DATA_COLUMNS = ["Time", "Voltage", "Top electrode current"]
+    DATA_COLUMNS = ["Time", "Voltage", "Top Electrode Current"]
 
     def startup(self):
         super().startup()
@@ -63,7 +63,7 @@ class SmuIvStepProcedure(BaseProcedure):
             time, current, voltage = measure_at_voltage(
                 self.b1500, voltage, top=self.top_channel, bottom=self.bottom_channel
             )
-            self.emit("results", {"Time": time, "Voltage": voltage, "Top electrode current": current})
+            self.emit("results", {"Time": time, "Voltage": voltage, "Top Electrode Current": current})
 
         self.b1500.force_gnd()
 

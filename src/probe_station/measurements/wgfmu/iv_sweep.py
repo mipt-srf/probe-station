@@ -58,13 +58,13 @@ class WgfmuIvSweepProcedure(WgfmuBaseProcedure):
     pad_size = FloatParameter("Pad size", units="um", default=25, group_by="compute_polarization")
 
     DATA_COLUMNS = [
-        "Top electrode voltage",
-        "Top electrode Current",
+        "Top Electrode Voltage",
+        "Top Electrode Current",
         "Time",
-        "Bottom electrode voltage",
-        "Bottom electrode current",
-        "Polarization current",
-        "Filtered Polarization current",
+        "Bottom Electrode Voltage",
+        "Bottom Electrode Current",
+        "Polarization Current",
+        "Filtered Polarization Current",
     ]
 
     def execute(self):
@@ -127,14 +127,14 @@ class WgfmuIvSweepProcedure(WgfmuBaseProcedure):
         times, voltages, currents = top_data
 
         data = {
-            "Top electrode voltage": voltages,
-            "Top electrode Current": currents,
+            "Top Electrode Voltage": voltages,
+            "Top Electrode Current": currents,
             "Time": times,
         }
         if bottom_data is not None:
             _, voltages_bottom, currents_bottom = bottom_data
-            data["Bottom electrode voltage"] = voltages_bottom
-            data["Bottom electrode current"] = currents_bottom
+            data["Bottom Electrode Voltage"] = voltages_bottom
+            data["Bottom Electrode Current"] = currents_bottom
 
         # The P-U / N-D subtraction assumes the four equal PUND quarters; in
         # DEFAULT mode there are only two pulses and the result is meaningless.
@@ -143,8 +143,8 @@ class WgfmuIvSweepProcedure(WgfmuBaseProcedure):
         if is_pund:
             polarization_current = pund_polarization_current(voltages, currents)
             filtered_polarization_current = scipy.ndimage.gaussian_filter1d(polarization_current, sigma=3)
-            data["Polarization current"] = polarization_current
-            data["Filtered Polarization current"] = filtered_polarization_current
+            data["Polarization Current"] = polarization_current
+            data["Filtered Polarization Current"] = filtered_polarization_current
 
         self.emit("batch results", data)
 

@@ -28,7 +28,7 @@ class SmuFetIdsVdsProcedure(BaseProcedure):
     base_channel = IntegerParameter("Base channel", default=2)
     # compliance = FloatParameter("Current compliance", units="A", default=0.1, group_by="advanced_config")
 
-    DATA_COLUMNS = ["Voltage", "Source electrode current", "Gate current", "Time"]
+    DATA_COLUMNS = ["Voltage", "Source Current", "Gate Current", "Time"]
 
     def startup(self):
         super().startup()
@@ -71,8 +71,8 @@ class SmuFetIdsVdsProcedure(BaseProcedure):
                 {
                     "Time": time,
                     "Voltage": voltage,
-                    "Source electrode current": current,
-                    "Gate current": gate_current,
+                    "Source Current": current,
+                    "Gate Current": gate_current,
                 },
             )
             if self.should_stop():

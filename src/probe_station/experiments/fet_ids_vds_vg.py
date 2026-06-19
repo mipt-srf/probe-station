@@ -58,6 +58,6 @@ if __name__ == "__main__":
             folder=folder,
             plot=False,
             x_col="Voltage",
-            y_col="Source electrode current",
+            y_col="Source Current",
             suffix=f"_vg={gate_voltage:.3f}",
         )
