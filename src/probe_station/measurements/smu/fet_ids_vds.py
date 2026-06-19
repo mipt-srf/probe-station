@@ -19,7 +19,7 @@ class SmuFetIdsVdsProcedure(BaseProcedure):
     second_voltage = FloatParameter("Second voltage", units="V", default=3)
     source_channel = IntegerParameter("Source channel", default=3)
     drain_channel = IntegerParameter("Drain channel", default=1)
-    average = IntegerParameter("Intergration coefficient", default=127, minimum=1, maximum=127)
+    averaging = IntegerParameter("Intergration coefficient", default=127, minimum=1, maximum=127)
     advanced_config = BooleanParameter("Advanced config", default=False)
     steps = IntegerParameter("Steps", default=100, group_by="advanced_config")
     mode = IntegerParameter("Mode", default=1, group_by="advanced_config")
@@ -48,7 +48,7 @@ class SmuFetIdsVdsProcedure(BaseProcedure):
             top=self.source_channel,
             bottom=self.drain_channel,
             # current_comp=self.compliance,
-            average=self.average,
+            average=self.averaging,
             mode=self.mode,
             gate=self.gate_channel,
             gate_voltage=self.gate_voltage,
