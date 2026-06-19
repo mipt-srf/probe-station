@@ -140,7 +140,7 @@ def retention(delays=None, gate_read_voltage=0.3):
 
     estimated_time = sum(delays)
     estimated_finish = datetime.now() + timedelta(seconds=estimated_time)
-    logging.info(f"Estimated retention time: {estimated_time:.2f}s, estimated finish: {estimated_finish}")
+    logger.info(f"Estimated retention time: {estimated_time:.2f}s, estimated finish: {estimated_finish}")
 
     run(
         ids_vg_proc(),
