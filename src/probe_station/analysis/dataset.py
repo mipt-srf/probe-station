@@ -9,6 +9,7 @@ from probe_station.analysis.handlers.fet_ids_vds import FetIdsVds
 from probe_station.analysis.handlers.iv import Iv
 from probe_station.analysis.matlab.dc_iv import DC_IV
 from probe_station.measurements.cmu.cv_sweep import CmuCvSweepProcedure
+from probe_station.measurements.pymeasure_base import canonicalize_columns
 from probe_station.measurements.smu.fet_ids_vds import SmuFetIdsVdsProcedure
 from probe_station.measurements.smu.iv_sweep import SmuIvSweepProcedure
 from probe_station.measurements.wgfmu.iv_sweep import WgfmuIvSweepProcedure
@@ -46,12 +47,13 @@ def _load_results(filename):
     with the correct procedure class.
     """
     try:
-        return Results.load(filename)
+        results = Results.load(filename)
     except (AttributeError, ImportError):
         procedure_cls = _PROCEDURE_CLASSES.get(_read_procedure_name(filename))
         if procedure_cls is None:
             raise
-        return Results.load(filename, procedure_class=procedure_cls)
+        results = Results.load(filename, procedure_class=procedure_cls)
+    return canonicalize_columns(results)
 
 
 class Dataset(Results):
