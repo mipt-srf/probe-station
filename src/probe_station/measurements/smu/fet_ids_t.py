@@ -25,13 +25,13 @@ class SmuFetIdsTimeProcedure(BaseProcedure):
     gate_voltage = FloatParameter("Gate voltage", units="V", default=10.0)
     drain_voltage = FloatParameter("Drain voltage", units="V", default=10.0)
 
-    gate_channel = IntegerParameter("Gate Channel", default=4)
-    drain_channel = IntegerParameter("Drain Channel", default=1)
+    gate_channel = IntegerParameter("Gate channel", default=4)
+    drain_channel = IntegerParameter("Drain channel", default=1)
 
     advanced_config = BooleanParameter("Advanced config", default=False)
     averaging = IntegerParameter("Averaging", default=10, minimum=1, maximum=1023, group_by="advanced_config")
-    source_channel = IntegerParameter("Source Channel", default=3, group_by="advanced_config")
-    base_channel = IntegerParameter("Base Channel", default=2, group_by="advanced_config")
+    source_channel = IntegerParameter("Source channel", default=3, group_by="advanced_config")
+    base_channel = IntegerParameter("Base channel", default=2, group_by="advanced_config")
     source_voltage = FloatParameter("Source voltage", units="V", default=0.0, group_by="advanced_config")
     base_voltage = FloatParameter("Base voltage", units="V", default=0.0, group_by="advanced_config")
 
