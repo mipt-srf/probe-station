@@ -58,7 +58,7 @@ if __name__ == "__main__":
             ids_vds_proc(gate_voltage=gate_voltage),
             folder=folder,
             plot=False,
-            x_col="Voltage",
+            x_col="Source Voltage",
             y_col="Source Current",
             suffix=f"_vg={gate_voltage:.3f}",
         )

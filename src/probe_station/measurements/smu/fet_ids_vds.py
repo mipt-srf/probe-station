@@ -34,7 +34,7 @@ class SmuFetIdsVdsProcedure(BaseProcedure):
     base_channel = IntegerParameter("Base channel", default=2)
     # compliance = FloatParameter("Current compliance", units="A", default=0.1, group_by="advanced_config")
 
-    DATA_COLUMNS = ["Voltage", "Source Current", "Gate Current", "Time"]
+    DATA_COLUMNS = ["Source Voltage", "Source Current", "Gate Current", "Time"]
 
     def startup(self):
         super().startup()
@@ -66,8 +66,6 @@ class SmuFetIdsVdsProcedure(BaseProcedure):
         else:
             total_steps = 2 * self.steps
 
-        # Each step returns 5 values: time + current for the swept (drain) and gate
-        # channels, then the swept source voltage.
         for emitted, (time, current, _gate_time, gate_current, voltage) in enumerate(
             self.b1500.iter_output(total_steps, 5), start=1
         ):
@@ -76,7 +74,7 @@ class SmuFetIdsVdsProcedure(BaseProcedure):
                 "results",
                 {
                     "Time": time,
-                    "Voltage": voltage,
+                    "Source Voltage": voltage,
                     "Source Current": current,
                     "Gate Current": gate_current,
                 },

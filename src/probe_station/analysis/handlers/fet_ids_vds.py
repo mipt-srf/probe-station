@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 
 from probe_station.analysis.handlers.base import BaseHandler
 
-VDS_COLUMN = "Voltage"
+VDS_COLUMN = "Source Voltage"
 IDS_COLUMN = "Source Current"
 
 
