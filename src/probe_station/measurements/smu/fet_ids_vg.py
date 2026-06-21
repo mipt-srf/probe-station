@@ -1,12 +1,13 @@
 import logging
 
 from pymeasure.display.widgets import LogWidget
-from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter
+from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter, ListParameter
 
 from probe_station.logging_setup import setup_file_logging
 from probe_station.measurements.pymeasure_base import BaseProcedure, BaseWindow, run_app
 from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 from probe_station.measurements.session import Session
+from probe_station.measurements.smu._sweep_mode import SmuSweepMode
 from probe_station.measurements.smu._widgets import IvPlotWidget
 from probe_station.measurements.smu.fet_ids_vg_runner import run
 
@@ -23,7 +24,12 @@ class SmuFetIdsVgProcedure(BaseProcedure):
     averaging = IntegerParameter("Integration coefficient", default=127, minimum=1, maximum=127)
     advanced_config = BooleanParameter("Advanced config", default=False)
     steps = IntegerParameter("Steps", default=100, group_by="advanced_config")
-    mode = IntegerParameter("Mode", default=1, group_by="advanced_config")
+    mode = ListParameter(
+        "Mode",
+        default=SmuSweepMode.START_TO_STOP.name,
+        choices=[member.name for member in SmuSweepMode],
+        group_by="advanced_config",
+    )
     gate_channel = IntegerParameter("Gate channel", default=4)
     base_channel = IntegerParameter("Base channel", default=2)
 
@@ -47,13 +53,13 @@ class SmuFetIdsVgProcedure(BaseProcedure):
             average=self.averaging,
             drain=self.drain_channel,
             source=self.source_channel,
-            mode=self.mode,
+            mode=SmuSweepMode[self.mode].value,
             gate=self.gate_channel,
             drain_voltage=self.drain_voltage,
             base=self.base_channel,
         )
 
-        if self.mode == 2:
+        if SmuSweepMode[self.mode] is SmuSweepMode.FROM_ZERO:
             total_steps = 2 * self.steps - 1
         else:
             total_steps = 2 * self.steps

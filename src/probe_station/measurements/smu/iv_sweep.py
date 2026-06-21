@@ -1,12 +1,13 @@
 import logging
 
 from pymeasure.display.widgets import LogWidget
-from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter
+from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter, ListParameter
 
 from probe_station.logging_setup import setup_file_logging
 from probe_station.measurements.pymeasure_base import BaseProcedure, BaseWindow, run_app
 from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 from probe_station.measurements.session import Session
+from probe_station.measurements.smu._sweep_mode import SmuSweepMode
 from probe_station.measurements.smu._widgets import IvPlotWidget
 from probe_station.measurements.smu.iv_sweep_runner import run
 
@@ -22,7 +23,12 @@ class SmuIvSweepProcedure(BaseProcedure):
     averaging = IntegerParameter("Integration coefficient", default=127, minimum=1, maximum=127)
     advanced_config = BooleanParameter("Advanced config", default=False)
     steps = IntegerParameter("Steps", default=100, group_by="advanced_config")
-    mode = IntegerParameter("Mode", default=1, group_by="advanced_config")
+    mode = ListParameter(
+        "Mode",
+        default=SmuSweepMode.START_TO_STOP.name,
+        choices=[member.name for member in SmuSweepMode],
+        group_by="advanced_config",
+    )
     # compliance = FloatParameter("Current compliance", units="A", default=0.1, group_by="advanced_config")
     calculate_resistance = BooleanParameter("Calculate resistance", default=False)
     resistance_voltage = FloatParameter("Resistance voltage", units="V", default=1.0, group_by="calculate_resistance")
@@ -47,12 +53,12 @@ class SmuIvSweepProcedure(BaseProcedure):
             top=self.top_channel,
             # current_comp=self.compliance,
             average=self.averaging,
-            mode=self.mode,
+            mode=SmuSweepMode[self.mode].value,
         )
 
         # mode 1: one LINEAR_DOUBLE sweep → 2*steps output points
         # mode 2: two LINEAR_DOUBLE half-sweeps, each configured with steps//2 and LINEAR_DOUBLE
-        if self.mode == 2:
+        if SmuSweepMode[self.mode] is SmuSweepMode.FROM_ZERO:
             total_steps = 2 * self.steps - 1
         else:
             total_steps = 2 * self.steps

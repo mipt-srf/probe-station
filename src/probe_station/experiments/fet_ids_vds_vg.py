@@ -14,6 +14,7 @@ import numpy as np
 
 from probe_station.experiments.common import run
 from probe_station.logging_setup import add_file_log_dir, setup_file_logging
+from probe_station.measurements.smu._sweep_mode import SmuSweepMode
 from probe_station.measurements.smu.fet_ids_vds import SmuFetIdsVdsProcedure
 
 folder = "1t1c3_ids_vds_vg"
@@ -26,7 +27,7 @@ def ids_vds_proc(
     first_voltage=-0.8,
     second_voltage=0.6,
     steps=100,
-    mode=1,
+    mode=SmuSweepMode.START_TO_STOP.name,
     averaging=127,
     source_channel=3,
     drain_channel=1,
