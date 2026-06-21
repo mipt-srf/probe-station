@@ -29,8 +29,8 @@ from probe_station.measurements.b1500_helpers import max_compliance
 from probe_station.measurements.pymeasure_base import BaseWindow, run_app
 from probe_station.measurements.wgfmu._base import WgfmuProcedure
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 class WgfmuFetIdsDcProcedure(WgfmuProcedure):
@@ -44,10 +44,10 @@ class WgfmuFetIdsDcProcedure(WgfmuProcedure):
     """
 
     # Parameters are declared in GUI order (see WgfmuProcedure).
-    gate = IntegerParameter("Gate channel (WGFMU)", default=2)
-    drain = IntegerParameter("Drain channel (WGFMU)", default=1)
-    source = IntegerParameter("Source channel (SMU, grounded)", default=1)
-    base = IntegerParameter("Base channel (SMU, grounded)", default=2)
+    gate_channel = IntegerParameter("Gate channel (WGFMU)", default=2)
+    drain_channel = IntegerParameter("Drain channel (WGFMU)", default=1)
+    source_channel = IntegerParameter("Source channel (SMU, grounded)", default=1)
+    base_channel = IntegerParameter("Base channel (SMU, grounded)", default=2)
 
     gate_voltage = FloatParameter("Gate voltage", units="V", default=1.0)
     drain_voltage = FloatParameter("Drain voltage", units="V", default=0.25)
@@ -71,17 +71,17 @@ class WgfmuFetIdsDcProcedure(WgfmuProcedure):
     DATA_COLUMNS = ["Drain Current", "Gate Current"]
 
     def execute(self):
-        log.info(f"Starting the {self.__class__.__name__}")
+        logger.info(f"Starting the {self.__class__.__name__}")
 
         # Hold the idle terminals (source, substrate) at 0 V via SMUs, mirroring
         # the WGFMU Ids(Vg) grounding.
-        for channel in (self.source, self.base):
+        for channel in (self.source_channel, self.base_channel):
             smu = self.b1500.smus[channel]
             smu.enable()
             smu.force("voltage", 0, 0, max_compliance(smu, 0))
 
-        gate_wgfmu = self.b1500.wgfmus[self.gate]
-        drain_wgfmu = self.b1500.wgfmus[self.drain]
+        gate_wgfmu = self.b1500.wgfmus[self.gate_channel]
+        drain_wgfmu = self.b1500.wgfmus[self.drain_channel]
         current_range = WGFMUMeasureCurrentRange[self.current_range]
 
         try:
@@ -97,7 +97,7 @@ class WgfmuFetIdsDcProcedure(WgfmuProcedure):
             drain_current = drain_wgfmu.dc_measure_averaged_value(self.average_points, self.sample_interval)
             gate_current = gate_wgfmu.dc_measure_averaged_value(self.average_points, self.sample_interval)
 
-            log.info(f"Drain current: {drain_current:.6e} A, Gate current: {gate_current:.6e} A")
+            logger.info(f"Drain current: {drain_current:.6e} A, Gate current: {gate_current:.6e} A")
 
             self.emit("results", {"Drain Current": drain_current, "Gate Current": gate_current})
 
@@ -107,13 +107,13 @@ class WgfmuFetIdsDcProcedure(WgfmuProcedure):
             gate_wgfmu.disable()
             drain_wgfmu.disable()
         except WGFMUError:
-            log.error(f"{get_error_summary()}")
+            logger.error(f"{get_error_summary()}")
             self.b1500.clear_wgfmu()
             raise
         except Exception:
             # Any other failure must not leave the FET gate/drain biased;
             # clearing the WGFMU returns the channels to a safe 0 V state.
-            log.exception("FET DC measurement failed; clearing WGFMU")
+            logger.exception("FET DC measurement failed; clearing WGFMU")
             self.b1500.clear_wgfmu()
             raise
 
@@ -124,7 +124,7 @@ class MainWindow(BaseWindow):
         super().__init__(
             procedure_class=WgfmuFetIdsDcProcedure,
             widget_list=widget_list,
-            logger=log,
+            logger=logger,
         )
 
 

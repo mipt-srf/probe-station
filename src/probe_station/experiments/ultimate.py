@@ -39,8 +39,8 @@ def wgfmu_iv_proc(
     current_range=WGFMUMeasureCurrentRange.RANGE_100_UA.name,
 ):
     return WgfmuIvSweepProcedure(
-        voltage_top_first=voltage_first,
-        voltage_top_second=voltage_second,
+        top_voltage_first=voltage_first,
+        top_voltage_second=voltage_second,
         pulse_time=pulse_time,
         mode=mode,
         top=top,
@@ -67,8 +67,8 @@ if __name__ == "__main__":
     setup_file_logging()
     add_file_log_dir(Path(folder) / "logs")
 
-    run(wgfmu_iv_proc(), folder=folder, plot=True, x_col="Top electrode voltage", y_col="Top electrode Current")
-    run(dc_iv_proc(), folder=folder, plot=True, x_col="Voltage", y_col="Top electrode current")
+    run(wgfmu_iv_proc(), folder=folder, plot=True, x_col="Top Electrode Voltage", y_col="Top Electrode Current")
+    run(dc_iv_proc(), folder=folder, plot=True, x_col="Voltage", y_col="Top Electrode Current")
     run(cv_proc(), folder=folder, plot=True, x_col="Voltage", y_col="Capacitance", timeout=120)
 
     total = 0

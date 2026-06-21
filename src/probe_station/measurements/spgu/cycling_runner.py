@@ -10,8 +10,8 @@ from pymeasure.instruments.agilent.agilentB1500 import (
 from probe_station.measurements.b1500_helpers import check_all_errors, connect_instrument
 from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 def run(
@@ -82,11 +82,11 @@ def run(
         # GUI Stop button actually aborts the output.
         while not spgu.complete:
             if should_stop is not None and should_stop():
-                log.warning("Stop requested; aborting SPGU cycling")
+                logger.warning("Stop requested; aborting SPGU cycling")
                 break
             time.sleep(0.05)
         elapsed = time.perf_counter() - start_time
-        log.info(f"Elapsed: {elapsed:.1f}s / {period * repetitions:.1f}s")
+        logger.info(f"Elapsed: {elapsed:.1f}s / {period * repetitions:.1f}s")
     finally:
         spgu.output = False
         pg.enabled = False

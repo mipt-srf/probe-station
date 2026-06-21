@@ -15,8 +15,8 @@ from probe_station.measurements.session import Session
 from probe_station.measurements.smu._widgets import IvPlotWidget
 from probe_station.measurements.smu.iv_step_runner import measure_at_voltage
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 class SmuIvStepProcedure(BaseProcedure):
@@ -26,7 +26,7 @@ class SmuIvStepProcedure(BaseProcedure):
     bottom_channel = IntegerParameter("Bottom channel", default=3)
     steps = IntegerParameter("Steps", default=100)
 
-    DATA_COLUMNS = ["Time", "Voltage", "Top electrode current"]
+    DATA_COLUMNS = ["Time", "Voltage", "Top Electrode Current"]
 
     def startup(self):
         super().startup()
@@ -34,7 +34,7 @@ class SmuIvStepProcedure(BaseProcedure):
         # self.b1500.reset()
 
     def execute(self):
-        log.info(f"Starting the {self.__class__}")
+        logger.info(f"Starting the {self.__class__}")
 
         setup_rsu_output(self.b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
         setup_rsu_output(self.b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
@@ -53,7 +53,7 @@ class SmuIvStepProcedure(BaseProcedure):
 
         for i, voltage in enumerate(voltages_forced):
             if self.should_stop():
-                log.warning("Caught the stop flag in the procedure")
+                logger.warning("Caught the stop flag in the procedure")
                 self.b1500.abort()
                 self.b1500.force_gnd()
                 Session.close()
@@ -63,7 +63,7 @@ class SmuIvStepProcedure(BaseProcedure):
             time, current, voltage = measure_at_voltage(
                 self.b1500, voltage, top=self.top_channel, bottom=self.bottom_channel
             )
-            self.emit("results", {"Time": time, "Voltage": voltage, "Top electrode current": current})
+            self.emit("results", {"Time": time, "Voltage": voltage, "Top Electrode Current": current})
 
         self.b1500.force_gnd()
 
@@ -77,7 +77,7 @@ class MainWindow(BaseWindow):
         super().__init__(
             procedure_class=SmuIvStepProcedure,
             widget_list=widget_list,
-            logger=log,
+            logger=logger,
         )
 
 

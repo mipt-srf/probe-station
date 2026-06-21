@@ -5,6 +5,9 @@ import logging
 import numpy as np
 import pandas as pd
 
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
+
 
 def get_y_at_x(
     x_data: np.ndarray | pd.Series, y_data: np.ndarray | pd.Series, target_x: float, tolerance: float = 5e-2
@@ -20,7 +23,7 @@ def get_y_at_x(
     idx = np.abs(x_data - target_x).argmin()
     closest_x = x_data[idx]
     if abs(closest_x - target_x) > tolerance:
-        logging.warning(
+        logger.warning(
             "x value %s not found in data. Closest is %s",
             target_x,
             closest_x,

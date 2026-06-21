@@ -1,3 +1,12 @@
+"""FeFET retention: drain current sampled at increasing delays after a write.
+
+Preconditions the gate with an Ids(Vg) sweep, then samples the FET drain
+current at a fixed read bias over a log-spaced series of delays, writing the
+drain-current-vs-delay trace to retention_results.csv and refreshing the
+retention plot as it goes. SMU and WGFMU cycling/transfer factories are
+provided for preconditioning.
+"""
+
 import logging
 import shutil
 from datetime import datetime, timedelta
@@ -18,11 +27,13 @@ from probe_station.measurements.wgfmu.fet_ids_vg import WgfmuFetIdsVgProcedure
 
 folder = "1t1c3_retention_final_-9_smu"
 
+logger = logging.getLogger(__name__)
+
 
 def ids_vg_proc(
-    voltage_ds=0.25,
-    voltage_gate_first=0,
-    voltage_gate_second=-9,
+    drain_voltage=0.25,
+    gate_voltage_first=0,
+    gate_voltage_second=-9,
     points=200,
     source=3,
     drain=1,
@@ -30,14 +41,14 @@ def ids_vg_proc(
     base=2,
 ):
     return SmuFetIdsVgProcedure(
-        voltage_ds=voltage_ds,
-        voltage_gate_first=voltage_gate_first,
-        voltage_gate_second=voltage_gate_second,
+        drain_voltage=drain_voltage,
+        gate_voltage_first=gate_voltage_first,
+        gate_voltage_second=gate_voltage_second,
         points=points,
-        source=source,
-        drain=drain,
-        gate=gate,
-        base=base,
+        source_channel=source,
+        drain_channel=drain,
+        gate_channel=gate,
+        base_channel=base,
     )
 
 
@@ -58,16 +69,16 @@ def wgfmu_cycling_proc(cycles=10, width=1e-4, amplitude=8.0, channel=2, bipolar_
     return WgfmuCyclingProcedure(
         repetitions=cycles,
         pulse_time=width,
-        voltage_top_first=0.0,
-        voltage_top_second=amplitude,
+        top_voltage_first=0.0,
+        top_voltage_second=amplitude,
         top=channel,
     )
 
 
 def wgfmu_ids_vg_proc(
-    voltage_ds=0.25,
-    voltage_gate_first=0,
-    voltage_gate_second=9,
+    drain_voltage=0.25,
+    gate_voltage_first=0,
+    gate_voltage_second=9,
     pulse_time=1e-6,
     gate=2,
     drain=1,
@@ -75,14 +86,14 @@ def wgfmu_ids_vg_proc(
     base=2,
 ):
     return WgfmuFetIdsVgProcedure(
-        voltage_ds=voltage_ds,
-        voltage_gate_first=voltage_gate_first,
-        voltage_gate_second=voltage_gate_second,
+        drain_voltage=drain_voltage,
+        gate_voltage_first=gate_voltage_first,
+        gate_voltage_second=gate_voltage_second,
         pulse_time=pulse_time,
-        gate=gate,
-        drain=drain,
-        source=source,
-        base=base,
+        gate_channel=gate,
+        drain_channel=drain,
+        source_channel=source,
+        base_channel=base,
     )
 
 
@@ -129,7 +140,7 @@ def retention(delays=None, gate_read_voltage=0.3):
 
     estimated_time = sum(delays)
     estimated_finish = datetime.now() + timedelta(seconds=estimated_time)
-    logging.info(f"Estimated retention time: {estimated_time:.2f}s, estimated finish: {estimated_finish}")
+    logger.info(f"Estimated retention time: {estimated_time:.2f}s, estimated finish: {estimated_finish}")
 
     run(
         ids_vg_proc(),

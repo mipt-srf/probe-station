@@ -1,33 +1,39 @@
 import logging
 
 from pymeasure.display.widgets import LogWidget
-from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter
+from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter, ListParameter
 
 from probe_station.logging_setup import setup_file_logging
 from probe_station.measurements.pymeasure_base import BaseProcedure, BaseWindow, run_app
 from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 from probe_station.measurements.session import Session
+from probe_station.measurements.smu._sweep_mode import SmuSweepMode
 from probe_station.measurements.smu._widgets import IvPlotWidget
 from probe_station.measurements.smu.fet_ids_vg_runner import run
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 class SmuFetIdsVgProcedure(BaseProcedure):
-    voltage_gate_first = FloatParameter("Gate voltage (first)", units="V", default=-20.0)
-    voltage_gate_second = FloatParameter("Gate voltage (second)", units="V", default=20.0)
-    voltage_ds = FloatParameter("Drain-source voltage", units="V", default=1.0)
-    source = IntegerParameter("Source channel", default=3)
-    drain = IntegerParameter("Drain channel", default=1)
-    average = IntegerParameter("Intergration coefficient", default=127, minimum=1, maximum=127)
+    gate_voltage_first = FloatParameter("Gate voltage (first)", units="V", default=-20.0)
+    gate_voltage_second = FloatParameter("Gate voltage (second)", units="V", default=20.0)
+    drain_voltage = FloatParameter("Drain voltage", units="V", default=1.0)
+    source_channel = IntegerParameter("Source channel", default=3)
+    drain_channel = IntegerParameter("Drain channel", default=1)
+    averaging = IntegerParameter("Integration coefficient", default=127, minimum=1, maximum=127)
     advanced_config = BooleanParameter("Advanced config", default=False)
     steps = IntegerParameter("Steps", default=100, group_by="advanced_config")
-    mode = IntegerParameter("Mode", default=1, group_by="advanced_config")
-    gate = IntegerParameter("Gate channel", default=4)
-    base = IntegerParameter("Base channel", default=2)
+    mode = ListParameter(
+        "Mode",
+        default=SmuSweepMode.START_TO_STOP.name,
+        choices=[member.name for member in SmuSweepMode],
+        group_by="advanced_config",
+    )
+    gate_channel = IntegerParameter("Gate channel", default=4)
+    base_channel = IntegerParameter("Base channel", default=2)
 
-    DATA_COLUMNS = ["Gate Voltage", "Drain-Source Current", "Gate Current", "Time"]
+    DATA_COLUMNS = ["Gate Voltage", "Drain Current", "Gate Current", "Time"]
 
     def startup(self):
         super().startup()
@@ -37,23 +43,23 @@ class SmuFetIdsVgProcedure(BaseProcedure):
         setup_rsu_output(self.b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
 
     def execute(self):
-        log.info(f"Starting the {self.__class__}")
+        logger.info(f"Starting the {self.__class__}")
 
         run(
             self.b1500,
-            self.voltage_gate_first,
-            self.voltage_gate_second,
+            self.gate_voltage_first,
+            self.gate_voltage_second,
             self.steps,
-            average=self.average,
-            drain=self.drain,
-            source=self.source,
-            mode=self.mode,
-            gate=self.gate,
-            drain_voltage=self.voltage_ds,
-            base=self.base,
+            average=self.averaging,
+            drain=self.drain_channel,
+            source=self.source_channel,
+            mode=SmuSweepMode[self.mode].value,
+            gate=self.gate_channel,
+            drain_voltage=self.drain_voltage,
+            base=self.base_channel,
         )
 
-        if self.mode == 2:
+        if SmuSweepMode[self.mode] is SmuSweepMode.FROM_ZERO:
             total_steps = 2 * self.steps - 1
         else:
             total_steps = 2 * self.steps
@@ -69,12 +75,12 @@ class SmuFetIdsVgProcedure(BaseProcedure):
                 {
                     "Time": time,
                     "Gate Voltage": voltage,
-                    "Drain-Source Current": current,
+                    "Drain Current": current,
                     "Gate Current": gate_current,
                 },
             )
             if self.should_stop():
-                log.warning("Caught the stop flag in the procedure")
+                logger.warning("Caught the stop flag in the procedure")
                 self.b1500.abort()
                 self.b1500.force_gnd()
                 return
@@ -91,7 +97,7 @@ class MainWindow(BaseWindow):
         super().__init__(
             procedure_class=SmuFetIdsVgProcedure,
             widget_list=widget_list,
-            logger=log,
+            logger=logger,
         )
         self.setWindowTitle("Ids (Vg)")
 

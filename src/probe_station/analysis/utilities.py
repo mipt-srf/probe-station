@@ -16,8 +16,8 @@ from probe_station.analysis.matlab import Dataset
 
 plt.style.use(["science", "no-latex", "notebook"])
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 def get_files_in_folder(path: str, ignore: tuple = ()) -> Generator[Path, None, None]:
@@ -147,7 +147,7 @@ def plot_in_folder(
     ):
         ds = Dataset(datafile_path)
         ds.handler.plot(alpha=alpha, label=label, linestyle=linestyle)
-    log.info("Plotted %d IV curves from %s", len(paths), path)
+    logger.info("Plotted %d IV curves from %s", len(paths), path)
 
 
 def label_lines(
@@ -334,12 +334,12 @@ def get_memory_window(voltages, currents, target_current=0.00005, tolerance=0.05
     idxs = np.argsort(np.abs(currents - target_current))[:2]
     closest_currents = currents.iloc[idxs]
     if abs(closest_currents.iloc[1] - target_current) > tolerance * target_current:
-        log.warning(
+        logger.warning(
             "Current %s not found in data. Closest is %s",
             target_current,
             closest_currents.iloc[0],
         )
         return None
     closest_voltages = voltages.iloc[idxs]
-    log.debug("Closest voltages: %s", closest_voltages.values)
+    logger.debug("Closest voltages: %s", closest_voltages.values)
     return np.abs(np.diff(closest_voltages))[0]

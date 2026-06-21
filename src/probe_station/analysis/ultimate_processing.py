@@ -9,8 +9,8 @@ from numpy import sqrt
 
 from probe_station.analysis.dataset import Dataset
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 class CyclingExperiment:
@@ -130,7 +130,7 @@ class CvBatchProcessing:
 
         self.cycles = cycles_to_keep
         self.datasets = datasets_to_keep
-        log.info(f"Dropped cycles: {dropped_cycles}")
+        logger.info(f"Dropped cycles: {dropped_cycles}")
 
     def plot_eps_v(self, drop_below=None):
         for cycle, ds in zip(self.cycles, self.datasets):
@@ -139,18 +139,18 @@ class CvBatchProcessing:
                 # ds.plot_epsilon(color="blue", alpha=0.2, label=cycle)
                 ds.plot_epsilon(label=cycle)
             except Exception as e:
-                log.exception(f"Error in plot_eps_v: {e}, {ds}")
+                logger.exception(f"Error in plot_eps_v: {e}, {ds}")
 
     def plot_eps_cycles(self, voltage, color=None):
         if self.datasets == []:
-            log.warning("No datasets to plot.")
+            logger.warning("No datasets to plot.")
             return
         epsilons = []
         for cycle, ds in zip(self.cycles, self.datasets):
             ds.handler.set_geometry(area=self.exp.area, thickness=self.exp.thickness)
             epsilon = ds.handler.get_epsilons_at_voltage(voltage)[1]
             epsilons.append(epsilon)
-        log.debug(f"Plotting experiment folder: {self.exp.folder} (suffix: {self.exp.folder[-5:]})")
+        logger.debug(f"Plotting experiment folder: {self.exp.folder} (suffix: {self.exp.folder[-5:]})")
         plt.plot(self.cycles, epsilons, "o", label=self.exp.folder, color=color)
 
     def plot_coercive_cycles(self, drop_below=None):
@@ -189,7 +189,7 @@ class SmuBatchProcessing:
             if ds.data.shape[0] == 0:
                 # print("dropped")
                 should_keep = False
-            elif sum(ds.data["Top electrode current"] < self.drop_below) > 0:
+            elif sum(ds.data["Top Electrode Current"] < self.drop_below) > 0:
                 # print(cycle)
                 should_keep = False
 
@@ -201,7 +201,7 @@ class SmuBatchProcessing:
 
         self.cycles = cycles_to_keep
         self.datasets = datasets_to_keep
-        log.info(f"Dropped cycles: {dropped_cycles}")
+        logger.info(f"Dropped cycles: {dropped_cycles}")
 
     def drop_above_outlier_curves(self):
         cycles_to_keep = []
@@ -211,7 +211,7 @@ class SmuBatchProcessing:
         for cycle, ds in zip(self.cycles, self.datasets):
             should_keep = True
 
-            if sum(ds.data["Top electrode current"] > self.drop_above) > 0:
+            if sum(ds.data["Top Electrode Current"] > self.drop_above) > 0:
                 # print(cycle)
                 should_keep = False
 
@@ -223,7 +223,7 @@ class SmuBatchProcessing:
 
         self.cycles = cycles_to_keep
         self.datasets = datasets_to_keep
-        log.info(f"Dropped cycles: {dropped_cycles}")
+        logger.info(f"Dropped cycles: {dropped_cycles}")
 
     def plot_current_v(self, indexes=None, drop_below=None):
         if not indexes:
@@ -231,7 +231,7 @@ class SmuBatchProcessing:
                 for cycle, ds in zip(self.cycles, self.datasets):
                     ds.plot(color="blue", alpha=0.2)
             except Exception as e:
-                log.exception(f"Error in plot_current_v: {e}, {ds}")
+                logger.exception(f"Error in plot_current_v: {e}, {ds}")
             finally:
                 return
 
@@ -290,7 +290,7 @@ class WgfmuBatchProcessing:
 
         self.cycles = cycles_to_keep
         self.datasets = datasets_to_keep
-        log.info(f"Dropped cycles: {dropped_cycles}")
+        logger.info(f"Dropped cycles: {dropped_cycles}")
 
     def drop_outlier_curves(self):
         cycles_to_keep = []
@@ -303,7 +303,7 @@ class WgfmuBatchProcessing:
             if ds.data.shape[0] == 0:
                 # print("dropped")
                 should_keep = False
-            elif sum(ds.data["Top electrode Current"] < self.drop_below) > 0:
+            elif sum(ds.data["Top Electrode Current"] < self.drop_below) > 0:
                 # print(cycle)
                 should_keep = False
 
@@ -315,7 +315,7 @@ class WgfmuBatchProcessing:
 
         self.cycles = cycles_to_keep
         self.datasets = datasets_to_keep
-        log.info(f"Dropped cycles: {dropped_cycles}")
+        logger.info(f"Dropped cycles: {dropped_cycles}")
 
     def drop_above_outlier_curves(self):
         cycles_to_keep = []
@@ -325,7 +325,7 @@ class WgfmuBatchProcessing:
         for cycle, ds in zip(self.cycles, self.datasets):
             should_keep = True
 
-            if sum(ds.data["Top electrode Current"] > self.drop_above) > 0:
+            if sum(ds.data["Top Electrode Current"] > self.drop_above) > 0:
                 # print(cycle)
                 should_keep = False
 
@@ -337,7 +337,7 @@ class WgfmuBatchProcessing:
 
         self.cycles = cycles_to_keep
         self.datasets = datasets_to_keep
-        log.info(f"Dropped cycles: {dropped_cycles}")
+        logger.info(f"Dropped cycles: {dropped_cycles}")
 
     def plot_iv(self, indexes=None):
         if indexes is None:
@@ -356,7 +356,7 @@ class WgfmuBatchProcessing:
             plt.legend(title="Cycles")
 
     def plot_polarization_cycles(self, color=None):
-        log.debug(f"Cycles: {len(self.cycles)}, datasets: {len(self.datasets)}")
+        logger.debug(f"Cycles: {len(self.cycles)}, datasets: {len(self.datasets)}")
         # The handler senses the switching current on the bottom electrode when
         # available (see Iv.polarization_current); this matches the endurance
         # measurement and avoids the driven top electrode's leakage current.
@@ -373,7 +373,7 @@ class WgfmuBatchProcessing:
         new_datasets = []
         for dataset in self.datasets:
             params = dataset.parameters
-            if params["mode"].value == mode and params["voltage_top_first"].value == top_voltage:
+            if params["mode"].value == mode and params["top_voltage_first"].value == top_voltage:
                 new_datasets.append(dataset)
         self.datasets = new_datasets
         if len(self.cycles) == len(self.datasets) + 1:

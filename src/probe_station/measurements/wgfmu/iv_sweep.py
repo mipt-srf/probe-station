@@ -22,8 +22,8 @@ from probe_station.measurements.wgfmu._waveforms import (
     run_waveforms_split,
 )
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 class WgfmuIvSweepProcedure(WgfmuBaseProcedure):
@@ -57,21 +57,21 @@ class WgfmuIvSweepProcedure(WgfmuBaseProcedure):
     pad_size = FloatParameter("Pad size", units="um", default=25, group_by="compute_polarization")
 
     DATA_COLUMNS = [
-        "Top electrode voltage",
-        "Top electrode Current",
+        "Top Electrode Voltage",
+        "Top Electrode Current",
         "Time",
-        "Bottom electrode voltage",
-        "Bottom electrode current",
-        "Polarization current",
-        "Filtered Polarization current",
+        "Bottom Electrode Voltage",
+        "Bottom Electrode Current",
+        "Polarization Current",
+        "Filtered Polarization Current",
     ]
 
     def execute(self):
         seq_top = get_sequence(
             sequence_type=self.mode.lower(),
             pulse_time=self.pulse_time,
-            first_voltage=self.voltage_top_first,
-            second_voltage=self.voltage_top_second,
+            first_voltage=self.top_voltage_first,
+            second_voltage=self.top_voltage_second,
             steps=self.steps,
             rise_to_hold_ratio=self.rise_to_hold_ratio,
             shape=self.waveform_shape.lower(),
@@ -82,22 +82,22 @@ class WgfmuIvSweepProcedure(WgfmuBaseProcedure):
             seq_bottom = get_sequence(
                 sequence_type=self.mode.lower(),
                 pulse_time=self.pulse_time,
-                first_voltage=self.voltage_bottom_first,
-                second_voltage=self.voltage_bottom_second,
+                first_voltage=self.bottom_voltage_first,
+                second_voltage=self.bottom_voltage_second,
                 steps=self.steps,
                 rise_to_hold_ratio=self.rise_to_hold_ratio,
                 shape=self.waveform_shape.lower(),
                 trailing_pulse=True,
             )
 
-        top_span = abs(self.voltage_top_first - self.voltage_top_second)
-        bottom_span = abs(self.voltage_bottom_first - self.voltage_bottom_second) if self.enable_bottom else 0
+        top_span = abs(self.top_voltage_first - self.top_voltage_second)
+        bottom_span = abs(self.bottom_voltage_first - self.bottom_voltage_second) if self.enable_bottom else 0
         high_voltage = max(top_span, bottom_span) > 10
 
         if high_voltage:
             if not self.enable_bottom:
                 raise ValueError("Pulses exceeding 10 V require the bottom electrode to be enabled")
-            log.warning("High voltage mode is enabled. Current measurement might be inaccurate")
+            logger.warning("High voltage mode is enabled. Current measurement might be inaccurate")
             top_data, bottom_data = run_waveforms_split(
                 b1500=self.b1500,
                 top_seq=seq_top,
@@ -126,14 +126,14 @@ class WgfmuIvSweepProcedure(WgfmuBaseProcedure):
         times, voltages, currents = top_data
 
         data = {
-            "Top electrode voltage": voltages,
-            "Top electrode Current": currents,
+            "Top Electrode Voltage": voltages,
+            "Top Electrode Current": currents,
             "Time": times,
         }
         if bottom_data is not None:
             _, voltages_bottom, currents_bottom = bottom_data
-            data["Bottom electrode voltage"] = voltages_bottom
-            data["Bottom electrode current"] = currents_bottom
+            data["Bottom Electrode Voltage"] = voltages_bottom
+            data["Bottom Electrode Current"] = currents_bottom
 
         # The P-U / N-D subtraction assumes the four equal PUND quarters; in
         # DEFAULT mode there are only two pulses and the result is meaningless.
@@ -142,24 +142,24 @@ class WgfmuIvSweepProcedure(WgfmuBaseProcedure):
         if is_pund:
             polarization_current = pund_polarization_current(voltages, currents)
             filtered_polarization_current = scipy.ndimage.gaussian_filter1d(polarization_current, sigma=3)
-            data["Polarization current"] = polarization_current
-            data["Filtered Polarization current"] = filtered_polarization_current
+            data["Polarization Current"] = polarization_current
+            data["Filtered Polarization Current"] = filtered_polarization_current
 
         self.emit("batch results", data)
 
         if self.compute_polarization:
             if is_pund:
                 polarization = calculate_polarization(times, filtered_polarization_current, self.pad_size)
-                log.info("Polarization (2Pr): %s", polarization)
+                logger.info("Polarization (2Pr): %s", polarization)
             else:
-                log.warning("Polarization calculation requires PUND mode; skipping")
+                logger.warning("Polarization calculation requires PUND mode; skipping")
 
 
 class MainWindow(BaseWindow):
     def __init__(self):
         super().__init__(
             procedure_class=WgfmuIvSweepProcedure,
-            logger=log,
+            logger=logger,
         )
         # temporary bug fix for incorrect autoscaling in the plot
         plot = next(w for w in self.widget_list if isinstance(w, BasePlotWidget))

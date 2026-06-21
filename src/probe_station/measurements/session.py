@@ -31,8 +31,8 @@ import threading
 from probe_station.measurements.b1500 import B1500
 from probe_station.measurements.b1500_helpers import connect_instrument
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 class Session:
@@ -75,7 +75,7 @@ class Session:
         """
         with cls._lock:
             if cls._instance is not None and not cls._probe_alive(cls._instance):
-                log.warning("B1500 handle is dead; reconnecting")
+                logger.warning("B1500 handle is dead; reconnecting")
                 cls._close_locked()
             if cls._instance is None:
                 cls._instance = connect_instrument(timeout=timeout, reset=reset)
@@ -121,7 +121,7 @@ class Session:
             cls._instance.adapter.close()
             cls._instance.close_wgfmu_session()
         except Exception:
-            log.exception("Error closing B1500 adapter")
+            logger.exception("Error closing B1500 adapter")
         finally:
             cls._instance = None
 

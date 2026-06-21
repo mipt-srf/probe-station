@@ -17,8 +17,43 @@ from pymeasure.experiment.procedure import UnknownProcedure
 from probe_station.logging_setup import add_file_log_dir
 from probe_station.measurements import workers as _workers  # noqa: F401  -- patches pymeasure.display.manager.Worker
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
+
+# Legacy data-column names -> current canonical names. Result CSVs written
+# before the column-naming standardization use the old names; canonicalizing
+# them on load lets plotting and analysis (which now request the new names)
+# work unchanged on old and new files alike.
+LEGACY_COLUMN_ALIASES = {
+    "Source electrode current": "Source Current",
+    "Gate current": "Gate Current",
+    "Drain-Source Current": "Drain Current",
+    "Top electrode current": "Top Electrode Current",
+    "Top electrode Current": "Top Electrode Current",
+    "Bottom electrode current": "Bottom Electrode Current",
+    "Top electrode voltage": "Top Electrode Voltage",
+    "Bottom electrode voltage": "Bottom Electrode Voltage",
+    "Polarization current": "Polarization Current",
+    "Filtered Polarization current": "Filtered Polarization Current",
+    "Leakage current": "Leakage Current",
+    # Keithley PUND / DC-IV: the swept source voltage and the measured current.
+    "Source": "Voltage",
+    "Reading": "Current",
+}
+
+
+def canonicalize_columns(results: Results) -> Results:
+    """Rename any legacy data columns of a loaded ``Results`` to canonical names, in place.
+
+    Reads the data once (populating the cache) and renames the cached frame, so
+    every later access -- by plot curves or analysis handlers -- sees the current
+    column names regardless of when the file was written.
+    """
+    df = results.data
+    renames = {column: LEGACY_COLUMN_ALIASES[column] for column in df.columns if column in LEGACY_COLUMN_ALIASES}
+    if renames:
+        results._data = results._data.rename(columns=renames)
+    return results
 
 #: Default line width (in px) for all GUI plot curves.
 DEFAULT_LINEWIDTH = 2
@@ -78,12 +113,12 @@ def take_screenshot(window, dest: str | Path, full_screen: bool = False) -> Path
         else:
             pixmap = window.grab()
         if not pixmap.save(str(dest), "PNG"):
-            log.warning("Screenshot failed: could not save to %s", dest)
+            logger.warning("Screenshot failed: could not save to %s", dest)
             return None
-        log.info("Screenshot saved: %s", dest)
+        logger.info("Screenshot saved: %s", dest)
         return dest
     except Exception as e:
-        log.warning("Screenshot failed: %s", e)
+        logger.warning("Screenshot failed: %s", e)
         return None
 
 
@@ -183,7 +218,7 @@ class BaseWindow(ManagedWindowBase):
                 busy.append(desc)
         if busy:
             msg = f"Cannot queue: another measurement is running ({', '.join(busy)})"
-            log.warning(msg)
+            logger.warning(msg)
             self.statusBar().showMessage(msg, 5000)
             return
         if self.store_measurement:
@@ -263,13 +298,14 @@ def load_results(path: str | Path) -> Results:
     its real module.
     """
     try:
-        return Results.load(str(path))
+        results = Results.load(str(path))
     except (AttributeError, ImportError):
         class_name = _read_procedure_class_name(path)
         procedure_cls = _find_procedure_class(class_name) if class_name else None
         if procedure_cls is None:
             raise
-        return Results.load(str(path), procedure_class=procedure_cls)
+        results = Results.load(str(path), procedure_class=procedure_cls)
+    return canonicalize_columns(results)
 
 
 def read_procedure_class(path: str | Path) -> tuple[type[Procedure], type[BaseWindow]]:

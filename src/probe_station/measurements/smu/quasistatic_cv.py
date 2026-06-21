@@ -10,8 +10,8 @@ from probe_station.measurements.session import Session
 from probe_station.measurements.smu._widgets import IvPlotWidget
 from probe_station.measurements.smu.quasistatic_cv_runner import VALUES_PER_STEP, run
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 # After an auto abort the B1500 pads the remaining sweep points with dummy data
 # (199.999E+99). Any real capacitance or current is far below this.
@@ -42,10 +42,10 @@ class QscvProcedureBase(BaseProcedure):
     delay_time = FloatParameter("Delay time", units="s", default=0.0, group_by="advanced_config")
     auto_abort = BooleanParameter("Auto abort", default=True, group_by="advanced_config")
     current_compliance = FloatParameter("Current compliance", units="A", default=0.1, group_by="advanced_config")
-    gate = IntegerParameter("Gate channel", default=4, group_by="advanced_config")
-    drain = IntegerParameter("Drain channel", default=1, group_by="advanced_config")
-    source = IntegerParameter("Source channel", default=3, group_by="advanced_config")
-    base = IntegerParameter("Base channel", default=2, group_by="advanced_config")
+    gate_channel = IntegerParameter("Gate channel", default=4, group_by="advanced_config")
+    drain_channel = IntegerParameter("Drain channel", default=1, group_by="advanced_config")
+    source_channel = IntegerParameter("Source channel", default=3, group_by="advanced_config")
+    base_channel = IntegerParameter("Base channel", default=2, group_by="advanced_config")
 
     def startup(self):
         super().startup()
@@ -67,10 +67,10 @@ class QscvProcedureBase(BaseProcedure):
             "current_range": self.current_range,
             "current_comp": self.current_compliance,
             "auto_abort": self.auto_abort,
-            "gate": self.gate,
-            "drain": self.drain,
-            "source": self.source,
-            "base": self.base,
+            "gate": self.gate_channel,
+            "drain": self.drain_channel,
+            "source": self.source_channel,
+            "base": self.base_channel,
         }
 
     def _consume_pending_errors(self):
@@ -88,7 +88,7 @@ class QscvProcedureBase(BaseProcedure):
                 self.b1500.check_errors()
             except Exception as e:  # noqa: BLE001 -- drain whatever the queue holds
                 if "242" in str(e):
-                    log.warning(
+                    logger.warning(
                         "QSCV measurement was aborted by the instrument (Error 242): the "
                         "capacitance current likely exceeded the measurement range, or the "
                         "SMU oscillated into the load. Widen the current range, increase the "
@@ -96,10 +96,10 @@ class QscvProcedureBase(BaseProcedure):
                         "Recorded data may be incomplete."
                     )
                 else:
-                    log.warning("Pending instrument error after QSCV: %s", e)
+                    logger.warning("Pending instrument error after QSCV: %s", e)
             else:
                 return
-        log.warning("Instrument error queue did not clear after QSCV.")
+        logger.warning("Instrument error queue did not clear after QSCV.")
 
 
 class SmuQuasistaticCvProcedure(QscvProcedureBase):
@@ -114,12 +114,12 @@ class SmuQuasistaticCvProcedure(QscvProcedureBase):
 
     offset_cancel = BooleanParameter("Apply offset cancel", default=False)
 
-    DATA_COLUMNS = ["Voltage", "Capacitance", "Leakage current", "Time"]
+    DATA_COLUMNS = ["Voltage", "Capacitance", "Leakage Current", "Time"]
 
     def execute(self):
-        log.info(f"Starting the {self.__class__}")
+        logger.info(f"Starting the {self.__class__}")
         if self.offset_cancel:
-            log.info(
+            logger.info(
                 "Offset cancel ON: subtracting the last measured open-terminal offset. "
                 "Run the QSCV offset calibration first if you have not for this current range."
             )
@@ -141,11 +141,11 @@ class SmuQuasistaticCvProcedure(QscvProcedureBase):
                             "Time": time,
                             "Voltage": voltage,
                             "Capacitance": capacitance,
-                            "Leakage current": leakage,
+                            "Leakage Current": leakage,
                         },
                     )
                 if self.should_stop():
-                    log.warning("Caught the stop flag in the procedure")
+                    logger.warning("Caught the stop flag in the procedure")
                     self.b1500.abort()
                     return
         finally:
@@ -166,7 +166,7 @@ class MainWindow(BaseWindow):
         super().__init__(
             procedure_class=SmuQuasistaticCvProcedure,
             widget_list=widget_list,
-            logger=log,
+            logger=logger,
         )
         self.setWindowTitle("Quasi-static CV")
 

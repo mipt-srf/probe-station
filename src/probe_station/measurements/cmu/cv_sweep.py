@@ -10,8 +10,8 @@ from probe_station.measurements.pymeasure_base import BaseProcedure, BaseWindow,
 from probe_station.measurements.session import Session
 from probe_station.measurements.cmu.cv_sweep_runner import PLOT_POINTS, run
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 class CmuCvSweepProcedure(BaseProcedure):
@@ -36,7 +36,7 @@ class CmuCvSweepProcedure(BaseProcedure):
         self.b1500.clear_buffer()
 
     def execute(self):
-        log.info(f"Starting the {self.__class__}")
+        logger.info(f"Starting the {self.__class__}")
 
         run(
             b1500=self.b1500,
@@ -52,7 +52,7 @@ class CmuCvSweepProcedure(BaseProcedure):
             self.emit("progress", (i + 1) / total_steps * 100)
             self.emit("results", {"Voltage": dc_measured, "Capacitance": Cp, "Resistance": Rp})
             if self.should_stop():
-                log.warning("Caught the stop flag in the procedure")
+                logger.warning("Caught the stop flag in the procedure")
                 self.b1500.abort()
                 self.b1500.force_gnd()
                 return
@@ -65,7 +65,7 @@ class MainWindow(BaseWindow):
     def __init__(self):
         super().__init__(
             procedure_class=CmuCvSweepProcedure,
-            logger=log,
+            logger=logger,
         )
 
 

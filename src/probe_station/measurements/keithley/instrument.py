@@ -6,8 +6,8 @@ import time
 import pyvisa
 from pymeasure.instruments.keithley import Keithley2450
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 _smu: Keithley2450Extended | None = None
 
@@ -33,7 +33,7 @@ def connect_instrument(address: str, timeout=60000) -> Keithley2450Extended:
     try:
         smu = Keithley2450Extended(address, timeout=timeout)
         smu.clear()
-        log.info("Connected to Keithley 2450 at %s", address)
+        logger.info("Connected to Keithley 2450 at %s", address)
         return smu
     except Exception as exc:
         raise ConnectionError(f"Could not connect to Keithley 2450 at {address}.") from exc

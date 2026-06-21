@@ -29,8 +29,8 @@ import pandas as pd
 from probe_station.analysis.dataset import Dataset
 from probe_station.analysis.utilities import get_colormap
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 #: Column names of the tidy DataFrame returned by :func:`load`.
 V_GATE = "Gate voltage, V"
@@ -87,7 +87,7 @@ def load(folder: str | Path, ignore: Iterable[int] = ()) -> pd.DataFrame:
             )
         )
     data = pd.concat(frames, ignore_index=True)
-    log.info("Loaded %d Ids(Vds) sweeps from %s", len(frames), folder)
+    logger.info("Loaded %d Ids(Vds) sweeps from %s", len(frames), folder)
     return data
 
 

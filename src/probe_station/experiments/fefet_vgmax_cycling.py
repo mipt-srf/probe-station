@@ -55,9 +55,9 @@ def cycling_proc(
 
 
 def ids_vg_proc(
-    voltage_ds=0.25,
-    voltage_gate_first=0,
-    voltage_gate_second=4,
+    drain_voltage=0.25,
+    gate_voltage_first=0,
+    gate_voltage_second=4,
     points=100,
     source=3,
     drain=1,
@@ -65,21 +65,21 @@ def ids_vg_proc(
     base=2,
 ):
     return SmuFetIdsVgProcedure(
-        voltage_ds=voltage_ds,
-        voltage_gate_first=voltage_gate_first,
-        voltage_gate_second=voltage_gate_second,
+        drain_voltage=drain_voltage,
+        gate_voltage_first=gate_voltage_first,
+        gate_voltage_second=gate_voltage_second,
         points=points,
-        source=source,
-        drain=drain,
-        gate=gate,
-        base=base,
+        source_channel=source,
+        drain_channel=drain,
+        gate_channel=gate,
+        base_channel=base,
     )
 
 
 def wgfmu_ids_vg_proc(
-    voltage_ds=0.25,
-    voltage_gate_first=0,
-    voltage_gate_second=10,
+    drain_voltage=0.25,
+    gate_voltage_first=0,
+    gate_voltage_second=10,
     pulse_time=1e-3,
     mode="DEFAULT",
     gate=2,
@@ -87,13 +87,13 @@ def wgfmu_ids_vg_proc(
     current_range=WGFMUMeasureCurrentRange.RANGE_10_MA.name,
 ):
     return WgfmuFetIdsVgProcedure(
-        voltage_ds=voltage_ds,
-        voltage_gate_first=voltage_gate_first,
-        voltage_gate_second=voltage_gate_second,
+        drain_voltage=drain_voltage,
+        gate_voltage_first=gate_voltage_first,
+        gate_voltage_second=gate_voltage_second,
         pulse_time=pulse_time,
         mode=mode,
-        gate=gate,
-        drain=drain,
+        gate_channel=gate,
+        drain_channel=drain,
         current_range=current_range,
     )
 
@@ -132,10 +132,10 @@ if __name__ == "__main__":
 
         for voltage_second in peak_voltages:
             run(
-                wgfmu_ids_vg_proc(voltage_gate_second=voltage_second),
+                wgfmu_ids_vg_proc(gate_voltage_second=voltage_second),
                 folder=folder,
                 plot=False,
                 x_col="Gate Voltage",
-                y_col="Drain-Source Current",
+                y_col="Drain Current",
                 suffix=f"_vg2={voltage_second}_{total}cycles",
             )

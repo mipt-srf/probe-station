@@ -1,17 +1,18 @@
 import logging
 
 from pymeasure.display.widgets import LogWidget
-from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter
+from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter, ListParameter
 
 from probe_station.logging_setup import setup_file_logging
 from probe_station.measurements.pymeasure_base import BaseProcedure, BaseWindow, run_app
 from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 from probe_station.measurements.session import Session
+from probe_station.measurements.smu._sweep_mode import SmuSweepMode
 from probe_station.measurements.smu._widgets import IvPlotWidget
 from probe_station.measurements.smu.iv_sweep_runner import run
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 class SmuIvSweepProcedure(BaseProcedure):
@@ -19,15 +20,20 @@ class SmuIvSweepProcedure(BaseProcedure):
     second_voltage = FloatParameter("Second voltage", units="V", default=3)
     top_channel = IntegerParameter("Top channel", default=4)
     bottom_channel = IntegerParameter("Bottom channel", default=3)
-    average = IntegerParameter("Intergration coefficient", default=127, minimum=1, maximum=127)
+    averaging = IntegerParameter("Integration coefficient", default=127, minimum=1, maximum=127)
     advanced_config = BooleanParameter("Advanced config", default=False)
     steps = IntegerParameter("Steps", default=100, group_by="advanced_config")
-    mode = IntegerParameter("Mode", default=1, group_by="advanced_config")
+    mode = ListParameter(
+        "Mode",
+        default=SmuSweepMode.START_TO_STOP.name,
+        choices=[member.name for member in SmuSweepMode],
+        group_by="advanced_config",
+    )
     # compliance = FloatParameter("Current compliance", units="A", default=0.1, group_by="advanced_config")
     calculate_resistance = BooleanParameter("Calculate resistance", default=False)
     resistance_voltage = FloatParameter("Resistance voltage", units="V", default=1.0, group_by="calculate_resistance")
 
-    DATA_COLUMNS = ["Voltage", "Top electrode current", "Time"]
+    DATA_COLUMNS = ["Voltage", "Top Electrode Current", "Time"]
 
     def startup(self):
         super().startup()
@@ -37,7 +43,7 @@ class SmuIvSweepProcedure(BaseProcedure):
         setup_rsu_output(self.b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
 
     def execute(self):
-        log.info(f"Starting the {self.__class__}")
+        logger.info(f"Starting the {self.__class__}")
 
         run(
             self.b1500,
@@ -46,13 +52,13 @@ class SmuIvSweepProcedure(BaseProcedure):
             self.steps,
             top=self.top_channel,
             # current_comp=self.compliance,
-            average=self.average,
-            mode=self.mode,
+            average=self.averaging,
+            mode=SmuSweepMode[self.mode].value,
         )
 
         # mode 1: one LINEAR_DOUBLE sweep → 2*steps output points
         # mode 2: two LINEAR_DOUBLE half-sweeps, each configured with steps//2 and LINEAR_DOUBLE
-        if self.mode == 2:
+        if SmuSweepMode[self.mode] is SmuSweepMode.FROM_ZERO:
             total_steps = 2 * self.steps - 1
         else:
             total_steps = 2 * self.steps
@@ -61,10 +67,10 @@ class SmuIvSweepProcedure(BaseProcedure):
             self.emit("progress", emitted / total_steps * 100)
             self.emit(
                 "results",
-                {"Time": time, "Voltage": voltage, "Top electrode current": current},
+                {"Time": time, "Voltage": voltage, "Top Electrode Current": current},
             )
             if self.should_stop():
-                log.warning("Caught the stop flag in the procedure")
+                logger.warning("Caught the stop flag in the procedure")
                 self.b1500.abort()
                 self.b1500.force_gnd()
                 return
@@ -81,7 +87,7 @@ class MainWindow(BaseWindow):
         super().__init__(
             procedure_class=SmuIvSweepProcedure,
             widget_list=widget_list,
-            logger=log,
+            logger=logger,
         )
 
         from qtpy.QtWidgets import QLabel
@@ -131,7 +137,7 @@ def compute_branch_resistances(data, target_voltage: float) -> str:
         if r_min != 0:
             lines.append(f"R_max / R_min: {r_max / r_min:.3f}")
 
-    log.info("Resistance — " + " | ".join(lines))
+    logger.info("Resistance — " + " | ".join(lines))
     return "\n".join(lines)
 
 
@@ -144,9 +150,9 @@ def _resistance_at(branch, target_voltage: float):
         return None
     idx = (branch["Voltage"] - target_voltage).abs().idxmin()
     v = branch["Voltage"][idx]
-    i = branch["Top electrode current"][idx]
+    i = branch["Top Electrode Current"][idx]
     if i == 0:
-        log.warning(f"Cannot compute resistance: current is 0 at V={v:.4f} V")
+        logger.warning(f"Cannot compute resistance: current is 0 at V={v:.4f} V")
         return None
     return v / i, v, i
 

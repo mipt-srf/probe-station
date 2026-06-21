@@ -32,8 +32,8 @@ def cycling_proc(cycles=1000, width=1e-5, amplitude=2.6, channel=2, waveform_sha
     return WgfmuCyclingProcedure(
         repetitions=cycles,
         pulse_time=width,
-        voltage_top_first=amplitude,
-        voltage_top_second=-amplitude,
+        top_voltage_first=amplitude,
+        top_voltage_second=-amplitude,
         top=channel,
         steps=50,
         waveform_shape=waveform_shape,
@@ -51,14 +51,14 @@ def wgfmu_iv_proc(
     waveform_shape=WaveformShape.TRIANGLE.name,
 ):
     return WgfmuIvSweepProcedure(
-        voltage_top_first=voltage_first,
-        voltage_top_second=voltage_second,
+        top_voltage_first=voltage_first,
+        top_voltage_second=voltage_second,
         pulse_time=pulse_time,
         mode=mode,
         top=top,
         enable_bottom=True,
-        voltage_bottom_first=0.0,
-        voltage_bottom_second=0.0,
+        bottom_voltage_first=0.0,
+        bottom_voltage_second=0.0,
         bottom=bottom,
         current_range=current_range,
         bottom_current_range=WGFMUMeasureCurrentRange.RANGE_10_UA.name,
@@ -76,9 +76,9 @@ def pund_polarization_current(results):
     length as the record), with the trailing settle pulse excluded from the
     quarter split so the subtraction stays aligned.
     """
-    data = results.data[["Time", "Top electrode voltage", "Bottom electrode current"]].dropna()
+    data = results.data[["Time", "Top Electrode Voltage", "Bottom Electrode Current"]].dropna()
     polarization = _pund_polarization_current(
-        data["Top electrode voltage"].to_numpy(), data["Bottom electrode current"].to_numpy()
+        data["Top Electrode Voltage"].to_numpy(), data["Bottom Electrode Current"].to_numpy()
     )
     return data, polarization
 
@@ -115,8 +115,8 @@ def plot_pund_iv(results, total_cycles):
         logger.warning("PUND sweep produced %d points; skipping IV plot for %d cycles", len(data), total_cycles)
         return
     plt.figure(figsize=(10, 6))
-    plt.plot(data["Top electrode voltage"], data["Bottom electrode current"], label="Bottom electrode current")
-    plt.plot(data["Top electrode voltage"], polarization_current, label="Polarization current")
+    plt.plot(data["Top Electrode Voltage"], data["Bottom Electrode Current"], label="Bottom Electrode Current")
+    plt.plot(data["Top Electrode Voltage"], polarization_current, label="Polarization Current")
     plt.xlabel("Top electrode voltage (V)")
     plt.ylabel("Current (A)")
     plt.title(f"PUND IV after {total_cycles} cycles")

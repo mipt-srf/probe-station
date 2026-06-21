@@ -8,8 +8,8 @@ from probe_station.measurements.pymeasure_base import BaseProcedure, BaseWindow,
 from probe_station.measurements.session import Session
 from probe_station.measurements.spgu.cycling_with_current_runner import run
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 class SpguCyclingWithCurrentProcedure(BaseProcedure):
@@ -29,7 +29,7 @@ class SpguCyclingWithCurrentProcedure(BaseProcedure):
 
     period = 2 * (rise.value + tail.value)
 
-    DATA_COLUMNS = ["Time", "Top electrode current"]
+    DATA_COLUMNS = ["Time", "Top Electrode Current"]
 
     def startup(self):
         super().startup()
@@ -37,7 +37,7 @@ class SpguCyclingWithCurrentProcedure(BaseProcedure):
         self.b1500.clear_buffer()
 
     def execute(self):
-        log.info("Starting the loop of %d repetitions" % self.repetitions)
+        logger.info("Starting the loop of %d repetitions" % self.repetitions)
 
         run(
             b1500=self.b1500,
@@ -55,10 +55,10 @@ class SpguCyclingWithCurrentProcedure(BaseProcedure):
             self.emit("progress", emitted / points * 100)
             self.emit(
                 "results",
-                {"Time": time, "Top electrode current": current},
+                {"Time": time, "Top Electrode Current": current},
             )
             if self.should_stop():
-                log.warning("Caught the stop flag in the procedure")
+                logger.warning("Caught the stop flag in the procedure")
                 self.b1500.abort()
                 self.b1500.force_gnd()
                 return
@@ -83,7 +83,7 @@ class MainWindow(BaseWindow):
     def __init__(self):
         super().__init__(
             procedure_class=SpguCyclingWithCurrentProcedure,
-            logger=log,
+            logger=logger,
         )
 
 

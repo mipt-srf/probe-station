@@ -10,14 +10,14 @@ from probe_station.measurements.keithley.instrument import connect_instrument, g
 from probe_station.measurements.keithley.launcher import ADDRESS
 from probe_station.measurements.keithley.PUND_waveform import create_waveform
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 class KeithleyPundProcedure(BaseProcedure):
     terminal = Parameter("Terminal", default="rear")
-    vf = FloatParameter("First voltage", units="V", default=-3)
-    vs = FloatParameter("Second voltage", units="V", default=3)
+    first_voltage = FloatParameter("First voltage", units="V", default=-3)
+    second_voltage = FloatParameter("Second voltage", units="V", default=3)
     rise = IntegerParameter("Rise steps", default=50)
     hold = IntegerParameter("Hold steps", default=5)
     space = IntegerParameter("Space steps", default=5)
@@ -33,20 +33,20 @@ class KeithleyPundProcedure(BaseProcedure):
     do_cycle = BooleanParameter("Pre-cycle", default=False)
     n_precycles = IntegerParameter("Pre-cycle count", default=50, group_by="do_cycle")
 
-    DATA_COLUMNS = ["Time", "Source", "Reading"]
+    DATA_COLUMNS = ["Time", "Voltage", "Current"]
 
     def startup(self):
         super().startup()
         self.smu = get_smu()
 
     def execute(self):
-        log.info("Starting %s", self.__class__.__name__)
+        logger.info("Starting %s", self.__class__.__name__)
         self.smu.set_terminal(self.terminal)
         self.smu.raise_error()
 
         if self.do_cycle:
-            log.info("Pre-cycling %d times", self.n_precycles)
-            cycle(self.smu, self.n_precycles, self.vf, self.vs)
+            logger.info("Pre-cycling %d times", self.n_precycles)
+            cycle(self.smu, self.n_precycles, self.first_voltage, self.second_voltage)
             if self.should_stop():
                 return
             self.smu.raise_error()
@@ -63,13 +63,13 @@ class KeithleyPundProcedure(BaseProcedure):
         self.smu.raise_error()
 
         waveform = self._create_waveform()
-        log.info("Initiating waveform with %d points", len(waveform))
+        logger.info("Initiating waveform with %d points", len(waveform))
         self.smu.voltage_list_sweep(waveform, self.n_cycles)
         self.smu.initiate()
         self.smu.wait(self.should_stop)
 
         if self.should_stop():
-            log.info("Aborted during sweep")
+            logger.info("Aborted during sweep")
             return
 
         self.smu.raise_error()
@@ -83,15 +83,15 @@ class KeithleyPundProcedure(BaseProcedure):
 
         total = len(time)
         for i, (t, src, r) in enumerate(zip(time, source, reading)):
-            self.emit("results", {"Time": t, "Source": src, "Reading": r})
+            self.emit("results", {"Time": t, "Voltage": src, "Current": r})
             self.emit("progress", (i + 1) / total * 100)
             if self.should_stop():
                 break
 
     def _create_waveform(self):
         params = {
-            "Vf": self.vf,
-            "Vs": self.vs,
+            "Vf": self.first_voltage,
+            "Vs": self.second_voltage,
             "rise": self.rise,
             "hold": self.hold,
             "space": self.space,
@@ -103,13 +103,13 @@ class KeithleyPundProcedure(BaseProcedure):
 class MainWindow(BaseWindow):
     def __init__(self):
         widget_list = (
-            BasePlotWidget("Results Graph", KeithleyPundProcedure.DATA_COLUMNS, x_axis="Source", y_axis="Reading"),
+            BasePlotWidget("Results Graph", KeithleyPundProcedure.DATA_COLUMNS, x_axis="Voltage", y_axis="Current"),
             LogWidget("Experiment Log"),
         )
         super().__init__(
             procedure_class=KeithleyPundProcedure,
             widget_list=widget_list,
-            logger=log,
+            logger=logger,
         )
         from qtpy.QtWidgets import QLabel
 

@@ -25,7 +25,7 @@ folder = "chosen_pulse_iv"
 logger = logging.getLogger(__name__)
 
 
-def pulse_proc(amplitude, pulse_time=1e-5, gate=2, steps=50, voltage_ds=0.0):
+def pulse_proc(amplitude, pulse_time=1e-5, gate=2, steps=50, drain_voltage=0.0):
     """Single unipolar triangular gate pulse (0 -> +amplitude -> 0).
 
     Reuses the FET Ids(Vg) procedure with the UNIPOLAR sequence type so only a
@@ -35,9 +35,9 @@ def pulse_proc(amplitude, pulse_time=1e-5, gate=2, steps=50, voltage_ds=0.0):
     return WgfmuFetIdsVgProcedure(
         mode=SweepMode.UNIPOLAR.name,
         pulse_time=pulse_time,
-        gate=gate,
-        voltage_ds=voltage_ds,
-        voltage_gate_first=amplitude,
+        gate_channel=gate,
+        drain_voltage=drain_voltage,
+        gate_voltage_first=amplitude,
         steps=steps,
         waveform_shape=WaveformShape.TRIANGLE.name,
     )
@@ -47,7 +47,7 @@ def iv_proc(
     voltage=5.0,
     pulse_time=1e-5,
     gate=2,
-    voltage_ds=-0.25,
+    drain_voltage=-0.25,
     current_range=WGFMUMeasureCurrentRange.RANGE_1_MA.name,
     source_current_range=WGFMUMeasureCurrentRange.RANGE_10_MA.name,
 ):
@@ -55,10 +55,10 @@ def iv_proc(
     return WgfmuFetIdsVgProcedure(
         mode=SweepMode.DEFAULT.name,
         pulse_time=pulse_time,
-        gate=gate,
-        voltage_ds=voltage_ds,
-        voltage_gate_first=voltage,
-        voltage_gate_second=-voltage,
+        gate_channel=gate,
+        drain_voltage=drain_voltage,
+        gate_voltage_first=voltage,
+        gate_voltage_second=-voltage,
         current_range=current_range,
         source_current_range=source_current_range,
         steps=50,

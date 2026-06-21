@@ -31,8 +31,8 @@ import pymeasure.display.manager as _pymeasure_manager
 from pymeasure.experiment.results import Results
 from pymeasure.experiment.workers import Worker
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 class EndTimeWorker(Worker):
@@ -48,7 +48,7 @@ class EndTimeWorker(Worker):
         try:
             self._patch_end_time_in_header()
         except Exception:
-            log.exception("Failed to patch end_time into CSV header")
+            logger.exception("Failed to patch end_time into CSV header")
 
     def _patch_end_time_in_header(self) -> None:
         end_time = getattr(self.procedure, "end_time", 0)
@@ -61,7 +61,7 @@ class EndTimeWorker(Worker):
             path = Path(filename)
             text = path.read_text(encoding=Results.ENCODING)
             if needle not in text:
-                log.warning("End time placeholder not found in %s; header left untouched", filename)
+                logger.warning("End time placeholder not found in %s; header left untouched", filename)
                 continue
             path.write_text(text.replace(needle, replacement, 1), encoding=Results.ENCODING)
 
