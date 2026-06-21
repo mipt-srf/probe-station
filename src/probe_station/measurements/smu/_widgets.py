@@ -4,7 +4,8 @@ import numpy as np
 import pyqtgraph as pg
 from pymeasure.display.curves import ResultsCurve
 from pymeasure.display.Qt import QtWidgets
-from pymeasure.display.widgets import PlotWidget
+
+from probe_station.measurements.pymeasure_base import BasePlotWidget
 
 
 class AbsResultsCurve(ResultsCurve):
@@ -22,7 +23,7 @@ class AbsResultsCurve(ResultsCurve):
         self.setData(data[self.x], y_data)
 
 
-class IvPlotWidget(PlotWidget):
+class IvPlotWidget(BasePlotWidget):
     """PlotWidget with a log-scale toggle checkbox for IV curve plots.
 
     When log scale is enabled the Y-axis switches to log10 and all curves

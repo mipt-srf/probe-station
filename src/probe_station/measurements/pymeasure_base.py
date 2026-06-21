@@ -55,6 +55,21 @@ def canonicalize_columns(results: Results) -> Results:
         results._data = results._data.rename(columns=renames)
     return results
 
+#: Default line width (in px) for all GUI plot curves.
+DEFAULT_LINEWIDTH = 2
+
+
+class BasePlotWidget(PlotWidget):
+    """``PlotWidget`` that applies the project-wide default line width.
+
+    Use this in place of pymeasure's ``PlotWidget`` (or subclass it, as
+    :class:`~probe_station.measurements.smu._widgets.IvPlotWidget` does) so
+    every GUI plot shares a single source of truth for curve thickness.
+    """
+
+    def __init__(self, *args, linewidth=DEFAULT_LINEWIDTH, **kwargs):
+        super().__init__(*args, linewidth=linewidth, **kwargs)
+
 
 class BaseProcedure(Procedure):
     """Base class for all probe-station procedures.
@@ -135,7 +150,7 @@ class BaseWindow(ManagedWindowBase):
     ``inputs`` and ``displays`` default to all parameters declared on
     ``procedure_class`` (in definition order).  Pass explicit lists to override.
 
-    ``widget_list`` defaults to ``(PlotWidget("Results Graph", DATA_COLUMNS),
+    ``widget_list`` defaults to ``(BasePlotWidget("Results Graph", DATA_COLUMNS),
     LogWidget("Experiment Log"))`` when the procedure defines non-empty
     ``DATA_COLUMNS``, otherwise ``(LogWidget("Experiment Log"),)``.
 
@@ -156,7 +171,7 @@ class BaseWindow(ManagedWindowBase):
             columns = getattr(procedure_class, "DATA_COLUMNS", [])
             if columns:
                 widget_list = (
-                    PlotWidget("Results Graph", columns),
+                    BasePlotWidget("Results Graph", columns),
                     LogWidget("Experiment Log"),
                 )
             else:
