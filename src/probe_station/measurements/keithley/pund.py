@@ -16,8 +16,8 @@ logger.addHandler(logging.NullHandler())
 
 class KeithleyPundProcedure(BaseProcedure):
     terminal = Parameter("Terminal", default="rear")
-    vf = FloatParameter("First voltage", units="V", default=-3)
-    vs = FloatParameter("Second voltage", units="V", default=3)
+    first_voltage = FloatParameter("First voltage", units="V", default=-3)
+    second_voltage = FloatParameter("Second voltage", units="V", default=3)
     rise = IntegerParameter("Rise steps", default=50)
     hold = IntegerParameter("Hold steps", default=5)
     space = IntegerParameter("Space steps", default=5)
@@ -46,7 +46,7 @@ class KeithleyPundProcedure(BaseProcedure):
 
         if self.do_cycle:
             logger.info("Pre-cycling %d times", self.n_precycles)
-            cycle(self.smu, self.n_precycles, self.vf, self.vs)
+            cycle(self.smu, self.n_precycles, self.first_voltage, self.second_voltage)
             if self.should_stop():
                 return
             self.smu.raise_error()
@@ -90,8 +90,8 @@ class KeithleyPundProcedure(BaseProcedure):
 
     def _create_waveform(self):
         params = {
-            "Vf": self.vf,
-            "Vs": self.vs,
+            "Vf": self.first_voltage,
+            "Vs": self.second_voltage,
             "rise": self.rise,
             "hold": self.hold,
             "space": self.space,

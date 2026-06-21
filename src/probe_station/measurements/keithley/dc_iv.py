@@ -29,7 +29,7 @@ class KeithleyDcIvProcedure(KeithleyPundProcedure):
 
     def _create_waveform(self):
         pulse_params = {"rise": self.rise, "hold": 0, "dt": 1}
-        return create_pulse(pulse_params, self.vf) + create_pulse(pulse_params, self.vs)
+        return create_pulse(pulse_params, self.first_voltage) + create_pulse(pulse_params, self.second_voltage)
 
 
 class MainWindow(BaseWindow):
