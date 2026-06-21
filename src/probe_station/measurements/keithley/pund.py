@@ -1,10 +1,10 @@
 import logging
 
-from pymeasure.display.widgets import LogWidget, PlotWidget
+from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter, Parameter
 
 from probe_station.logging_setup import setup_file_logging
-from probe_station.measurements.pymeasure_base import BaseProcedure, BaseWindow, run_app
+from probe_station.measurements.pymeasure_base import BaseProcedure, BasePlotWidget, BaseWindow, run_app
 from probe_station.measurements.keithley.cycling import cycle
 from probe_station.measurements.keithley.instrument import connect_instrument, get_smu, set_smu
 from probe_station.measurements.keithley.launcher import ADDRESS
@@ -103,7 +103,7 @@ class KeithleyPundProcedure(BaseProcedure):
 class MainWindow(BaseWindow):
     def __init__(self):
         widget_list = (
-            PlotWidget("Results Graph", KeithleyPundProcedure.DATA_COLUMNS, x_axis="Source", y_axis="Reading"),
+            BasePlotWidget("Results Graph", KeithleyPundProcedure.DATA_COLUMNS, x_axis="Source", y_axis="Reading"),
             LogWidget("Experiment Log"),
         )
         super().__init__(

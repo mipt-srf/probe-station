@@ -4,7 +4,7 @@ import os
 import subprocess
 import sys
 
-from pymeasure.display.widgets import PlotWidget, ResultsDialog
+from pymeasure.display.widgets import ResultsDialog
 from qtpy.QtCore import QLocale, Qt, QThread, QUrl
 from qtpy.QtGui import QFont
 from qtpy.QtWidgets import (
@@ -22,6 +22,7 @@ from qtpy.QtWidgets import (
 
 from probe_station.logging_setup import setup_file_logging
 from probe_station.measurements.pymeasure_base import (
+    BasePlotWidget,
     any_window_running,
     load_results,
     read_procedure_class,
@@ -130,7 +131,7 @@ class CrossProcedureResultsDialog(ResultsDialog):
     Pymeasure's stock dialog expects a single ``procedure_class`` + ``widget_list``
     fixed at construction time. The launcher's data reader browses files across
     procedures, so we override ``update_preview`` to (1) sniff the producing
-    procedure from the file header, (2) build (and cache) a ``PlotWidget``
+    procedure from the file header, (2) build (and cache) a ``BasePlotWidget``
     preview keyed off that procedure's ``DATA_COLUMNS``, and (3) repopulate
     parameters/metadata from the reconstructed procedure.
     """
@@ -145,8 +146,8 @@ class CrossProcedureResultsDialog(ResultsDialog):
         self._plot_container.setLayout(self._plot_layout)
         self._preview_tab.insertTab(0, self._plot_container, "Results Graph")
         self._preview_tab.setCurrentIndex(0)
-        self._plot_cache: dict[type, PlotWidget | None] = {}
-        self._current_plot: PlotWidget | None = None
+        self._plot_cache: dict[type, BasePlotWidget | None] = {}
+        self._current_plot: BasePlotWidget | None = None
         sidebar = self.sidebarUrls()
         nas_url = QUrl.fromLocalFile(NAS_DATA_ROOT)
         if nas_url not in sidebar:
@@ -158,7 +159,7 @@ class CrossProcedureResultsDialog(ResultsDialog):
             new_widget = self._plot_cache[procedure_class]
         else:
             columns = getattr(procedure_class, "DATA_COLUMNS", None)
-            new_widget = PlotWidget("Plot preview", columns) if columns else None
+            new_widget = BasePlotWidget("Plot preview", columns) if columns else None
             self._plot_cache[procedure_class] = new_widget
         if new_widget is self._current_plot:
             return
