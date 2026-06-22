@@ -1,7 +1,5 @@
 """Dataset wrapper around PyMeasure Results for analysis of new-format CSV files."""
 
-import re
-
 from pymeasure.experiment import Results
 
 from probe_station.analysis.handlers.cv import Cv
@@ -9,51 +7,21 @@ from probe_station.analysis.handlers.fet_ids_vds import FetIdsVds
 from probe_station.analysis.handlers.iv import Iv
 from probe_station.analysis.matlab.dc_iv import DC_IV
 from probe_station.measurements.cmu.cv_sweep import CmuCvSweepProcedure
-from probe_station.measurements.pymeasure_base import canonicalize_columns
+from probe_station.measurements.pymeasure_base import load_results
 from probe_station.measurements.smu.fet_ids_vds import SmuFetIdsVdsProcedure
 from probe_station.measurements.smu.iv_sweep import SmuIvSweepProcedure
 from probe_station.measurements.wgfmu.iv_sweep import WgfmuIvSweepProcedure
 
-# Procedure classes keyed by their bare name.  Used to reconstruct procedures
-# recorded as living in ``__main__`` -- i.e. run as a standalone script rather
-# than launched in-process -- which PyMeasure cannot rebuild from the header.
+# Explicit ``name -> class`` registry passed to ``load_results`` so files
+# recorded as living in ``__main__`` (procedures run as a standalone script
+# rather than launched in-process), which PyMeasure cannot rebuild from the
+# header, reconstruct against a pinned class. Curated for backwards
+# compatibility: map a recorded name here to keep loading legacy data even if
+# the class is later renamed or moved.
 _PROCEDURE_CLASSES = {
     cls.__name__: cls
     for cls in (CmuCvSweepProcedure, SmuIvSweepProcedure, WgfmuIvSweepProcedure, SmuFetIdsVdsProcedure)
 }
-
-
-def _read_procedure_name(filename):
-    """Return the bare procedure class name recorded in a result file's header."""
-    with open(filename, encoding=Results.ENCODING) as f:
-        for line in f:
-            if not line.startswith(Results.COMMENT):
-                break
-            stripped = line[1:].strip()
-            if stripped.startswith("Procedure:"):
-                match = re.search(r"<(?:.*\.)?(?P<class>[^.>]+)>", stripped)
-                if match:
-                    return match.group("class")
-    return None
-
-
-def _load_results(filename):
-    """Load a PyMeasure ``Results`` object, tolerating procedures run outside the launcher.
-
-    PyMeasure can only reconstruct a procedure whose recorded module exposes the
-    class.  Procedures run directly from a script or notebook are recorded as
-    living in ``__main__``, so the reconstruction raises ``AttributeError`` (or
-    ``ImportError``).  In that case we look the class up by name and load again
-    with the correct procedure class.
-    """
-    try:
-        results = Results.load(filename)
-    except (AttributeError, ImportError):
-        procedure_cls = _PROCEDURE_CLASSES.get(_read_procedure_name(filename))
-        if procedure_cls is None:
-            raise
-        results = Results.load(filename, procedure_class=procedure_cls)
-    return canonicalize_columns(results)
 
 
 class Dataset(Results):
@@ -69,7 +37,7 @@ class Dataset(Results):
 
         :param filename: Path to the ``.csv`` result file.
         """
-        instance = _load_results(filename)
+        instance = load_results(filename, procedure_classes=_PROCEDURE_CLASSES)
         instance.__class__ = cls  # Change the class to Dataset
         return instance
 

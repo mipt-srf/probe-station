@@ -55,6 +55,7 @@ def canonicalize_columns(results: Results) -> Results:
         results._data = results._data.rename(columns=renames)
     return results
 
+
 #: Default line width (in px) for all GUI plot curves.
 DEFAULT_LINEWIDTH = 2
 
@@ -288,20 +289,41 @@ def _find_procedure_class(class_name: str) -> type[Procedure] | None:
     return None
 
 
-def load_results(path: str | Path) -> Results:
+def _resolve_procedure_class(
+    class_name: str | None, procedure_classes: dict[str, type[Procedure]] | None
+) -> type[Procedure] | None:
+    """Resolve a procedure class from the bare name recorded in a results header.
+
+    Tries the explicit *procedure_classes* registry first (used to pin renamed
+    procedures), then falls back to searching ``probe_station.measurements``
+    (used for procedures run outside the launcher, recorded as
+    ``__main__.ClassName`` in the header). Returns ``None`` if unresolved.
+    """
+    if class_name is None:
+        return None
+    if procedure_classes and class_name in procedure_classes:
+        return procedure_classes[class_name]
+    return _find_procedure_class(class_name)
+
+
+def load_results(path: str | Path, procedure_classes: dict[str, type[Procedure]] | None = None) -> Results:
     """Load a Pymeasure ``Results``, tolerating procedures run outside the launcher.
 
     A procedure run as a standalone script records its class as living in
     ``__main__``, so Pymeasure cannot reconstruct it from the header (it raises
-    ``AttributeError`` or ``ImportError``). In that case we locate the class by
-    name within ``probe_station.measurements`` and reload with it imported from
-    its real module.
+    ``AttributeError`` or ``ImportError``). In that case we resolve the class by
+    its bare name (see :func:`_resolve_procedure_class`) and reload with it
+    imported from its real module.
+
+    :param path: Path to the ``.csv`` result file.
+    :param procedure_classes: Optional explicit ``name -> class`` registry,
+        consulted before the package-wide search. Lets callers pin the class
+        used for a given recorded name -- e.g. to keep loading legacy data.
     """
     try:
         results = Results.load(str(path))
     except (AttributeError, ImportError):
-        class_name = _read_procedure_class_name(path)
-        procedure_cls = _find_procedure_class(class_name) if class_name else None
+        procedure_cls = _resolve_procedure_class(_read_procedure_class_name(path), procedure_classes)
         if procedure_cls is None:
             raise
         results = Results.load(str(path), procedure_class=procedure_cls)
@@ -326,12 +348,12 @@ def read_procedure_class(path: str | Path) -> tuple[type[Procedure], type[BaseWi
     procedure_class = type(results.procedure)
     if procedure_class is UnknownProcedure:
         raise ValueError(
-            f"The Procedure class referenced in {path} could not be imported. " "It may have been renamed or removed."
+            f"The Procedure class referenced in {path} could not be imported. It may have been renamed or removed."
         )
     module = sys.modules.get(procedure_class.__module__)
     window_class = getattr(module, "MainWindow", None) if module is not None else None
     if window_class is None:
-        raise ValueError(f"No MainWindow defined in {procedure_class.__module__} " f"for {procedure_class.__name__}")
+        raise ValueError(f"No MainWindow defined in {procedure_class.__module__} for {procedure_class.__name__}")
     return procedure_class, window_class
 
 
