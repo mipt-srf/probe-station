@@ -63,8 +63,27 @@ Or with `uv pip`:
 uv pip install "probe-station @ git+https://github.com/mipt-srf/probe-station.git"
 ```
 
-For measurement and GUI usage:
+## Measurement Usage
+
+For measurement and GUI usage in non-project environment (e.g. new folder):
+
+```bash
+uv venv
+uv pip install --no-sources "probe-station[measurements] @ git+https://github.com/mipt-srf/probe-station.git"
+uv run --no-sources probe-station
+```
+
+For measurement and GUI usage within the package itself (without creating separate folder, project, etc.):
+
+```bash
+git clone https://github.com/mipt-srf/probe-station
+uv sync --no-sources
+uv run --no-sources probe-station
+```
+
+For measurement and GUI usage in another uv project environment:
 
 ```bash
 uv add "probe-station[measurements] @ git+https://github.com/mipt-srf/probe-station.git"
+uv run --no-sources probe-station
 ```
