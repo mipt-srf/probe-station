@@ -129,10 +129,14 @@ class LauncherWindow(QWidget):
         event.accept()
 
 
-if __name__ == "__main__":
+def main():
     setup_file_logging("logs")
     QLocale.setDefault(QLocale(QLocale.English, QLocale.UnitedStates))
     app = QtWidgets.QApplication(sys.argv)
     window = LauncherWindow()
     window.show()
     app.exec()
+
+
+if __name__ == "__main__":
+    main()

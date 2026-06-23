@@ -22,9 +22,11 @@ dependencies = [
 
 [project.scripts]
 probe-station = "probe_station.measurements.launcher:main"
+keithley = "probe_station.measurements.keithley.launcher:main"
 
 [project.gui-scripts]
 probe-station-gui = "probe_station.measurements.launcher:main"
+keithley-gui = "probe_station.measurements.keithley.launcher:main"
 
 [project.optional-dependencies]
 docs = [
