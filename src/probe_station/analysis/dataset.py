@@ -10,6 +10,7 @@ from probe_station.measurements.cmu.cv_sweep import CmuCvSweepProcedure
 from probe_station.measurements.pymeasure_base import load_results
 from probe_station.measurements.smu.fet_ids_vds import SmuFetIdsVdsProcedure
 from probe_station.measurements.smu.iv_sweep import SmuIvSweepProcedure
+from probe_station.measurements.wgfmu.forc import WgfmuForcProcedure
 from probe_station.measurements.wgfmu.iv_sweep import WgfmuIvSweepProcedure
 
 # Explicit ``name -> class`` registry passed to ``load_results`` so files
@@ -20,7 +21,13 @@ from probe_station.measurements.wgfmu.iv_sweep import WgfmuIvSweepProcedure
 # the class is later renamed or moved.
 _PROCEDURE_CLASSES = {
     cls.__name__: cls
-    for cls in (CmuCvSweepProcedure, SmuIvSweepProcedure, WgfmuIvSweepProcedure, SmuFetIdsVdsProcedure)
+    for cls in (
+        CmuCvSweepProcedure,
+        SmuIvSweepProcedure,
+        WgfmuIvSweepProcedure,
+        SmuFetIdsVdsProcedure,
+        WgfmuForcProcedure,
+    )
 }
 
 

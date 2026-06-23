@@ -256,6 +256,12 @@ class Launcher(QWidget):
                     "#4CAF50",
                     "in_process",
                 ),
+                (
+                    "📊 FORC (WGFMU) - experimental",
+                    "probe_station.measurements.wgfmu.forc",
+                    "#2196F3",
+                    "in_process",
+                ),
             ],
             [
                 (

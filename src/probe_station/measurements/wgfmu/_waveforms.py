@@ -8,7 +8,7 @@ import numpy as np
 import scipy
 from keysight_b1530a._bindings.errors import get_error_summary
 from keysight_b1530a.errors import WGFMUError
-from waveform_generator import PulseSequence, TrapezoidalPulse, TriangularSweep
+from waveform_generator import PulseSequence, StaircaseSweep, TrapezoidalPulse, TriangularSweep
 
 from probe_station.measurements.b1500 import (
     B1500,
@@ -171,6 +171,110 @@ def get_sequence(
     return PulseSequence(pulses)
 
 
+def get_forc_sequence(
+    max_voltage=4.0,
+    min_reversal_voltage=-4.0,
+    grid_steps=60,
+    pulse_time=2e-4,
+    *,
+    trailing_pulse: bool = True,
+):
+    """Build one continuous waveform for a first-order reversal curve (FORC) family.
+
+    A FORC measurement is a family of triangular sweeps that all start and end at
+    positive saturation ``+max_voltage``. Each curve ramps *down* to a reversal
+    voltage ``V_r,i`` and back *up* to ``+max_voltage``; the transient current on
+    the ascending branch is what the switching density is later derived from. The
+    reversal voltages descend in uniform ``dV`` steps from just below
+    ``+max_voltage`` down to ``min_reversal_voltage`` (Schenk et al. 2015,
+    *Complex Internal Bias Fields in Ferroelectric Hafnium Oxide*).
+
+    The whole family is chained into a single :class:`PulseSequence` -- successive
+    curves share the ``+max_voltage`` endpoint, so they stitch together without
+    gaps and the family is measured in one FASTIV run, then split back into curves
+    in post-processing (see :func:`split_forc_record`).
+
+    The ramp rate is held constant across the family: every step covers the same
+    ``dV`` over the same ``edge_time``, so a deeper curve simply has more steps and
+    takes longer. A constant rate keeps the ``E`` (=dE/dt) factor in the switching
+    density uniform and makes the per-step voltage grid identical across curves.
+
+    :param max_voltage: Positive saturation voltage; the top of every curve.
+    :param min_reversal_voltage: Most negative reversal voltage; the deepest curve.
+    :param grid_steps: Number of reversal voltages (and the per-step grid
+        resolution of the deepest curve). ``60`` reproduces the paper's 60x60 grid.
+    :param pulse_time: Ramp time of the full-depth (deepest) sweep; with the
+        constant rate this sets ``edge_time = pulse_time / grid_steps``.
+    :param trailing_pulse: Append a 0 V settle pulse so the last measured points
+        of the final curve are not clipped.
+    :returns: ``(sequence, reversal_voltages)`` -- the chained
+        :class:`PulseSequence` and the list of reversal voltages (descending).
+    """
+    if max_voltage <= min_reversal_voltage:
+        raise ValueError("max_voltage must be greater than min_reversal_voltage")
+    full_depth = max_voltage - min_reversal_voltage
+    voltage_step = full_depth / grid_steps
+    edge_time = pulse_time / grid_steps
+
+    # Reversal voltages on the dV grid, descending, excluding the degenerate
+    # V_r = max_voltage (zero-depth) curve; the last one equals min_reversal_voltage.
+    reversal_voltages = [max_voltage - k * voltage_step for k in range(1, grid_steps + 1)]
+
+    # Each leg is a single monotonic ramp (StaircaseSweep), not a there-and-back
+    # triangle. PulseSequence concatenates the legs' absolute voltages, so every
+    # leg's start_voltage is pinned to the previous leg's endpoint to keep the
+    # waveform continuous. time_step=0 makes each step a pure ramp edge of
+    # edge_time, so the rate (dV per edge_time) is constant across the family.
+    def ramp(start, end, steps):
+        return StaircaseSweep(start_voltage=start, end_voltage=end, time_step=0.0, steps=steps, edge_time=edge_time)
+
+    # Initial saturation ramp 0 -> +max_voltage at the same per-step rate.
+    lead_steps = max(round(max_voltage / voltage_step), 1)
+    pulses = [ramp(0.0, max_voltage, lead_steps)]
+    for k, reversal_voltage in enumerate(reversal_voltages, start=1):
+        # Down to the reversal voltage, then back up to saturation; both legs
+        # span k grid steps so each step covers exactly one dV.
+        pulses.append(ramp(max_voltage, reversal_voltage, k))
+        pulses.append(ramp(reversal_voltage, max_voltage, k))
+    if trailing_pulse:
+        pulses.append(
+            TrapezoidalPulse(amplitude=0.0, pulse_width=edge_time, rise_time=10 * edge_time, fall_time=edge_time)
+        )
+    return PulseSequence(pulses), reversal_voltages
+
+
+def split_forc_record(voltages, *, max_voltage):
+    """Label each sample with the reversal voltage of the FORC it belongs to.
+
+    The continuous FORC record (see :func:`get_forc_sequence`) is one saturation
+    ramp followed by N down-up reversal sweeps that all peak at ``+max_voltage``.
+    Those peaks bound the individual curves; the minimum voltage between two
+    consecutive peaks is that curve's reversal voltage. Samples in the leading
+    saturation ramp (before the first peak) and in the trailing settle pulse
+    (after the last peak) are not part of any curve and are labelled ``NaN``.
+
+    Splitting on the measured voltage rather than on the constructed sample
+    indices keeps the labelling robust against the hardware's 10 ns timing-grid
+    rounding and any measure-point decimation.
+
+    :param voltages: Measured top-electrode voltage of the whole FORC record.
+    :param max_voltage: Positive saturation voltage (the peak value).
+    :returns: ``float`` array, same length as *voltages*, holding each sample's
+        reversal voltage (``NaN`` for the lead-in and trailing samples).
+    """
+    from scipy.signal import find_peaks
+
+    v = np.asarray(voltages, dtype=float)
+    span = max_voltage - v.min()
+    # Peaks are the saturation turning points; require near-full height and a
+    # prominence well above noise so only the true +max_voltage tops are found.
+    peaks, _ = find_peaks(v, height=0.9 * max_voltage, prominence=0.25 * span)
+    labels = np.full(v.size, np.nan)
+    for start, stop in zip(peaks[:-1], peaks[1:]):
+        labels[start:stop] = v[start:stop].min()
+    return labels
+
+
 def get_constant_sequence(voltage, duration, edge_time=None):
     """A flat-top pulse holding *voltage* for *duration* seconds.
 
@@ -220,7 +324,9 @@ def set_waveform(
     # sum the on-grid segments instead of sequence.total_duration so the
     # measure event spans exactly what the hardware plays
     seq_time = float(np.sum(times))
-    logger.info(f"Waveform for {pattern_name}: {len(voltages)} samples, {seq_time:.6g} s, {len(sequence.pulses)} pulses")
+    logger.info(
+        f"Waveform for {pattern_name}: {len(voltages)} samples, {seq_time:.6g} s, {len(sequence.pulses)} pulses"
+    )
     b1500.add_vectors_to_wgfmu_pattern(pattern_name, times.tolist(), voltages.tolist())
     if measure:
         interval = np.floor(seq_time / measure_points / WGFMU_TIMING_RESOLUTION) * WGFMU_TIMING_RESOLUTION
