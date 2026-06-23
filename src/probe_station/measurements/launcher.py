@@ -148,11 +148,12 @@ class CrossProcedureResultsDialog(ResultsDialog):
         self._preview_tab.setCurrentIndex(0)
         self._plot_cache: dict[type, BasePlotWidget | None] = {}
         self._current_plot: BasePlotWidget | None = None
-        sidebar = self.sidebarUrls()
-        nas_url = QUrl.fromLocalFile(NAS_DATA_ROOT)
-        if nas_url not in sidebar:
-            sidebar.append(nas_url)
-            self.setSidebarUrls(sidebar)
+        # Causes large delays when nas is not accessible. Maybe it's worth to consider to add this functionality only when .[measurements] is installed or to add a config option to enable/disable it.
+        # sidebar = self.sidebarUrls()
+        # nas_url = QUrl.fromLocalFile(NAS_DATA_ROOT)
+        # if nas_url not in sidebar:
+        #     sidebar.append(nas_url)
+        #     self.setSidebarUrls(sidebar)
 
     def _ensure_plot_preview(self, procedure_class: type) -> None:
         if procedure_class in self._plot_cache:
