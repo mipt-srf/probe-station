@@ -66,6 +66,20 @@ markers = [
     "e2e: end-to-end tests requiring a real B1500 instrument (deselect with '-m \"not e2e\"')",
 ]
 
+[tool.ty.environment]
+# pymeasure is installed as an import-hook editable install, which static
+# tooling cannot resolve. Point ty at the source checkout directly.
+extra-paths = ["../pymeasure"]
+
+[tool.ty.src]
+# Legacy ports and standalone examples are out of scope for type checking.
+exclude = [
+    "src/probe_station/analysis/matlab/**",
+    "src/probe_station/measurements/keithley/**",
+    "**/*_example.py",
+    "**/*_unfinished.py",
+]
+
 [tool.ruff]
 line-length = 120
 
