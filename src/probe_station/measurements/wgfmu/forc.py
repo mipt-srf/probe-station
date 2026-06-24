@@ -99,7 +99,7 @@ class WgfmuForcProcedure(WgfmuProcedure):
 
         # Tag every sample with its curve's reversal voltage; drop the leading
         # saturation ramp and the trailing settle pulse (labelled NaN).
-        labels = split_forc_record(voltages, max_voltage=self.max_voltage)
+        labels = split_forc_record(voltages, max_voltage=self.max_voltage, reversal_voltages=reversal_voltages)
         mask = ~np.isnan(labels)
         n_curves = len(np.unique(labels[mask]))
         if n_curves != len(reversal_voltages):
