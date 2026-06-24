@@ -4,6 +4,7 @@ from pymeasure.experiment import Results
 
 from probe_station.analysis.handlers.cv import Cv
 from probe_station.analysis.handlers.fet_ids_vds import FetIdsVds
+from probe_station.analysis.handlers.forc import Forc
 from probe_station.analysis.handlers.iv import Iv
 from probe_station.analysis.matlab.dc_iv import DC_IV
 from probe_station.measurements.cmu.cv_sweep import CmuCvSweepProcedure
@@ -71,6 +72,7 @@ class Dataset(Results):
             CmuCvSweepProcedure: Cv,
             WgfmuIvSweepProcedure: Iv,
             SmuFetIdsVdsProcedure: FetIdsVds,
+            WgfmuForcProcedure: Forc,
         }
         self.handler_cls = new_mappings.get(self.procedure.__class__)
 
