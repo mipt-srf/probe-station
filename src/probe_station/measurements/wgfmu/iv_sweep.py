@@ -10,7 +10,7 @@ from pymeasure.experiment import (
 
 from probe_station.logging_setup import setup_file_logging
 from probe_station.measurements.b1500 import WGFMUMeasureCurrentRange
-from probe_station.measurements.pymeasure_base import BasePlotWidget, BaseWindow, run_app
+from probe_station.measurements.pymeasure_base import BaseWindow, run_app
 from probe_station.measurements.wgfmu._base import WgfmuBaseProcedure
 from probe_station.measurements.wgfmu._waveforms import (
     SweepMode,
@@ -161,10 +161,6 @@ class MainWindow(BaseWindow):
             procedure_class=WgfmuIvSweepProcedure,
             logger=logger,
         )
-        # temporary bug fix for incorrect autoscaling in the plot
-        plot = next(w for w in self.widget_list if isinstance(w, BasePlotWidget))
-        plot.plot.setXRange(-10, 10, padding=0)
-        plot.plot.setLimits(xMin=-10, xMax=10)
 
 
 if __name__ == "__main__":
