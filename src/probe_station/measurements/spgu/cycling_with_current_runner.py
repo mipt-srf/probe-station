@@ -4,7 +4,7 @@ import time
 from pymeasure.instruments.agilent.agilentB1500 import (
     SMU,
     SPGU,
-    ALWGPattern,
+    ALWGPattern,  # ty: ignore[unresolved-import]  -- only on the unmerged pymeasure claude/spgu-alwg branch
     MeasMode,
     MeasOpMode,
     SPGUChannel,

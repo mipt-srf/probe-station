@@ -1,4 +1,5 @@
 import logging
+from typing import cast
 
 from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter, ListParameter
@@ -16,22 +17,27 @@ logger.addHandler(logging.NullHandler())
 
 
 class SmuFetIdsVdsProcedure(BaseProcedure):
-    first_voltage = FloatParameter("First voltage", units="V", default=-3)
-    second_voltage = FloatParameter("Second voltage", units="V", default=3)
-    source_channel = IntegerParameter("Source channel", default=3)
-    drain_channel = IntegerParameter("Drain channel", default=1)
-    averaging = IntegerParameter("Integration coefficient", default=127, minimum=1, maximum=127)
-    advanced_config = BooleanParameter("Advanced config", default=False)
-    steps = IntegerParameter("Steps", default=100, group_by="advanced_config")
-    mode = ListParameter(
-        "Mode",
-        default=SmuSweepMode.START_TO_STOP.name,
-        choices=[member.name for member in SmuSweepMode],
-        group_by="advanced_config",
+    # Parameters are annotated with their runtime value types: pymeasure replaces
+    # the Parameter attributes with plain values on procedure instances.
+    first_voltage: float = cast("float", FloatParameter("First voltage", units="V", default=-3))
+    second_voltage: float = cast("float", FloatParameter("Second voltage", units="V", default=3))
+    source_channel: int = cast("int", IntegerParameter("Source channel", default=3))
+    drain_channel: int = cast("int", IntegerParameter("Drain channel", default=1))
+    averaging: int = cast("int", IntegerParameter("Integration coefficient", default=127, minimum=1, maximum=127))
+    advanced_config: bool = cast("bool", BooleanParameter("Advanced config", default=False))
+    steps: int = cast("int", IntegerParameter("Steps", default=100, group_by="advanced_config"))
+    mode: str = cast(
+        "str",
+        ListParameter(
+            "Mode",
+            default=SmuSweepMode.START_TO_STOP.name,
+            choices=[member.name for member in SmuSweepMode],
+            group_by="advanced_config",
+        ),
     )
-    gate_channel = IntegerParameter("Gate channel", default=4)
-    gate_voltage = FloatParameter("Gate voltage", units="V", default=0)
-    base_channel = IntegerParameter("Base channel", default=2)
+    gate_channel: int = cast("int", IntegerParameter("Gate channel", default=4))
+    gate_voltage: float = cast("float", FloatParameter("Gate voltage", units="V", default=0))
+    base_channel: int = cast("int", IntegerParameter("Base channel", default=2))
     # compliance = FloatParameter("Current compliance", units="A", default=0.1, group_by="advanced_config")
 
     DATA_COLUMNS = ["Source Voltage", "Source Current", "Gate Current", "Time"]

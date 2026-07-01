@@ -66,4 +66,6 @@ class EndTimeWorker(Worker):
             path.write_text(text.replace(needle, replacement, 1), encoding=Results.ENCODING)
 
 
-_pymeasure_manager.Worker = EndTimeWorker
+# Deliberate monkeypatch (see module docstring); the module attribute is
+# declared as the Worker class itself, so the checker rejects the subclass.
+_pymeasure_manager.Worker = EndTimeWorker  # ty: ignore[invalid-assignment]

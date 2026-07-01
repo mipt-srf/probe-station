@@ -1,4 +1,5 @@
 import logging
+from typing import cast
 
 from pymeasure.experiment import IntegerParameter
 
@@ -15,7 +16,7 @@ logger.addHandler(logging.NullHandler())
 
 
 class WgfmuCyclingProcedure(WgfmuBaseProcedure):
-    repetitions = IntegerParameter("Number of cycles", default=1e3)
+    repetitions: int = cast("int", IntegerParameter("Number of cycles", default=1e3))
 
     def execute(self):
         seq_top = get_sequence(

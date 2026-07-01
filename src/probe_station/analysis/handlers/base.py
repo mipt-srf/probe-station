@@ -33,9 +33,9 @@ class BaseHandler:
         y_data: np.ndarray | pd.Series,
         xlabel: str,
         ylabel: str,
-        label: str = None,
-        alpha: float = 1.0,
-        color: str = None,
+        label: float | str | None = None,
+        alpha: float | None = 1.0,
+        color: str | None = None,
     ) -> None:
         """Plot *y_data* vs *x_data* with science-style formatting.
 

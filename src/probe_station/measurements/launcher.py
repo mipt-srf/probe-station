@@ -141,14 +141,14 @@ class Launcher(QWidget):
 
         # Title
         title = QLabel("Measurement Scripts Launcher")
-        title.setFont(QFont("Arial", 24, QFont.Bold))
-        title.setAlignment(Qt.AlignCenter)
+        title.setFont(QFont("Arial", 24, QFont.Weight.Bold))
+        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title.setStyleSheet("color: #4CAF50; margin-bottom: 20px;")
         layout.addWidget(title)
 
         # Separator
         separator = QFrame()
-        separator.setFrameShape(QFrame.HLine)
+        separator.setFrameShape(QFrame.Shape.HLine)
         separator.setStyleSheet("background-color: #555555; height: 2px;")
         layout.addWidget(separator)
 
@@ -257,7 +257,7 @@ class Launcher(QWidget):
         layout.addStretch()
 
         reader_separator = QFrame()
-        reader_separator.setFrameShape(QFrame.HLine)
+        reader_separator.setFrameShape(QFrame.Shape.HLine)
         reader_separator.setStyleSheet("background-color: #555555; height: 2px;")
         layout.addWidget(reader_separator)
 
@@ -267,7 +267,7 @@ class Launcher(QWidget):
 
         # Footer
         footer = QLabel("Click any button to launch a measurement script")
-        footer.setAlignment(Qt.AlignCenter)
+        footer.setAlignment(Qt.AlignmentFlag.AlignCenter)
         footer.setStyleSheet("color: #888888; font-style: italic;")
         layout.addWidget(footer)
 
@@ -326,13 +326,13 @@ def main():
     setup_file_logging("logs")
     # Match the locale that run_app() sets for standalone procedure runs so
     # in-process windows see dot-decimal input parsing too.
-    QLocale.setDefault(QLocale(QLocale.English, QLocale.UnitedStates))
+    QLocale.setDefault(QLocale(QLocale.Language.English, QLocale.Country.UnitedStates))
     app = QApplication(sys.argv)
 
     launcher = Launcher()
     launcher.show()
 
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
