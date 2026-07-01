@@ -50,6 +50,10 @@ class LauncherWindow(QWidget):
         self._dc_iv_btn.setEnabled(False)
         self._dc_iv_btn.clicked.connect(self._open_dc_iv)
 
+        self._current_time_btn = QPushButton("Current vs time measurement")
+        self._current_time_btn.setEnabled(False)
+        self._current_time_btn.clicked.connect(self._open_current_time)
+
         address_row = QHBoxLayout()
         address_row.addWidget(QLabel("Address:"))
         address_row.addWidget(self._address)
@@ -60,6 +64,7 @@ class LauncherWindow(QWidget):
         layout.addWidget(self._connect_btn)
         layout.addWidget(self._pund_btn)
         layout.addWidget(self._dc_iv_btn)
+        layout.addWidget(self._current_time_btn)
         self.setLayout(layout)
 
     def _toggle_connection(self):
@@ -88,6 +93,7 @@ class LauncherWindow(QWidget):
             self._connect_btn.setText("Connect")
             self._pund_btn.setEnabled(False)
             self._dc_iv_btn.setEnabled(False)
+            self._current_time_btn.setEnabled(False)
 
     def _on_connected(self, smu):
         set_smu(smu)
@@ -96,6 +102,7 @@ class LauncherWindow(QWidget):
         self._connect_btn.setEnabled(True)
         self._pund_btn.setEnabled(True)
         self._dc_iv_btn.setEnabled(True)
+        self._current_time_btn.setEnabled(True)
 
     def _on_connect_failed(self, message: str):
         self._status.setText("Disconnected")
@@ -111,6 +118,13 @@ class LauncherWindow(QWidget):
 
     def _open_dc_iv(self):
         from probe_station.measurements.keithley.dc_iv import MainWindow
+
+        window = MainWindow()
+        window.show()
+        self._windows.append(window)
+
+    def _open_current_time(self):
+        from probe_station.measurements.keithley.current_time import MainWindow
 
         window = MainWindow()
         window.show()
