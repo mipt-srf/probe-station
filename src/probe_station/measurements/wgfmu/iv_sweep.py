@@ -1,4 +1,5 @@
 import logging
+from typing import cast
 
 import scipy
 from pymeasure.experiment import (
@@ -27,34 +28,45 @@ logger.addHandler(logging.NullHandler())
 
 
 class WgfmuIvSweepProcedure(WgfmuBaseProcedure):
-    mode = ListParameter("Mode", default=SweepMode.PUND.name, choices=[e.name for e in SweepMode])
-    pulse_time = FloatParameter("Pulse time", units="s", default=2e-4)
+    mode: str = cast("str", ListParameter("Mode", default=SweepMode.PUND.name, choices=[e.name for e in SweepMode]))
+    pulse_time: float = cast("float", FloatParameter("Pulse time", units="s", default=2e-4))
 
-    current_range = ListParameter(
-        "Current range",
-        default=WGFMUMeasureCurrentRange.RANGE_100_UA.name,
-        choices=[e.name for e in WGFMUMeasureCurrentRange],
+    current_range: str = cast(
+        "str",
+        ListParameter(
+            "Current range",
+            default=WGFMUMeasureCurrentRange.RANGE_100_UA.name,
+            choices=[e.name for e in WGFMUMeasureCurrentRange],
+        ),
     )
-    bottom_current_range = ListParameter(
-        "Bottom current range",
-        default=WGFMUMeasureCurrentRange.RANGE_100_UA.name,
-        choices=[e.name for e in WGFMUMeasureCurrentRange],
-        group_by="enable_bottom",
+    bottom_current_range: str = cast(
+        "str",
+        ListParameter(
+            "Bottom current range",
+            default=WGFMUMeasureCurrentRange.RANGE_100_UA.name,
+            choices=[e.name for e in WGFMUMeasureCurrentRange],
+            group_by="enable_bottom",
+        ),
     )
 
-    steps = IntegerParameter("Steps per pulse", default=200, group_by="advanced_config")
-    waveform_shape = ListParameter(
-        "Waveform shape",
-        default=WaveformShape.STAIRCASE.name,
-        choices=[e.name for e in WaveformShape],
-        group_by="advanced_config",
+    steps: int = cast("int", IntegerParameter("Steps per pulse", default=200, group_by="advanced_config"))
+    waveform_shape: str = cast(
+        "str",
+        ListParameter(
+            "Waveform shape",
+            default=WaveformShape.STAIRCASE.name,
+            choices=[e.name for e in WaveformShape],
+            group_by="advanced_config",
+        ),
     )
-    rise_to_hold_ratio = FloatParameter("Rise to hold time ratio", default=100, group_by="advanced_config")
+    rise_to_hold_ratio: float = cast(
+        "float", FloatParameter("Rise to hold time ratio", default=100, group_by="advanced_config")
+    )
 
-    plot_points = IntegerParameter("Points to plot", default=1000, group_by="advanced_config")
+    plot_points: int = cast("int", IntegerParameter("Points to plot", default=1000, group_by="advanced_config"))
 
-    compute_polarization = BooleanParameter("Calculate Polarization", default=False)
-    pad_size = FloatParameter("Pad size", units="um", default=25, group_by="compute_polarization")
+    compute_polarization: bool = cast("bool", BooleanParameter("Calculate Polarization", default=False))
+    pad_size: float = cast("float", FloatParameter("Pad size", units="um", default=25, group_by="compute_polarization"))
 
     DATA_COLUMNS = [
         "Top Electrode Voltage",

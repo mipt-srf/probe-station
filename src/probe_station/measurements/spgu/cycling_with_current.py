@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta
+from typing import cast
 
 from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter
 
@@ -19,17 +20,21 @@ class SpguCyclingWithCurrentProcedure(BaseProcedure):
     records cycle count metadata.
     """
 
-    repetitions = IntegerParameter("Number of cycles", default=10, maximum=2147483647)
-    amplitude = FloatParameter("Pulse amplitude", units="V", default=3.0)
-    rise = FloatParameter("Pulse rise time", units="s", default=5e-2)
-    tail = FloatParameter("Pulse tail time", units="s", default=5e-2)
-    channel = IntegerParameter("SPGU Channel", default=2)
-    bipolar_pulses = BooleanParameter("Bipolar Pulses", default=True)
-    smu_channel = IntegerParameter("SMU Channel", default=3)
-
-    period = 2 * (rise.value + tail.value)
+    # Parameters are annotated with their runtime value types: pymeasure replaces
+    # the Parameter attributes with plain values on procedure instances.
+    repetitions: int = cast("int", IntegerParameter("Number of cycles", default=10, maximum=2147483647))
+    amplitude: float = cast("float", FloatParameter("Pulse amplitude", units="V", default=3.0))
+    rise: float = cast("float", FloatParameter("Pulse rise time", units="s", default=5e-2))
+    tail: float = cast("float", FloatParameter("Pulse tail time", units="s", default=5e-2))
+    channel: int = cast("int", IntegerParameter("SPGU Channel", default=2))
+    bipolar_pulses: bool = cast("bool", BooleanParameter("Bipolar Pulses", default=True))
+    smu_channel: int = cast("int", IntegerParameter("SMU Channel", default=3))
 
     DATA_COLUMNS = ["Time", "Top Electrode Current"]
+
+    @property
+    def period(self) -> float:
+        return 2 * (self.rise + self.tail)
 
     def startup(self):
         super().startup()

@@ -24,6 +24,8 @@ from qtpy.QtWidgets import (
 from probe_station.logging_setup import setup_file_logging
 from probe_station.measurements.pymeasure_base import (
     BasePlotWidget,
+    BaseWindow,
+    WindowFactory,
     load_results,
     read_procedure_class,
 )
@@ -95,12 +97,12 @@ class CrossProcedureResultsDialog(ResultsDialog):
         self.preview_param.clear()
         for _, param in results.procedure.parameter_objects().items():
             self.preview_param.addTopLevelItem(QTreeWidgetItem([param.name, str(param)]))
-        self.preview_param.sortItems(0, Qt.AscendingOrder)
+        self.preview_param.sortItems(0, Qt.SortOrder.AscendingOrder)
 
         self.preview_metadata.clear()
         for _, metadata in results.procedure.metadata_objects().items():
             self.preview_metadata.addTopLevelItem(QTreeWidgetItem([metadata.name, str(metadata)]))
-        self.preview_metadata.sortItems(0, Qt.AscendingOrder)
+        self.preview_metadata.sortItems(0, Qt.SortOrder.AscendingOrder)
 
 
 def open_data(parent: QWidget | None, child_windows: list) -> None:
@@ -123,7 +125,7 @@ def open_data(parent: QWidget | None, child_windows: list) -> None:
     filenames = dialog.selectedFiles()
     if not filenames:
         return
-    windows: dict[type, QWidget] = {}
+    windows: dict[WindowFactory, BaseWindow] = {}
     for filename in filenames:
         try:
             _, window_class = read_procedure_class(filename)
@@ -160,7 +162,7 @@ def main():
     setup_file_logging("logs")
     # Match the locale that run_app() sets for standalone procedure runs so
     # opened windows see dot-decimal input parsing too.
-    QLocale.setDefault(QLocale(QLocale.English, QLocale.UnitedStates))
+    QLocale.setDefault(QLocale(QLocale.Language.English, QLocale.Country.UnitedStates))
     app = QApplication(sys.argv)
 
     # Strong refs to the windows opened from the picked files; keeps them alive
@@ -170,7 +172,7 @@ def main():
     if not child_windows:
         # User cancelled the dialog or picked nothing -- nothing to keep open.
         return
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":

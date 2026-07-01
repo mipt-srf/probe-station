@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta
+from typing import cast
 
 from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter
@@ -21,18 +22,20 @@ class SpguCyclingProcedure(BaseProcedure):
     records cycle count metadata.
     """
 
-    repetitions = IntegerParameter("Number of cycles", default=10, maximum=2147483647)
-    amplitude = FloatParameter("Pulse amplitude", units="V", default=10.0)
-    width = FloatParameter("Pulse width", units="s", default=0.1)
-    rise = FloatParameter("Pulse rise time", units="s", default=100e-9)
-    tail = FloatParameter("Pulse tail time", units="s", default=100e-9)
-    channel = IntegerParameter("Channel", default=2)
-    bipolar_pulses = BooleanParameter("Bipolar Pulses", default=False)
-    pulse_separation = BooleanParameter("Pulse separation", default=True)
+    # Parameters are annotated with their runtime value types: pymeasure replaces
+    # the Parameter attributes with plain values on procedure instances.
+    repetitions: int = cast("int", IntegerParameter("Number of cycles", default=10, maximum=2147483647))
+    amplitude: float = cast("float", FloatParameter("Pulse amplitude", units="V", default=10.0))
+    width: float = cast("float", FloatParameter("Pulse width", units="s", default=0.1))
+    rise: float = cast("float", FloatParameter("Pulse rise time", units="s", default=100e-9))
+    tail: float = cast("float", FloatParameter("Pulse tail time", units="s", default=100e-9))
+    channel: int = cast("int", IntegerParameter("Channel", default=2))
+    bipolar_pulses: bool = cast("bool", BooleanParameter("Bipolar Pulses", default=False))
+    pulse_separation: bool = cast("bool", BooleanParameter("Pulse separation", default=True))
 
-    dc_bias = BooleanParameter("Enable DC bias", default=False)
-    dc_bias_value = FloatParameter("DC bias", default=0.0, group_by="dc_bias")
-    dc_channel = IntegerParameter("DC bias channel", default=1, group_by="dc_bias")
+    dc_bias: bool = cast("bool", BooleanParameter("Enable DC bias", default=False))
+    dc_bias_value: float = cast("float", FloatParameter("DC bias", default=0.0, group_by="dc_bias"))
+    dc_channel: int = cast("int", IntegerParameter("DC bias channel", default=1, group_by="dc_bias"))
 
     def startup(self):
         super().startup()
@@ -47,6 +50,8 @@ class SpguCyclingProcedure(BaseProcedure):
             for smu in self.b1500.smu_references:
                 if str(self.dc_channel) == smu.name[-1]:
                     dc_smu = smu
+            if dc_smu is None:
+                raise ValueError(f"No SMU found for DC bias channel {self.dc_channel}")
             dc_smu.enable()
             dc_smu.force("voltage", 0, self.dc_bias_value, max_compliance(dc_smu, abs(self.dc_bias_value)))
 

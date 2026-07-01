@@ -1,4 +1,5 @@
 import logging
+from typing import cast
 
 from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import (
@@ -42,40 +43,51 @@ class WgfmuFetIdsVgProcedure(WgfmuProcedure):
     # timing, channels, voltages, current range, then the advanced-config
     # section. The sweep parameters are shared with WgfmuBaseProcedure but cannot
     # be inherited without scrambling that order, so they are declared here too.
-    mode = ListParameter("Mode", default=SweepMode.DEFAULT.name, choices=[e.name for e in SweepMode])
-    pulse_time = FloatParameter("Pulse time", units="s", default=1e-3)
+    mode: str = cast("str", ListParameter("Mode", default=SweepMode.DEFAULT.name, choices=[e.name for e in SweepMode]))
+    pulse_time: float = cast("float", FloatParameter("Pulse time", units="s", default=1e-3))
 
-    gate_channel = IntegerParameter("Gate channel (WGFMU)", default=2)
-    source_channel = IntegerParameter("Source channel (WGFMU, grounded)", default=1)
-    drain_channel = IntegerParameter("Drain channel (SMU, biased)", default=1)
-    base_channel = IntegerParameter("Base channel (SMU, grounded)", default=2)
+    gate_channel: int = cast("int", IntegerParameter("Gate channel (WGFMU)", default=2))
+    source_channel: int = cast("int", IntegerParameter("Source channel (WGFMU, grounded)", default=1))
+    drain_channel: int = cast("int", IntegerParameter("Drain channel (SMU, biased)", default=1))
+    base_channel: int = cast("int", IntegerParameter("Base channel (SMU, grounded)", default=2))
 
-    drain_voltage = FloatParameter("Drain voltage", units="V", default=0.25)
-    gate_voltage_first = FloatParameter("Gate voltage (first)", units="V", default=-5.0)
-    gate_voltage_second = FloatParameter("Gate voltage (second)", units="V", default=5.0)
+    drain_voltage: float = cast("float", FloatParameter("Drain voltage", units="V", default=0.25))
+    gate_voltage_first: float = cast("float", FloatParameter("Gate voltage (first)", units="V", default=-5.0))
+    gate_voltage_second: float = cast("float", FloatParameter("Gate voltage (second)", units="V", default=5.0))
 
-    current_range = ListParameter(
-        "Current range",
-        default=WGFMUMeasureCurrentRange.RANGE_10_MA.name,
-        choices=[e.name for e in WGFMUMeasureCurrentRange],
+    current_range: str = cast(
+        "str",
+        ListParameter(
+            "Current range",
+            default=WGFMUMeasureCurrentRange.RANGE_10_MA.name,
+            choices=[e.name for e in WGFMUMeasureCurrentRange],
+        ),
     )
-    source_current_range = ListParameter(
-        "Source current range",
-        default=WGFMUMeasureCurrentRange.RANGE_10_MA.name,
-        choices=[e.name for e in WGFMUMeasureCurrentRange],
+    source_current_range: str = cast(
+        "str",
+        ListParameter(
+            "Source current range",
+            default=WGFMUMeasureCurrentRange.RANGE_10_MA.name,
+            choices=[e.name for e in WGFMUMeasureCurrentRange],
+        ),
     )
 
-    advanced_config = BooleanParameter("Advanced config", default=False)
-    steps = IntegerParameter("Steps per pulse", default=50, group_by="advanced_config")
-    waveform_shape = ListParameter(
-        "Waveform shape",
-        default=WaveformShape.STAIRCASE.name,
-        choices=[e.name for e in WaveformShape],
-        group_by="advanced_config",
+    advanced_config: bool = cast("bool", BooleanParameter("Advanced config", default=False))
+    steps: int = cast("int", IntegerParameter("Steps per pulse", default=50, group_by="advanced_config"))
+    waveform_shape: str = cast(
+        "str",
+        ListParameter(
+            "Waveform shape",
+            default=WaveformShape.STAIRCASE.name,
+            choices=[e.name for e in WaveformShape],
+            group_by="advanced_config",
+        ),
     )
-    rise_to_hold_ratio = FloatParameter("Rise to hold time ratio", default=1, group_by="advanced_config")
+    rise_to_hold_ratio: float = cast(
+        "float", FloatParameter("Rise to hold time ratio", default=1, group_by="advanced_config")
+    )
 
-    plot_points = IntegerParameter("Points to plot", default=200, group_by="advanced_config")
+    plot_points: int = cast("int", IntegerParameter("Points to plot", default=200, group_by="advanced_config"))
 
     DATA_COLUMNS = ["Gate Voltage", "Source Current", "Gate Current", "Time"]
 

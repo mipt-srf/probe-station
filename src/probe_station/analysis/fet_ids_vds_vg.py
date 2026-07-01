@@ -153,7 +153,9 @@ def plot_output(
     else:
         ax.set_ylabel(I_DS)
         ax.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
-    cbar = ax.figure.colorbar(matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax, label=V_GATE)
+    fig = ax.figure
+    assert fig is not None
+    cbar = fig.colorbar(matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax, label=V_GATE)
     if log_gate:
         _label_log_colorbar(cbar)
     return ax
@@ -199,7 +201,7 @@ def transfer_curve(data: pd.DataFrame, vds: float) -> pd.DataFrame:
             right=np.nan,
         )
         rows.append((gate, current))
-    return pd.DataFrame(rows, columns=[V_GATE, I_DS]).sort_values(V_GATE, ignore_index=True)
+    return pd.DataFrame(rows, columns=pd.Index([V_GATE, I_DS])).sort_values(V_GATE, ignore_index=True)
 
 
 def plot_transfer(
@@ -219,7 +221,8 @@ def plot_transfer(
     """
     if ax is None:
         _, ax = plt.subplots(figsize=(8, 6))
-    for vds in np.atleast_1d(vds_values):
+    vds_array = np.fromiter(vds_values, dtype=float) if isinstance(vds_values, Iterable) else np.array([vds_values])
+    for vds in vds_array:
         curve = transfer_curve(data, vds)
         ax.plot(curve[V_GATE], curve[I_DS].abs(), "o-", ms=3, label=f"{vds:g} V", alpha=alpha)
     ax.set_xlabel(V_GATE)
@@ -302,14 +305,16 @@ def plot_transfer_family(
     :return: The axes the family was drawn on.
     """
     if vds_values is None:
-        vds_values = np.linspace(data[V_DS].min(), data[V_DS].max(), n_curves)
-    vds_values = np.sort(np.atleast_1d(vds_values))
+        vds_array = np.linspace(data[V_DS].min(), data[V_DS].max(), n_curves)
+    else:
+        vds_array = np.fromiter(vds_values, dtype=float)
+    vds_array = np.sort(vds_array)
     if discrete is None:
-        discrete = len(vds_values) <= 15
-    colors, mappable, ticks = _vds_colors(vds_values, cmap, log=log_vds, discrete=discrete)
+        discrete = len(vds_array) <= 15
+    colors, mappable, ticks = _vds_colors(vds_array, cmap, log=log_vds, discrete=discrete)
     if ax is None:
         _, ax = plt.subplots(figsize=(8, 6))
-    for vds, color in zip(vds_values, colors):
+    for vds, color in zip(vds_array, colors):
         curve = transfer_curve(data, vds)
         ax.plot(curve[V_GATE], curve[I_DS].abs(), color=color, lw=linewidth, alpha=alpha, ls=linestyle)
     ax.set_xlabel(V_GATE)
@@ -320,7 +325,9 @@ def plot_transfer_family(
         ax.plot([], [], color="0.3", lw=linewidth, ls=linestyle, label=label)
         ax.legend()
     if colorbar:
-        cbar = ax.figure.colorbar(mappable, ax=ax, label=V_DS, ticks=ticks)
+        fig = ax.figure
+        assert fig is not None
+        cbar = fig.colorbar(mappable, ax=ax, label=V_DS, ticks=ticks)
         if discrete:
             cbar.ax.set_yticklabels([f"{v:g}" for v in ticks])
         elif log_vds:

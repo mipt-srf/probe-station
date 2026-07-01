@@ -1,5 +1,7 @@
 """Shared base procedure for WGFMU-based measurements."""
 
+from typing import cast
+
 from pymeasure.experiment import (
     BooleanParameter,
     FloatParameter,
@@ -40,31 +42,40 @@ class WgfmuBaseProcedure(WgfmuProcedure):
     Parameters are declared in GUI order (see :class:`WgfmuProcedure`).
     """
 
-    mode = ListParameter("Mode", default=SweepMode.DEFAULT.name, choices=[e.name for e in SweepMode])
-    pulse_time = FloatParameter("Pulse time", units="s", default=1e-5)
+    # Parameters are annotated with their runtime value types: pymeasure replaces
+    # the Parameter attributes with plain values on procedure instances.
+    mode: str = cast("str", ListParameter("Mode", default=SweepMode.DEFAULT.name, choices=[e.name for e in SweepMode]))
+    pulse_time: float = cast("float", FloatParameter("Pulse time", units="s", default=1e-5))
 
-    top_voltage_first = FloatParameter("Top electrode voltage (first)", units="V", default=5.0)
-    top_voltage_second = FloatParameter("Top electrode voltage (second)", units="V", default=-5.0)
+    top_voltage_first: float = cast("float", FloatParameter("Top electrode voltage (first)", units="V", default=5.0))
+    top_voltage_second: float = cast("float", FloatParameter("Top electrode voltage (second)", units="V", default=-5.0))
 
-    top = IntegerParameter("Top channel", default=2)
+    top: int = cast("int", IntegerParameter("Top channel", default=2))
 
-    enable_bottom = BooleanParameter("Enable bottom bias and measurement", default=False)
+    enable_bottom: bool = cast("bool", BooleanParameter("Enable bottom bias and measurement", default=False))
 
-    bottom_voltage_first = FloatParameter(
-        "Bottom electrode voltage (first)", units="V", default=-5.0, group_by="enable_bottom"
+    bottom_voltage_first: float = cast(
+        "float",
+        FloatParameter("Bottom electrode voltage (first)", units="V", default=-5.0, group_by="enable_bottom"),
     )
-    bottom_voltage_second = FloatParameter(
-        "Bottom electrode voltage (second)", units="V", default=5.0, group_by="enable_bottom"
+    bottom_voltage_second: float = cast(
+        "float",
+        FloatParameter("Bottom electrode voltage (second)", units="V", default=5.0, group_by="enable_bottom"),
     )
-    bottom = IntegerParameter("Bottom channel", default=1, group_by="enable_bottom")
+    bottom: int = cast("int", IntegerParameter("Bottom channel", default=1, group_by="enable_bottom"))
 
-    advanced_config = BooleanParameter("Advanced config", default=False)
+    advanced_config: bool = cast("bool", BooleanParameter("Advanced config", default=False))
 
-    steps = IntegerParameter("Steps per pulse", default=100, group_by="advanced_config")
-    waveform_shape = ListParameter(
-        "Waveform shape",
-        default=WaveformShape.STAIRCASE.name,
-        choices=[e.name for e in WaveformShape],
-        group_by="advanced_config",
+    steps: int = cast("int", IntegerParameter("Steps per pulse", default=100, group_by="advanced_config"))
+    waveform_shape: str = cast(
+        "str",
+        ListParameter(
+            "Waveform shape",
+            default=WaveformShape.STAIRCASE.name,
+            choices=[e.name for e in WaveformShape],
+            group_by="advanced_config",
+        ),
     )
-    rise_to_hold_ratio = FloatParameter("Rise to hold time ratio", default=1, group_by="advanced_config")
+    rise_to_hold_ratio: float = cast(
+        "float", FloatParameter("Rise to hold time ratio", default=1, group_by="advanced_config")
+    )

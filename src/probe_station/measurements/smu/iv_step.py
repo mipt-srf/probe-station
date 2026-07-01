@@ -1,4 +1,5 @@
 import logging
+from typing import cast
 
 import numpy as np
 from pymeasure.display.widgets import LogWidget
@@ -20,11 +21,13 @@ logger.addHandler(logging.NullHandler())
 
 
 class SmuIvStepProcedure(BaseProcedure):
-    first_voltage = FloatParameter("First voltage", units="V", default=-3)
-    second_voltage = FloatParameter("Second voltage", units="V", default=3)
-    top_channel = IntegerParameter("Top channel", default=4)
-    bottom_channel = IntegerParameter("Bottom channel", default=3)
-    steps = IntegerParameter("Steps", default=100)
+    # Parameters are annotated with their runtime value types: pymeasure replaces
+    # the Parameter attributes with plain values on procedure instances.
+    first_voltage: float = cast("float", FloatParameter("First voltage", units="V", default=-3))
+    second_voltage: float = cast("float", FloatParameter("Second voltage", units="V", default=3))
+    top_channel: int = cast("int", IntegerParameter("Top channel", default=4))
+    bottom_channel: int = cast("int", IntegerParameter("Bottom channel", default=3))
+    steps: int = cast("int", IntegerParameter("Steps", default=100))
 
     DATA_COLUMNS = ["Time", "Voltage", "Top Electrode Current"]
 
