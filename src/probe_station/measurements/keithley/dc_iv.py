@@ -44,6 +44,8 @@ class MainWindow(BaseWindow):
             inputs=KeithleyDcIvProcedure._INPUTS,
             logger=logger,
         )
+        self.filename = f"{{date}}_{{time}}_C"
+        self.directory = r"C:\Users\tron_\OneDrive\Desktop\Chouprik UV\data"
         from qtpy.QtWidgets import QLabel
 
         self._pulse_label = QLabel()

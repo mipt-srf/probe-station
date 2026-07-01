@@ -79,6 +79,8 @@ dev = [
 ]
 
 [tool.uv.sources]
-waveform-generator = { path = "../waveform-generator", editable = true }
-keysight-b1530a = { path = "../keysight-b1530a", editable = true }
+# waveform-generator = { path = "../waveform-generator", editable = true }
+waveform-generator = { git = "https://github.com/ilev-sergey/waveform-generator" }
+# keysight-b1530a = { path = "../keysight-b1530a", editable = true }
+keysight-b1530a = { git = "https://github.com/ilev-sergey/keysight-b1530a" }
 pymeasure = { path = "../pymeasure", editable = true }

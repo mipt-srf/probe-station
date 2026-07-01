@@ -16,14 +16,14 @@ logger.addHandler(logging.NullHandler())
 
 class KeithleyPundProcedure(BaseProcedure):
     terminal = Parameter("Terminal", default="rear")
-    first_voltage = FloatParameter("First voltage", units="V", default=-3)
-    second_voltage = FloatParameter("Second voltage", units="V", default=3)
+    first_voltage = FloatParameter("First voltage", units="V", default=-2)
+    second_voltage = FloatParameter("Second voltage", units="V", default=2)
     rise = IntegerParameter("Rise steps", default=50)
     hold = IntegerParameter("Hold steps", default=5)
     space = IntegerParameter("Space steps", default=5)
     n_cycles = IntegerParameter("PUND cycles", default=1)
     average_cycles = BooleanParameter("Average cycles", default=False)
-    int_time = FloatParameter("Integration time", units="s", default=0)
+    int_time = FloatParameter("Integration time", units="s", default=0.0001)
     # compliance = FloatParameter("Compliance current", units="A", default=1e-4)
     autorange = BooleanParameter("Autorange", default=False)
     current_range = FloatParameter(
@@ -67,6 +67,7 @@ class KeithleyPundProcedure(BaseProcedure):
         self.smu.voltage_list_sweep(waveform, self.n_cycles)
         self.smu.initiate()
         self.smu.wait(self.should_stop)
+        self.smu.enable_source()
 
         if self.should_stop():
             logger.info("Aborted during sweep")
@@ -111,6 +112,9 @@ class MainWindow(BaseWindow):
             widget_list=widget_list,
             logger=logger,
         )
+        self.filename = f"{{date}}_{{time}}_C"
+        self.directory = r"C:\Users\tron_\OneDrive\Desktop\Chouprik UV\data"
+
         from qtpy.QtWidgets import QLabel
 
         self._pulse_label = QLabel()

@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.12"
 
 [[package]]
@@ -560,21 +560,11 @@ wheels = [
 [[package]]
 name = "keysight-b1530a"
 version = "0.1.0"
-source = { editable = "../keysight-b1530a" }
+source = { git = "https://github.com/ilev-sergey/keysight-b1530a#d7c861ee9439f4194fb5351c98503aa4c08330aa" }
 dependencies = [
     { name = "cffi" },
     { name = "pytest" },
 ]
-
-[package.metadata]
-requires-dist = [
-    { name = "cffi", specifier = ">=1.17.1" },
-    { name = "ipykernel", marker = "extra == 'dev'", specifier = ">=6.29.5" },
-    { name = "matplotlib", marker = "extra == 'dev'", specifier = ">=3.10.3" },
-    { name = "pytest", specifier = ">=8.3.5" },
-    { name = "pytest", marker = "extra == 'tests'", specifier = ">=8.3.5" },
-]
-provides-extras = ["dev", "tests"]
 
 [[package]]
 name = "kiwisolver"
@@ -1000,7 +990,7 @@ requires-dist = [
     { name = "coverage", marker = "extra == 'tests'", specifier = ">=7.6.1" },
     { name = "docstrfmt", marker = "extra == 'docs'", specifier = ">=1.10.0" },
     { name = "furo", marker = "extra == 'docs'", specifier = ">=2024.8.6" },
-    { name = "keysight-b1530a", marker = "extra == 'measurements'", editable = "../keysight-b1530a" },
+    { name = "keysight-b1530a", marker = "extra == 'measurements'", git = "https://github.com/ilev-sergey/keysight-b1530a" },
     { name = "matplotlib", specifier = ">=3.9.2" },
     { name = "matplotlib-label-lines", specifier = ">=0.7.0" },
     { name = "numpy", specifier = ">=2.1.3" },
@@ -1019,7 +1009,7 @@ requires-dist = [
     { name = "sphinx-codeautolink", marker = "extra == 'docs'", specifier = ">=0.17.1" },
     { name = "sphinx-copybutton", marker = "extra == 'docs'", specifier = ">=0.5.2" },
     { name = "sphinx-design", marker = "extra == 'docs'", specifier = ">=0.6.1" },
-    { name = "waveform-generator", marker = "extra == 'measurements'", editable = "../waveform-generator" },
+    { name = "waveform-generator", marker = "extra == 'measurements'", git = "https://github.com/ilev-sergey/waveform-generator" },
 ]
 provides-extras = ["docs", "tests", "measurements"]
 
@@ -1099,19 +1089,17 @@ dependencies = [
     { name = "numpy" },
     { name = "pandas" },
     { name = "pint" },
-    { name = "pyqtgraph" },
     { name = "pyserial" },
     { name = "pyvisa" },
-    { name = "qtpy" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "cloudpickle", marker = "extra == 'tcp'", specifier = ">=0.3.1" },
     { name = "numpy", specifier = ">=1.6.1,<3" },
-    { name = "pandas", specifier = ">=0.14,<3" },
+    { name = "pandas", specifier = ">=0.14,<4" },
     { name = "pint" },
-    { name = "pyqtgraph", specifier = ">=0.12" },
+    { name = "pyqtgraph", marker = "extra == 'gui'", specifier = ">=0.12" },
     { name = "pyserial", specifier = ">=2.7" },
     { name = "pytest", marker = "extra == 'tests'", specifier = ">=3.3.0" },
     { name = "pytest-cov", marker = "extra == 'tests'", specifier = ">=4.1.0" },
@@ -1119,12 +1107,13 @@ requires-dist = [
     { name = "pyvisa", specifier = ">=1.9" },
     { name = "pyvisa-sim", marker = "extra == 'tests'", specifier = ">=0.4.0" },
     { name = "pyzmq", marker = "extra == 'tcp'", specifier = ">=16.0.2" },
-    { name = "qtpy", specifier = ">=2.4" },
+    { name = "qtpy", marker = "extra == 'gui'", specifier = ">=2.4" },
     { name = "sphinx", marker = "extra == 'docs'", specifier = ">=5.0.0" },
     { name = "sphinx-autodoc-typehints", marker = "extra == 'docs'", specifier = ">=2.3.0" },
     { name = "sphinx-rtd-theme", marker = "extra == 'docs'", specifier = ">=1.1.0" },
+    { name = "ty", marker = "extra == 'typecheck'", specifier = ">=0.0.49,<0.1" },
 ]
-provides-extras = ["tcp", "tests", "docs"]
+provides-extras = ["gui", "tcp", "tests", "docs", "typecheck"]
 
 [[package]]
 name = "pyparsing"
@@ -1798,23 +1787,12 @@ wheels = [
 
 [[package]]
 name = "waveform-generator"
-source = { editable = "../waveform-generator" }
+version = "0.1.1.dev3+gb80262ad7"
+source = { git = "https://github.com/ilev-sergey/waveform-generator#b80262ad7352dba311d93ad8b4721012f5145350" }
 dependencies = [
     { name = "matplotlib" },
     { name = "numpy" },
 ]
-
-[package.metadata]
-requires-dist = [
-    { name = "coverage", marker = "extra == 'tests'", specifier = ">=7.6.1" },
-    { name = "ipykernel", marker = "extra == 'dev'", specifier = ">=6.29.5" },
-    { name = "matplotlib" },
-    { name = "nox", marker = "extra == 'dev'", specifier = ">=2025.5.1" },
-    { name = "numpy" },
-    { name = "pytest", marker = "extra == 'tests'", specifier = ">=8.3.5" },
-    { name = "pytest-cov", marker = "extra == 'tests'", specifier = ">=5.0.0" },
-]
-provides-extras = ["tests", "dev"]
 
 [[package]]
 name = "wcwidth"

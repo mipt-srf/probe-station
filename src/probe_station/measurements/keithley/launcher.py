@@ -11,7 +11,7 @@ from probe_station.measurements.keithley.instrument import connect_instrument, g
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
-ADDRESS = "TCPIP0::192.168.81.20::inst0::INSTR"
+ADDRESS = "USB0::0x05E6::0x2450::04131625::INSTR"
 
 
 class _ConnectWorker(QObject):

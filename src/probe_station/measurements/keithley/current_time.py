@@ -83,7 +83,9 @@ class KeithleyCurrentTimeProcedure(BaseProcedure):
         smu = getattr(self, "smu", None)
         if smu is not None:
             try:
-                smu.disable_source()
+                self.smu.source_voltage = 0
+                pass
+                # smu.disable_source()
             except Exception:
                 logger.exception("Failed to disable source during shutdown")
         super().shutdown()
@@ -100,6 +102,8 @@ class MainWindow(BaseWindow):
             widget_list=widget_list,
             logger=logger,
         )
+        self.filename = f"{{date}}_{{time}}_C"
+        self.directory = r"C:\Users\tron_\OneDrive\Desktop\Chouprik UV\data"
 
 
 if __name__ == "__main__":
