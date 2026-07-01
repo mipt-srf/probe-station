@@ -19,6 +19,11 @@ jobs:
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
+      - name: Check out pymeasure source for ty
+        # pyproject.toml points ty at ../pymeasure (the editable import-hook
+        # install is not statically resolvable). CI has no sibling checkout, so
+        # clone the same source ty expects next to the workspace.
+        run: git clone --depth 1 https://github.com/pymeasure/pymeasure.git ../pymeasure
       - name: Install uv
         uses: astral-sh/setup-uv@v8.1.0
         with:
