@@ -27,6 +27,15 @@ extensions = [
     # "nbsphinx",
 ]
 
+# keysight_b1530a is installed for real on the docs builder (via the
+# "measurements" extra) so autodoc sees real enums and docstrings, but its
+# _ffi module dlopens the WGFMU DLL at import time, which only works on
+# Windows with the instrument library present. Mock just that module; the
+# rest of the package imports cleanly without it.
+autodoc_mock_imports = [
+    "keysight_b1530a._ffi",
+]
+
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "numpy": ("http://docs.scipy.org/doc/numpy/", None),
