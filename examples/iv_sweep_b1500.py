@@ -5,6 +5,7 @@ from pymeasure.instruments.agilent.agilentB1500 import (
     ControlMode,
     MeasMode,
     MeasOpMode,
+    SMU,
     PgSelectorConnectionStatus,
     PgSelectorPort,
     SweepMode,
@@ -27,10 +28,10 @@ b1500.io_control_mode = ControlMode.SMU_PGU_SELECTOR
 b1500.set_port_connection(port=PgSelectorPort.OUTPUT_1_FIRST, status=PgSelectorConnectionStatus.SMU_ON)
 b1500.set_port_connection(port=PgSelectorPort.OUTPUT_2_FIRST, status=PgSelectorConnectionStatus.SMU_ON)
 
-smu_top = b1500.smus[top_channel]
+smu_top: SMU = b1500.smus[top_channel]
 smu_top.enable()
 
-smu_bottom = b1500.smus[bottom_channel]
+smu_bottom: SMU = b1500.smus[bottom_channel]
 smu_bottom.enable()
 
 smu_top.force(source_type="voltage", source_range=0, output=0)

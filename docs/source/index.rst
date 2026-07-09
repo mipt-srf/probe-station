@@ -19,3 +19,9 @@ See :doc:`Installation <installation>` page for instructions on how to install t
    structure
    contribution
    onboarding
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Reference
+
+   api
