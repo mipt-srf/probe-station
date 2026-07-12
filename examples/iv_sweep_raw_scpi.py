@@ -13,8 +13,8 @@ b1500.write("FMT 1, 1")
 
 voltage_start = -3
 voltage_end = 3
-top_channel = 4
-bottom_channel = 3
+top_channel = 8
+bottom_channel = 7
 steps = 100
 average = 127
 
