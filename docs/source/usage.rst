@@ -54,3 +54,41 @@ Even though you probably won't understand every single line of the script at fir
 
     examples smth how to use smu and wgfmu
 
+Running measurements with GUI
+=============================
+
+Most of avaiable measurements can be run using GUI. You can run the main :ref:`launcher <structure:Launcher>` in three ways:
+
+.. note:: Presence of ``(.venv)`` indicates that command must be executed in the virtual environment with :doc:`installed <installation>` package
+
+- Run ``probe-station`` command in terminal
+
+  .. code-block:: console
+
+      (.venv) probe-station
+
+  Alternatively, use `uv <https://docs.astral.sh/uv/getting-started/installation/>`_.  for automatic installation on run
+
+  .. code-block:: console
+
+      uv run --extra measurements probe-station
+
+- Run ``launcher.py`` script located in :file:`src/probe_station/measurements/` folder using explorer, IDE or terminal
+
+  .. code-block:: console
+
+      (.venv) python src/probe_station/measurements/launcher.py
+
+- Run :func:`probe_station.measurements.launcher.main` inside Python code
+
+  .. code-block:: python
+
+      >>> from probe_station.measurements.launcher import main as run_launcher
+      >>> run_launcher()
+
+The launcher contains the buttons for running measurements GUIs as well as links to the repository on GitHub and this documentation.
+
+.. TODO: Add buttons
+
+.. TODO: Add gif cmd: uv run -> launcher -> measurement GUI -> measurement launch
+

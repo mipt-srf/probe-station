@@ -24,6 +24,7 @@ extensions = [
     "sphinx_autodoc_typehints",  #  move typehints to descriptions
     "sphinx_design",  # add tab elements
     "sphinx_codeautolink",  # add intersphinx links in code blocks
+    "sphinx.ext.autosectionlabel",  # add automatic labels for sections to use in :ref:
     # "nbsphinx",
 ]
 
@@ -50,6 +51,8 @@ copybutton_prompt_text = " "  # to remove space in (.venv) $
 
 typehints_use_rtype = False
 typehints_defaults = "comma"
+
+autosectionlabel_prefix_document = True
 
 templates_path = ["_templates"]
 exclude_patterns = []
