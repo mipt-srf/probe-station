@@ -10,14 +10,14 @@ There are 3 main ways to use this package:
 
 3. You can analyze results of the measurements with built-in tools for processing specific measurements (e.g. extracting coercive fields from IV sweeps, batch processing of multiple measurements from complex experiments, etc.)
 
-There are also more advanced features that will discussed further. (Writing GUI for your scripts, creating complex experiments)
+There are also more advanced features that will `discussed further <usage:Advanced usage>`.
 
 .. _Writing your scripts:
 
 Writing your scripts
 ====================
 
-You can use :class:`B1500 <probe_station.measurements.b1500.B1500>` class to communicate with B1500 device through Python methods, without direct usage of SCPI commands and VISA API:
+You can use :class:`~probe_station.measurements.b1500.B1500` class to communicate with B1500 device through Python methods, without direct usage of SCPI commands and VISA API:
 
 .. code-block:: python
 
@@ -25,9 +25,9 @@ You can use :class:`B1500 <probe_station.measurements.b1500.B1500>` class to com
     inst = B1500()
     inst.smu4.enable()
 
-Example of the same script for quasistatic DC IV measurement using SMU written with raw SCPI commands and using :class:`B1500 <probe_station.measurements.b1500.B1500>` class from this package:
+Example of the same script for quasistatic DC IV measurement using SMU written with raw SCPI commands and using :class:`~probe_station.measurements.b1500.B1500` class from this package:
 
-.. note:: You can hover over the methods to see where they come from and click on them to go to the documentation page.
+.. hint:: You can hover over the methods to see where they come from and click on them to go to the documentation page.
 
 .. tab-set::
 
@@ -146,7 +146,7 @@ It's also possible to use this package for processing datafiles produced by Matl
 
     In fact, the initial idea of this package was to simplify routine processing of these files. However, it quickly became obvious that both measurements, processing and even the software itself can be implemented in a more structured way. So, I switched to platform-based approach.
 
-Supported measurements from Matlab codebase are represented by :class:`PQ_PUND <probe_station.analysis.matlab.pq_pund.PQ_PUND>`, :class:`DC_IV <probe_station.analysis.matlab.dc_iv.DC_IV>`, :class:`CV <probe_station.analysis.matlab.cv.CV>` and :class:`PUND_double <probe_station.analysis.matlab.pund_double.PUND_double>` classes. The idea behind is similar: you can use common :class:`Dataset <probe_station.analysis.matlab.dataset.Dataset>` class that will choose appropriate handler for your datafile and parse it accordingly.
+Supported measurements from Matlab codebase are represented by :class:`~probe_station.analysis.matlab.pq_pund.PQ_PUND`, :class:`~probe_station.analysis.matlab.dc_iv.DC_IV`, :class:`~probe_station.analysis.matlab.cv.CV` and :class:`~probe_station.analysis.matlab.pund_double.PUND_double` classes. The idea behind is similar: you can use common :class:`~probe_station.analysis.matlab.dataset.Dataset` class that will choose appropriate handler for your datafile and parse it accordingly.
 
 .. TODO: example
 
@@ -160,5 +160,5 @@ Creating complex experiments
 
 Since most of the measurements in the package are modular you can easily construct a complex experiment using them as building blocks.
 
-.. caution:: Despite that this functionality is powerful, you should always think whether it's really worth to use that for your specific case. Sometimes, building some specific thing using framework can be more awkward than implementing it from scratch. If you think this is your case, consider to drop down a level and implement it as a measurement or even as a simple script based on :class:`B1500 <probe_station.measurements.b1500.B1500>` class.
+.. caution:: Despite that this functionality is powerful, you should always think whether it's really worth to use that for your specific case. Sometimes, building some specific thing using framework can be more awkward than implementing it from scratch. If you think this is your case, consider to drop down a level and implement it as a measurement or even as a simple script based on :class:`~probe_station.measurements.b1500.B1500` class.
 
