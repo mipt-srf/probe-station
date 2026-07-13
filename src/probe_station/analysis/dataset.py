@@ -30,6 +30,10 @@ class Dataset(Results):
     The handler is chosen automatically based on the procedure class stored in
     the CSV metadata.  Attribute look-ups are forwarded to the handler, so
     ``ds.plot()`` works directly.
+
+    Procedures without a handler still load fine: all ``Results`` methods
+    (``data``, ``parameters``, ...) remain available, only the handler-specific
+    attributes are missing.
     """
 
     def __new__(cls, filename):
@@ -46,10 +50,6 @@ class Dataset(Results):
 
         :param data_filename: Path to the ``.csv`` result file.
         """
-        self.data_cut = self.data[200:] if len(self.data) > 300 else self.data
-        # Reset index for data_cut
-        self.data_cut = self.data_cut.reset_index(drop=True)
-
         # mappings for old processing routines
         old_mappings = {SmuIvSweepProcedure: DC_IV}
         self.handler_cls = old_mappings.get(self.procedure.__class__)
@@ -57,7 +57,7 @@ class Dataset(Results):
         if self.handler_cls is not None:
             self.handler = self.handler_cls(
                 metadata=self._convert_parameters(self.parameters),
-                dataframes=[self._rename_data_columns(self.data_cut)],
+                dataframes=[self._rename_data_columns(self.data)],
             )
             return
         new_mappings = {
@@ -67,14 +67,25 @@ class Dataset(Results):
         }
         self.handler_cls = new_mappings.get(self.procedure.__class__)
 
-        if self.handler_cls is None:
-            raise ValueError(f"Unsupported procedure class: {self.procedure.__class__}")
+        # No handler implemented for this procedure yet: keep the Dataset
+        # usable as a plain Results object.
+        self.handler = self.handler_cls(parent=self) if self.handler_cls is not None else None
 
-        self.handler = self.handler_cls(parent=self)
+    @property
+    def metadata(self):
+        """``name -> Metadata`` dict, symmetric with ``parameters``.
+
+        Shadows :meth:`Results.metadata`, which formats the metadata header
+        text for recording -- safe here because a Dataset always wraps an
+        already-recorded file and never writes one. Values are only populated
+        if the file header contains a ``Metadata:`` section.
+        """
+        return self.procedure.metadata_objects()
 
     def __getattr__(self, name):
-        if hasattr(self, "handler") and hasattr(self.handler, name):
-            return getattr(self.handler, name)
+        handler = self.__dict__.get("handler")
+        if handler is not None and hasattr(handler, name):
+            return getattr(handler, name)
         raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
 
     def _convert_parameters(self, params):
