@@ -64,7 +64,8 @@ class IvPlotWidget(BasePlotWidget):
             y=self.plot_frame.y_axis,
             **kwargs,
         )
-        curve.setSymbol(None)
+        # None clears the symbol at runtime; pyqtgraph's hints don't allow it.
+        curve.setSymbol(None)  # ty: ignore[invalid-argument-type]
         curve.setSymbolBrush(None)
         curve.log_mode = self.log_scale_checkbox.isChecked()
         return curve

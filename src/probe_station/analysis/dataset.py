@@ -1,6 +1,6 @@
 """Dataset wrapper around PyMeasure Results for analysis of new-format CSV files."""
 
-from pymeasure.experiment import Results
+from pymeasure.experiment import Procedure, Results
 
 from probe_station.analysis.handlers.cv import Cv
 from probe_station.analysis.handlers.fet_ids_vds import FetIdsVds
@@ -18,7 +18,7 @@ from probe_station.measurements.wgfmu.iv_sweep import WgfmuIvSweepProcedure
 # header, reconstruct against a pinned class. Curated for backwards
 # compatibility: map a recorded name here to keep loading legacy data even if
 # the class is later renamed or moved.
-_PROCEDURE_CLASSES = {
+_PROCEDURE_CLASSES: dict[str, type[Procedure]] = {
     cls.__name__: cls
     for cls in (CmuCvSweepProcedure, SmuIvSweepProcedure, WgfmuIvSweepProcedure, SmuFetIdsVdsProcedure)
 }

@@ -11,7 +11,7 @@ class Cv(BaseHandler):
     permittivity at specific voltages, and plotting CV curves.
     """
 
-    def calculate_epsilon(self) -> float:
+    def calculate_epsilon(self) -> None:
         """Calculate dielectric constant. If area/thickness are not provided, use stored geometry set via set_geometry()."""
         epsilon0 = 8.854e-12
         area = self.parameters["area"]
@@ -105,10 +105,10 @@ class Cv(BaseHandler):
 
         return forward_epsilon, reverse_epsilon
 
-    def get_coercive_voltage(self) -> float:
-        """Return the voltage at which the capacitance is the highest.
+    def get_coercive_voltage(self) -> tuple[float, float]:
+        """Return the voltages at which the capacitance is the highest.
 
-        :return: The voltage at which the capacitance is the highest.
+        :return: The forward- and reverse-sweep voltages at which the capacitance is the highest.
         """
         first_branch, second_branch = self.split_data()
 

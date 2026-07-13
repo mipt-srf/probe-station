@@ -43,10 +43,10 @@ def run(b1500: B1500, start, end, steps, average=127, top=4, bottom=3, mode=1, g
     gate_smu.meas_op_mode = MeasOpMode.CURRENT
     smu.meas_range_current = 0
     gate_smu.meas_range_current = 0
-    smu.adc_type = 1
-    gate_smu.adc_type = 1
+    smu.adc_type = ADCType.HRADC
+    gate_smu.adc_type = ADCType.HRADC
 
-    b1500.adc_setup(ADCType.HRADC, ADCMode.MANUAL, average)
+    b1500.adc_setup(ADCType.HRADC, ADCMode.MANUAL, str(average))
     # smu.sweep_timing()
 
     compliance = max_compliance(smu, peak)

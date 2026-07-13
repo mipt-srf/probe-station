@@ -8,6 +8,7 @@ point each -- the WGFMU analogue of the SMU ``Ids (t)`` single-point read.
 """
 
 import logging
+from typing import cast
 
 from keysight_b1530a._bindings.errors import get_error_summary
 from keysight_b1530a.errors import WGFMUError
@@ -43,29 +44,36 @@ class WgfmuFetIdsDcProcedure(WgfmuProcedure):
     ``Ids (Vg)`` procedure (source grounded, Vds on the drain).
     """
 
-    # Parameters are declared in GUI order (see WgfmuProcedure).
-    gate_channel = IntegerParameter("Gate channel (WGFMU)", default=2)
-    drain_channel = IntegerParameter("Drain channel (WGFMU)", default=1)
-    source_channel = IntegerParameter("Source channel (SMU, grounded)", default=1)
-    base_channel = IntegerParameter("Base channel (SMU, grounded)", default=2)
+    # Parameters are declared in GUI order (see WgfmuProcedure). They are
+    # annotated with their runtime value types: pymeasure replaces the
+    # Parameter attributes with plain values on procedure instances.
+    gate_channel: int = cast("int", IntegerParameter("Gate channel (WGFMU)", default=2))
+    drain_channel: int = cast("int", IntegerParameter("Drain channel (WGFMU)", default=1))
+    source_channel: int = cast("int", IntegerParameter("Source channel (SMU, grounded)", default=1))
+    base_channel: int = cast("int", IntegerParameter("Base channel (SMU, grounded)", default=2))
 
-    gate_voltage = FloatParameter("Gate voltage", units="V", default=1.0)
-    drain_voltage = FloatParameter("Drain voltage", units="V", default=0.25)
+    gate_voltage: float = cast("float", FloatParameter("Gate voltage", units="V", default=1.0))
+    drain_voltage: float = cast("float", FloatParameter("Drain voltage", units="V", default=0.25))
 
-    current_range = ListParameter(
-        "Current range",
-        default=WGFMUMeasureCurrentRange.RANGE_10_MA.name,
-        choices=[e.name for e in WGFMUMeasureCurrentRange],
+    current_range: str = cast(
+        "str",
+        ListParameter(
+            "Current range",
+            default=WGFMUMeasureCurrentRange.RANGE_10_MA.name,
+            choices=[e.name for e in WGFMUMeasureCurrentRange],
+        ),
     )
 
-    advanced_config = BooleanParameter("Advanced config", default=False)
+    advanced_config: bool = cast("bool", BooleanParameter("Advanced config", default=False))
     # WGFMU_dcmeasureAveragedValue: sampling interval = interval * 5 ns; both
     # points and interval are bounded to 1..65535 by the instrument.
-    average_points = IntegerParameter(
-        "Averaging points", default=1000, minimum=1, maximum=65535, group_by="advanced_config"
+    average_points: int = cast(
+        "int",
+        IntegerParameter("Averaging points", default=1000, minimum=1, maximum=65535, group_by="advanced_config"),
     )
-    sample_interval = IntegerParameter(
-        "Sampling interval (x5 ns)", default=20, minimum=1, maximum=65535, group_by="advanced_config"
+    sample_interval: int = cast(
+        "int",
+        IntegerParameter("Sampling interval (x5 ns)", default=20, minimum=1, maximum=65535, group_by="advanced_config"),
     )
 
     DATA_COLUMNS = ["Drain Current", "Gate Current"]

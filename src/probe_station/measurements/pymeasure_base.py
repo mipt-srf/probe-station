@@ -8,6 +8,7 @@ import sys
 import weakref
 from datetime import datetime
 from pathlib import Path
+from typing import Protocol, cast
 
 from pymeasure.display.widgets import LogWidget, PlotWidget
 from pymeasure.display.windows import ManagedWindowBase
@@ -52,7 +53,7 @@ def canonicalize_columns(results: Results) -> Results:
     df = results.data
     renames = {column: LEGACY_COLUMN_ALIASES[column] for column in df.columns if column in LEGACY_COLUMN_ALIASES}
     if renames:
-        results._data = results._data.rename(columns=renames)
+        results._data = df.rename(columns=renames)
     return results
 
 
@@ -85,8 +86,11 @@ class BaseProcedure(Procedure):
     ``end_time`` set on the instance — only the CSV write is skipped.
     """
 
-    start_time = Metadata("Start time", default=0)
-    end_time = Metadata("End time", default=0)
+    # Metadata attributes are annotated with the runtime value type: pymeasure
+    # replaces them with plain values on procedure instances, and startup()/
+    # shutdown() below assign datetimes.
+    start_time: datetime = cast("datetime", Metadata("Start time", default=0))
+    end_time: datetime = cast("datetime", Metadata("End time", default=0))
 
     def startup(self):
         super().startup()
@@ -110,7 +114,13 @@ def take_screenshot(window, dest: str | Path, full_screen: bool = False) -> Path
     dest = Path(dest)
     try:
         if full_screen:
-            pixmap = QApplication.instance().primaryScreen().grabWindow(0)
+            app = QApplication.instance()
+            screen = app.primaryScreen() if isinstance(app, QApplication) else None
+            if screen is None:
+                logger.warning("Screenshot failed: no QApplication instance or no screen")
+                return None
+            # Without a window id grabWindow captures the whole screen.
+            pixmap = screen.grabWindow()
         else:
             pixmap = window.grab()
         if not pixmap.save(str(dest), "PNG"):
@@ -220,7 +230,9 @@ class BaseWindow(ManagedWindowBase):
         if busy:
             msg = f"Cannot queue: another measurement is running ({', '.join(busy)})"
             logger.warning(msg)
-            self.statusBar().showMessage(msg, 5000)
+            status_bar = self.statusBar()
+            assert status_bar is not None
+            status_bar.showMessage(msg, 5000)
             return
         if self.store_measurement:
             add_file_log_dir(Path(self.directory) / "logs")
@@ -330,7 +342,20 @@ def load_results(path: str | Path, procedure_classes: dict[str, type[Procedure]]
     return canonicalize_columns(results)
 
 
-def read_procedure_class(path: str | Path) -> tuple[type[Procedure], type[BaseWindow]]:
+class WindowFactory(Protocol):
+    """A no-argument window constructor -- by convention, a procedure module's ``MainWindow`` class.
+
+    Concrete ``MainWindow`` subclasses take no constructor arguments (unlike
+    :class:`BaseWindow` itself, which requires ``procedure_class``), so callers
+    resolving windows by convention see this narrower construction signature.
+    """
+
+    __name__: str
+
+    def __call__(self) -> "BaseWindow": ...
+
+
+def read_procedure_class(path: str | Path) -> tuple[type[Procedure], WindowFactory]:
     """Resolve the procedure and window class for a Pymeasure results CSV.
 
     Parses the file header via :func:`load_results` — which imports the
@@ -371,7 +396,7 @@ def run_app(window_class):
     from pymeasure.display.Qt import QtWidgets
     from qtpy.QtCore import QLocale
 
-    QLocale.setDefault(QLocale(QLocale.English, QLocale.UnitedStates))
+    QLocale.setDefault(QLocale(QLocale.Language.English, QLocale.Country.UnitedStates))
     app = QtWidgets.QApplication(sys.argv)
     window = window_class()
     window.show()

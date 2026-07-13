@@ -156,6 +156,7 @@ def get_sequence(
     first = TriangularSweep(end_voltage=first_voltage, time_step=time_step, steps=steps, edge_time=edge_time)
     second = TriangularSweep(end_voltage=second_voltage, time_step=time_step, steps=steps, edge_time=edge_time)
 
+    pulses: list[TriangularSweep | TrapezoidalPulse]
     if sequence_type == "pund":
         pulses = [first] * 2 + [second] * 2
     elif sequence_type == "unipolar":
@@ -220,7 +221,9 @@ def set_waveform(
     # sum the on-grid segments instead of sequence.total_duration so the
     # measure event spans exactly what the hardware plays
     seq_time = float(np.sum(times))
-    logger.info(f"Waveform for {pattern_name}: {len(voltages)} samples, {seq_time:.6g} s, {len(sequence.pulses)} pulses")
+    logger.info(
+        f"Waveform for {pattern_name}: {len(voltages)} samples, {seq_time:.6g} s, {len(sequence.pulses)} pulses"
+    )
     b1500.add_vectors_to_wgfmu_pattern(pattern_name, times.tolist(), voltages.tolist())
     if measure:
         interval = np.floor(seq_time / measure_points / WGFMU_TIMING_RESOLUTION) * WGFMU_TIMING_RESOLUTION
@@ -337,9 +340,12 @@ def run_waveforms(
         )
 
     channels = [top_ch] if bottom_ch is None else [top_ch, bottom_ch]
-    measure_ranges = None
+    measure_ranges: dict[int, WGFMUMeasureCurrentRange] | None = None
     if bottom_ch is not None and bottom_current_range is not None:
-        measure_ranges = {top_ch: current_range, bottom_ch: bottom_current_range}
+        # Channels absent from the dict fall back to measure_range inside run().
+        measure_ranges = {bottom_ch: bottom_current_range}
+        if current_range is not None:
+            measure_ranges[top_ch] = current_range
     try:
         run(
             b1500=b1500,

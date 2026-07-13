@@ -1,4 +1,5 @@
 import logging
+from typing import cast
 
 from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter, ListParameter
@@ -16,22 +17,29 @@ logger.addHandler(logging.NullHandler())
 
 
 class SmuIvSweepProcedure(BaseProcedure):
-    first_voltage = FloatParameter("First voltage", units="V", default=-3)
-    second_voltage = FloatParameter("Second voltage", units="V", default=3)
-    top_channel = IntegerParameter("Top channel", default=4)
-    bottom_channel = IntegerParameter("Bottom channel", default=3)
-    averaging = IntegerParameter("Integration coefficient", default=127, minimum=1, maximum=127)
-    advanced_config = BooleanParameter("Advanced config", default=False)
-    steps = IntegerParameter("Steps", default=100, group_by="advanced_config")
-    mode = ListParameter(
-        "Mode",
-        default=SmuSweepMode.START_TO_STOP.name,
-        choices=[member.name for member in SmuSweepMode],
-        group_by="advanced_config",
+    # Parameters are annotated with their runtime value types: pymeasure replaces
+    # the Parameter attributes with plain values on procedure instances.
+    first_voltage: float = cast("float", FloatParameter("First voltage", units="V", default=-3))
+    second_voltage: float = cast("float", FloatParameter("Second voltage", units="V", default=3))
+    top_channel: int = cast("int", IntegerParameter("Top channel", default=4))
+    bottom_channel: int = cast("int", IntegerParameter("Bottom channel", default=3))
+    averaging: int = cast("int", IntegerParameter("Integration coefficient", default=127, minimum=1, maximum=127))
+    advanced_config: bool = cast("bool", BooleanParameter("Advanced config", default=False))
+    steps: int = cast("int", IntegerParameter("Steps", default=100, group_by="advanced_config"))
+    mode: str = cast(
+        "str",
+        ListParameter(
+            "Mode",
+            default=SmuSweepMode.START_TO_STOP.name,
+            choices=[member.name for member in SmuSweepMode],
+            group_by="advanced_config",
+        ),
     )
     # compliance = FloatParameter("Current compliance", units="A", default=0.1, group_by="advanced_config")
-    calculate_resistance = BooleanParameter("Calculate resistance", default=False)
-    resistance_voltage = FloatParameter("Resistance voltage", units="V", default=1.0, group_by="calculate_resistance")
+    calculate_resistance: bool = cast("bool", BooleanParameter("Calculate resistance", default=False))
+    resistance_voltage: float = cast(
+        "float", FloatParameter("Resistance voltage", units="V", default=1.0, group_by="calculate_resistance")
+    )
 
     DATA_COLUMNS = ["Voltage", "Top Electrode Current", "Time"]
 
@@ -90,15 +98,22 @@ class MainWindow(BaseWindow):
             logger=logger,
         )
 
+        from pymeasure.display.inputs import BooleanInput
+        from pymeasure.display.widgets import InputsWidget
         from qtpy.QtWidgets import QLabel
 
         self._resistance_label = QLabel()
-        self.inputs.layout().addWidget(self._resistance_label)
-        self.inputs.calculate_resistance.toggled.connect(self._update_resistance_visibility)
+        inputs = cast("InputsWidget", self.inputs)
+        layout = inputs.layout()
+        assert layout is not None
+        layout.addWidget(self._resistance_label)
+        # InputsWidget exposes one input widget per procedure parameter as a dynamic attribute
+        self._resistance_checkbox: BooleanInput = getattr(inputs, "calculate_resistance")
+        self._resistance_checkbox.toggled.connect(self._update_resistance_visibility)
         self._update_resistance_visibility()
 
     def _update_resistance_visibility(self):
-        enabled = self.inputs.calculate_resistance.value()
+        enabled = self._resistance_checkbox.value()
         self._resistance_label.setVisible(enabled)
         if not enabled:
             self._resistance_label.clear()

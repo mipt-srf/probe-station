@@ -53,10 +53,10 @@ def run(
     gate_smu.meas_op_mode = MeasOpMode.CURRENT
     drain_smu.meas_range_current = 0
     gate_smu.meas_range_current = 0
-    drain_smu.adc_type = 1
-    gate_smu.adc_type = 1
+    drain_smu.adc_type = ADCType.HRADC
+    gate_smu.adc_type = ADCType.HRADC
 
-    b1500.adc_setup(ADCType.HRADC, ADCMode.MANUAL, average)
+    b1500.adc_setup(ADCType.HRADC, ADCMode.MANUAL, str(average))
 
     compliance = max_compliance(gate_smu, peak)
 

@@ -1,6 +1,7 @@
 """PyMeasure procedure for measuring FET drain and gate currents at fixed bias."""
 
 import logging
+from typing import cast
 
 from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import (
@@ -22,18 +23,26 @@ logger.addHandler(logging.NullHandler())
 class SmuFetIdsTimeProcedure(BaseProcedure):
     """Measure drain and gate current of a FET at specified bias voltages."""
 
-    gate_voltage = FloatParameter("Gate voltage", units="V", default=10.0)
-    drain_voltage = FloatParameter("Drain voltage", units="V", default=10.0)
+    # Parameters are annotated with their runtime value types: pymeasure replaces
+    # the Parameter attributes with plain values on procedure instances.
+    gate_voltage: float = cast("float", FloatParameter("Gate voltage", units="V", default=10.0))
+    drain_voltage: float = cast("float", FloatParameter("Drain voltage", units="V", default=10.0))
 
-    gate_channel = IntegerParameter("Gate channel", default=4)
-    drain_channel = IntegerParameter("Drain channel", default=1)
+    gate_channel: int = cast("int", IntegerParameter("Gate channel", default=4))
+    drain_channel: int = cast("int", IntegerParameter("Drain channel", default=1))
 
-    advanced_config = BooleanParameter("Advanced config", default=False)
-    averaging = IntegerParameter("Averaging", default=10, minimum=1, maximum=1023, group_by="advanced_config")
-    source_channel = IntegerParameter("Source channel", default=3, group_by="advanced_config")
-    base_channel = IntegerParameter("Base channel", default=2, group_by="advanced_config")
-    source_voltage = FloatParameter("Source voltage", units="V", default=0.0, group_by="advanced_config")
-    base_voltage = FloatParameter("Base voltage", units="V", default=0.0, group_by="advanced_config")
+    advanced_config: bool = cast("bool", BooleanParameter("Advanced config", default=False))
+    averaging: int = cast(
+        "int", IntegerParameter("Averaging", default=10, minimum=1, maximum=1023, group_by="advanced_config")
+    )
+    source_channel: int = cast("int", IntegerParameter("Source channel", default=3, group_by="advanced_config"))
+    base_channel: int = cast("int", IntegerParameter("Base channel", default=2, group_by="advanced_config"))
+    source_voltage: float = cast(
+        "float", FloatParameter("Source voltage", units="V", default=0.0, group_by="advanced_config")
+    )
+    base_voltage: float = cast(
+        "float", FloatParameter("Base voltage", units="V", default=0.0, group_by="advanced_config")
+    )
 
     DATA_COLUMNS = ["Drain Current", "Gate Current"]
 

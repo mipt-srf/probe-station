@@ -1,10 +1,13 @@
 """Module contains utility functions for the probe station project."""
 
 import logging
-from collections.abc import Generator
+from collections.abc import Generator, Iterable, Sequence
+from itertools import repeat
 from pathlib import Path
+from typing import cast
 
 import matplotlib
+import matplotlib.collections
 import matplotlib.pyplot as plt
 import numpy as np
 import scienceplots  # noqa: F401
@@ -13,6 +16,7 @@ from labellines import labelLines
 from scipy.interpolate import interp1d
 
 from probe_station.analysis.matlab import Dataset
+from probe_station.analysis.matlab.dc_iv import DC_IV
 
 plt.style.use(["science", "no-latex", "notebook"])
 
@@ -20,7 +24,7 @@ logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
 
-def get_files_in_folder(path: str, ignore: tuple = ()) -> Generator[Path, None, None]:
+def get_files_in_folder(path: Path | str, ignore: tuple = ()) -> Generator[Path, None, None]:
     """Get data file paths in the specified directory, excluding ignored indexes.
 
     :param path: Path to the directory containing data files.
@@ -40,9 +44,9 @@ def get_color_gradient(from_color: str, to_color: str, count: int) -> Generator[
     :param count: Number of colors in the gradient.
     :return: Generator of colors in the gradient.
     """
-    from_color = Color(from_color)
-    to_color = Color(to_color)
-    yield from (color.hex for color in from_color.range_to(to_color, count))
+    start = Color(from_color)
+    end = Color(to_color)
+    yield from (color.hex for color in start.range_to(end, count))
 
 
 def get_colormap(from_color: str, to_color: str, count: int, name: str = "my_cmap") -> matplotlib.colors.ListedColormap:
@@ -97,7 +101,7 @@ def plot_colored_line_by_param(
     fig, ax = plt.subplots(figsize=figsize)
 
     lc = matplotlib.collections.LineCollection(
-        segments,
+        list(segments),
         cmap=cmap or "viridis",
         norm=norm or plt.Normalize(c.min(), c.max()),  # <- use passed norm if given
     )
@@ -118,9 +122,9 @@ def plot_colored_line_by_param(
 
 
 def plot_in_folder(
-    path: str,
+    path: Path | str,
     ignore: tuple = (),
-    labels: list[str] | None = None,
+    labels: Iterable[float | str] | None = None,
     *,
     new_figure: bool = True,
     alpha: float = 0.5,
@@ -142,18 +146,19 @@ def plot_in_folder(
 
     for datafile_path, label in zip(
         get_files_in_folder(path, ignore),
-        labels,
+        labels if labels is not None else repeat(None),
         strict=False,
     ):
         ds = Dataset(datafile_path)
-        ds.handler.plot(alpha=alpha, label=label, linestyle=linestyle)
+        handler = cast("DC_IV", ds.handler)
+        handler.plot(alpha=alpha, label=label, linestyle=linestyle)
     logger.info("Plotted %d IV curves from %s", len(paths), path)
 
 
 def label_lines(
     xpos: float,
     ypos: float,
-    indexes: list[int] | None = None,
+    indexes: Sequence[int] | None = None,
     color: str = "auto",
 ) -> None:
     """Label lines on a plot at a specified x position.
@@ -190,7 +195,7 @@ def color_lines(from_color: str, to_color: str, sort_order_point: float = 0.1) -
 
 def plot_input_curves(
     path: Path | str,
-    drain_voltages: list[float],
+    drain_voltages: Sequence[float],
     v_gate: np.ndarray,
     ignore: tuple = (),
 ) -> None:
@@ -201,7 +206,7 @@ def plot_input_curves(
     fig, ax = plt.subplots()
     data = {drain_voltage: np.zeros(len(files)) for drain_voltage in drain_voltages}
     for i, datafile in enumerate(files):
-        handler = Dataset(datafile).handler
+        handler = cast("DC_IV", Dataset(datafile).handler)
         for drain_voltage in drain_voltages:
             data[drain_voltage][i] = handler.get_current_at_voltage(drain_voltage)
     for drain_voltage, current in data.items():
@@ -226,7 +231,7 @@ def plot_threshold_curve(
     fig, ax = plt.subplots()
     data = np.zeros(len(files))
     for i, datafile in enumerate(files):
-        handler = Dataset(datafile).handler
+        handler = cast("DC_IV", Dataset(datafile).handler)
         data[i] = handler.get_voltage_with_lowest_current()
     plt.plot(v_gate[:cut], data[:cut], "o-")
     plt.xlabel("Gate voltage, V")
@@ -239,7 +244,7 @@ def characterize_transistor(
     v_gate: np.ndarray,
     files_to_ignore: tuple = (),
     curves_with_label: tuple = (),
-    drain_voltages: tuple | None = None,
+    drain_voltages: Sequence[float] | None = None,
     label_position: float = 0.15,
     title_position: float = 1e-3,
 ) -> None:
@@ -259,8 +264,8 @@ def characterize_transistor(
 
     if not drain_voltages:
         datafile = list(get_files_in_folder(path, ignore=files_to_ignore))[-1]
-        handler = Dataset(datafile).handler
-        drain_voltages = np.arange(handler.first_bias, handler.second_bias, 0.1)
+        handler = cast("DC_IV", Dataset(datafile).handler)
+        drain_voltages = tuple(np.arange(handler.first_bias, handler.second_bias, 0.1))
     plot_input_curves(
         path=path,
         drain_voltages=drain_voltages,

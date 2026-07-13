@@ -1,5 +1,6 @@
 import threading
 from functools import wraps
+from typing import cast
 
 from keysight_b1530a import (
     WGFMU,
@@ -21,7 +22,9 @@ from keysight_b1530a.enums import (  # noqa: F401
     WGFMUMeasureMode,
     WGFMUOperationMode,
 )
+from pymeasure.adapters import VISAAdapter
 from pymeasure.instruments.agilent.agilentB1500 import AgilentB1500
+from pyvisa.resources import MessageBasedResource
 
 
 def _synchronized(method):
@@ -95,7 +98,7 @@ class B1500(AgilentB1500):
     def open_wgfmu_session(self):
         """Open a session to the WGFMU module."""
         if not self._wgfmu_session_opened:
-            open_session(self.adapter.resource_name)
+            open_session(cast("VISAAdapter", self.adapter).resource_name)
             self._wgfmu_session_opened = True
 
     def close_wgfmu_session(self):
@@ -104,28 +107,36 @@ class B1500(AgilentB1500):
             close_session()  # Note: will cause the error if the session was closed already from outside
             self._wgfmu_session_opened = False
 
-    @wraps(get_channel_ids)
+    # The WGFMU helpers below borrow the docstrings of the keysight_b1530a
+    # functions they delegate to. ``functools.wraps`` is unsuitable for that:
+    # it would also replace the method's name and signature (dropping ``self``).
+
     def query_wgfmu_channels(self):
         return get_channel_ids()
 
-    @wraps(execute)
+    query_wgfmu_channels.__doc__ = get_channel_ids.__doc__
+
     def run_wgfmu_measurement(self):
         execute()
         wait_until_completed()
 
-    @wraps(create_pattern)
+    run_wgfmu_measurement.__doc__ = execute.__doc__
+
     def create_wgfmu_pattern(self, name: str, start_voltage: float):
         return create_pattern(name, start_voltage)
 
-    @wraps(add_vector)
+    create_wgfmu_pattern.__doc__ = create_pattern.__doc__
+
     def add_vector_to_wgfmu_pattern(self, pattern_name: str, voltage: float, duration: float):
         add_vector(pattern_name, voltage, duration)
 
-    @wraps(add_vectors)
+    add_vector_to_wgfmu_pattern.__doc__ = add_vector.__doc__
+
     def add_vectors_to_wgfmu_pattern(self, pattern_name: str, voltages: list[float], durations: list[float]):
         add_vectors(pattern_name, voltages, durations)
 
-    @wraps(set_measure_event)
+    add_vectors_to_wgfmu_pattern.__doc__ = add_vectors.__doc__
+
     def set_wgfmu_measure_event(
         self,
         pattern_name: str,
@@ -138,13 +149,17 @@ class B1500(AgilentB1500):
     ):
         set_measure_event(pattern_name, event_name, points, interval, average, mode, start_time)
 
-    @wraps(initialize)
+    set_wgfmu_measure_event.__doc__ = set_measure_event.__doc__
+
     def initialize_wgfmu(self):
         initialize()
 
-    @wraps(clear)
+    initialize_wgfmu.__doc__ = initialize.__doc__
+
     def clear_wgfmu(self):
         clear()
+
+    clear_wgfmu.__doc__ = clear.__doc__
 
     def iter_output(self, total_steps: int, values_per_step: int):
         """Read sweep output step-by-step (B1500 guide section 1-19).
@@ -156,7 +171,7 @@ class B1500(AgilentB1500):
         enabling real-time per-step readout when FMT mode 1 is active.
         Reads until comma/newline delimiters so token byte length does not need to be known.
         """
-        resource = self.adapter.connection
+        resource = cast("MessageBasedResource", self.adapter.connection)
         buf = bytearray()
 
         def next_value() -> float:
