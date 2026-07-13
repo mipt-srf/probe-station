@@ -30,6 +30,10 @@ class Dataset(Results):
     The handler is chosen automatically based on the procedure class stored in
     the CSV metadata.  Attribute look-ups are forwarded to the handler, so
     ``ds.plot()`` works directly.
+
+    Procedures without a handler still load fine: all ``Results`` methods
+    (``data``, ``parameters``, ...) remain available, only the handler-specific
+    attributes are missing.
     """
 
     def __new__(cls, filename):
@@ -63,14 +67,14 @@ class Dataset(Results):
         }
         self.handler_cls = new_mappings.get(self.procedure.__class__)
 
-        if self.handler_cls is None:
-            raise ValueError(f"Unsupported procedure class: {self.procedure.__class__}")
-
-        self.handler = self.handler_cls(parent=self)
+        # No handler implemented for this procedure yet: keep the Dataset
+        # usable as a plain Results object.
+        self.handler = self.handler_cls(parent=self) if self.handler_cls is not None else None
 
     def __getattr__(self, name):
-        if hasattr(self, "handler") and hasattr(self.handler, name):
-            return getattr(self.handler, name)
+        handler = self.__dict__.get("handler")
+        if handler is not None and hasattr(handler, name):
+            return getattr(handler, name)
         raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
 
     def _convert_parameters(self, params):
