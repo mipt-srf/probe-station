@@ -134,3 +134,31 @@ The launcher contains the buttons for running measurements GUIs as well as links
 
 .. TODO: Add gif cmd: uv run -> launcher -> measurement GUI -> measurement launch
 
+Data processing
+===============
+
+Matlab data processing (deprecated)
+-----------------------------------
+
+It's also possible to use this package for processing datafiles produced by Matlab codebase.
+
+.. admonition:: Comment
+
+    In fact, the initial idea of this package was to simplify routine processing of these files. However, it quickly became obvious that both measurements, processing and even the software itself can be implemented in a more structured way. So, I switched to platform-based approach.
+
+Supported measurements from Matlab codebase are represented by :class:`PQ_PUND <probe_station.analysis.matlab.pq_pund.PQ_PUND>`, :class:`DC_IV <probe_station.analysis.matlab.dc_iv.DC_IV>`, :class:`CV <probe_station.analysis.matlab.cv.CV>` and :class:`PUND_double <probe_station.analysis.matlab.pund_double.PUND_double>` classes. The idea behind is similar: you can use common :class:`Dataset <probe_station.analysis.matlab.dataset.Dataset>` class that will choose appropriate handler for your datafile and parse it accordingly.
+
+.. TODO: example
+
+Despite that utils for Matlab datafiles processing it's still a part of the package as well, I would recommend to switch to using package's measurements as they are implemented as part of the ecosystem and can be easier processed in the future.
+
+
+Advanced usage
+==============
+Creating complex experiments
+----------------------------
+
+Since most of the measurements in the package are modular you can easily construct a complex experiment using them as building blocks.
+
+.. caution:: Despite that this functionality is powerful, you should always think whether it's really worth to use that for your specific case. Sometimes, building some specific thing using framework can be more awkward than implementing it from scratch. If you think this is your case, consider to drop down a level and implement it as a measurement or even as a simple script based on :class:`B1500 <probe_station.measurements.b1500.B1500>` class.
+
