@@ -2,6 +2,7 @@
 
 Provides:
 
+* :class:`Dataset` — load PyMeasure ``.csv`` result files and select the appropriate handler.
 * :class:`MatlabDataset` — parse legacy ``.data`` files and select the appropriate handler.
 * :func:`connect_instrument` — connect to the Agilent/Keysight B1500 over USB.
 * ``analysis`` sub-package — batch processing, CV/IV handlers, helper functions.
@@ -14,16 +15,21 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:  # replace with lazy imports (py>=3.15) https://peps.python.org/pep-0810/
+    from .analysis.dataset import Dataset
     from .analysis.matlab import Dataset as MatlabDataset
     from .measurements.b1500 import B1500
     from .measurements.b1500_helpers import connect_instrument
     from .measurements.keithley import Keithley2450Extended
     from .measurements.session import Session
 
-__all__ = ["MatlabDataset", "connect_instrument", "B1500", "Keithley2450Extended", "Session"]
+__all__ = ["Dataset", "MatlabDataset", "connect_instrument", "B1500", "Keithley2450Extended", "Session"]
 
 
 def __getattr__(name: str):
+    if name == "Dataset":
+        from .analysis.dataset import Dataset
+
+        return Dataset
     if name == "MatlabDataset":
         from .analysis.matlab import Dataset
 
