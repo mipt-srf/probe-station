@@ -71,6 +71,17 @@ class Dataset(Results):
         # usable as a plain Results object.
         self.handler = self.handler_cls(parent=self) if self.handler_cls is not None else None
 
+    @property
+    def metadata(self):
+        """``name -> Metadata`` dict, symmetric with ``parameters``.
+
+        Shadows :meth:`Results.metadata`, which formats the metadata header
+        text for recording -- safe here because a Dataset always wraps an
+        already-recorded file and never writes one. Values are only populated
+        if the file header contains a ``Metadata:`` section.
+        """
+        return self.procedure.metadata_objects()
+
     def __getattr__(self, name):
         handler = self.__dict__.get("handler")
         if handler is not None and hasattr(handler, name):
