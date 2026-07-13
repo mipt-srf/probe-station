@@ -46,10 +46,6 @@ class Dataset(Results):
 
         :param data_filename: Path to the ``.csv`` result file.
         """
-        self.data_cut = self.data[200:] if len(self.data) > 300 else self.data
-        # Reset index for data_cut
-        self.data_cut = self.data_cut.reset_index(drop=True)
-
         # mappings for old processing routines
         old_mappings = {SmuIvSweepProcedure: DC_IV}
         self.handler_cls = old_mappings.get(self.procedure.__class__)
@@ -57,7 +53,7 @@ class Dataset(Results):
         if self.handler_cls is not None:
             self.handler = self.handler_cls(
                 metadata=self._convert_parameters(self.parameters),
-                dataframes=[self._rename_data_columns(self.data_cut)],
+                dataframes=[self._rename_data_columns(self.data)],
             )
             return
         new_mappings = {
