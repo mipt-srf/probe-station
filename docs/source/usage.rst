@@ -137,6 +137,78 @@ The launcher contains the buttons for running measurements GUIs as well as links
 Data processing
 ===============
 
+Data access
+-----------
+
+You can use convenient properties to quickly retrieve the data from datafiles as :class:`pandas.DataFrame`.
+
+.. jupyter-execute::
+
+    from probe_station.analysis.dataset import Dataset
+    ds = Dataset("data/example_cv.csv")
+    ds.data
+
+Also, parameters that were used for the measurements as well as metadata can be accessed.
+
+.. jupyter-execute::
+
+    ds.parameters
+
+.. jupyter-execute::
+
+    ds.parameters["ac_voltage"].value
+
+.. jupyter-execute::
+
+    ds.metadata
+    
+.. jupyter-execute::
+
+    ds.metadata["start_time"].value
+
+This functionality is available for all datafiles produced by :class:`~probe_station.measurements.pymeasure_base.BaseProcedure` or :class:`~pymeasure.experiment.procedure.Procedure` -based measurements.
+
+Data plotting
+-------------
+
+Since ``.data`` is presented as :class:`pandas.DataFrame` you can always quickly plot it
+
+.. jupyter-execute::
+
+    ds.data.plot(x="Voltage", y="Capacitance");
+
+However, it might not be convenient when you want to process lots of datafiles with different types of data as you need to specify data columns to plot. For this case, there are structure:handlers that are procedure-specific but have common ``.plot`` methods. So, you can do simply following.
+
+.. jupyter-execute::
+
+    ds.plot()
+
+Extracting characteristics from raw data
+----------------------------------------
+
+Some of the common processing specific to each procedure is provided by structure:handler as well.
+
+E.g. you can calculate dielectric constant versus field curve as follows
+
+.. jupyter-execute::
+
+    ds.plot_epsilon(area=(50e-6) ** 2, thickness=10e-9)
+
+There are also other methods that might be useful for processing multiple files at once and extracting some patterns
+
+.. jupyter-execute::
+
+    ds.handler.get_coercive_voltage()
+
+.. jupyter-execute::
+
+    ds.handler.get_epsilons_at_voltage(1)
+
+.. warning::
+
+    Since the type of handler that should be used for specific datafile is determined in run time, the IDE autocompletion and type hints don't work very well. You might want to look at corresponding handler docs (:class:`~probe_station.analysis.handlers.cv.Cv`, :class:`~probe_station.analysis.handlers.iv.Iv`, :class:`~probe_station.analysis.handlers.fet_ids_vds.FetIdsVds`) yourself to see which methods are available.
+
+
 Matlab data processing (deprecated)
 -----------------------------------
 

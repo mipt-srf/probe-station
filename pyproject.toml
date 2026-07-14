@@ -34,6 +34,7 @@ reader-gui = "probe_station.measurements.reader:main"
 docs = [
     "docstrfmt>=1.10.0",
     "furo>=2024.8.6",
+    "jupyter-sphinx>=0.5.3",
     "sphinx-autobuild>=2024.10.3",
     "sphinx-autodoc-typehints>=3.1.0",
     "sphinx-codeautolink>=0.17.1",

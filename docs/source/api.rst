@@ -11,7 +11,21 @@ B1500
 
 .. autofunction:: probe_station.measurements.launcher.main
 
+.. autoclass:: probe_station.measurements.pymeasure_base.BaseProcedure
+
 .. autoclass:: probe_station.analysis.dataset.Dataset
+
+.. automodule:: probe_station.analysis.handlers.cv
+   :undoc-members:
+   :members:
+
+.. automodule:: probe_station.analysis.handlers.fet_ids_vds
+   :undoc-members:
+   :members:
+
+.. automodule:: probe_station.analysis.handlers.iv
+   :undoc-members:
+   :members:
 
 .. autoclass:: probe_station.analysis.matlab.dataset.Dataset
 

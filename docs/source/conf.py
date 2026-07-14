@@ -25,6 +25,7 @@ extensions = [
     "sphinx_design",  # add tab elements
     "sphinx_codeautolink",  # add intersphinx links in code blocks
     "sphinx.ext.autosectionlabel",  # add automatic labels for sections to use in :ref:
+    "jupyter_sphinx",  # add executed inline code cells
     # "nbsphinx",
 ]
 
@@ -53,6 +54,10 @@ typehints_use_rtype = False
 typehints_defaults = "comma"
 
 autosectionlabel_prefix_document = True
+
+jupyter_execute_kwargs = {
+    "cwd": str(pathlib.Path(__file__).parent),  # kernel cwd = docs/source
+}
 
 templates_path = ["_templates"]
 exclude_patterns = []

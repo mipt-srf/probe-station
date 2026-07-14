@@ -1,6 +1,7 @@
 __pycache__/
 src/probe_station/_version.py
 docs/build/
+docs/jupyter_execute/
 *.egg-info/
 build/
 .venv/
