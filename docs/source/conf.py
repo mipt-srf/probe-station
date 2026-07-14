@@ -60,6 +60,8 @@ jupyter_execute_kwargs = {
 }
 
 templates_path = ["_templates"]
+html_static_path = ["_static"]
+html_css_files = ["custom.css"]  # theme-aware restyling of jupyter-sphinx cells
 exclude_patterns = []
 
 default_role = "any"

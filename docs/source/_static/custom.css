@@ -1,0 +1,55 @@
+/* Theme-aware overrides for jupyter-sphinx cells.
+ *
+ * The stock jupyter-sphinx.css hardcodes light colors (white container,
+ * #f7f7f7 input cells, white output background), which clash with furo's
+ * dark theme. Restating them in furo CSS variables makes the cells follow
+ * the light/dark toggle automatically.
+ */
+
+div.jupyter_container {
+    background-color: var(--color-background-primary);
+    border: 1px solid var(--color-background-border);
+    box-shadow: none;
+}
+
+.jupyter_container div.code_cell,
+.jupyter_container div.code_cell pre,
+div.jupyter_container div.highlight {
+    background-color: var(--color-code-background);
+    color: var(--color-code-foreground);
+    border-color: var(--color-background-border);
+}
+
+.jupyter_container div.output pre,
+.jupyter_container .output .highlight {
+    background-color: var(--color-background-primary);
+    color: var(--color-foreground-primary);
+}
+
+.jupyter_container .stderr {
+    /* translucent red reads on both light and dark backgrounds */
+    background-color: rgba(244, 67, 54, 0.15);
+}
+
+/* Pandas DataFrame repr: unstyled <table class="dataframe"> otherwise
+ * falls back to browser defaults, which look broken on dark backgrounds. */
+.jupyter_container .output table.dataframe {
+    border-collapse: collapse;
+    color: var(--color-foreground-primary);
+    margin: 0.5em 0;
+}
+
+.jupyter_container .output table.dataframe th,
+.jupyter_container .output table.dataframe td {
+    border: 1px solid var(--color-background-border);
+    padding: 0.25em 0.6em;
+    text-align: right;
+}
+
+.jupyter_container .output table.dataframe thead th {
+    background-color: var(--color-background-secondary);
+}
+
+.jupyter_container .output table.dataframe tbody tr:nth-child(even) {
+    background-color: var(--color-background-secondary);
+}
