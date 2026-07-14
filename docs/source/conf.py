@@ -45,6 +45,7 @@ intersphinx_mapping = {
     "matplotlib": ("https://matplotlib.org/stable/", None),
     "pandas": ("http://pandas.pydata.org/pandas-docs/stable/", None),
     "pymeasure": ("https://pymeasure.readthedocs.io/en/latest/", None),
+    "pyvisa": ("https://pyvisa.readthedocs.io/en/stable/", None),
 }
 
 copybutton_exclude = ".linenos, .gp"  # to exclude prompts ($, >>>, etc.) from copied code
