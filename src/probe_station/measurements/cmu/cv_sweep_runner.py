@@ -1,13 +1,13 @@
 import numpy as np
 from matplotlib import pyplot as plt
-from pymeasure.instruments.agilent.agilentB1500 import (
+
+from probe_station.measurements.b1500 import (
+    B1500,
     MeasMode,
     MFCMUMeasurementMode,
     SCUUPath,
     SweepMode,
 )
-
-from probe_station.measurements.b1500 import B1500
 from probe_station.measurements.b1500_helpers import check_all_errors, connect_instrument, parse_data
 from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 

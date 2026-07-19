@@ -8,8 +8,8 @@ from pymeasure.experiment import (
     FloatParameter,
     IntegerParameter,
 )
-from pymeasure.instruments.agilent.agilentB1500 import ADCType
 
+from probe_station.measurements.b1500 import ADCType
 from probe_station.measurements.b1500_helpers import max_compliance
 from probe_station.measurements.pymeasure_base import BaseProcedure, BaseWindow, run_app
 from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output

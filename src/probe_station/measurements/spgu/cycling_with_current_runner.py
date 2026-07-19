@@ -1,18 +1,18 @@
 import logging
 import time
 
-from pymeasure.instruments.agilent.agilentB1500 import (
+from pymeasure.instruments.agilent.agilentB1500 import ALWGPattern
+
+from probe_station.measurements.b1500 import (
+    B1500,
     SMU,
     SPGU,
-    ALWGPattern,
     MeasMode,
     MeasOpMode,
     SPGUChannel,
     SPGUOperationMode,
     SPGUOutputMode,
 )
-
-from probe_station.measurements.b1500 import B1500
 from probe_station.measurements.b1500_helpers import connect_instrument
 from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 
