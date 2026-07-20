@@ -157,8 +157,10 @@ def retention(delays=None, gate_read_voltage=0.3):
     )
 
     rows = []
+    elapsed = 0.0
     for delay in delays:
         sleep(float(delay))
+        elapsed += float(delay)
         results = run(
             fet_current_proc(gate_voltage=gate_read_voltage),
             folder=folder,
@@ -168,7 +170,7 @@ def retention(delays=None, gate_read_voltage=0.3):
         drain_current = results.data["Drain Current"]
         rows.append(
             {
-                "Delay": float(delay),
+                "Delay": elapsed,
                 "Drain Current (A)": drain_current.iloc[-1] if not drain_current.empty else None,
             }
         )
