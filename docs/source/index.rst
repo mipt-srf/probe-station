@@ -19,6 +19,7 @@ See :doc:`Installation <installation>` page for instructions on how to install t
    structure
    contribution
    onboarding
+   how-it-works
 
 .. toctree::
    :maxdepth: 1
