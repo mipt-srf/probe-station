@@ -8,6 +8,12 @@ Probe station package is a Python package that was developed in Shared Research 
 
 See :doc:`Installation <installation>` page for instructions on how to install the package depending on your needs. If you want to look through the options provided by the package, and learn how to use them, see :doc:`Usage <usage>` page. If you want to learn how the package is structured, see :doc:`Structure <structure>` page. If you want to contribute, see :doc:`Contribution <contribution>` page. Finally, if you're interested in going in depths, there are some details about underlying libraries, hardware specifics as well as additional resources on the :doc:`Onboarding <onboarding>` page.
 
+.. note:: 
+
+   The documentation is mostly structured in accordance with https://diataxis.fr/. In short, there are 4 types of pages: tutorials, how-to guides, reference pages and explanation pages - each page is marked with a corresponding tag. The first 2 types describe **how to use** the package (action), while the last 2 types describe **how it works** (knowledge). On the other hand: tutorials and explanation pages are useful for **learning**, while how-to guides and reference pages are useful for **applying** the knowledge.
+
+   .. image:: https://diataxis.fr/_images/diataxis.png
+
 .. _learning-docs:
 
 .. toctree::
