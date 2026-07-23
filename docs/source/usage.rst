@@ -27,6 +27,8 @@ You can use :class:`~probe_station.measurements.b1500.B1500` class to communicat
 
 Example of the same script for quasistatic DC IV measurement using SMU written with raw SCPI commands and using :class:`~probe_station.measurements.b1500.B1500` class from this package:
 
+.. TODO: check that both versions work
+
 .. hint:: You can hover over the methods to see where they come from and click on them to go to the documentation page.
 
 .. tab-set::
@@ -207,7 +209,12 @@ There are also other methods that might be useful for processing multiple files 
 .. warning::
 
     Since the type of handler that should be used for specific datafile is determined in run time, the IDE autocompletion and type hints don't work very well. You might want to look at corresponding handler docs (:class:`~probe_station.analysis.handlers.cv.Cv`, :class:`~probe_station.analysis.handlers.iv.Iv`, :class:`~probe_station.analysis.handlers.fet_ids_vds.FetIdsVds`) yourself to see which methods are available.
+    
+    You can also see available methods and properties from code.
 
+    .. jupyter-execute::
+
+        [attr for attr in dir(ds.handler) if not (attr.startswith("__"))]
 
 Matlab data processing (deprecated)
 -----------------------------------
@@ -220,17 +227,33 @@ It's also possible to use this package for processing datafiles produced by Matl
 
 Supported measurements from Matlab codebase are represented by :class:`~probe_station.analysis.matlab.pq_pund.PQ_PUND`, :class:`~probe_station.analysis.matlab.dc_iv.DC_IV`, :class:`~probe_station.analysis.matlab.cv.CV` and :class:`~probe_station.analysis.matlab.pund_double.PUND_double` classes. The idea behind is similar: you can use common :class:`~probe_station.analysis.matlab.dataset.Dataset` class that will choose appropriate handler for your datafile and parse it accordingly.
 
-.. TODO: example
+.. TODO: example (Dataset, basic .plot, specific things)
+also how to see avaiable methods
 
 Despite that utils for Matlab datafiles processing it's still a part of the package as well, I would recommend to switch to using package's measurements as they are implemented as part of the ecosystem and can be easier processed in the future.
 
 
 Advanced usage
 ==============
+
+Writing GUI for your scripts
+----------------------------
+
+When you have a working :ref:`script <Writing your scripts>` that does what your need you can easily wrap GUI around that. The main idea here is that all the logic corresponding to the measurement itself (configuring measurement parameters, starting the measurement, retrieving the data) lives in the script itself. In the GUI part you call corresponding methods from script and add parameters required for your measurement as GUI fields. Detailed description is available in structure:smth.
+
+.. TODO: update scripts so that logic separation really exists (startup actions are still present in procedures)
+
+.. TODO: допиши - наверное проще всего разобрать на реальном примере, что делает каждая строчка, отнаследовавшись от BaseProcedure
+
 Creating complex experiments
 ----------------------------
 
-Since most of the measurements in the package are modular you can easily construct a complex experiment using them as building blocks.
+Since most of the measurements in the package are modular you can easily construct a complex experiment using measurements as building blocks.
+
+Running measurements in Python (single procedure)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+It's not possible to manually call methods of procedures that you implement when :ref:`building GUI <usage:Writing GUI for your scripts>`. Instead, you should either call methods of raw script or use :func:`~probe_station.experiments.common.run` that might induce a small delay between measurements
 
 .. caution:: Despite that this functionality is powerful, you should always think whether it's really worth to use that for your specific case. Sometimes, building some specific thing using framework can be more awkward than implementing it from scratch. If you think this is your case, consider to drop down a level and implement it as a measurement or even as a simple script based on :class:`~probe_station.measurements.b1500.B1500` class.
 

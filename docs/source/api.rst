@@ -42,3 +42,5 @@ B1500
 
 .. automodule:: probe_station.analysis.matlab.pund_double
    :members:
+
+.. autofunction:: probe_station.experiments.common.run
