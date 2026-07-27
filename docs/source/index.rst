@@ -18,10 +18,15 @@ See :doc:`Installation <installation>` page for instructions on how to install t
 
 .. toctree::
    :maxdepth: 2
+   :caption: Getting started
+
+   getting-started/installation
+   getting-started/usage
+
+.. toctree::
+   :maxdepth: 2
    :caption: Learning package
 
-   installation
-   usage
    structure
    contribution
    onboarding
