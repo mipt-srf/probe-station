@@ -5,7 +5,7 @@ API reference
 B1500
 -----
 
-.. automodule:: probe_station.measurements.b1500
+.. autoclass:: probe_station.measurements.b1500.B1500
    :members:
    :show-inheritance:
 

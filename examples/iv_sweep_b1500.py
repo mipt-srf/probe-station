@@ -1,17 +1,17 @@
 from matplotlib import pyplot as plt
-from pymeasure.instruments.agilent.agilentB1500 import (
+
+from probe_station.measurements.b1500 import (
+    B1500,
+    SMU,
     ADCMode,
     ADCType,
     ControlMode,
     MeasMode,
     MeasOpMode,
-    SMU,
     PgSelectorConnectionStatus,
     PgSelectorPort,
     SweepMode,
 )
-
-from probe_station.measurements.b1500 import B1500
 
 b1500 = B1500()
 b1500.reset()
