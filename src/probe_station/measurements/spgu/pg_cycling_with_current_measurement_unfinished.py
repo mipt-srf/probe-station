@@ -3,15 +3,15 @@ import time
 
 from keysight_b1530a import close_session
 from matplotlib import pyplot as plt
-from pymeasure.instruments.agilent.agilentB1500 import (
+
+from probe_station.measurements.b1500 import (
+    B1500,
     SMU,
     MeasMode,
     SPGUChannelOutputMode,
     SPGUOperationMode,
     SPGUOutputMode,
 )
-
-from probe_station.measurements.b1500 import B1500
 from probe_station.measurements.b1500_helpers import connect_instrument
 from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 

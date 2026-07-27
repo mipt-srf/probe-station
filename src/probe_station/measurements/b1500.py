@@ -15,13 +15,72 @@ from keysight_b1530a import (
     set_measure_event,
     wait_until_completed,
 )
-from keysight_b1530a.enums import (  # noqa: F401
+from keysight_b1530a.enums import (
     WGFMUMeasureCurrentRange,
     WGFMUMeasureEvent,
     WGFMUMeasureMode,
     WGFMUOperationMode,
 )
-from pymeasure.instruments.agilent.agilentB1500 import AgilentB1500
+from pymeasure.instruments.agilent.agilentB1500 import (
+    SMU,
+    SPGU,
+    ADCMode,
+    ADCType,
+    AgilentB1500,
+    AutoManual,
+    CompliancePolarity,
+    ControlMode,
+    MeasMode,
+    MeasOpMode,
+    MFCMUMeasurementMode,
+    PgSelectorConnectionStatus,
+    PgSelectorPort,
+    SamplingMode,
+    SamplingPostOutput,
+    SCUUPath,
+    SPGUChannel,
+    SPGUChannelOutputMode,
+    SPGUOperationMode,
+    SPGUOutputMode,
+    SPGUSignalSource,
+    StaircaseSweepPostOutput,
+    SweepMode,
+    WaitTimeType,
+)
+
+# Instrument enums and channel classes are re-exported here so measurement
+# scripts can import them alongside B1500 without knowing which upstream
+# package each one lives in.
+__all__ = [
+    "B1500",
+    "ADCMode",
+    "ADCType",
+    "AutoManual",
+    "CompliancePolarity",
+    "ControlMode",
+    "MeasMode",
+    "MeasOpMode",
+    "MFCMUMeasurementMode",
+    "PgSelectorConnectionStatus",
+    "PgSelectorPort",
+    "SamplingMode",
+    "SamplingPostOutput",
+    "SCUUPath",
+    "SMU",
+    "SPGU",
+    "SPGUChannel",
+    "SPGUChannelOutputMode",
+    "SPGUOperationMode",
+    "SPGUOutputMode",
+    "SPGUSignalSource",
+    "StaircaseSweepPostOutput",
+    "SweepMode",
+    "WaitTimeType",
+    "WGFMUMeasureCurrentRange",
+    "WGFMUMeasureEvent",
+    "WGFMUMeasureMode",
+    "WGFMUOperationMode",
+]
 
 
 def _synchronized(method):

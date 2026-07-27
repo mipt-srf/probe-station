@@ -51,6 +51,7 @@ class SmuIvSweepProcedure(BaseProcedure):
             self.second_voltage,
             self.steps,
             top=self.top_channel,
+            bottom=self.bottom_channel,
             # current_comp=self.compliance,
             average=self.averaging,
             mode=SmuSweepMode[self.mode].value,

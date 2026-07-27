@@ -5,8 +5,9 @@ from enum import Enum
 from keysight_b1530a._bindings.config import WGFMUChannel
 from keysight_b1530a._bindings.configuration import set_operation_mode
 from keysight_b1530a.enums import WGFMUOperationMode
-from pymeasure.instruments.agilent.agilentB1500 import (
-    AgilentB1500,
+from pymeasure.instruments.agilent.agilentB1500 import AgilentB1500
+
+from probe_station.measurements.b1500 import (
     ControlMode,
     PgSelectorConnectionStatus,
     PgSelectorPort,
