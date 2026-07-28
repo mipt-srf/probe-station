@@ -45,15 +45,14 @@ def run(
     base_smu.force("voltage", 0, 0, max_compliance(base_smu, 0))
 
     b1500.time_stamp = True
-    b1500.adc_averaging(10)
     # Measure drain then gate; the swept source (gate) voltage is appended last.
     b1500.meas_mode(MeasMode.STAIRCASE_SWEEP, drain_smu, gate_smu)
     drain_smu.meas_op_mode = MeasOpMode.CURRENT
     gate_smu.meas_op_mode = MeasOpMode.CURRENT
     drain_smu.meas_range_current = 0
     gate_smu.meas_range_current = 0
-    drain_smu.adc_type = 1
-    gate_smu.adc_type = 1
+    drain_smu.adc_type = ADCType.HRADC
+    gate_smu.adc_type = ADCType.HRADC
 
     b1500.adc_setup(ADCType.HRADC, ADCMode.MANUAL, average)
 
