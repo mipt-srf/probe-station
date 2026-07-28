@@ -34,7 +34,7 @@ Also, you don't need to worry about parsing the data results, which can be quite
        
         .. literalinclude:: ../../../examples/iv_sweep_b1500.py
            :language: python
-           :lines: 61-66
+           :lines: 60-65
            :lineno-match:
 
 

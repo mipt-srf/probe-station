@@ -38,7 +38,6 @@ smu_top.force(source_type="voltage", source_range=0, output=0)
 smu_bottom.force(source_type="voltage", source_range=0, output=0)
 
 b1500.time_stamp = True
-b1500.adc_averaging(10)
 b1500.meas_mode(MeasMode.STAIRCASE_SWEEP, smu_top)
 smu_top.meas_op_mode = MeasOpMode.CURRENT
 smu_top.meas_range_current = 0

@@ -24,6 +24,13 @@ See :doc:`Installation <installation>` page for instructions on how to install t
    getting-started/usage
 
 .. toctree::
+   :maxdepth: 1
+   :caption: Tutorial
+   :hidden:
+
+   tutorial/writing-your-first-script
+
+.. toctree::
    :maxdepth: 2
    :caption: Learning package
 

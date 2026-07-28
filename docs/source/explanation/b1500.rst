@@ -1,0 +1,27 @@
+#####
+B1500
+#####
+
+Про B1500 из Pymeasure
+
+.. _accessing-units:
+
+Accessing units
+===============
+
+.smus[1]
+.smu1
+
+ADC mode
+========
+
+HR, HS, etc.
+
+Data formatting
+===============
+
+.format_single
+
+
+Enums
+=====

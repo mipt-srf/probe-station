@@ -28,6 +28,9 @@ SMU, WGFMU, HV-SPGU has similar functionality but differ in characteristics and 
 
 In short, you should use SMU if you're fine with measurement time per point >~ 30-100 ms1, WGFMU if you need to measure faster than that, but don't need high voltage, and HV-SPGU if you need to apply high voltage short pulses without current measuring.
 
+Switching between units
+-----------------------
+
 
 Software
 ========
