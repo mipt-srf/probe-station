@@ -6,7 +6,7 @@
 
 Probe station package is a Python package that was developed in Shared Research Facilities (SRF) Center at Moscow Institute of Physics and Technology (MIPT) to simplify the process of running measurements with Keysight B1500 semiconductor parameter analyzer.
 
-See :doc:`Installation <installation>` page for instructions on how to install the package depending on your needs. If you want to look through the options provided by the package, and learn how to use them, see :doc:`Usage <usage>` page. If you want to learn how the package is structured, see :doc:`Structure <structure>` page. If you want to contribute, see :doc:`Contribution <contribution>` page. Finally, if you're interested in going in depths, there are some details about underlying libraries, hardware specifics as well as additional resources on the :doc:`Onboarding <onboarding>` page.
+See :doc:`Installation <getting-started/installation>` page for instructions on how to install the package depending on your needs. If you want to look through the options provided by the package, and learn how to use them, see :doc:`Usage <getting-started/usage>` page. If you want to learn how the package is structured, see :doc:`Structure <learning-package/structure>` page. If you want to contribute, see :doc:`Contribution <contribution>` page. Finally, if you're interested in going in depths, there are some details about underlying libraries, hardware specifics as well as additional resources on the :doc:`Onboarding <onboarding>` page.
 
 .. note:: 
 
@@ -22,6 +22,7 @@ See :doc:`Installation <installation>` page for instructions on how to install t
 
    getting-started/installation
    getting-started/usage
+   getting-started/demos
 
 .. toctree::
    :maxdepth: 1
@@ -29,18 +30,29 @@ See :doc:`Installation <installation>` page for instructions on how to install t
    :hidden:
 
    tutorial/writing-your-first-script
+   tutorial/wrapping-into-procedure
 
 .. toctree::
    :maxdepth: 2
    :caption: Learning package
 
-   structure
-   contribution
-   onboarding
-   how-it-works
+   learning-package/structure
+   learning-package/how-it-works
+   learning-package/why-not-raw-scpi
+   learning-package/advanced-usage
+   learning-package/dependencies
+   explanation/connection
+   explanation/b1500
 
 .. toctree::
    :maxdepth: 1
    :caption: Reference
 
    api
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Smth
+
+   contribution
+   onboarding

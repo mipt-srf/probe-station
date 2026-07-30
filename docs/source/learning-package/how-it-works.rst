@@ -45,7 +45,7 @@ Details
 To send a command for specific unit, you need to specify the slot number. E.g. to enable the output of 
 
 SMU naming conventions
---------------
+----------------------
 
 SMU3, etc.
 
