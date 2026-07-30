@@ -1,4 +1,5 @@
 import logging
+from typing import ClassVar
 
 from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter, ListParameter
@@ -33,7 +34,7 @@ class SmuFetIdsVgProcedure(BaseProcedure):
     gate_channel = IntegerParameter("Gate channel", default=4)
     base_channel = IntegerParameter("Base channel", default=2)
 
-    DATA_COLUMNS = ["Gate Voltage", "Drain Current", "Gate Current", "Time"]
+    DATA_COLUMNS: ClassVar[list[str]] = ["Gate Voltage", "Drain Current", "Gate Current", "Time"]
 
     def startup(self):
         super().startup()

@@ -1,14 +1,15 @@
 import logging
+from typing import ClassVar
 
 from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter, Parameter
 
 from probe_station.logging_setup import setup_file_logging
-from probe_station.measurements.pymeasure_base import BaseProcedure, BasePlotWidget, BaseWindow, run_app
 from probe_station.measurements.keithley.cycling import cycle
 from probe_station.measurements.keithley.instrument import connect_instrument, get_smu, set_smu
 from probe_station.measurements.keithley.launcher import ADDRESS
-from probe_station.measurements.keithley.PUND_waveform import create_waveform
+from probe_station.measurements.keithley.pund_waveform import create_waveform
+from probe_station.measurements.pymeasure_base import BasePlotWidget, BaseProcedure, BaseWindow, run_app
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
@@ -33,7 +34,7 @@ class KeithleyPundProcedure(BaseProcedure):
     do_cycle = BooleanParameter("Pre-cycle", default=False)
     n_precycles = IntegerParameter("Pre-cycle count", default=50, group_by="do_cycle")
 
-    DATA_COLUMNS = ["Time", "Voltage", "Current"]
+    DATA_COLUMNS: ClassVar[list[str]] = ["Time", "Voltage", "Current"]
 
     def startup(self):
         super().startup()

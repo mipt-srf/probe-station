@@ -1,4 +1,5 @@
 import logging
+from typing import ClassVar
 
 import scipy
 from pymeasure.experiment import (
@@ -56,7 +57,7 @@ class WgfmuIvSweepProcedure(WgfmuBaseProcedure):
     compute_polarization = BooleanParameter("Calculate Polarization", default=False)
     pad_size = FloatParameter("Pad size", units="um", default=25, group_by="compute_polarization")
 
-    DATA_COLUMNS = [
+    DATA_COLUMNS: ClassVar[list[str]] = [
         "Top Electrode Voltage",
         "Top Electrode Current",
         "Time",

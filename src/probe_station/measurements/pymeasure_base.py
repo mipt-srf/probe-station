@@ -118,7 +118,7 @@ def take_screenshot(window, dest: str | Path, full_screen: bool = False) -> Path
             return None
         logger.info("Screenshot saved: %s", dest)
         return dest
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - a screenshot must never break a measurement
         logger.warning("Screenshot failed: %s", e)
         return None
 
@@ -281,7 +281,7 @@ def _find_procedure_class(class_name: str) -> type[Procedure] | None:
     for info in pkgutil.walk_packages(pkg.__path__, pkg.__name__ + "."):
         try:
             module = importlib.import_module(info.name)
-        except Exception:
+        except Exception:  # noqa: BLE001, S112 - a submodule that cannot be imported simply cannot hold the class
             continue
         candidate = getattr(module, class_name, None)
         if isinstance(candidate, type) and issubclass(candidate, Procedure) and candidate.__module__ == info.name:

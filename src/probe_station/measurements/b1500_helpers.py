@@ -83,7 +83,7 @@ def check_all_errors(b1500):
     while True:
         try:
             b1500.check_errors()
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - any query failure means the error queue is drained
             logger.warning("Instrument error: %s", e)
         else:
             break

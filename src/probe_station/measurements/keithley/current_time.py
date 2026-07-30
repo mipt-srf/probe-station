@@ -10,6 +10,7 @@ stopping keeps all data collected so far.
 
 import logging
 import time
+from typing import ClassVar
 
 from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import BooleanParameter, FloatParameter, Parameter
@@ -37,7 +38,7 @@ class KeithleyCurrentTimeProcedure(BaseProcedure):
     )
     compliance = FloatParameter("Compliance current", units="A", default=1e0)
 
-    DATA_COLUMNS = ["Time", "Current"]
+    DATA_COLUMNS: ClassVar[list[str]] = ["Time", "Current"]
 
     def startup(self):
         super().startup()

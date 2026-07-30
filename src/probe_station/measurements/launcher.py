@@ -61,8 +61,8 @@ class ScriptRunner(QThread):
                 )
             else:
                 subprocess.Popen([sys.executable, "-m", self.script_module])
-        except Exception as e:
-            logger.exception(f"Error running {self.script_module}: {e}")
+        except Exception:
+            logger.exception(f"Error running {self.script_module}")
 
 
 class ActionRunner(QThread):

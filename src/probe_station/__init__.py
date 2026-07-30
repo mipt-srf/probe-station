@@ -22,7 +22,7 @@ if TYPE_CHECKING:  # replace with lazy imports (py>=3.15) https://peps.python.or
     from .measurements.keithley import Keithley2450Extended
     from .measurements.session import Session
 
-__all__ = ["Dataset", "MatlabDataset", "connect_instrument", "B1500", "Keithley2450Extended", "Session"]
+__all__ = ["B1500", "Dataset", "Keithley2450Extended", "MatlabDataset", "Session", "connect_instrument"]
 
 
 def __getattr__(name: str):

@@ -1,6 +1,7 @@
 """PyMeasure procedure for measuring FET drain and gate currents at fixed bias."""
 
 import logging
+from typing import ClassVar
 
 from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import (
@@ -34,7 +35,7 @@ class SmuFetIdsTimeProcedure(BaseProcedure):
     source_voltage = FloatParameter("Source voltage", units="V", default=0.0, group_by="advanced_config")
     base_voltage = FloatParameter("Base voltage", units="V", default=0.0, group_by="advanced_config")
 
-    DATA_COLUMNS = ["Drain Current", "Gate Current"]
+    DATA_COLUMNS: ClassVar[list[str]] = ["Drain Current", "Gate Current"]
 
     def startup(self):
         super().startup()

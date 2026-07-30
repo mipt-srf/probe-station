@@ -1,14 +1,15 @@
 import logging
+from typing import ClassVar
 
 from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import FloatParameter, Parameter
 
 from probe_station.logging_setup import setup_file_logging
-from probe_station.measurements.pymeasure_base import BaseWindow, run_app
 from probe_station.measurements.keithley.instrument import connect_instrument, set_smu
 from probe_station.measurements.keithley.launcher import ADDRESS
 from probe_station.measurements.keithley.pund import KeithleyPundProcedure
-from probe_station.measurements.keithley.PUND_waveform import create_pulse
+from probe_station.measurements.keithley.pund_waveform import create_pulse
+from probe_station.measurements.pymeasure_base import BaseWindow, run_app
 from probe_station.measurements.smu._widgets import IvPlotWidget
 
 logger = logging.getLogger(__name__)
@@ -21,7 +22,7 @@ class KeithleyDcIvProcedure(KeithleyPundProcedure):
         "Current range", units="A", default=1e-6, group_by="autorange", group_condition=False
     )
 
-    _INPUTS = [
+    _INPUTS: ClassVar[list[str]] = [
         name
         for name, obj in KeithleyPundProcedure.__dict__.items()
         if isinstance(obj, Parameter) and name not in ("space", "do_cycle", "n_precycles", "n_cycles", "hold")

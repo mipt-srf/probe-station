@@ -1,4 +1,5 @@
 import logging
+from typing import ClassVar
 
 from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter, ListParameter
@@ -34,7 +35,7 @@ class SmuFetIdsVdsProcedure(BaseProcedure):
     base_channel = IntegerParameter("Base channel", default=2)
     # compliance = FloatParameter("Current compliance", units="A", default=0.1, group_by="advanced_config")
 
-    DATA_COLUMNS = ["Source Voltage", "Source Current", "Gate Current", "Time"]
+    DATA_COLUMNS: ClassVar[list[str]] = ["Source Voltage", "Source Current", "Gate Current", "Time"]
 
     def startup(self):
         super().startup()

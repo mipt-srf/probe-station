@@ -141,7 +141,7 @@ class Keithley2450Extended(Keithley2450):
         elif name == "front":
             self.use_front_terminals()
         else:
-            raise Exception(f"Expected 'rear' or 'front', found {name}")
+            raise ValueError(f"Expected 'rear' or 'front', found {name}")
 
     def close(self):
         self.shutdown()

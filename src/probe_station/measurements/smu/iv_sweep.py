@@ -1,4 +1,5 @@
 import logging
+from typing import ClassVar
 
 from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter, ListParameter
@@ -33,7 +34,7 @@ class SmuIvSweepProcedure(BaseProcedure):
     calculate_resistance = BooleanParameter("Calculate resistance", default=False)
     resistance_voltage = FloatParameter("Resistance voltage", units="V", default=1.0, group_by="calculate_resistance")
 
-    DATA_COLUMNS = ["Voltage", "Top Electrode Current", "Time"]
+    DATA_COLUMNS: ClassVar[list[str]] = ["Voltage", "Top Electrode Current", "Time"]
 
     def startup(self):
         super().startup()

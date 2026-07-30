@@ -11,4 +11,4 @@ from probe_station.analysis.matlab.dc_iv import DC_IV
 from probe_station.analysis.matlab.pq_pund import PQ_PUND
 from probe_station.analysis.matlab.pund_double import PUND_double
 
-__all__ = ["CV", "DC_IV", "PQ_PUND", "PUND_double", "Dataset"]
+__all__ = ["CV", "DC_IV", "PQ_PUND", "Dataset", "PUND_double"]

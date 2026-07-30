@@ -1,4 +1,5 @@
 import logging
+from typing import ClassVar
 
 import numpy as np
 from pymeasure.display.widgets import LogWidget
@@ -26,7 +27,7 @@ class SmuIvStepProcedure(BaseProcedure):
     bottom_channel = IntegerParameter("Bottom channel", default=3)
     steps = IntegerParameter("Steps", default=100)
 
-    DATA_COLUMNS = ["Time", "Voltage", "Top Electrode Current"]
+    DATA_COLUMNS: ClassVar[list[str]] = ["Time", "Voltage", "Top Electrode Current"]
 
     def startup(self):
         super().startup()

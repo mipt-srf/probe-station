@@ -1,4 +1,5 @@
 import logging
+from typing import ClassVar
 
 from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter
@@ -114,7 +115,7 @@ class SmuQuasistaticCvProcedure(QscvProcedureBase):
 
     offset_cancel = BooleanParameter("Apply offset cancel", default=False)
 
-    DATA_COLUMNS = ["Voltage", "Capacitance", "Leakage Current", "Time"]
+    DATA_COLUMNS: ClassVar[list[str]] = ["Voltage", "Capacitance", "Leakage Current", "Time"]
 
     def execute(self):
         logger.info(f"Starting the {self.__class__}")

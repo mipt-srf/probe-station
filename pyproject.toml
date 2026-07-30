@@ -69,13 +69,21 @@ markers = [
 [tool.ruff]
 line-length = 120
 
+[tool.ruff.lint]
+ignore = [
+    # Measurement timestamps are local wall-clock times written into log/CSV
+    # file names and result columns; making them tz-aware would change the
+    # recorded data format.
+    "DTZ005",
+]
+
 [tool.ruff.format]
 docstring-code-format = true
 
 [dependency-groups]
 dev = [
     "ipykernel>=6.29.5",
-    "ruff>=0.9.3",
+    "ruff>=0.16.0",
 ]
 
 [tool.uv.sources]

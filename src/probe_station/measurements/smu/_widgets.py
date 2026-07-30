@@ -52,7 +52,9 @@ class IvPlotWidget(BasePlotWidget):
         vbox.addWidget(self.plot_frame)
         self.setLayout(vbox)
 
-    def new_curve(self, results, color=pg.intColor(0), **kwargs):
+    def new_curve(self, results, color=None, **kwargs):
+        if color is None:
+            color = pg.intColor(0)
         if "pen" not in kwargs:
             kwargs["pen"] = pg.mkPen(color=color, width=self.linewidth)
         if "antialias" not in kwargs:

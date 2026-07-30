@@ -5,7 +5,7 @@ import time
 from probe_station.measurements.keithley import connect_instrument
 from probe_station.measurements.keithley.cycling import cycle
 from probe_station.measurements.keithley.plot_fig import plot_fig, save_data
-from probe_station.measurements.keithley.PUND_waveform import create_waveform
+from probe_station.measurements.keithley.pund_waveform import create_waveform
 
 time.sleep(0)
 device = "TCPIP0::192.168.81.20::inst0::INSTR"

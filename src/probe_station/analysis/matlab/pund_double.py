@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     import pandas as pd
 
 
-class PUND_double:  # noqa: N801
+class PUND_double:
     """Handler for PUND double-pulse measurement ``.data`` files.
 
     Computes switchable polarisation from the P, U, N, D charge columns
@@ -58,7 +58,7 @@ class PUND_double:  # noqa: N801
 
     def plot(self, filtering_window=1) -> None:
         """Plot the polarization vs cycles."""
-        fig, ax = plt.subplots(figsize=(10, 5))
+        _fig, ax = plt.subplots(figsize=(10, 5))
 
         polarization_charge = (
             self.charge_df["P"] - self.charge_df["U"] - self.charge_df["N"] + self.charge_df["D"]
@@ -75,7 +75,7 @@ class PUND_double:  # noqa: N801
 
     def plot_charges(self, filtering_window=1) -> None:
         """Plot P, U, N, D charges vs cycles."""
-        fig, ax = plt.subplots(figsize=(10, 5))
+        _fig, ax = plt.subplots(figsize=(10, 5))
 
         columns = ["P", "U", "N", "D"]
         for column in columns:

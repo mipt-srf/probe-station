@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
 
 
-class PQ_PUND:  # noqa: N801
+class PQ_PUND:
     def __init__(
         self,
         metadata: dict,
@@ -185,14 +185,14 @@ class PQ_PUND:  # noqa: N801
         fit_voltages_negative = voltages[mask_negative]
         fit_currents_negative = currents[mask_negative]
 
-        popt_positive, pcov_positive = curve_fit(
+        popt_positive, _pcov_positive = curve_fit(
             leakage_current_model,
             fit_voltages_positive,
             np.abs(fit_currents_positive),
             p0=[1e-6, 1],
         )
 
-        popt_negative, pcov_negative = curve_fit(
+        popt_negative, _pcov_negative = curve_fit(
             leakage_current_model,
             fit_voltages_negative,
             fit_currents_negative,
