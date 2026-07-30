@@ -27,10 +27,12 @@ You can use :class:`~probe_station.measurements.b1500.B1500` class to communicat
     inst = B1500()
     inst.smu4.enable()
 
+.. TODO: add tutorial, etc. badges
+
 .. seealso::
 
-    smth:tutorial
-        if you want to learn by example and see what each line of the script does
+    :doc:`../tutorial/writing-your-first-script`
+        if you want to learn by example and understand what each line of the script does
 
     :doc:`../learning-package/why-not-raw-scpi`
         if you want to see why using B1500 class is more convenient than using raw SCPI commands

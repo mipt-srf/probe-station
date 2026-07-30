@@ -83,13 +83,13 @@ Here is a full version if you want to see the whole script at once. We will go t
     :language: python
     :lines: 40
 
-* Setup the measurement mode for used units. Here we specify that `smu_top` will be used for staircase sweep measurement.
+* Setup the measurement mode for used units. Here we specify that ``smu_top`` will be used for staircase sweep measurement.
 
   .. literalinclude:: ../../../examples/iv_sweep_b1500.py
     :language: python
     :lines: 41
 
-* Setup measurements settings for measuring unit. Here we specify that `smu_top` will measure current and use automatic range selection (use ``0`` for autorange).
+* Setup measurements settings for measuring unit. Here we specify that ``smu_top`` will measure current and use automatic range selection (use ``0`` for autorange).
 
   .. literalinclude:: ../../../examples/iv_sweep_b1500.py
     :language: python
@@ -149,9 +149,39 @@ Here is a full version if you want to see the whole script at once. We will go t
     :language: python
     :lines: 63-
 
+Here is a full version once again
+
+.. admonition:: DC IV sweep script
+    :collapsible: closed
+
+    .. literalinclude:: ../../../examples/iv_sweep_b1500.py
+        :language: python
+
 Measuring current from multiple channels
 ----------------------------------------
 
-Add additional smu in measure
+Sometimes, you may want to also measure current from another channel (e.g. when measuring :math:`I_{ds}(V_{ds})`, you may want to also measure gate leakage current). In this case, you can setup another SMU to measure current in parallel. For this, you need to setup the measurement mode for the second SMU
 
+.. code-block:: diff
+
+  - b1500.meas_mode(MeasMode.STAIRCASE_SWEEP, smu_top)
+  + b1500.meas_mode(MeasMode.STAIRCASE_SWEEP, smu_top, smu_bottom)
+
+And also configure the measurement settings for the second SMU:
+
+.. code-block:: diff
+
+  smu_top.meas_op_mode = MeasOpMode.CURRENT
+  smu_top.meas_range_current = 0
+  smu_top.adc_type = ADCType.HRADC
+  
+  + smu_bottom.meas_op_mode = MeasOpMode.CURRENT
+  + smu_bottom.meas_range_current = 0
+  + smu_bottom.adc_type = ADCType.HRADC
+
+After that, additional columns will be present in the data, corresponding to the second SMU.
+
+.. seealso::
+
+    `fet_ids_vds_runner.py <https://github.com/mipt-srf/probe-station/blob/master/src/probe_station/measurements/smu/fet_ids_vds_runner.py>`__ as an example of measuring current from multiple channels in parallel
 
