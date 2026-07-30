@@ -18,9 +18,8 @@ import logging
 import numpy as np
 from matplotlib import pyplot as plt
 
-from probe_station.measurements.b1500 import B1500
+from probe_station.measurements.b1500 import B1500, RSUOutputMode
 from probe_station.measurements.b1500_helpers import connect_instrument, parse_data
-from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
@@ -107,8 +106,8 @@ def _setup_qscv(
         first via :func:`measure_offset`.
     :returns: Number of measurement points.
     """
-    setup_rsu_output(b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
-    setup_rsu_output(b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
+    b1500.rsu1.set_output(RSUOutputMode.SMU)
+    b1500.rsu2.set_output(RSUOutputMode.SMU)
 
     gate_smu = b1500.smus[gate]
     drain_smu = b1500.smus[drain]

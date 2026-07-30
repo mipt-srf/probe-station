@@ -9,10 +9,9 @@ from pymeasure.experiment import (
     IntegerParameter,
 )
 
-from probe_station.measurements.b1500 import ADCType
+from probe_station.measurements.b1500 import ADCType, RSUOutputMode
 from probe_station.measurements.b1500_helpers import max_compliance
 from probe_station.measurements.pymeasure_base import BaseProcedure, BaseWindow, run_app
-from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 from probe_station.measurements.session import Session
 
 logger = logging.getLogger(__name__)
@@ -46,8 +45,8 @@ class SmuFetIdsTimeProcedure(BaseProcedure):
         self.b1500.clear_wgfmu()
         self.b1500.initialize_wgfmu()
         self.b1500.clear_buffer()
-        setup_rsu_output(self.b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
-        setup_rsu_output(self.b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
+        self.b1500.rsu1.set_output(RSUOutputMode.SMU)
+        self.b1500.rsu2.set_output(RSUOutputMode.SMU)
 
     def execute(self):
         logger.info(f"Starting the {self.__class__}")

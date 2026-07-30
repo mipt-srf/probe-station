@@ -2,12 +2,12 @@ import logging
 import time
 
 from probe_station.measurements.b1500 import (
+    RSUOutputMode,
     SPGUChannelOutputMode,
     SPGUOperationMode,
     SPGUOutputMode,
 )
 from probe_station.measurements.b1500_helpers import check_all_errors, connect_instrument
-from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
@@ -49,8 +49,8 @@ def run(
         raise ValueError(f"Channel {channel} not found in SPGU channels.")
     pg.enabled = True
 
-    setup_rsu_output(b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SPGU)
-    setup_rsu_output(b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SPGU)
+    b1500.rsu1.set_output(RSUOutputMode.SPGU)
+    b1500.rsu2.set_output(RSUOutputMode.SPGU)
 
     spgu.operation_mode = SPGUOperationMode.PG
     if repetitions < 1e6:

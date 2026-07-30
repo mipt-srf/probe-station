@@ -1,13 +1,12 @@
 import numpy as np
 
-from probe_station.measurements.b1500 import B1500
+from probe_station.measurements.b1500 import B1500, RSUOutputMode
 from probe_station.measurements.b1500_helpers import connect_instrument, max_compliance, parse_data
-from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 
 
 def run(b1500: B1500, start, end, steps, top=4, bottom=3):
-    setup_rsu_output(b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
-    setup_rsu_output(b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
+    b1500.rsu1.set_output(RSUOutputMode.SMU)
+    b1500.rsu2.set_output(RSUOutputMode.SMU)
 
     voltages_forced = np.linspace(start, end, steps)
 

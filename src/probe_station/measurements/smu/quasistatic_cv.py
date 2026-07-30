@@ -4,8 +4,8 @@ from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter
 
 from probe_station.logging_setup import setup_file_logging
+from probe_station.measurements.b1500 import RSUOutputMode
 from probe_station.measurements.pymeasure_base import BaseProcedure, BaseWindow, run_app
-from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 from probe_station.measurements.session import Session
 from probe_station.measurements.smu._widgets import IvPlotWidget
 from probe_station.measurements.smu.quasistatic_cv_runner import VALUES_PER_STEP, run
@@ -51,8 +51,8 @@ class QscvProcedureBase(BaseProcedure):
         super().startup()
         self.b1500 = Session.acquire(timeout=60000, reset=False)
         self.b1500.clear_buffer()
-        setup_rsu_output(self.b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
-        setup_rsu_output(self.b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
+        self.b1500.rsu1.set_output(RSUOutputMode.SMU)
+        self.b1500.rsu2.set_output(RSUOutputMode.SMU)
 
     def _setup_kwargs(self):
         """QSCV setup keyword arguments shared by the sweep and the offset cal."""
