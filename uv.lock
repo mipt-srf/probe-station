@@ -1213,7 +1213,7 @@ requires-dist = [
     { name = "sphinx", marker = "extra == 'docs'", specifier = ">=8.2.1" },
     { name = "sphinx-autobuild", marker = "extra == 'docs'", specifier = ">=2024.10.3" },
     { name = "sphinx-autodoc-typehints", marker = "extra == 'docs'", specifier = ">=3.1.0" },
-    { name = "sphinx-codeautolink", marker = "extra == 'docs'", specifier = ">=0.17.1" },
+    { name = "sphinx-codeautolink", marker = "extra == 'docs'", specifier = ">=0.19.0" },
     { name = "sphinx-copybutton", marker = "extra == 'docs'", specifier = ">=0.5.2" },
     { name = "sphinx-design", marker = "extra == 'docs'", specifier = ">=0.6.1" },
     { name = "waveform-generator", marker = "extra == 'measurements'", editable = "../waveform-generator" },
@@ -1867,15 +1867,15 @@ wheels = [
 
 [[package]]
 name = "sphinx-codeautolink"
-version = "0.17.1"
+version = "0.19.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "beautifulsoup4" },
     { name = "sphinx" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d3/a3/64e79212e76a35032a0592143c563eea9d4eec6203c2423a0eeca7d88e5f/sphinx_codeautolink-0.17.1.tar.gz", hash = "sha256:392f30a9c1fcbcb4616c7233114d6cd269dbf4cdb70f0d1d44190e156d48df74", size = 58075, upload-time = "2025-02-24T20:03:55.277Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/26/4e/92425c60359fa7b5b9ac0e0f1f788b86a89c4e65cf29139e1174e21e3adf/sphinx_codeautolink-0.19.0.tar.gz", hash = "sha256:abd8367831bb0b084ecad7b0a9b77f8458294e4468cadd5f37861da9b38e3e7e", size = 65422, upload-time = "2026-07-29T17:40:15.222Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/53/4d/ad772fea1a895cb4010a1ea162f37967a2e5c42ff75e2ccfe3d818c6de88/sphinx_codeautolink-0.17.1-py3-none-any.whl", hash = "sha256:701709cde54fa9427538e71fb5cbd5c0827a3af6c0601f9b8f31f6a085e9f30a", size = 31378, upload-time = "2025-02-24T20:03:52.97Z" },
+    { url = "https://files.pythonhosted.org/packages/fd/86/260d30033dbc48f8a0c37334159d56a1a731a7ce752d2803a6b5174e8731/sphinx_codeautolink-0.19.0-py3-none-any.whl", hash = "sha256:ebbaf815efee63cfdc5320a97ece7eb01af38f22ed404439bee520e9c8175605", size = 37671, upload-time = "2026-07-29T17:40:13.739Z" },
 ]
 
 [[package]]
