@@ -1,6 +1,7 @@
 """Helper functions for working with a connected Agilent B1500 instance."""
 
 import logging
+from math import nan, pi
 
 from probe_station import B1500
 
@@ -102,6 +103,34 @@ def check_all_errors(b1500):
             logger.warning("Instrument error: %s", e)
         else:
             break
+
+
+def to_cp_rp(records, frequency):
+    """Convert an MFCMU impedance or admittance pair into parallel Cp and Rp.
+
+    The ``IMP`` command is not effective for the binary data format 14, so the
+    MFCMU reports resistance/reactance or conductance/susceptance whatever
+    measurement mode was requested. This maps either pair onto the parallel
+    model (``Y = 1/Rp + j*w*Cp``) so that measurements keep reporting Cp/Rp
+    independently of the data format in use.
+
+    :param records: The two ``(status, channel, data_name, value)`` records of
+        one measurement point, as returned by :meth:`B1500.iter_records`.
+    :param frequency: MFCMU oscillator frequency in Hz.
+    :return: ``(Cp, Rp)`` in F and Ohm. Values the instrument could not measure
+        (``NaN``) and singular conversions propagate as ``NaN``.
+    """
+    (_, _, first_name, first), (_, _, second_name, second) = records
+    if first_name.startswith("Resistance") and second_name.startswith("Reactance"):
+        # Y = 1/Z, with Z = R + jX.
+        z_squared = first**2 + second**2
+        conductance, susceptance = (first / z_squared, -second / z_squared) if z_squared else (nan, nan)
+    elif first_name.startswith("Conductance") and second_name.startswith("Susceptance"):
+        conductance, susceptance = first, second
+    else:
+        # Any other pair is already the requested measurement mode (ASCII formats).
+        return first, second
+    return (susceptance / (2 * pi * frequency), (1 / conductance) if conductance else nan)
 
 
 def parse_data(string):
