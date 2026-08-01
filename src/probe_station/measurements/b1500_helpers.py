@@ -131,14 +131,3 @@ def to_cp_rp(records, frequency):
         # Any other pair is already the requested measurement mode (ASCII formats).
         return first, second
     return (susceptance / (2 * pi * frequency), (1 / conductance) if conductance else nan)
-
-
-def parse_data(string):
-    """Parse a comma-separated measurement data string into a list of floats.
-
-    :param string: Raw data string from the instrument (e.g. ``"NCI+1.234E-05,NCI+5.678E-06"``).
-    :return: List of parsed float values.
-    """
-    value_strings = string.split(",")
-    values = [float(value_str[3:]) for value_str in value_strings]
-    return values
