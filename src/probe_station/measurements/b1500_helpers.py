@@ -60,15 +60,30 @@ def enable_all_smus(b1500):
         smu.enable()
 
 
-def connect_instrument(timeout=60000, reset=False):
-    """Connect to the Agilent B1500 instrument."""
+def connect_instrument(timeout=60000, reset=False, data_format=1, mode=1):
+    """Connect to the Agilent B1500 instrument.
+
+    :param timeout: VISA timeout in milliseconds.
+    :param reset: Whether to reset the instrument after connecting.
+    :param data_format: Measurement data output format (``FMT``). 1, 11 and 21
+        are ASCII; 14 is the 8 byte binary format, which transfers faster and
+        with a higher resolution. All reading paths
+        (:meth:`B1500.iter_output`, :meth:`B1500.read_all_values`,
+        :meth:`B1500.read_values`) decode whichever format is set here.
+
+        Note that ``IMP`` (:meth:`CMU.set_measurement_mode`) is not effective
+        under format 14: the MFCMU then always returns resistance/reactance or
+        conductance/susceptance instead of the requested pair.
+    :param mode: Data output mode; 1 also returns the source data.
+    """
     try:
         b1500 = B1500(timeout=timeout)
         logger.info("Connected to Agilent B1500")
         if reset:
             b1500.reset()
             logger.info("Agilent B1500 is reset")
-        b1500.data_format(1, mode=1)  # 21 for new, 1 for old (?)
+        # Called after the units are initialized, so the channel names are known.
+        b1500.data_format(data_format, mode=mode)
 
         return b1500
     except Exception as e:
