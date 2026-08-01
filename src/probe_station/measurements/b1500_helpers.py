@@ -1,6 +1,7 @@
 """Helper functions for working with a connected Agilent B1500 instance."""
 
 import logging
+from math import nan, pi
 
 from probe_station import B1500
 
@@ -60,15 +61,30 @@ def enable_all_smus(b1500):
         smu.enable()
 
 
-def connect_instrument(timeout=60000, reset=False):
-    """Connect to the Agilent B1500 instrument."""
+def connect_instrument(timeout=60000, reset=False, data_format=1, mode=1):
+    """Connect to the Agilent B1500 instrument.
+
+    :param timeout: VISA timeout in milliseconds.
+    :param reset: Whether to reset the instrument after connecting.
+    :param data_format: Measurement data output format (``FMT``). 1, 11 and 21
+        are ASCII; 14 is the 8 byte binary format, which transfers faster and
+        with a higher resolution. All reading paths
+        (:meth:`B1500.iter_output`, :meth:`B1500.read_all_values`,
+        :meth:`B1500.read_values`) decode whichever format is set here.
+
+        Note that ``IMP`` (:meth:`CMU.set_measurement_mode`) is not effective
+        under format 14: the MFCMU then always returns resistance/reactance or
+        conductance/susceptance instead of the requested pair.
+    :param mode: Data output mode; 1 also returns the source data.
+    """
     try:
         b1500 = B1500(timeout=timeout)
         logger.info("Connected to Agilent B1500")
         if reset:
             b1500.reset()
             logger.info("Agilent B1500 is reset")
-        b1500.data_format(1, mode=1)  # 21 for new, 1 for old (?)
+        # Called after the units are initialized, so the channel names are known.
+        b1500.data_format(data_format, mode=mode)
 
         return b1500
     except Exception as e:
@@ -89,12 +105,29 @@ def check_all_errors(b1500):
             break
 
 
-def parse_data(string):
-    """Parse a comma-separated measurement data string into a list of floats.
+def to_cp_rp(records, frequency):
+    """Convert an MFCMU impedance or admittance pair into parallel Cp and Rp.
 
-    :param string: Raw data string from the instrument (e.g. ``"NCI+1.234E-05,NCI+5.678E-06"``).
-    :return: List of parsed float values.
+    The ``IMP`` command is not effective for the binary data format 14, so the
+    MFCMU reports resistance/reactance or conductance/susceptance whatever
+    measurement mode was requested. This maps either pair onto the parallel
+    model (``Y = 1/Rp + j*w*Cp``) so that measurements keep reporting Cp/Rp
+    independently of the data format in use.
+
+    :param records: The two ``(status, channel, data_name, value)`` records of
+        one measurement point, as returned by :meth:`B1500.iter_records`.
+    :param frequency: MFCMU oscillator frequency in Hz.
+    :return: ``(Cp, Rp)`` in F and Ohm. Values the instrument could not measure
+        (``NaN``) and singular conversions propagate as ``NaN``.
     """
-    value_strings = string.split(",")
-    values = [float(value_str[3:]) for value_str in value_strings]
-    return values
+    (_, _, first_name, first), (_, _, second_name, second) = records
+    if first_name.startswith("Resistance") and second_name.startswith("Reactance"):
+        # Y = 1/Z, with Z = R + jX.
+        z_squared = first**2 + second**2
+        conductance, susceptance = (first / z_squared, -second / z_squared) if z_squared else (nan, nan)
+    elif first_name.startswith("Conductance") and second_name.startswith("Susceptance"):
+        conductance, susceptance = first, second
+    else:
+        # Any other pair is already the requested measurement mode (ASCII formats).
+        return first, second
+    return (susceptance / (2 * pi * frequency), (1 / conductance) if conductance else nan)

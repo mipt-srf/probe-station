@@ -64,7 +64,7 @@ class Session:
         raise TypeError("Session is not instantiable; use Session.acquire().")
 
     @classmethod
-    def acquire(cls, *, timeout: int = 60_000, reset: bool = True) -> B1500:
+    def acquire(cls, *, timeout: int = 60_000, reset: bool = True, data_format: int = 1) -> B1500:
         """Return the shared B1500 handle, opening lazily on first use.
 
         :param timeout: VISA timeout in milliseconds. Only applied when
@@ -72,21 +72,25 @@ class Session:
         :param reset: If ``True``, reset the instrument on first open or
             after dead-handle recovery. Ignored on reuse; call
             :meth:`reconnect` to force a fresh session with reset.
+        :param data_format: Measurement data output format, see
+            :func:`~probe_station.measurements.b1500_helpers.connect_instrument`.
+            Only applied when a new connection is opened; ignored on reuse, so
+            that one procedure cannot reformat another's in-flight readout.
         """
         with cls._lock:
             if cls._instance is not None and not cls._probe_alive(cls._instance):
                 logger.warning("B1500 handle is dead; reconnecting")
                 cls._close_locked()
             if cls._instance is None:
-                cls._instance = connect_instrument(timeout=timeout, reset=reset)
+                cls._instance = connect_instrument(timeout=timeout, reset=reset, data_format=data_format)
             return cls._instance
 
     @classmethod
-    def reconnect(cls, *, timeout: int = 60_000, reset: bool = False) -> B1500:
+    def reconnect(cls, *, timeout: int = 60_000, reset: bool = False, data_format: int = 1) -> B1500:
         """Force a reconnect: close any current handle and open a fresh one."""
         with cls._lock:
             cls._close_locked()
-            cls._instance = connect_instrument(timeout=timeout, reset=reset)
+            cls._instance = connect_instrument(timeout=timeout, reset=reset, data_format=data_format)
             return cls._instance
 
     @classmethod

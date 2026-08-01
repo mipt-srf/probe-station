@@ -9,7 +9,7 @@ from probe_station.measurements.b1500 import (
     SCUUPath,
     SweepMode,
 )
-from probe_station.measurements.b1500_helpers import check_all_errors, connect_instrument, parse_data
+from probe_station.measurements.b1500_helpers import check_all_errors, connect_instrument, to_cp_rp
 
 PLOT_POINTS = 100
 
@@ -57,18 +57,25 @@ def run(b1500: B1500, first_bias=-3, second_bias=3, avg_per_point=1, ac_voltage=
     cmu.voltage_ac = 0
 
 
-def get_results(b1500: B1500, plot=False):
-    res = b1500.read()
-    parsed = parse_data(res)
+def get_results(b1500: B1500, frequency=1e4, plot=False):
+    """Read a completed CV sweep as ``(Cp, Rp, ac, dc_measured, dc_forced)`` arrays.
+
+    :param frequency: The CMU oscillator frequency the sweep was run with,
+        needed to convert the impedance pair the binary data format returns
+        into Cp/Rp (see :func:`to_cp_rp`).
+    """
+    records = b1500.read_all_records()
 
     # The CMU now averages each point internally (ACT), so every reading is a
     # final point at its own voltage -- no host-side binning.
-    _ = np.array(parsed[::6])
-    Cp = np.array(parsed[1::6])
-    Rp = np.array(parsed[2::6])
-    ac = np.array(parsed[3::6])
-    dc_measured = np.array(parsed[4::6])
-    dc_forced = np.array(parsed[5::6])
+    # Per point, the 6 values are: time, the impedance pair, AC level, measured
+    # DC bias and forced DC bias.
+    pairs = [to_cp_rp(records[i + 1 : i + 3], frequency) for i in range(0, len(records), 6)]
+    Cp, Rp = (np.array(column) for column in zip(*pairs))
+    values = [value for *_, value in records]
+    ac = np.array(values[3::6])
+    dc_measured = np.array(values[4::6])
+    dc_forced = np.array(values[5::6])
 
     if plot:
         fig, ax1 = plt.subplots()
@@ -93,7 +100,8 @@ def get_results(b1500: B1500, plot=False):
 
 if __name__ == "__main__":
     b1500 = connect_instrument(reset=True)
-    run(b1500, plot=True)
+    frequency = 1e4
+    run(b1500, frequency=frequency, plot=True)
     check_all_errors(b1500)
-    get_results(b1500, plot=True)
+    get_results(b1500, frequency=frequency, plot=True)
     b1500.close_wgfmu_session()
