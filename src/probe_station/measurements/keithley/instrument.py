@@ -83,25 +83,24 @@ class Keithley2450Extended(Keithley2450):
     def abort(self):
         """Abort the currently running trigger model sweep.
 
-        Sends ``ABOR``, turns off the source output, and drains any
-        abort-related errors from the queue so the next run starts clean.
+        Stops the buffering measurement, turns off the source output, and drains
+        any abort-related errors from the queue so the next run starts clean.
         """
-        self.write(":ABOR")
+        self.stop_buffer()
         self.disable_source()
         self.check_errors()  # discard "operation cancelled" and similar
 
     def get_traces(self):
         """Retrieve time, source, and reading arrays from the default trace buffer."""
-        ending_index = self.trace_actual_end
-        result = self.get_trace_data(ending_index)
-        result = list(map(float, result.split(",")))
-        return {"time": result[::3], "source": result[1::3], "reading": result[2::3]}
+        ending_index = self.get_trace_actual_end()
+        time, source, reading = self.get_trace_data(ending_index).T.tolist()
+        return {"time": time, "source": source, "reading": reading}
 
     def setup_sense_subsystem(self, int_time=0.1, autorange=False, compl=1e-2, range=1e-3, counts=1):
         nplc_time = int_time / (1 / 60)  # 60 Hz power supply
         self.write(":SENS:FUNC 'CURR'")
         self.autozero_once()
-        self.current_autozero = "OFF"
+        self.current_autozero = False
         self.current_nplc = max(0.01, nplc_time)
 
         if autorange:
@@ -128,7 +127,7 @@ class Keithley2450Extended(Keithley2450):
         else:
             self.source_voltage_delay_auto = True
 
-        self.source_voltage_readback = "ON" if readback else "OFF"
+        self.source_voltage_readback = readback
 
     def raise_error(self):
         errors = self.check_errors()

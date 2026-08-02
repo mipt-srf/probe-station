@@ -61,9 +61,9 @@ with connect_instrument(device) as smu:
     smu.check_errors()
 
     waveform = create_waveform(params, by_rate=False)
-    smu.voltage_list_sweep(waveform, params["n_cycles"])
+    smu.sweep_voltage_list(waveform, params["n_cycles"])
 
-    smu.initiate()
+    smu.start_buffer()
     smu.wait()
 
     smu.check_errors()

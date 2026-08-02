@@ -65,8 +65,8 @@ class KeithleyPundProcedure(BaseProcedure):
 
         waveform = self._create_waveform()
         logger.info("Initiating waveform with %d points", len(waveform))
-        self.smu.voltage_list_sweep(waveform, self.n_cycles)
-        self.smu.initiate()
+        self.smu.sweep_voltage_list(waveform, self.n_cycles)
+        self.smu.start_buffer()
         self.smu.wait(self.should_stop)
 
         if self.should_stop():
