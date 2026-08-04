@@ -9,6 +9,8 @@ build/
 .vscode/
 
 *.csv
+# example data executed by jupyter-sphinx cells; must be in the docs checkout
+!docs/source/data/*.csv
 
 **/logs/
 

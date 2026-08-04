@@ -179,7 +179,7 @@ It's also possible to use this package for processing datafiles produced by Matl
 Supported measurements from Matlab codebase are represented by :class:`~probe_station.analysis.matlab.pq_pund.PQ_PUND`, :class:`~probe_station.analysis.matlab.dc_iv.DC_IV`, :class:`~probe_station.analysis.matlab.cv.CV` and :class:`~probe_station.analysis.matlab.pund_double.PUND_double` classes. The idea behind is similar: you can use common :class:`~probe_station.analysis.matlab.dataset.Dataset` class that will choose appropriate handler for your datafile and parse it accordingly.
 
 .. TODO: example (Dataset, basic .plot, specific things)
-also how to see avaiable methods
+   also how to see available methods
 
 Despite that utils for Matlab datafiles processing it's still a part of the package as well, I would recommend to switch to using package's measurements as they are implemented as part of the ecosystem and can be easier processed in the future.
 
