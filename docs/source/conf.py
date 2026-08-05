@@ -3,8 +3,9 @@ import pathlib
 import sys
 from importlib.metadata import version as _version
 
-path = pathlib.Path(__file__).parents[2] / "src"
-sys.path.insert(0, path.resolve().as_posix())
+_root = pathlib.Path(__file__).parents[2]
+sys.path.insert(0, (_root / "src").resolve().as_posix())
+sys.path.insert(0, (pathlib.Path(__file__).parent / "_ext").resolve().as_posix())
 
 project = "Probe Station"
 author = "Sergey Ilyev"
@@ -26,8 +27,13 @@ extensions = [
     "sphinx_codeautolink",  # add intersphinx links in code blocks
     "sphinx.ext.autosectionlabel",  # add automatic labels for sections to use in :ref:
     "jupyter_sphinx",  # add executed inline code cells
+    "filetree",  # local extension: source tree rendered from the filesystem
     # "nbsphinx",
 ]
+
+filetree_root = str(_root)
+filetree_base_url = "https://github.com/mipt-srf/probe-station"
+filetree_ref = "master"
 
 # keysight_b1530a is installed for real on the docs builder (via the
 # "measurements" extra) so autodoc sees real enums and docstrings, but its

@@ -1,3 +1,36 @@
+/* Source trees emitted by the `filetree` directive (docs/source/_ext).
+ *
+ * The directive emits a line_block rather than a literal_block, because
+ * Sphinx's HTML writer hands literal blocks to Pygments and drops their
+ * children -- which would take the file links with them. So the code-block
+ * look has to be restated here. */
+
+.filetree {
+    background-color: var(--color-code-background);
+    color: var(--color-code-foreground);
+    font-family: var(--font-stack--monospace);
+    font-size: var(--font-size--small);
+    line-height: 1.5;
+    padding: 0.75em 1em;
+    border-radius: 0.2rem;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+.filetree .line {
+    /* The box-drawing prefixes are indented with plain spaces; without this
+     * the browser collapses them and the tree loses its shape. */
+    white-space: pre;
+}
+
+.filetree a {
+    text-decoration: none;
+}
+
+.filetree a:hover {
+    text-decoration: underline;
+}
+
 /* Theme-aware overrides for jupyter-sphinx cells.
  *
  * The stock jupyter-sphinx.css hardcodes light colors (white container,
