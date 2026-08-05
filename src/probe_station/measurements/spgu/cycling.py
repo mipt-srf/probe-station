@@ -39,7 +39,7 @@ class SpguCyclingProcedure(BaseProcedure):
         self.b1500 = Session.acquire()
 
     def execute(self):
-        logger.info("Starting the loop of %d repetitions" % self.repetitions)
+        logger.info("Starting the loop of %d repetitions", self.repetitions)
 
         if self.dc_bias:
             dc_smu = None
@@ -77,8 +77,8 @@ class SpguCyclingProcedure(BaseProcedure):
         duration = self.repetitions * period
 
         estimates = [
-            ("Duration", "%d s" % int(duration)),
-            ("Number of lines", "%d" % int(self.repetitions)),
+            ("Duration", f"{int(duration)} s"),
+            ("Number of lines", f"{int(self.repetitions)}"),
             ("Sequence length", str(sequence_length)),
             (
                 "Measurement finished at",

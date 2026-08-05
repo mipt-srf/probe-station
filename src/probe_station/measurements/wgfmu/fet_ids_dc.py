@@ -8,6 +8,7 @@ point each -- the WGFMU analogue of the SMU ``Ids (t)`` single-point read.
 """
 
 import logging
+from typing import ClassVar
 
 from keysight_b1530a._bindings.errors import get_error_summary
 from keysight_b1530a.errors import WGFMUError
@@ -68,7 +69,7 @@ class WgfmuFetIdsDcProcedure(WgfmuProcedure):
         "Sampling interval (x5 ns)", default=20, minimum=1, maximum=65535, group_by="advanced_config"
     )
 
-    DATA_COLUMNS = ["Drain Current", "Gate Current"]
+    DATA_COLUMNS: ClassVar[list[str]] = ["Drain Current", "Gate Current"]
 
     def execute(self):
         logger.info(f"Starting the {self.__class__.__name__}")

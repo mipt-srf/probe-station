@@ -220,7 +220,9 @@ def set_waveform(
     # sum the on-grid segments instead of sequence.total_duration so the
     # measure event spans exactly what the hardware plays
     seq_time = float(np.sum(times))
-    logger.info(f"Waveform for {pattern_name}: {len(voltages)} samples, {seq_time:.6g} s, {len(sequence.pulses)} pulses")
+    logger.info(
+        f"Waveform for {pattern_name}: {len(voltages)} samples, {seq_time:.6g} s, {len(sequence.pulses)} pulses"
+    )
     b1500.add_vectors_to_wgfmu_pattern(pattern_name, times.tolist(), voltages.tolist())
     if measure:
         interval = np.floor(seq_time / measure_points / WGFMU_TIMING_RESOLUTION) * WGFMU_TIMING_RESOLUTION

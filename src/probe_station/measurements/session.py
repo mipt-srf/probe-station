@@ -132,7 +132,7 @@ class Session:
         # sweep releases the I/O lock rather than corrupting its data stream.
         try:
             return bool(b1500.id)
-        except Exception:
+        except Exception:  # noqa: BLE001 - any failure means the instrument is unusable
             return False
 
 

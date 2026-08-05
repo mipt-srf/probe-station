@@ -93,12 +93,12 @@ class CrossProcedureResultsDialog(ResultsDialog):
             self._current_plot.load(self._current_plot.new_curve(results))
 
         self.preview_param.clear()
-        for _, param in results.procedure.parameter_objects().items():
+        for param in results.procedure.parameter_objects().values():
             self.preview_param.addTopLevelItem(QTreeWidgetItem([param.name, str(param)]))
         self.preview_param.sortItems(0, Qt.AscendingOrder)
 
         self.preview_metadata.clear()
-        for _, metadata in results.procedure.metadata_objects().items():
+        for metadata in results.procedure.metadata_objects().values():
             self.preview_metadata.addTopLevelItem(QTreeWidgetItem([metadata.name, str(metadata)]))
         self.preview_metadata.sortItems(0, Qt.AscendingOrder)
 

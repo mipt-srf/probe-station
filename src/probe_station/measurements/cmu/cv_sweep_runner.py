@@ -5,11 +5,11 @@ from probe_station.measurements.b1500 import (
     B1500,
     MeasMode,
     MFCMUMeasurementMode,
+    RSUOutputMode,
     SCUUPath,
     SweepMode,
 )
 from probe_station.measurements.b1500_helpers import check_all_errors, connect_instrument, parse_data
-from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 
 PLOT_POINTS = 100
 
@@ -32,8 +32,8 @@ def run(b1500: B1500, first_bias=-3, second_bias=3, avg_per_point=1, ac_voltage=
     """
     if not 1 <= avg_per_point <= MAX_AVG_PER_POINT:
         raise ValueError(f"avg_per_point must be between 1 and {MAX_AVG_PER_POINT}, got {avg_per_point}")
-    setup_rsu_output(b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
-    setup_rsu_output(b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
+    b1500.rsu1.set_output(RSUOutputMode.SMU)
+    b1500.rsu2.set_output(RSUOutputMode.SMU)
     cmu = b1500.cmu
     b1500.time_stamp = True
     cmu.set_scuu_path(SCUUPath.CMU)

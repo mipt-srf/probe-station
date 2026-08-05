@@ -1,4 +1,5 @@
 import logging
+from typing import ClassVar
 
 from pymeasure.display.widgets import LogWidget
 
@@ -23,7 +24,7 @@ class QscvOffsetCancelProcedure(QscvProcedureBase):
     """
 
     # No sweep curve: the result is a single offset value reported to the log.
-    DATA_COLUMNS = []
+    DATA_COLUMNS: ClassVar[list[str]] = []
 
     def execute(self):
         logger.info("Measuring open-terminal QSCV offset -- ensure the probe tips are lifted (terminals open).")

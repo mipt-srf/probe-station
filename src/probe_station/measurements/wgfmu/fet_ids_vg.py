@@ -1,4 +1,5 @@
 import logging
+from typing import ClassVar
 
 from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import (
@@ -77,7 +78,7 @@ class WgfmuFetIdsVgProcedure(WgfmuProcedure):
 
     plot_points = IntegerParameter("Points to plot", default=200, group_by="advanced_config")
 
-    DATA_COLUMNS = ["Gate Voltage", "Source Current", "Gate Current", "Time"]
+    DATA_COLUMNS: ClassVar[list[str]] = ["Gate Voltage", "Source Current", "Gate Current", "Time"]
 
     def execute(self):
         # Bias the drain at a constant Vds via its SMU and ground the substrate

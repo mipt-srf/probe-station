@@ -1,6 +1,7 @@
 """PyMeasure procedure for measuring FET drain and gate currents at fixed bias."""
 
 import logging
+from typing import ClassVar
 
 from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import (
@@ -9,10 +10,9 @@ from pymeasure.experiment import (
     IntegerParameter,
 )
 
-from probe_station.measurements.b1500 import ADCType
+from probe_station.measurements.b1500 import ADCType, RSUOutputMode
 from probe_station.measurements.b1500_helpers import max_compliance
 from probe_station.measurements.pymeasure_base import BaseProcedure, BaseWindow, run_app
-from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 from probe_station.measurements.session import Session
 
 logger = logging.getLogger(__name__)
@@ -35,7 +35,7 @@ class SmuFetIdsTimeProcedure(BaseProcedure):
     source_voltage = FloatParameter("Source voltage", units="V", default=0.0, group_by="advanced_config")
     base_voltage = FloatParameter("Base voltage", units="V", default=0.0, group_by="advanced_config")
 
-    DATA_COLUMNS = ["Drain Current", "Gate Current"]
+    DATA_COLUMNS: ClassVar[list[str]] = ["Drain Current", "Gate Current"]
 
     def startup(self):
         super().startup()
@@ -46,8 +46,8 @@ class SmuFetIdsTimeProcedure(BaseProcedure):
         self.b1500.clear_wgfmu()
         self.b1500.initialize_wgfmu()
         self.b1500.clear_buffer()
-        setup_rsu_output(self.b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
-        setup_rsu_output(self.b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
+        self.b1500.rsu1.set_output(RSUOutputMode.SMU)
+        self.b1500.rsu2.set_output(RSUOutputMode.SMU)
 
     def execute(self):
         logger.info(f"Starting the {self.__class__}")

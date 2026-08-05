@@ -1,11 +1,12 @@
 import logging
+from typing import ClassVar
 
 from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter, ListParameter
 
 from probe_station.logging_setup import setup_file_logging
+from probe_station.measurements.b1500 import RSUOutputMode
 from probe_station.measurements.pymeasure_base import BaseProcedure, BaseWindow, run_app
-from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 from probe_station.measurements.session import Session
 from probe_station.measurements.smu._sweep_mode import SmuSweepMode
 from probe_station.measurements.smu._widgets import IvPlotWidget
@@ -33,14 +34,14 @@ class SmuIvSweepProcedure(BaseProcedure):
     calculate_resistance = BooleanParameter("Calculate resistance", default=False)
     resistance_voltage = FloatParameter("Resistance voltage", units="V", default=1.0, group_by="calculate_resistance")
 
-    DATA_COLUMNS = ["Voltage", "Top Electrode Current", "Time"]
+    DATA_COLUMNS: ClassVar[list[str]] = ["Voltage", "Top Electrode Current", "Time"]
 
     def startup(self):
         super().startup()
         self.b1500 = Session.acquire(timeout=60000, reset=False)
         self.b1500.clear_buffer()
-        setup_rsu_output(self.b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
-        setup_rsu_output(self.b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
+        self.b1500.rsu1.set_output(RSUOutputMode.SMU)
+        self.b1500.rsu2.set_output(RSUOutputMode.SMU)
 
     def execute(self):
         logger.info(f"Starting the {self.__class__}")

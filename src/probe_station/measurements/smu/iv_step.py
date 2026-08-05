@@ -1,4 +1,5 @@
 import logging
+from typing import ClassVar
 
 import numpy as np
 from pymeasure.display.widgets import LogWidget
@@ -8,9 +9,9 @@ from pymeasure.experiment import (
 )
 
 from probe_station.logging_setup import setup_file_logging
+from probe_station.measurements.b1500 import RSUOutputMode
 from probe_station.measurements.b1500_helpers import max_compliance
 from probe_station.measurements.pymeasure_base import BaseProcedure, BaseWindow, run_app
-from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 from probe_station.measurements.session import Session
 from probe_station.measurements.smu._widgets import IvPlotWidget
 from probe_station.measurements.smu.iv_step_runner import measure_at_voltage
@@ -26,7 +27,7 @@ class SmuIvStepProcedure(BaseProcedure):
     bottom_channel = IntegerParameter("Bottom channel", default=3)
     steps = IntegerParameter("Steps", default=100)
 
-    DATA_COLUMNS = ["Time", "Voltage", "Top Electrode Current"]
+    DATA_COLUMNS: ClassVar[list[str]] = ["Time", "Voltage", "Top Electrode Current"]
 
     def startup(self):
         super().startup()
@@ -36,8 +37,8 @@ class SmuIvStepProcedure(BaseProcedure):
     def execute(self):
         logger.info(f"Starting the {self.__class__}")
 
-        setup_rsu_output(self.b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
-        setup_rsu_output(self.b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
+        self.b1500.rsu1.set_output(RSUOutputMode.SMU)
+        self.b1500.rsu2.set_output(RSUOutputMode.SMU)
 
         top_smu = self.b1500.smus[self.top_channel]
         bottom_smu = self.b1500.smus[self.bottom_channel]

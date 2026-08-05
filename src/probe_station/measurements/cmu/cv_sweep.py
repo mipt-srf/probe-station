@@ -1,4 +1,5 @@
 import logging
+from typing import ClassVar
 
 from pymeasure.experiment import (
     FloatParameter,
@@ -6,9 +7,9 @@ from pymeasure.experiment import (
 )
 
 from probe_station.logging_setup import setup_file_logging
+from probe_station.measurements.cmu.cv_sweep_runner import PLOT_POINTS, run
 from probe_station.measurements.pymeasure_base import BaseProcedure, BaseWindow, run_app
 from probe_station.measurements.session import Session
-from probe_station.measurements.cmu.cv_sweep_runner import PLOT_POINTS, run
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
@@ -28,7 +29,7 @@ class CmuCvSweepProcedure(BaseProcedure):
     avg_per_point = IntegerParameter("Averages per point", default=1, minimum=1, maximum=1023)
     # channel = IntegerParameter("Channel", default=2)
 
-    DATA_COLUMNS = ["Voltage", "Capacitance", "Resistance"]
+    DATA_COLUMNS: ClassVar[list[str]] = ["Voltage", "Capacitance", "Resistance"]
 
     def startup(self):
         super().startup()

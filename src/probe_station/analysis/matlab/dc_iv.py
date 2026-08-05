@@ -14,7 +14,7 @@ from scipy.interpolate import interp1d
 from probe_station.analysis.common import find_x_at_min_y, get_y_at_x
 
 
-class DC_IV:  # noqa: N801
+class DC_IV:
     def __init__(
         self,
         metadata: dict,

@@ -4,10 +4,10 @@ from probe_station.measurements.b1500 import (
     ADCType,
     MeasMode,
     MeasOpMode,
+    RSUOutputMode,
     SweepMode,
 )
 from probe_station.measurements.b1500_helpers import connect_instrument, max_compliance, parse_data
-from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 
 
 def run(
@@ -23,8 +23,8 @@ def run(
     drain_voltage=1,
     base=2,
 ):
-    setup_rsu_output(b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
-    setup_rsu_output(b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
+    b1500.rsu1.set_output(RSUOutputMode.SMU)
+    b1500.rsu2.set_output(RSUOutputMode.SMU)
 
     gate_smu = b1500.smus[gate]  # swept channel
     gate_smu.enable()

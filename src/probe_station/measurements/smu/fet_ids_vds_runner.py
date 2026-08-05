@@ -4,16 +4,16 @@ from probe_station.measurements.b1500 import (
     ADCType,
     MeasMode,
     MeasOpMode,
+    RSUOutputMode,
     SweepMode,
 )
 from probe_station.measurements.b1500_helpers import connect_instrument, max_compliance, parse_data
-from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 
 
 def run(b1500: B1500, start, end, steps, average=127, top=4, bottom=3, mode=1, gate=1, gate_voltage=1, base=2):
     # b1500.reset()
-    setup_rsu_output(b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
-    setup_rsu_output(b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
+    b1500.rsu1.set_output(RSUOutputMode.SMU)
+    b1500.rsu2.set_output(RSUOutputMode.SMU)
 
     smu = b1500.smus[top]
     smu.enable()

@@ -1,11 +1,12 @@
 import logging
+from typing import ClassVar
 
 from pymeasure.display.widgets import LogWidget
 from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter, ListParameter
 
 from probe_station.logging_setup import setup_file_logging
+from probe_station.measurements.b1500 import RSUOutputMode
 from probe_station.measurements.pymeasure_base import BaseProcedure, BaseWindow, run_app
-from probe_station.measurements.rsu import RSU, RSUOutputMode, setup_rsu_output
 from probe_station.measurements.session import Session
 from probe_station.measurements.smu._sweep_mode import SmuSweepMode
 from probe_station.measurements.smu._widgets import IvPlotWidget
@@ -33,14 +34,14 @@ class SmuFetIdsVgProcedure(BaseProcedure):
     gate_channel = IntegerParameter("Gate channel", default=4)
     base_channel = IntegerParameter("Base channel", default=2)
 
-    DATA_COLUMNS = ["Gate Voltage", "Drain Current", "Gate Current", "Time"]
+    DATA_COLUMNS: ClassVar[list[str]] = ["Gate Voltage", "Drain Current", "Gate Current", "Time"]
 
     def startup(self):
         super().startup()
         self.b1500 = Session.acquire(timeout=60000, reset=False)
         self.b1500.clear_buffer()
-        setup_rsu_output(self.b1500, rsu=RSU.RSU1, mode=RSUOutputMode.SMU)
-        setup_rsu_output(self.b1500, rsu=RSU.RSU2, mode=RSUOutputMode.SMU)
+        self.b1500.rsu1.set_output(RSUOutputMode.SMU)
+        self.b1500.rsu2.set_output(RSUOutputMode.SMU)
 
     def execute(self):
         logger.info(f"Starting the {self.__class__}")

@@ -15,6 +15,7 @@ from keysight_b1530a import (
     set_measure_event,
     wait_until_completed,
 )
+from keysight_b1530a._bindings.config import WGFMUChannel
 from keysight_b1530a.enums import (
     WGFMUMeasureCurrentRange,
     WGFMUMeasureEvent,
@@ -48,38 +49,42 @@ from pymeasure.instruments.agilent.agilentB1500 import (
     WaitTimeType,
 )
 
+from probe_station.measurements.rsu import RSU, RSUOutputMode
+
 # Instrument enums and channel classes are re-exported here so measurement
 # scripts can import them alongside B1500 without knowing which upstream
 # package each one lives in.
 __all__ = [
     "B1500",
+    "RSU",
+    "SMU",
+    "SPGU",
     "ADCMode",
     "ADCType",
     "AutoManual",
     "CompliancePolarity",
     "ControlMode",
+    "MFCMUMeasurementMode",
     "MeasMode",
     "MeasOpMode",
-    "MFCMUMeasurementMode",
     "PgSelectorConnectionStatus",
     "PgSelectorPort",
-    "SamplingMode",
-    "SamplingPostOutput",
+    "RSUOutputMode",
     "SCUUPath",
-    "SMU",
-    "SPGU",
     "SPGUChannel",
     "SPGUChannelOutputMode",
     "SPGUOperationMode",
     "SPGUOutputMode",
     "SPGUSignalSource",
+    "SamplingMode",
+    "SamplingPostOutput",
     "StaircaseSweepPostOutput",
     "SweepMode",
-    "WaitTimeType",
     "WGFMUMeasureCurrentRange",
     "WGFMUMeasureEvent",
     "WGFMUMeasureMode",
     "WGFMUOperationMode",
+    "WaitTimeType",
 ]
 
 
@@ -117,6 +122,7 @@ class B1500(AgilentB1500):
         self.initialize_all_spgus()
         self.initialize_cmu()
         self._init_wgfmu_channels()
+        self._init_rsus()
 
     # --- Serialized VISA I/O ------------------------------------------------
     # Every entry point that touches the shared connection takes _io_lock so
@@ -150,6 +156,23 @@ class B1500(AgilentB1500):
             wgfmu = WGFMU(id=channel_id)
             setattr(self, f"wgfmu{i}", wgfmu)
             self.wgfmus[i] = wgfmu
+
+    def _init_rsus(self):
+        """Create the RSUs, accessible as ``rsu1``/``rsu2``.
+
+        Unlike SMUs, SPGUs and the CMU, an RSU is an external accessory that
+        ``query_modules`` cannot discover, so its wiring -- which selector port
+        feeds it and which WGFMU channel it hangs off -- is declared here.
+        """
+        wiring = (
+            (PgSelectorPort.OUTPUT_1_FIRST, WGFMUChannel.CH2),
+            (PgSelectorPort.OUTPUT_2_FIRST, WGFMUChannel.CH1),
+        )
+        self.rsus: dict[int, RSU] = {}
+        for i, (port, channel) in enumerate(wiring, start=1):
+            rsu = RSU(self, port=port, wgfmu_channel=channel)
+            setattr(self, f"rsu{i}", rsu)
+            self.rsus[i] = rsu
 
     def open_wgfmu_session(self):
         """Open a session to the WGFMU module."""

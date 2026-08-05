@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta
+from typing import ClassVar
 
 from pymeasure.experiment import BooleanParameter, FloatParameter, IntegerParameter
 
@@ -29,7 +30,7 @@ class SpguCyclingWithCurrentProcedure(BaseProcedure):
 
     period = 2 * (rise.value + tail.value)
 
-    DATA_COLUMNS = ["Time", "Top Electrode Current"]
+    DATA_COLUMNS: ClassVar[list[str]] = ["Time", "Top Electrode Current"]
 
     def startup(self):
         super().startup()
@@ -37,7 +38,7 @@ class SpguCyclingWithCurrentProcedure(BaseProcedure):
         self.b1500.clear_buffer()
 
     def execute(self):
-        logger.info("Starting the loop of %d repetitions" % self.repetitions)
+        logger.info("Starting the loop of %d repetitions", self.repetitions)
 
         run(
             b1500=self.b1500,
@@ -67,8 +68,8 @@ class SpguCyclingWithCurrentProcedure(BaseProcedure):
         duration = self.repetitions * self.period
 
         estimates = [
-            ("Duration", "%d s" % int(duration)),
-            ("Number of lines", "%d" % int(self.repetitions)),
+            ("Duration", f"{int(duration)} s"),
+            ("Number of lines", f"{int(self.repetitions)}"),
             ("Sequence length", str(sequence_length)),
             (
                 "Measurement finished at",

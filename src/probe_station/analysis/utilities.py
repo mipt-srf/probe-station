@@ -137,7 +137,7 @@ def plot_in_folder(
     :param ignore: Tuple of file indexes to ignore.
     """
     if new_figure:
-        fig, ax = plt.subplots()
+        plt.subplots()
     paths = list(get_files_in_folder(path, ignore))
 
     for datafile_path, label in zip(
@@ -198,7 +198,7 @@ def plot_input_curves(
     files = list(
         get_files_in_folder(path, ignore=ignore),
     )
-    fig, ax = plt.subplots()
+    plt.subplots()
     data = {drain_voltage: np.zeros(len(files)) for drain_voltage in drain_voltages}
     for i, datafile in enumerate(files):
         handler = Dataset(datafile).handler
@@ -223,7 +223,7 @@ def plot_threshold_curve(
     files = list(
         get_files_in_folder(path, ignore=ignore),
     )
-    fig, ax = plt.subplots()
+    plt.subplots()
     data = np.zeros(len(files))
     for i, datafile in enumerate(files):
         handler = Dataset(datafile).handler

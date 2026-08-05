@@ -53,13 +53,13 @@ class CyclingExperiment:
         return [Dataset(filename) for filename in self.csvs if "SmuIvSweep" in filename.name]
 
     @property
-    def wgfmu_datasets(self, top_voltage=5.0, mode="PUND"):
+    def wgfmu_datasets(self):
         return [Dataset(filename) for filename in self.csvs if "WgfmuIvSweep" in filename.name]
 
     @property
     def cycles(self):
         exp_cycles = [
-            int(filename.name.split("_")[2].strip("cycles.csv"))
+            int(filename.name.split("_")[2].removesuffix("cycles.csv"))
             for filename in self.csvs
             if "SpguCycling" in filename.name or "WgfmuCycling" in filename.name
         ]
@@ -138,8 +138,8 @@ class CvBatchProcessing:
                 ds.handler.set_geometry(area=self.exp.area, thickness=self.exp.thickness)
                 # ds.plot_epsilon(color="blue", alpha=0.2, label=cycle)
                 ds.plot_epsilon(label=cycle)
-            except Exception as e:
-                logger.exception(f"Error in plot_eps_v: {e}, {ds}")
+            except Exception:
+                logger.exception(f"Error in plot_eps_v: {ds}")
 
     def plot_eps_cycles(self, voltage, color=None):
         if self.datasets == []:
@@ -230,10 +230,9 @@ class SmuBatchProcessing:
             try:
                 for cycle, ds in zip(self.cycles, self.datasets):
                     ds.plot(color="blue", alpha=0.2)
-            except Exception as e:
-                logger.exception(f"Error in plot_current_v: {e}, {ds}")
-            finally:
-                return
+            except Exception:
+                logger.exception(f"Error in plot_current_v: {ds}")
+            return
 
         for index in indexes:
             ds = self.datasets[index]

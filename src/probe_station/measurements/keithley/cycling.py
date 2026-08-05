@@ -16,9 +16,9 @@ def cycle(smu: Keithley2450Extended, n_times, vf, vs):
     smu.setup_sense_subsystem(int_time=0, compl=1e-4, range=1e-4)
     smu.check_errors()
 
-    smu.voltage_list_sweep(waveform, params["n_cycles"])
+    smu.sweep_voltage_list(waveform, params["n_cycles"])
 
-    smu.initiate()
+    smu.start_buffer()
     smu.check_errors()
 
     smu.wait()

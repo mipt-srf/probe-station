@@ -23,13 +23,13 @@ def plot_average(data, params, area, save=False, path=None, name=None):
     logic = np.where(v > 0.025)
 
     try:
-        pv, uv = np.split(v[logic], 2)
+        pv, _uv = np.split(v[logic], 2)
         pc, uc = np.split(c[logic], 2)
     except ValueError:
         pass
     try:
         logic = np.where(v < -0.025)
-        nv, dv = np.split(v[logic], 2)
+        nv, _dv = np.split(v[logic], 2)
         nc, dc = np.split(c[logic], 2)
     except ValueError:
         pass
@@ -110,14 +110,14 @@ def plot_fig(data, params, area, save=False, path=None, name=None):
         logic = np.where(v > 0.025)
         c = currents[i]
         try:
-            pv, uv = np.split(v[logic], 2)
+            pv, _uv = np.split(v[logic], 2)
             pc, uc = np.split(c[logic], 2)
         except ValueError:
             break
 
         try:
             logic = np.where(v < -0.025)
-            nv, dv = np.split(v[logic], 2)
+            nv, _dv = np.split(v[logic], 2)
             nc, dc = np.split(c[logic], 2)
         except ValueError:
             break
@@ -143,7 +143,7 @@ def plot_fig(data, params, area, save=False, path=None, name=None):
     ax2.plot(meas_time, current * 1e6, linewidth=2, color="tomato")
     for label in ax2.get_yticklabels():
         label.set_fontsize(20)
-    ax2.set_ylabel("Current, $\mu$A", fontsize=20, labelpad=30, rotation=270)
+    ax2.set_ylabel(r"Current, $\mu$A", fontsize=20, labelpad=30, rotation=270)
 
     ax3.plot(voltage, current * 1e6, linewidth=2, color="tomato")
     for spine in ["left", "right", "top", "bottom"]:

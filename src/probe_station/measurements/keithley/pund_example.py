@@ -5,7 +5,7 @@ import time
 from probe_station.measurements.keithley import connect_instrument
 from probe_station.measurements.keithley.cycling import cycle
 from probe_station.measurements.keithley.plot_fig import plot_fig, save_data
-from probe_station.measurements.keithley.PUND_waveform import create_waveform
+from probe_station.measurements.keithley.pund_waveform import create_waveform
 
 time.sleep(0)
 device = "TCPIP0::192.168.81.20::inst0::INSTR"
@@ -61,9 +61,9 @@ with connect_instrument(device) as smu:
     smu.check_errors()
 
     waveform = create_waveform(params, by_rate=False)
-    smu.voltage_list_sweep(waveform, params["n_cycles"])
+    smu.sweep_voltage_list(waveform, params["n_cycles"])
 
-    smu.initiate()
+    smu.start_buffer()
     smu.wait()
 
     smu.check_errors()
