@@ -44,3 +44,15 @@ B1500
    :members:
 
 .. autofunction:: probe_station.experiments.common.run
+
+.. automodule:: probe_station.measurements
+   :undoc-members:
+   :members:
+
+.. automodule:: probe_station.analysis
+   :undoc-members:
+   :members:
+
+.. automodule:: probe_station.experiments
+   :undoc-members:
+   :members:

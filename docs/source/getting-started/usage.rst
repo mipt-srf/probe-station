@@ -52,7 +52,7 @@ You can use :class:`~probe_station.measurements.b1500.B1500` class to communicat
 Running measurements with GUI
 =============================
 
-Most of avaiable measurements can be run using GUI. You can run the main :ref:`launcher <structure:Launcher>` in three ways:
+Most of avaiable measurements can be run using GUI. You can run the main :ref:`launcher <learning-package/structure:Launcher>` in three ways:
 
 .. note:: Presence of ``(.venv)`` indicates that command must be executed in the virtual environment with :doc:`installed <installation>` package
 
@@ -82,6 +82,8 @@ Most of avaiable measurements can be run using GUI. You can run the main :ref:`l
       >>> run_launcher()
 
 The launcher contains the buttons for running measurements GUIs as well as links to the repository on GitHub and this documentation.
+
+When you click any measurement button, the additional measurement-specific GUI will appear. They are based on the part of Pymeasure responsible for running measurements. Link to description, may be describe yourself
 
 .. TODO: Add buttons
 
