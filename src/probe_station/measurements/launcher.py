@@ -2,9 +2,11 @@ import importlib
 import logging
 import subprocess
 import sys
+from pathlib import Path
 
-from qtpy.QtCore import QLocale, Qt, QThread
-from qtpy.QtGui import QFont
+from qtpy.QtCore import QLocale, QSize, Qt, QThread, QUrl
+from qtpy.QtGui import QColor, QDesktopServices, QFont, QIcon, QPainter, QPixmap
+from qtpy.QtSvg import QSvgRenderer
 from qtpy.QtWidgets import (
     QApplication,
     QFrame,
@@ -24,6 +26,12 @@ from probe_station.measurements.pymeasure_base import (
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
+
+REPOSITORY_URL = "https://github.com/mipt-srf/probe-station"
+DOCUMENTATION_URL = "https://probe-station.readthedocs.io"
+
+# Monochrome brand marks from Simple Icons (CC0), tinted at load time.
+ASSETS_DIR = Path(__file__).parent / "assets"
 
 # Name of the in-flight action (e.g. "Вжух"), or None if idle. Read by the
 # busy predicate so procedure windows refuse to queue while it's running.
@@ -110,6 +118,51 @@ class ModernButton(QPushButton):
         rgb = tuple(int(hex_color[i : i + 2], 16) for i in (0, 2, 4))
         darkened = tuple(int(c * factor) for c in rgb)
         return f"#{darkened[0]:02x}{darkened[1]:02x}{darkened[2]:02x}"
+
+
+def load_svg_icon(name, color="#cfcfcf", size=64):
+    """Render ``assets/<name>.svg`` into a QIcon tinted with ``color``.
+
+    The source marks are solid black, so the shape is used as a mask and filled
+    with ``color`` to stay legible on the dark theme.
+    """
+    path = ASSETS_DIR / f"{name}.svg"
+    pixmap = QPixmap(size, size)
+    pixmap.fill(Qt.transparent)
+
+    painter = QPainter(pixmap)
+    try:
+        QSvgRenderer(str(path)).render(painter)
+        painter.setCompositionMode(QPainter.CompositionMode_SourceIn)
+        painter.fillRect(pixmap.rect(), QColor(color))
+    finally:
+        painter.end()
+    return QIcon(pixmap)
+
+
+class IconLinkButton(QPushButton):
+    """Flat, icon-only button used for the external links in the footer row."""
+
+    def __init__(self, icon_name, tooltip, button_size=40, icon_size=24):
+        super().__init__()
+        self.setIcon(load_svg_icon(icon_name))
+        self.setIconSize(QSize(icon_size, icon_size))
+        self.setFixedSize(button_size, button_size)
+        self.setToolTip(tooltip)
+        self.setCursor(Qt.PointingHandCursor)
+        self.setStyleSheet("""
+            QPushButton {
+                background-color: transparent;
+                border: none;
+                border-radius: 8px;
+            }
+            QPushButton:hover {
+                background-color: #3d3d3d;
+            }
+            QPushButton:pressed {
+                background-color: #4a4a4a;
+            }
+        """)
 
 
 class Launcher(QWidget):
@@ -265,11 +318,22 @@ class Launcher(QWidget):
         open_data_button.clicked.connect(self.open_data)
         layout.addWidget(open_data_button)
 
-        # Footer
+        # Footer: hint on the left, external links on the right
+        footer_row = QHBoxLayout()
         footer = QLabel("Click any button to launch a measurement script")
-        footer.setAlignment(Qt.AlignCenter)
         footer.setStyleSheet("color: #888888; font-style: italic;")
-        layout.addWidget(footer)
+        footer_row.addWidget(footer)
+        footer_row.addStretch()
+
+        for icon_name, tooltip, url in (
+            ("github", "Source code on GitHub", REPOSITORY_URL),
+            ("readthedocs", "Documentation on Read the Docs", DOCUMENTATION_URL),
+        ):
+            link_button = IconLinkButton(icon_name, tooltip)
+            link_button.clicked.connect(lambda checked, u=url: self.open_url(u))
+            footer_row.addWidget(link_button)
+
+        layout.addLayout(footer_row)
 
         self.setLayout(layout)
 
@@ -320,6 +384,10 @@ class Launcher(QWidget):
 
     def open_data(self):
         reader.open_data(self, self.child_windows)
+
+    def open_url(self, url):
+        if not QDesktopServices.openUrl(QUrl(url)):
+            logger.warning("Failed to open %s in a browser", url)
 
 
 def main():
