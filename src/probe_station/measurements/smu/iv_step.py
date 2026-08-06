@@ -21,11 +21,11 @@ logger.addHandler(logging.NullHandler())
 
 
 class SmuIvStepProcedure(BaseProcedure):
-    first_voltage = FloatParameter("First voltage", units="V", default=-3)
-    second_voltage = FloatParameter("Second voltage", units="V", default=3)
-    top_channel = IntegerParameter("Top channel", default=4)
-    bottom_channel = IntegerParameter("Bottom channel", default=3)
-    steps = IntegerParameter("Steps", default=100)
+    first_voltage = FloatParameter("First voltage", units="V", default=-3, minimum=-200, maximum=200, step=0.1)
+    second_voltage = FloatParameter("Second voltage", units="V", default=3, minimum=-200, maximum=200, step=0.1)
+    top_channel = IntegerParameter("Top channel", default=4, minimum=1, maximum=4, step=1)
+    bottom_channel = IntegerParameter("Bottom channel", default=3, minimum=1, maximum=4, step=1)
+    steps = IntegerParameter("Steps", default=100, minimum=2, step=10)
 
     DATA_COLUMNS: ClassVar[list[str]] = ["Time", "Voltage", "Top Electrode Current"]
 

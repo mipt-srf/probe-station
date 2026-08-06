@@ -45,13 +45,13 @@ class WgfmuFetIdsDcProcedure(WgfmuProcedure):
     """
 
     # Parameters are declared in GUI order (see WgfmuProcedure).
-    gate_channel = IntegerParameter("Gate channel (WGFMU)", default=2)
-    drain_channel = IntegerParameter("Drain channel (WGFMU)", default=1)
-    source_channel = IntegerParameter("Source channel (SMU, grounded)", default=1)
-    base_channel = IntegerParameter("Base channel (SMU, grounded)", default=2)
+    gate_channel = IntegerParameter("Gate channel (WGFMU)", default=2, minimum=1, maximum=2, step=1)
+    drain_channel = IntegerParameter("Drain channel (WGFMU)", default=1, minimum=1, maximum=2, step=1)
+    source_channel = IntegerParameter("Source channel (SMU, grounded)", default=1, minimum=1, maximum=4, step=1)
+    base_channel = IntegerParameter("Base channel (SMU, grounded)", default=2, minimum=1, maximum=4, step=1)
 
-    gate_voltage = FloatParameter("Gate voltage", units="V", default=1.0)
-    drain_voltage = FloatParameter("Drain voltage", units="V", default=0.25)
+    gate_voltage = FloatParameter("Gate voltage", units="V", default=1.0, minimum=-10, maximum=10, step=0.1)
+    drain_voltage = FloatParameter("Drain voltage", units="V", default=0.25, minimum=-10, maximum=10, step=0.1)
 
     current_range = ListParameter(
         "Current range",

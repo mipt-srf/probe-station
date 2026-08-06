@@ -14,6 +14,7 @@ from probe_station.measurements.b1500 import WGFMUMeasureCurrentRange
 from probe_station.measurements.pymeasure_base import BaseWindow, run_app
 from probe_station.measurements.wgfmu._base import WgfmuBaseProcedure
 from probe_station.measurements.wgfmu._waveforms import (
+    WGFMU_TIMING_RESOLUTION,
     SweepMode,
     WaveformShape,
     calculate_polarization,
@@ -29,7 +30,9 @@ logger.addHandler(logging.NullHandler())
 
 class WgfmuIvSweepProcedure(WgfmuBaseProcedure):
     mode = ListParameter("Mode", default=SweepMode.PUND.name, choices=[e.name for e in SweepMode])
-    pulse_time = FloatParameter("Pulse time", units="s", default=2e-4)
+    pulse_time = FloatParameter(
+        "Pulse time", units="s", default=2e-4, minimum=WGFMU_TIMING_RESOLUTION, step=10, step_type="log"
+    )
 
     current_range = ListParameter(
         "Current range",
@@ -43,19 +46,23 @@ class WgfmuIvSweepProcedure(WgfmuBaseProcedure):
         group_by="enable_bottom",
     )
 
-    steps = IntegerParameter("Steps per pulse", default=200, group_by="advanced_config")
+    steps = IntegerParameter("Steps per pulse", default=200, minimum=1, step=10, group_by="advanced_config")
     waveform_shape = ListParameter(
         "Waveform shape",
         default=WaveformShape.STAIRCASE.name,
         choices=[e.name for e in WaveformShape],
         group_by="advanced_config",
     )
-    rise_to_hold_ratio = FloatParameter("Rise to hold time ratio", default=100, group_by="advanced_config")
+    rise_to_hold_ratio = FloatParameter(
+        "Rise to hold time ratio", default=100, minimum=0, step=10, step_type="log", group_by="advanced_config"
+    )
 
-    plot_points = IntegerParameter("Points to plot", default=1000, group_by="advanced_config")
+    plot_points = IntegerParameter("Points to plot", default=1000, minimum=1, step=100, group_by="advanced_config")
 
     compute_polarization = BooleanParameter("Calculate Polarization", default=False)
-    pad_size = FloatParameter("Pad size", units="um", default=25, group_by="compute_polarization")
+    pad_size = FloatParameter(
+        "Pad size", units="um", default=25, step=2, step_type="log", group_by="compute_polarization"
+    )
 
     DATA_COLUMNS: ClassVar[list[str]] = [
         "Top Electrode Voltage",

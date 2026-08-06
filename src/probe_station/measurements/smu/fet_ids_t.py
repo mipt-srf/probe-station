@@ -22,18 +22,24 @@ logger.addHandler(logging.NullHandler())
 class SmuFetIdsTimeProcedure(BaseProcedure):
     """Measure drain and gate current of a FET at specified bias voltages."""
 
-    gate_voltage = FloatParameter("Gate voltage", units="V", default=10.0)
-    drain_voltage = FloatParameter("Drain voltage", units="V", default=10.0)
+    gate_voltage = FloatParameter("Gate voltage", units="V", default=10.0, minimum=-200, maximum=200, step=0.1)
+    drain_voltage = FloatParameter("Drain voltage", units="V", default=10.0, minimum=-200, maximum=200, step=0.1)
 
-    gate_channel = IntegerParameter("Gate channel", default=4)
-    drain_channel = IntegerParameter("Drain channel", default=1)
+    gate_channel = IntegerParameter("Gate channel", default=4, minimum=1, maximum=4, step=1)
+    drain_channel = IntegerParameter("Drain channel", default=1, minimum=1, maximum=4, step=1)
 
     advanced_config = BooleanParameter("Advanced config", default=False)
-    averaging = IntegerParameter("Averaging", default=10, minimum=1, maximum=1023, group_by="advanced_config")
-    source_channel = IntegerParameter("Source channel", default=3, group_by="advanced_config")
-    base_channel = IntegerParameter("Base channel", default=2, group_by="advanced_config")
-    source_voltage = FloatParameter("Source voltage", units="V", default=0.0, group_by="advanced_config")
-    base_voltage = FloatParameter("Base voltage", units="V", default=0.0, group_by="advanced_config")
+    averaging = IntegerParameter("Averaging", default=10, minimum=1, maximum=1023, step=10, group_by="advanced_config")
+    source_channel = IntegerParameter(
+        "Source channel", default=3, minimum=1, maximum=4, step=1, group_by="advanced_config"
+    )
+    base_channel = IntegerParameter("Base channel", default=2, minimum=1, maximum=4, step=1, group_by="advanced_config")
+    source_voltage = FloatParameter(
+        "Source voltage", units="V", default=0.0, minimum=-200, maximum=200, step=0.1, group_by="advanced_config"
+    )
+    base_voltage = FloatParameter(
+        "Base voltage", units="V", default=0.0, minimum=-200, maximum=200, step=0.1, group_by="advanced_config"
+    )
 
     DATA_COLUMNS: ClassVar[list[str]] = ["Drain Current", "Gate Current"]
 

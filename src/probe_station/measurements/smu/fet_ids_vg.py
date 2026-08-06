@@ -17,22 +17,26 @@ logger.addHandler(logging.NullHandler())
 
 
 class SmuFetIdsVgProcedure(BaseProcedure):
-    gate_voltage_first = FloatParameter("Gate voltage (first)", units="V", default=-20.0)
-    gate_voltage_second = FloatParameter("Gate voltage (second)", units="V", default=20.0)
-    drain_voltage = FloatParameter("Drain voltage", units="V", default=1.0)
-    source_channel = IntegerParameter("Source channel", default=3)
-    drain_channel = IntegerParameter("Drain channel", default=1)
-    averaging = IntegerParameter("Integration coefficient", default=127, minimum=1, maximum=127)
+    gate_voltage_first = FloatParameter(
+        "Gate voltage (first)", units="V", default=-20.0, minimum=-200, maximum=200, step=0.1
+    )
+    gate_voltage_second = FloatParameter(
+        "Gate voltage (second)", units="V", default=20.0, minimum=-200, maximum=200, step=0.1
+    )
+    drain_voltage = FloatParameter("Drain voltage", units="V", default=1.0, minimum=-200, maximum=200, step=0.1)
+    source_channel = IntegerParameter("Source channel", default=3, minimum=1, maximum=4, step=1)
+    drain_channel = IntegerParameter("Drain channel", default=1, minimum=1, maximum=4, step=1)
+    averaging = IntegerParameter("Integration coefficient", default=127, minimum=1, maximum=127, step=1)
     advanced_config = BooleanParameter("Advanced config", default=False)
-    steps = IntegerParameter("Steps", default=100, group_by="advanced_config")
+    steps = IntegerParameter("Steps", default=100, minimum=1, maximum=10001, step=10, group_by="advanced_config")
     mode = ListParameter(
         "Mode",
         default=SmuSweepMode.START_TO_STOP.name,
         choices=[member.name for member in SmuSweepMode],
         group_by="advanced_config",
     )
-    gate_channel = IntegerParameter("Gate channel", default=4)
-    base_channel = IntegerParameter("Base channel", default=2)
+    gate_channel = IntegerParameter("Gate channel", default=4, minimum=1, maximum=4, step=1)
+    base_channel = IntegerParameter("Base channel", default=2, minimum=1, maximum=4, step=1)
 
     DATA_COLUMNS: ClassVar[list[str]] = ["Gate Voltage", "Drain Current", "Gate Current", "Time"]
 

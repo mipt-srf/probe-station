@@ -16,6 +16,7 @@ from probe_station.measurements.pymeasure_base import BaseWindow, run_app
 from probe_station.measurements.smu._widgets import IvPlotWidget
 from probe_station.measurements.wgfmu._base import WgfmuProcedure
 from probe_station.measurements.wgfmu._waveforms import (
+    WGFMU_TIMING_RESOLUTION,
     SweepMode,
     WaveformShape,
     get_constant_sequence,
@@ -44,16 +45,22 @@ class WgfmuFetIdsVgProcedure(WgfmuProcedure):
     # section. The sweep parameters are shared with WgfmuBaseProcedure but cannot
     # be inherited without scrambling that order, so they are declared here too.
     mode = ListParameter("Mode", default=SweepMode.DEFAULT.name, choices=[e.name for e in SweepMode])
-    pulse_time = FloatParameter("Pulse time", units="s", default=1e-3)
+    pulse_time = FloatParameter(
+        "Pulse time", units="s", default=1e-3, minimum=WGFMU_TIMING_RESOLUTION, step=10, step_type="log"
+    )
 
-    gate_channel = IntegerParameter("Gate channel (WGFMU)", default=2)
-    source_channel = IntegerParameter("Source channel (WGFMU, grounded)", default=1)
-    drain_channel = IntegerParameter("Drain channel (SMU, biased)", default=1)
-    base_channel = IntegerParameter("Base channel (SMU, grounded)", default=2)
+    gate_channel = IntegerParameter("Gate channel (WGFMU)", default=2, minimum=1, maximum=2, step=1)
+    source_channel = IntegerParameter("Source channel (WGFMU, grounded)", default=1, minimum=1, maximum=2, step=1)
+    drain_channel = IntegerParameter("Drain channel (SMU, biased)", default=1, minimum=1, maximum=4, step=1)
+    base_channel = IntegerParameter("Base channel (SMU, grounded)", default=2, minimum=1, maximum=4, step=1)
 
-    drain_voltage = FloatParameter("Drain voltage", units="V", default=0.25)
-    gate_voltage_first = FloatParameter("Gate voltage (first)", units="V", default=-5.0)
-    gate_voltage_second = FloatParameter("Gate voltage (second)", units="V", default=5.0)
+    drain_voltage = FloatParameter("Drain voltage", units="V", default=0.25, minimum=-200, maximum=200, step=0.1)
+    gate_voltage_first = FloatParameter(
+        "Gate voltage (first)", units="V", default=-5.0, minimum=-10, maximum=10, step=0.1
+    )
+    gate_voltage_second = FloatParameter(
+        "Gate voltage (second)", units="V", default=5.0, minimum=-10, maximum=10, step=0.1
+    )
 
     current_range = ListParameter(
         "Current range",
@@ -67,16 +74,18 @@ class WgfmuFetIdsVgProcedure(WgfmuProcedure):
     )
 
     advanced_config = BooleanParameter("Advanced config", default=False)
-    steps = IntegerParameter("Steps per pulse", default=50, group_by="advanced_config")
+    steps = IntegerParameter("Steps per pulse", default=50, minimum=1, step=10, group_by="advanced_config")
     waveform_shape = ListParameter(
         "Waveform shape",
         default=WaveformShape.STAIRCASE.name,
         choices=[e.name for e in WaveformShape],
         group_by="advanced_config",
     )
-    rise_to_hold_ratio = FloatParameter("Rise to hold time ratio", default=1, group_by="advanced_config")
+    rise_to_hold_ratio = FloatParameter(
+        "Rise to hold time ratio", default=1, minimum=0, step=10, step_type="log", group_by="advanced_config"
+    )
 
-    plot_points = IntegerParameter("Points to plot", default=200, group_by="advanced_config")
+    plot_points = IntegerParameter("Points to plot", default=200, minimum=1, step=100, group_by="advanced_config")
 
     DATA_COLUMNS: ClassVar[list[str]] = ["Gate Voltage", "Source Current", "Gate Current", "Time"]
 

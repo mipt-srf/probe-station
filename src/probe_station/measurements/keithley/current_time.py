@@ -29,14 +29,28 @@ class KeithleyCurrentTimeProcedure(BaseProcedure):
     """Measure current at a constant bias voltage, one sample per interval."""
 
     terminal = Parameter("Terminal", default="rear")
-    bias_voltage = FloatParameter("Bias voltage", units="V", default=0.0)
-    interval = FloatParameter("Sampling interval", units="s", default=1.0, minimum=0.0)
-    int_time = FloatParameter("Integration time", units="s", default=2e-2)
+    # ``setup_source_subsystem`` fixes the source voltage range at 20 V.
+    bias_voltage = FloatParameter("Bias voltage", units="V", default=0.0, minimum=-20, maximum=20, step=0.1)
+    # Runs span seconds to hours, so the spinbox arrows step by decades.
+    interval = FloatParameter("Sampling interval", units="s", default=1.0, minimum=0.0, step=10, step_type="log")
+    # Converted to NPLC against a 60 Hz line; the 2450 clamps NPLC to 0.01..10.
+    int_time = FloatParameter("Integration time", units="s", default=2e-2, minimum=0, maximum=10 / 60, step=0.005)
     autorange = BooleanParameter("Autorange", default=True)
+    # The 2450 current ranges and limits span 10 nA to 1 A, hence the decade stepping.
     current_range = FloatParameter(
-        "Current range", units="A", default=1e-6, group_by="autorange", group_condition=False
+        "Current range",
+        units="A",
+        default=1e-6,
+        minimum=1e-9,
+        maximum=1,
+        step=10,
+        step_type="log",
+        group_by="autorange",
+        group_condition=False,
     )
-    compliance = FloatParameter("Compliance current", units="A", default=1e0)
+    compliance = FloatParameter(
+        "Compliance current", units="A", default=1e0, minimum=1e-9, maximum=1, step=10, step_type="log"
+    )
 
     DATA_COLUMNS: ClassVar[list[str]] = ["Time", "Current"]
 

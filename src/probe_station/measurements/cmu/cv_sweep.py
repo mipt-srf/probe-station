@@ -18,15 +18,15 @@ logger.addHandler(logging.NullHandler())
 class CmuCvSweepProcedure(BaseProcedure):
     """Capacitance-voltage sweep procedure using the B1500 built-in CV measurement."""
 
-    first_voltage = FloatParameter("First voltage", units="V", default=-3)
-    second_voltage = FloatParameter("Second voltage", units="V", default=3)
+    first_voltage = FloatParameter("First voltage", units="V", default=-3, minimum=-100, maximum=100, step=0.1)
+    second_voltage = FloatParameter("Second voltage", units="V", default=3, minimum=-100, maximum=100, step=0.1)
     # CMU AC oscillator level (RMS) and frequency used during the capacitance
     # measurement.
-    ac_voltage = FloatParameter("AC voltage", units="V", default=0.1)
-    frequency = FloatParameter("Frequency", units="Hz", default=1e4)
+    ac_voltage = FloatParameter("AC voltage", units="V", default=0.1, minimum=0, maximum=0.25, step=0.01)
+    frequency = FloatParameter("Frequency", units="Hz", default=1e4, minimum=1e3, maximum=5e6, step=10, step_type="log")
     # CMU native averaging coefficient (ACT auto mode): samples averaged per
     # point = avg_per_point * initial averaging. 1 = no extra averaging.
-    avg_per_point = IntegerParameter("Averages per point", default=1, minimum=1, maximum=1023)
+    avg_per_point = IntegerParameter("Averages per point", default=1, minimum=1, maximum=1023, step=10)
     # channel = IntegerParameter("Channel", default=2)
 
     DATA_COLUMNS: ClassVar[list[str]] = ["Voltage", "Capacitance", "Resistance"]

@@ -21,18 +21,18 @@ class SpguCyclingProcedure(BaseProcedure):
     records cycle count metadata.
     """
 
-    repetitions = IntegerParameter("Number of cycles", default=10, maximum=2147483647)
-    amplitude = FloatParameter("Pulse amplitude", units="V", default=10.0)
-    width = FloatParameter("Pulse width", units="s", default=0.1)
-    rise = FloatParameter("Pulse rise time", units="s", default=100e-9)
-    tail = FloatParameter("Pulse tail time", units="s", default=100e-9)
-    channel = IntegerParameter("Channel", default=2)
+    repetitions = IntegerParameter("Number of cycles", default=10, minimum=1, maximum=2147483647)
+    amplitude = FloatParameter("Pulse amplitude", units="V", default=10.0, minimum=-40, maximum=40, step=0.1)
+    width = FloatParameter("Pulse width", units="s", default=0.1, minimum=1e-8, maximum=3, step=10, step_type="log")
+    rise = FloatParameter("Pulse rise time", units="s", default=100e-9, minimum=1e-8, step=10, step_type="log")
+    tail = FloatParameter("Pulse tail time", units="s", default=100e-9, minimum=1e-8, step=10, step_type="log")
+    channel = IntegerParameter("Channel", default=2, minimum=1, maximum=2, step=1)
     bipolar_pulses = BooleanParameter("Bipolar Pulses", default=False)
     pulse_separation = BooleanParameter("Pulse separation", default=True)
 
     dc_bias = BooleanParameter("Enable DC bias", default=False)
-    dc_bias_value = FloatParameter("DC bias", default=0.0, group_by="dc_bias")
-    dc_channel = IntegerParameter("DC bias channel", default=1, group_by="dc_bias")
+    dc_bias_value = FloatParameter("DC bias", default=0.0, minimum=-200, maximum=200, step=0.1, group_by="dc_bias")
+    dc_channel = IntegerParameter("DC bias channel", default=1, minimum=1, maximum=4, step=1, group_by="dc_bias")
 
     def startup(self):
         super().startup()

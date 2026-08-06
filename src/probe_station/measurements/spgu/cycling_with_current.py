@@ -20,13 +20,13 @@ class SpguCyclingWithCurrentProcedure(BaseProcedure):
     records cycle count metadata.
     """
 
-    repetitions = IntegerParameter("Number of cycles", default=10, maximum=2147483647)
-    amplitude = FloatParameter("Pulse amplitude", units="V", default=3.0)
-    rise = FloatParameter("Pulse rise time", units="s", default=5e-2)
-    tail = FloatParameter("Pulse tail time", units="s", default=5e-2)
-    channel = IntegerParameter("SPGU Channel", default=2)
+    repetitions = IntegerParameter("Number of cycles", default=10, minimum=1, maximum=2147483647)
+    amplitude = FloatParameter("Pulse amplitude", units="V", default=3.0, minimum=-40, maximum=40, step=0.1)
+    rise = FloatParameter("Pulse rise time", units="s", default=5e-2, minimum=1e-8, step=10, step_type="log")
+    tail = FloatParameter("Pulse tail time", units="s", default=5e-2, minimum=1e-8, step=10, step_type="log")
+    channel = IntegerParameter("SPGU Channel", default=2, minimum=1, maximum=2, step=1)
     bipolar_pulses = BooleanParameter("Bipolar Pulses", default=True)
-    smu_channel = IntegerParameter("SMU Channel", default=3)
+    smu_channel = IntegerParameter("SMU Channel", default=3, minimum=1, maximum=4, step=1)
 
     period = 2 * (rise.value + tail.value)
 

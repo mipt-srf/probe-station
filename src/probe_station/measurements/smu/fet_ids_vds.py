@@ -17,22 +17,22 @@ logger.addHandler(logging.NullHandler())
 
 
 class SmuFetIdsVdsProcedure(BaseProcedure):
-    first_voltage = FloatParameter("First voltage", units="V", default=-3)
-    second_voltage = FloatParameter("Second voltage", units="V", default=3)
-    source_channel = IntegerParameter("Source channel", default=3)
-    drain_channel = IntegerParameter("Drain channel", default=1)
-    averaging = IntegerParameter("Integration coefficient", default=127, minimum=1, maximum=127)
+    first_voltage = FloatParameter("First voltage", units="V", default=-3, minimum=-200, maximum=200, step=0.1)
+    second_voltage = FloatParameter("Second voltage", units="V", default=3, minimum=-200, maximum=200, step=0.1)
+    source_channel = IntegerParameter("Source channel", default=3, minimum=1, maximum=4, step=1)
+    drain_channel = IntegerParameter("Drain channel", default=1, minimum=1, maximum=4, step=1)
+    averaging = IntegerParameter("Integration coefficient", default=127, minimum=1, maximum=127, step=1)
     advanced_config = BooleanParameter("Advanced config", default=False)
-    steps = IntegerParameter("Steps", default=100, group_by="advanced_config")
+    steps = IntegerParameter("Steps", default=100, minimum=1, maximum=10001, step=10, group_by="advanced_config")
     mode = ListParameter(
         "Mode",
         default=SmuSweepMode.START_TO_STOP.name,
         choices=[member.name for member in SmuSweepMode],
         group_by="advanced_config",
     )
-    gate_channel = IntegerParameter("Gate channel", default=4)
-    gate_voltage = FloatParameter("Gate voltage", units="V", default=0)
-    base_channel = IntegerParameter("Base channel", default=2)
+    gate_channel = IntegerParameter("Gate channel", default=4, minimum=1, maximum=4, step=1)
+    gate_voltage = FloatParameter("Gate voltage", units="V", default=0, minimum=-200, maximum=200, step=0.1)
+    base_channel = IntegerParameter("Base channel", default=2, minimum=1, maximum=4, step=1)
     # compliance = FloatParameter("Current compliance", units="A", default=0.1, group_by="advanced_config")
 
     DATA_COLUMNS: ClassVar[list[str]] = ["Source Voltage", "Source Current", "Gate Current", "Time"]

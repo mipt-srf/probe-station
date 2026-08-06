@@ -20,9 +20,9 @@ logger.addHandler(logging.NullHandler())
 class SmuDcVoltageProcedure(BaseProcedure):
     """Apply a constant DC voltage on a selected SMU channel for a given duration."""
 
-    voltage = FloatParameter("Voltage", units="V", default=10.0)
-    time = FloatParameter("Time", units="s", default=1, minimum=0.2)
-    channel = IntegerParameter("Channel", default=4)
+    voltage = FloatParameter("Voltage", units="V", default=10.0, minimum=-200, maximum=200, step=0.1)
+    time = FloatParameter("Time", units="s", default=1, minimum=0.2, step=10, step_type="log")
+    channel = IntegerParameter("Channel", default=4, minimum=1, maximum=4, step=1)
 
     def startup(self):
         super().startup()
