@@ -71,13 +71,13 @@ class SmuFetIdsTimeProcedure(BaseProcedure):
             source_smu.force("voltage", 0, self.source_voltage, max_compliance(source_smu, abs(self.source_voltage)))
             base_smu.force("voltage", 0, self.base_voltage, max_compliance(base_smu, abs(self.base_voltage)))
 
-            tuples = drain_smu.measure_point()
-            logger.debug(f"Drain SMU measurement: {tuples}")
-            drain_current = tuples[1][1]
+            result = drain_smu.measure_iv(current_range=0, voltage_range=0)
+            logger.debug(f"Drain SMU measurement: {result}")
+            drain_current = result.current
 
-            tuples = gate_smu.measure_point()
-            logger.debug(f"Gate SMU measurement: {tuples}")
-            gate_current = tuples[1][1]
+            result = gate_smu.measure_iv(current_range=0, voltage_range=0)
+            logger.debug(f"Gate SMU measurement: {result}")
+            gate_current = result.current
 
             logger.info(f"Drain current: {drain_current:.6e} A, Gate current: {gate_current:.6e} A")
 
