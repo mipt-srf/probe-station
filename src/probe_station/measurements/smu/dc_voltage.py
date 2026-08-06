@@ -27,8 +27,8 @@ class SmuDcVoltageProcedure(BaseProcedure):
     def startup(self):
         super().startup()
         self.b1500 = Session.acquire()
-        self.b1500.rsu1.set_output(RSUOutputMode.SMU)
-        self.b1500.rsu2.set_output(RSUOutputMode.SMU)
+        self.b1500.rsus[1].set_output(RSUOutputMode.SMU)
+        self.b1500.rsus[2].set_output(RSUOutputMode.SMU)
 
     def execute(self):
         logger.info(f"Starting the {self.__class__}")

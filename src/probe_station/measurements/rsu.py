@@ -25,7 +25,7 @@ class RSU:
     """A Remote-Sense and Switch Unit, wired to one WGFMU channel.
 
     Instantiated by :class:`~probe_station.measurements.b1500.B1500` and reachable
-    as ``b1500.rsu1`` / ``b1500.rsu2``. Each unit sits on a fixed SMU/PG selector
+    as ``b1500.rsus[1]`` / ``b1500.rsus[2]``. Each unit sits on a fixed SMU/PG selector
     port and a fixed WGFMU channel, so that wiring is declared once by the
     instrument rather than chosen at every call site.
     """

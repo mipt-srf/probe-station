@@ -44,8 +44,8 @@ def run(b1500: B1500, repetitions, amplitude, width, rise, tail, channel=102, bi
         raise ValueError(f"Channel {channel} not found in SPGU channels.")
     pg.enabled = True
 
-    b1500.rsu1.set_output(RSUOutputMode.SMU)
-    b1500.rsu2.set_output(RSUOutputMode.SPGU)
+    b1500.rsus[1].set_output(RSUOutputMode.SMU)
+    b1500.rsus[2].set_output(RSUOutputMode.SPGU)
 
     spgu.operation_mode = SPGUOperationMode.PG
     if repetitions < 1e6:

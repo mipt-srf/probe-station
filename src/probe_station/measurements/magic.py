@@ -18,8 +18,8 @@ def run() -> None:
     needed.
     """
     b1500 = Session.reconnect(reset=True)
-    b1500.rsu1.set_output(RSUOutputMode.SMU)
-    b1500.rsu2.set_output(RSUOutputMode.SMU)
+    b1500.rsus[1].set_output(RSUOutputMode.SMU)
+    b1500.rsus[2].set_output(RSUOutputMode.SMU)
     set_smu_compliances(b1500, current_comp=0.1)
     # enable_all_smus(b1500)
 

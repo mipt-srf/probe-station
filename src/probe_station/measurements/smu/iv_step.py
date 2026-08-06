@@ -37,8 +37,8 @@ class SmuIvStepProcedure(BaseProcedure):
     def execute(self):
         logger.info(f"Starting the {self.__class__}")
 
-        self.b1500.rsu1.set_output(RSUOutputMode.SMU)
-        self.b1500.rsu2.set_output(RSUOutputMode.SMU)
+        self.b1500.rsus[1].set_output(RSUOutputMode.SMU)
+        self.b1500.rsus[2].set_output(RSUOutputMode.SMU)
 
         top_smu = self.b1500.smus[self.top_channel]
         bottom_smu = self.b1500.smus[self.bottom_channel]

@@ -15,8 +15,8 @@ from probe_station.measurements.b1500_helpers import connect_instrument, max_com
 
 def run(b1500: B1500, start, end, steps, average=127, top=4, bottom=3, mode=1):
     # b1500.reset()
-    b1500.rsu1.set_output(RSUOutputMode.SMU)
-    b1500.rsu2.set_output(RSUOutputMode.SMU)
+    b1500.rsus[1].set_output(RSUOutputMode.SMU)
+    b1500.rsus[2].set_output(RSUOutputMode.SMU)
 
     smu = b1500.smus[top]
     smu.enable()

@@ -46,8 +46,8 @@ class SmuFetIdsTimeProcedure(BaseProcedure):
         self.b1500.clear_wgfmu()
         self.b1500.initialize_wgfmu()
         self.b1500.clear_buffer()
-        self.b1500.rsu1.set_output(RSUOutputMode.SMU)
-        self.b1500.rsu2.set_output(RSUOutputMode.SMU)
+        self.b1500.rsus[1].set_output(RSUOutputMode.SMU)
+        self.b1500.rsus[2].set_output(RSUOutputMode.SMU)
 
     def execute(self):
         logger.info(f"Starting the {self.__class__}")

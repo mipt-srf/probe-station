@@ -5,8 +5,8 @@ from probe_station.measurements.b1500_helpers import connect_instrument, max_com
 
 
 def run(b1500: B1500, start, end, steps, top=4, bottom=3):
-    b1500.rsu1.set_output(RSUOutputMode.SMU)
-    b1500.rsu2.set_output(RSUOutputMode.SMU)
+    b1500.rsus[1].set_output(RSUOutputMode.SMU)
+    b1500.rsus[2].set_output(RSUOutputMode.SMU)
 
     voltages_forced = np.linspace(start, end, steps)
 
