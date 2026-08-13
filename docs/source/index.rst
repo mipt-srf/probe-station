@@ -46,6 +46,7 @@ See :doc:`Installation <getting-started/installation>` page for instructions on 
    learning-package/wgfmu
    explanation/connection
    explanation/b1500
+   explanation/b1500-specifics
 
 .. toctree::
    :maxdepth: 1
