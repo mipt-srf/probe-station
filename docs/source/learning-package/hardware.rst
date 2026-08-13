@@ -2,6 +2,9 @@
 Hardware
 ########
 
+Overview
+========
+
 Agilent/Keysight B1500 is a semiconductor parameter analyzer. The main features of the device are:
 
 * Modularity - the device has 10 slots for different units, which can be combined to perform different measurements.
@@ -31,12 +34,12 @@ In our setup, there are following installed units (starting from bottom to top, 
 
 
 SMU naming conventions
-----------------------
+======================
 
 Since there are multiple SMUs in the setup, and it's not convenient to refer to them by their slot numbers, we use the naming conventions recommended by Keysight (see :ref:`Users Guide page 2-17 <users-guide>`). The SMUs are named as SMU1, SMU2, SMU3, SMU4, where SMU1 is the SMU with the lowest slot number in the setup (in our case, it's HPSMU in slot 3), SMU2 is the second SMU (in our case, it's HRSMU in slot 5), and so on.
 
 Selectors
----------
+=========
 
 Selectors or switching units are used to switch between different units without changing the cable configuration. The main idea is that you can connect multiple units to the same output and then programmatically switch between them. This is useful when you want to perform different measurements on the same device under test without having to rewire the setup.
 
@@ -77,7 +80,7 @@ In our setup, there are 3 types of selectors:
          **RSU.** Sits outside the mainframe, next to the probe station: one input from the WGFMU, one from the SMU.
 
 Wiring
-------
+======
 
 Wiring is summarized in the figure below. In short, there are 2 main paths that allow different kinds of measurements. Output on the left allows to use SMU4, MFCMU, 2nd channel of SPGU and 2nd channel of WGFMU. Output on the right allows to use SMU3, MFCMU, 1st channel of SPGU and 1st channel of WGFMU.
 
@@ -93,7 +96,7 @@ SMU1 and SMU2 are connected directly to probe station and used when more than 2 
     :ref:`SMU naming conventions <learning-package/hardware:SMU naming conventions>`
 
 Choosing the right unit for voltage measurements
-------------------------------------------------
+================================================
 
 SMU, WGFMU, HV-SPGU has similar functionality but differ in characteristics and therefore are suited for different applications. Short summary of when to use which unit:
 
