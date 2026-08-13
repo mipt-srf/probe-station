@@ -73,6 +73,22 @@ In our setup, there are 3 types of selectors:
 
          **RSU.** Sits outside the mainframe, next to the probe station: one input from the WGFMU, one from the SMU.
 
+Wiring
+------
+
+Wiring is summarized in the figure below. In short, there are 2 main paths that allow different kinds of measurements. Output on the left allows to use SMU4, MFCMU, 2nd channel of SPGU and 2nd channel of WGFMU. Output on the right allows to use SMU3, MFCMU, 1st channel of SPGU and 1st channel of WGFMU.
+
+SMU1 and SMU2 are connected directly to probe station and used when more than 2 probes are required.
+
+.. figure:: images/b1500-connection-scheme.svg
+   :alt: Rear view of the B1500A mainframe showing the installed units in slots 1 to 8
+   :width: 700px
+   :align: center
+
+.. seealso::
+
+    :ref:`SMU naming conventions <learning-package/how-it-works:SMU naming conventions>`
+
 Choosing the right unit for voltage measurements
 ------------------------------------------------
 

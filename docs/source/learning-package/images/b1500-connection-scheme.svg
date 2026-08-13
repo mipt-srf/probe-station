@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1536" height="1022" viewBox="0 0 1536 1022" font-family="&#39;IBM Plex Sans&#39;,&#39;Helvetica Neue&#39;,Arial,sans-serif">
+  <rect width="1536" height="1022" fill="#eef1f4"></rect>
+  <text x="48" y="52" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="13" fill="#64748b" letter-spacing="1">probe-station · WIRING</text>
+  <text x="48" y="86" font-size="26" font-weight="700" fill="#0f172a">B1500A unit connection scheme</text>
+  <text x="48" y="110" font-size="14" fill="#64748b">Signal path from the mainframe modules through the SCUU, SMU/PGU selector and RSUs to the probe.</text>
+  <rect x="48" y="129" width="22" height="3" rx="1.5" fill="#0d9488"></rect>
+  <text x="78" y="134" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="12" fill="#334155">SMU (force/measure)</text>
+  <rect x="244.7" y="129" width="22" height="3" rx="1.5" fill="#4f46e5"></rect>
+  <text x="274.7" y="134" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="12" fill="#334155">PGU (pulse)</text>
+  <rect x="383" y="129" width="22" height="3" rx="1.5" fill="#9333ea"></rect>
+  <text x="413" y="134" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="12" fill="#334155">WGFMU (waveform)</text>
+  <rect x="557.8" y="129" width="22" height="3" rx="1.5" fill="#059669"></rect>
+  <text x="587.8" y="134" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="12" fill="#334155">CMU (capacitance)</text>
+  <rect x="739.9" y="129" width="22" height="3" rx="1.5" fill="#475569"></rect>
+  <text x="769.9" y="134" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="12" fill="#334155">SMU + PGU combined</text>
+  <rect x="929.3" y="129" width="22" height="3" rx="1.5" fill="#334155"></rect>
+  <text x="959.3" y="134" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="12" fill="#334155">to probe</text>
+  <line x1="1045.7" y1="130.5" x2="1067.7" y2="130.5" stroke="#94a3b8" stroke-width="3" stroke-dasharray="5 4"></line>
+  <text x="1075.7" y="134" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="12" fill="#334155">SMU1 / SMU2 — direct, unrouted</text>
+  <g transform="translate(48,168)">
+    <g stroke-width="2.5" stroke-linecap="round" fill="none">
+      <path d="M 304 228 C 352 228, 352 230, 400 230" stroke="#0d9488"></path>
+      <path d="M 304 160 C 352 160, 352 165, 400 165" stroke="#0d9488"></path>
+      <path d="M 304 92 C 352 92, 352 100, 400 100" stroke="#059669"></path>
+      <path d="M 550 150 C 595 150, 595 190, 640 190" stroke="#0d9488"></path>
+      <path d="M 550 200 C 595 200, 595 540, 640 540" stroke="#0d9488"></path>
+      <path d="M 304 534 C 460 534, 585 420, 590 320 C 594 240, 600 165, 640 155" stroke="#4f46e5"></path>
+      <path d="M 304 554 C 472 554, 472 500, 640 500" stroke="#4f46e5"></path>
+      <path d="M 810 250 C 855 250, 855 240, 900 240" stroke="#475569"></path>
+      <path d="M 810 470 C 855 470, 855 460, 900 460" stroke="#475569"></path>
+      <path d="M 304 466 L 352 466 C 376 466, 376 300, 376 180 C 376 74, 404 12, 470 12 C 700 12, 822 54, 900 190" stroke="#9333ea"></path>
+      <path d="M 304 486 L 352 486 C 376 486, 376 596, 424 640 C 520 700, 782 652, 900 510" stroke="#9333ea"></path>
+      <path d="M 304 360 L 348 360 C 376 360, 376 44, 414 44 C 640 44, 800 44, 862 44 C 908 44, 914 138, 958 138 L 1060 138" stroke="#94a3b8" stroke-dasharray="7 6"></path>
+      <path d="M 304 296 L 348 296 C 376 296, 368 690, 430 706 C 600 736, 800 726, 900 706 C 948 696, 952 592, 1000 592 L 1060 592" stroke="#94a3b8" stroke-dasharray="7 6"></path>
+      <path d="M 1060 210 C 1090 210, 1095 330, 1120 330" stroke="#334155"></path>
+      <path d="M 1060 490 C 1090 490, 1095 380, 1120 380" stroke="#334155"></path>
+    </g>
+    <g>
+      <circle cx="304" cy="534" r="4" fill="#4f46e5"></circle><circle cx="304" cy="554" r="4" fill="#4f46e5"></circle>
+      <circle cx="304" cy="466" r="4" fill="#9333ea"></circle><circle cx="304" cy="486" r="4" fill="#9333ea"></circle>
+      <circle cx="304" cy="228" r="4" fill="#0d9488"></circle><circle cx="304" cy="160" r="4" fill="#0d9488"></circle>
+      <circle cx="304" cy="92" r="4" fill="#059669"></circle>
+      <circle cx="550" cy="150" r="4" fill="#0d9488"></circle><circle cx="550" cy="200" r="4" fill="#0d9488"></circle>
+      <circle cx="810" cy="250" r="4" fill="#475569"></circle><circle cx="810" cy="470" r="4" fill="#475569"></circle>
+      <circle cx="304" cy="360" r="4" fill="#94a3b8"></circle><circle cx="304" cy="296" r="4" fill="#94a3b8"></circle>
+      <circle cx="1060" cy="138" r="5" fill="#ffffff" stroke="#94a3b8" stroke-width="2.5"></circle>
+      <circle cx="1060" cy="592" r="5" fill="#ffffff" stroke="#94a3b8" stroke-width="2.5"></circle>
+      <circle cx="1060" cy="210" r="4" fill="#334155"></circle><circle cx="1060" cy="490" r="4" fill="#334155"></circle>
+    </g>
+    <rect x="24" y="24" width="300" height="576" rx="14" fill="#ffffff" stroke="#dbe1e8"></rect>
+    <text x="44" y="46" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="12" font-weight="500" fill="#0f172a" letter-spacing="0.5">AGILENT B1500A · MAINFRAME</text>
+    <rect x="44" y="64" width="260" height="56" rx="8" fill="#ffffff" stroke="#a7f3d0"></rect>
+    <circle cx="62" cy="92" r="4" fill="#059669"></circle>
+    <text x="76" y="88" font-size="14" font-weight="600" fill="#0f172a">MFCMU</text>
+    <text x="76" y="104" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="11" fill="#94a3b8">Slot 8 · CMU</text>
+    <rect x="44" y="132" width="260" height="56" rx="8" fill="#ffffff" stroke="#99f6e4"></rect>
+    <circle cx="62" cy="160" r="4" fill="#0d9488"></circle>
+    <text x="76" y="156" font-size="14" font-weight="600" fill="#0f172a">MPSMU<tspan fill="#0d9488" font-weight="500"> · SMU4</tspan></text>
+    <text x="76" y="172" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="11" fill="#94a3b8">Slot 7</text>
+    <rect x="44" y="200" width="260" height="56" rx="8" fill="#ffffff" stroke="#99f6e4"></rect>
+    <circle cx="62" cy="228" r="4" fill="#0d9488"></circle>
+    <text x="76" y="224" font-size="14" font-weight="600" fill="#0f172a">HRSMU<tspan fill="#0d9488" font-weight="500"> · SMU3</tspan></text>
+    <text x="76" y="240" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="11" fill="#94a3b8">Slot 6</text>
+    <rect x="44" y="268" width="260" height="56" rx="8" fill="#f8fafc" stroke="#e2e8f0"></rect>
+    <circle cx="62" cy="296" r="4" fill="#cbd5e1"></circle>
+    <text x="76" y="292" font-size="14" font-weight="600" fill="#0f172a">HRSMU<tspan fill="#94a3b8" font-weight="500"> · SMU2</tspan></text>
+    <text x="76" y="308" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="11" fill="#94a3b8">Slot 5</text>
+    <rect x="44" y="336" width="260" height="96" rx="8" fill="#f8fafc" stroke="#e2e8f0"></rect>
+    <circle cx="62" cy="384" r="4" fill="#cbd5e1"></circle>
+    <text x="76" y="380" font-size="14" font-weight="600" fill="#0f172a">HPSMU<tspan fill="#94a3b8" font-weight="500"> · SMU1</tspan></text>
+    <text x="76" y="396" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="11" fill="#94a3b8">Slots 3–4 · double</text>
+    <rect x="44" y="444" width="260" height="56" rx="8" fill="#f8fafc" stroke="#e2e8f0"></rect>
+    <circle cx="62" cy="472" r="4" fill="#9333ea"></circle>
+    <text x="76" y="468" font-size="14" font-weight="600" fill="#0f172a">WGFMU</text>
+    <text x="76" y="484" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="11" fill="#94a3b8">Slot 2 · WGFMU1 / WGFMU2</text>
+    <rect x="44" y="512" width="260" height="56" rx="8" fill="#f8fafc" stroke="#e2e8f0"></rect>
+    <circle cx="62" cy="540" r="4" fill="#4f46e5"></circle>
+    <text x="76" y="536" font-size="14" font-weight="600" fill="#0f172a">HV-SPGU</text>
+    <text x="76" y="552" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="11" fill="#94a3b8">Slot 1 · PGU1 / PGU2</text>
+    <rect x="400" y="60" width="150" height="200" rx="12" fill="#ffffff" stroke="#cbd5e1"></rect>
+    <text x="414" y="88" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="13" font-weight="600" fill="#0f172a">SCUU</text>
+    <text x="414" y="104" font-size="11" fill="#94a3b8">SMU CMU unify unit</text>
+    <text x="414" y="208" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="10.5" fill="#64748b">in: SMU3 · SMU4 ·</text>
+    <text x="414" y="226" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="10.5" fill="#64748b">CMU</text>
+    <text x="414" y="244" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="10.5" fill="#64748b">out: SMU3 · SMU4</text>
+    <text x="634" y="142" text-anchor="end" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="10" fill="#4f46e5">PGU1</text>
+    <text x="634" y="182" text-anchor="end" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="10" fill="#0d9488">SMU3</text>
+    <text x="634" y="492" text-anchor="end" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="10" fill="#4f46e5">PGU2</text>
+    <text x="634" y="532" text-anchor="end" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="10" fill="#0d9488">SMU4</text>
+    <rect x="640" y="96" width="170" height="494" rx="12" fill="#ffffff" stroke="#cbd5e1"></rect>
+    <text x="656" y="126" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="13" font-weight="600" fill="#0f172a">SMU/PGU</text>
+    <text x="656" y="143" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="13" font-weight="600" fill="#0f172a">Selector</text>
+    <text x="656" y="160" font-size="11" fill="#94a3b8">4 in → 2 out</text>
+    <rect x="656" y="176" width="138" height="26" rx="6" fill="#f1f5f9"></rect>
+    <text x="664" y="193" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="10.5" fill="#475569">out 1 = SMU3 + PGU1</text>
+    <rect x="656" y="210" width="138" height="26" rx="6" fill="#f1f5f9"></rect>
+    <text x="664" y="227" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="10.5" fill="#475569">out 2 = SMU4 + PGU2</text>
+    <rect x="900" y="150" width="160" height="120" rx="12" fill="#ffffff" stroke="#cbd5e1"></rect>
+    <text x="914" y="180" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="13" font-weight="600" fill="#0f172a">RSU1</text>
+    <text x="914" y="197" font-size="11" fill="#94a3b8">Remote-sense/switch unit</text>
+    <text x="914" y="222" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="10.5" fill="#64748b">SMU3+PGU1</text>
+    <text x="914" y="239" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="10.5" fill="#64748b">+ WGFMU1</text>
+    <rect x="900" y="430" width="160" height="120" rx="12" fill="#ffffff" stroke="#cbd5e1"></rect>
+    <text x="914" y="460" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="13" font-weight="600" fill="#0f172a">RSU2</text>
+    <text x="914" y="477" font-size="11" fill="#94a3b8">Remote-sense/switch unit</text>
+    <text x="914" y="502" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="10.5" fill="#64748b">SMU4+PGU2</text>
+    <text x="914" y="519" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="10.5" fill="#64748b">+ WGFMU2</text>
+    <rect x="1120" y="150" width="296" height="400" rx="12" fill="#ffffff" stroke="#cbd5e1"></rect>
+    <text x="1136" y="178" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="13" font-weight="600" fill="#0f172a">PROBE STATION</text>
+    <g transform="translate(1120,150)">
+      <circle cx="196" cy="210" r="86" fill="#eef2f7" stroke="#94a3b8" stroke-width="2"></circle>
+      <line x1="150" y1="286" x2="196" y2="278" stroke="#94a3b8" stroke-width="2"></line>
+      <g stroke="#c3ccd6" stroke-width="1.2">
+        <line x1="130" y1="180" x2="262" y2="180"></line><line x1="130" y1="210" x2="262" y2="210"></line>
+        <line x1="130" y1="240" x2="262" y2="240"></line><line x1="166" y1="140" x2="166" y2="280"></line>
+        <line x1="196" y1="132" x2="196" y2="288"></line><line x1="226" y1="140" x2="226" y2="280"></line>
+      </g>
+      <line x1="0" y1="180" x2="176" y2="200" stroke="#334155" stroke-width="3" stroke-linecap="round"></line>
+      <line x1="0" y1="230" x2="178" y2="222" stroke="#334155" stroke-width="3" stroke-linecap="round"></line>
+      <circle cx="176" cy="200" r="4" fill="#0d9488"></circle><circle cx="178" cy="222" r="4" fill="#0d9488"></circle>
+      <text x="148" y="382" text-anchor="middle" font-family="&#39;IBM Plex Mono&#39;,ui-monospace,Menlo,Consolas,monospace" font-size="11" fill="#94a3b8">DUT / wafer</text>
+    </g>
+  </g>
+</svg>
