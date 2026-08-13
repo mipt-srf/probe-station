@@ -52,6 +52,7 @@ See :doc:`Installation <getting-started/installation>` page for instructions on 
    :hidden:
 
    api
+   reference/manuals
 
 .. toctree::
    :maxdepth: 1
