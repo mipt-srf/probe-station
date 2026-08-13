@@ -32,6 +32,50 @@ In our setup, there are following installed units (starting from bottom to top, 
    Rear view of our B1500A. Slot numbers are printed on the left edge of each
    slot, counting upwards from slot 1 at the bottom. The B1510A HPSMU uses slots 3 and 4.
 
+Selectors
+---------
+
+Selectors or switching units are used to switch between different units without changing the cable configuration. The main idea is that you can connect multiple units to the same output and then programmatically switch between them. This is useful when you want to perform different measurements on the same device under test without having to rewire the setup.
+
+In our setup, there are 3 types of selectors:
+
+* SCUU (SMU CMU unify unit) - used to switch between 2 SMUs and 1 MFCMU units (:ref:`photo <scuu-photo>`).
+* SMU/PGU selector - used to switch between 2 SMUs and 2 channels of 1 SPGU unit (:ref:`photo <smu-pgu-selector-photo>`). In our setup, the inputs are not from SMUs directly, but from SCUU output. Therefore, you can switch between 2 SMUs and 1 MFCMU using SCUU and then switch between that output and SPGU using SMU/PGU selector.
+* RSU (Remote-sense and switch unit) - used to switch between 1 WGFMU channel and 1 SMU unit (:ref:`photo <rsu-photo>`). In our setup, the inputs are not from SMUs directly, but from SMU/PGU selector output. Therefore, you can switch between 2 SMUs and 1 MFCMU using SCUU, then switch between that output and SPGU using SMU/PGU selector, and then switch between that output and WGFMU using RSU.
+
+.. grid:: 1 1 3 3
+   :gutter: 3
+
+   .. grid-item::
+
+      .. _scuu-photo:
+
+      .. figure:: images/b1500-scuu.jpg
+         :target: ../_images/b1500-scuu.jpg
+
+         **SCUU.** Two SMU inputs and one MFCMU input, two outputs.
+
+   .. grid-item::
+
+      .. _smu-pgu-selector-photo:
+
+      .. figure:: images/b1500-smu-pgu-selector.jpg
+         :target: ../_images/b1500-smu-pgu-selector.jpg
+
+         **SMU/PGU selector.** Both channels have separate SMU and PGU inputs and one shared output.
+
+   .. grid-item::
+
+      .. _rsu-photo:
+
+      .. figure:: images/b1500-rsu.jpg
+         :target: ../_images/b1500-rsu.jpg
+
+         **RSU.** Sits outside the mainframe, next to the probe station: one input from the WGFMU, one from the SMU.
+
+Choosing the right unit for voltage measurements
+------------------------------------------------
+
 SMU, WGFMU, HV-SPGU has similar functionality but differ in characteristics and therefore are suited for different applications. Short summary of when to use which unit:
 
 .. list-table::
@@ -55,7 +99,7 @@ SMU, WGFMU, HV-SPGU has similar functionality but differ in characteristics and 
      - :math:`40` V
      - :math:`\sim 10` ns
 
-In short, you should use SMU if you're fine with measurement time per point `\gtrsim 30` ms, WGFMU if you need to measure faster than that, but don't need high voltage, and HV-SPGU if you need to apply high voltage using short pulses without current measuring.
+In short, you should use SMU if you're fine with measurement time per point :math:`\gtrsim 30` ms, WGFMU if you need to measure faster than that, but don't need high voltage, and HV-SPGU if you need to apply high voltage using short pulses without current measuring.
 
 Switching between units
 -----------------------
