@@ -59,7 +59,7 @@ Here is a full version if you want to see the whole script at once. We will go t
     :language: python
     :lines: 20-25
 
-* Next, we setup the :ref:`selectors <learning-package/hardware:Switching between units>`. Here, we enable SMU/SPGU selector and select SMU output for both selector output channels. Note, that :ref:`enums <explanation/b1500:Enums>` are used for better readability.
+* Next, we setup the :ref:`selectors <learning-package/how-it-works:Switching between units>`. Here, we enable SMU/SPGU selector and select SMU output for both selector output channels. Note, that :ref:`enums <explanation/b1500:Enums>` are used for better readability.
 
   .. literalinclude:: ../../../examples/iv_sweep_b1500.py
     :language: python
