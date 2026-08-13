@@ -38,7 +38,7 @@ See :doc:`Installation <getting-started/installation>` page for instructions on 
    :hidden:
 
    learning-package/structure
-   learning-package/how-it-works
+   learning-package/hardware
    learning-package/why-not-raw-scpi
    learning-package/advanced-usage
    learning-package/dependencies

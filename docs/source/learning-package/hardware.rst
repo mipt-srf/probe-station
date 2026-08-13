@@ -1,9 +1,6 @@
-############
-How it works
-############
-
+########
 Hardware
-========
+########
 
 Agilent/Keysight B1500 is a semiconductor parameter analyzer. The main features of the device are:
 
@@ -87,7 +84,7 @@ SMU1 and SMU2 are connected directly to probe station and used when more than 2 
 
 .. seealso::
 
-    :ref:`SMU naming conventions <learning-package/how-it-works:SMU naming conventions>`
+    :ref:`SMU naming conventions <learning-package/hardware:SMU naming conventions>`
 
 Choosing the right unit for voltage measurements
 ------------------------------------------------

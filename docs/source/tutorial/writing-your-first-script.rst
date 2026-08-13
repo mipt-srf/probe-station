@@ -53,13 +53,13 @@ Here is a full version if you want to see the whole script at once. We will go t
 
   Unless you need a binary format, you can use the default ASCII format as above
 
-* It's useful to have a separate block where you specify main parameters that you often change. Note, that ordinal numbers are used for SMU (see :ref:`SMU naming conventions <learning-package/how-it-works:SMU naming conventions>`).
+* It's useful to have a separate block where you specify main parameters that you often change. Note, that ordinal numbers are used for SMU (see :ref:`SMU naming conventions <learning-package/hardware:SMU naming conventions>`).
 
   .. literalinclude:: ../../../examples/iv_sweep_b1500.py
     :language: python
     :lines: 20-25
 
-* Next, we setup the :ref:`selectors <learning-package/how-it-works:Switching between units>`. Here, we enable SMU/SPGU selector and select SMU output for both selector output channels. Note, that :ref:`enums <explanation/b1500:Enums>` are used for better readability.
+* Next, we setup the :ref:`selectors <learning-package/hardware:Switching between units>`. Here, we enable SMU/SPGU selector and select SMU output for both selector output channels. Note, that :ref:`enums <explanation/b1500:Enums>` are used for better readability.
 
   .. literalinclude:: ../../../examples/iv_sweep_b1500.py
     :language: python
