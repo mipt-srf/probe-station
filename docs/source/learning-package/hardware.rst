@@ -29,6 +29,12 @@ In our setup, there are following installed units (starting from bottom to top, 
    Rear view of our B1500A. Slot numbers are printed on the left edge of each
    slot, counting upwards from slot 1 at the bottom. The B1510A HPSMU uses slots 3 and 4.
 
+
+SMU naming conventions
+----------------------
+
+Since there are multiple SMUs in the setup, and it's not convenient to refer to them by their slot numbers, we use the naming conventions recommended by Keysight (see :ref:`Users Guide page 2-17 <users-guide>`). The SMUs are named as SMU1, SMU2, SMU3, SMU4, where SMU1 is the SMU with the lowest slot number in the setup (in our case, it's HPSMU in slot 3), SMU2 is the second SMU (in our case, it's HRSMU in slot 5), and so on.
+
 Selectors
 ---------
 
@@ -129,11 +135,6 @@ Details
 =======
 
 To send a command for specific unit, you need to specify the slot number. E.g. to enable the output of 
-
-SMU naming conventions
-----------------------
-
-SMU3, etc.
 
 WGFMU specifics
 ---------------
