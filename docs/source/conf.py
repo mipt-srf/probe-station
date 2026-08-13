@@ -35,15 +35,6 @@ filetree_root = str(_root)
 filetree_base_url = "https://github.com/mipt-srf/probe-station"
 filetree_ref = "master"
 
-# keysight_b1530a is installed for real on the docs builder (via the
-# "measurements" extra) so autodoc sees real enums and docstrings, but its
-# _ffi module dlopens the WGFMU DLL at import time, which only works on
-# Windows with the instrument library present. Mock just that module; the
-# rest of the package imports cleanly without it.
-autodoc_mock_imports = [
-    "keysight_b1530a._ffi",
-]
-
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
@@ -52,6 +43,7 @@ intersphinx_mapping = {
     "pandas": ("http://pandas.pydata.org/pandas-docs/stable/", None),
     "pymeasure": ("https://pymeasure.readthedocs.io/en/latest/", None),
     "pyvisa": ("https://pyvisa.readthedocs.io/en/stable/", None),
+    "keysight_b1530a": ("https://keysight-b1530a.readthedocs.io/en/latest/", None),
 }
 
 copybutton_exclude = ".linenos, .gp"  # to exclude prompts ($, >>>, etc.) from copied code

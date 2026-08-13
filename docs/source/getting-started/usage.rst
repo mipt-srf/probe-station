@@ -6,11 +6,11 @@ There are 3 main ways to use this package:
 
 1. You can use this package to :ref:`write your own scripts <Writing your scripts>` based on available B1500 Python interfaces (no need to write direct SCPI commands to send them using VISA)
 
-2. You can run simple measurements (IV, CV sweeps, cycling, FET measurements (:math:`I_{ds}(V_{g}), I_{ds}(V_{ds})`)) using convenient GUI
+2. You can :ref:`run simple measurements <Running measurements with GUI>` (IV, CV sweeps, cycling, FET measurements (:math:`I_{ds}(V_{g}), I_{ds}(V_{ds})`)) using convenient GUI
 
-3. You can analyze results of the measurements with built-in tools for processing specific measurements (e.g. extracting coercive fields from IV sweeps, batch processing of multiple measurements from complex experiments, etc.)
+3. You can :ref:`analyze results <Data processing>` of the measurements with built-in tools for processing specific measurements (e.g. extracting coercive fields from IV sweeps, batch processing of multiple measurements from complex experiments, etc.)
 
-There are also more advanced features that will `discussed further <usage:Advanced usage>`.
+There are also more advanced features that will be discussed :doc:`further <../learning-package/advanced-usage>`.
 
 Below is a brief overview of each of the usage options. For more details, see corresponding sections.
 
@@ -43,11 +43,13 @@ You can use :class:`~probe_station.measurements.b1500.B1500` class to communicat
     :doc:`../learning-package/structure`
         if you want to understand how the B1500 class is structured
 
-    :class:`~pymeasure.instruments.agilent.agilentB1500.AgilentB1500` class documentation
+    :class:`~pymeasure.instruments.agilent.agilentB1500.AgilentB1500`, :class:`~keysight_b1530a.wgfmu.WGFMU` class documentation
         if you want to understand what methods of B1500 class are available to use in your scripts.
 
 
     examples smth how to use smu and wgfmu
+
+.. _Running measurements with GUI:
 
 Running measurements with GUI
 =============================
@@ -81,13 +83,15 @@ Most of avaiable measurements can be run using GUI. You can run the main :ref:`l
       >>> from probe_station.measurements.launcher import main as run_launcher
       >>> run_launcher()
 
-The launcher contains the buttons for running measurements GUIs as well as links to the repository on GitHub and this documentation.
+The launcher contains the buttons for running measurements GUIs as well as links to the `repository <https://github.com/mipt-srf/probe-station>`_ on GitHub and this documentation.
 
 When you click any measurement button, the additional measurement-specific GUI will appear. They are based on the part of Pymeasure responsible for running measurements. Link to description, may be describe yourself
 
 .. TODO: Add buttons
 
 .. TODO: Add gif cmd: uv run -> launcher -> measurement GUI -> measurement launch
+
+.. _Data processing:
 
 Data processing
 ===============

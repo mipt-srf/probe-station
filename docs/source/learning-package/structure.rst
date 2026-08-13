@@ -39,6 +39,8 @@ Launcher
 
 Launcher is a GUI that collects most of basic available measurements and allows you to open GUI for each measurement. See more details in :ref:`running measurements with GUI <getting-started/usage:Running measurements with GUI>` section.
 
+It also contains links to the `repository <https://github.com/mipt-srf/probe-station>`_ and the documentation for quick access.
+
 Measurement scripts
 -------------------
 
