@@ -4,7 +4,7 @@ Usage
 
 There are 3 main ways to use this package:
 
-1. You can use this package to :ref:`write your own scripts <Writing your scripts>` based on available B1500 Python interfaces (no need to write direct SCPI commands to send them using VISA)
+1. You can use this package to :ref:`write your own scripts <Writing your scripts>` based on available B1500 Python interfaces (no need to write direct :ref:`FLEX <explanation/b1500-specifics:flex commands>` commands to send them using VISA)
 
 2. You can :ref:`run simple measurements <Running measurements with GUI>` (IV, CV sweeps, cycling, FET measurements (:math:`I_{ds}(V_{g}), I_{ds}(V_{ds})`)) using convenient GUI
 
@@ -19,7 +19,7 @@ Below is a brief overview of each of the usage options. For more details, see co
 Write your scripts
 ==================
 
-You can use :class:`~probe_station.measurements.b1500.B1500` class to communicate with B1500 device through Python methods, without direct usage of SCPI commands and VISA API:
+You can use :class:`~probe_station.measurements.b1500.B1500` class to communicate with B1500 device through Python methods, without direct usage of :ref:`FLEX <explanation/b1500-specifics:flex commands>` commands and :ref:`VISA <explanation/connection:visa>` API:
 
 .. code-block:: python
 
@@ -34,8 +34,8 @@ You can use :class:`~probe_station.measurements.b1500.B1500` class to communicat
     :doc:`../tutorial/writing-your-first-script`
         if you want to learn by example and understand what each line of the script does
 
-    :doc:`../learning-package/why-not-raw-scpi`
-        if you want to see why using B1500 class is more convenient than using raw SCPI commands
+    :doc:`../learning-package/why-not-raw-flex`
+        if you want to see why using B1500 class is more convenient than using raw FLEX commands
 
     `Script examples <https://github.com/search?q=repo%3Amipt-srf%2Fprobe-station%20runner.py&type=code>`__
         if you want to see more examples of using B1500 class for measurements

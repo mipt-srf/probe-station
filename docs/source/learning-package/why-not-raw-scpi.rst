@@ -1,10 +1,10 @@
 ##########################
-Why not raw SCPI commands?
+Why not raw FLEX commands?
 ##########################
 
-Using :class:`~probe_station.measurements.b1500.B1500` class you can communicate with B1500 device through Python methods, without direct usage of SCPI commands and VISA API. 
+Using :class:`~probe_station.measurements.b1500.B1500` class you can communicate with B1500 device through Python methods, without direct usage of :ref:`FLEX <explanation/b1500-specifics:flex commands>` commands and :ref:`VISA <explanation/connection:visa>` API. 
 
-Here is an example of the same script for quasistatic DC IV measurement using SMU written with raw SCPI commands and using :class:`~probe_station.measurements.b1500.B1500` class from this package:
+Here is an example of the same script for quasistatic DC IV measurement using SMU written with raw FLEX commands and using :class:`~probe_station.measurements.b1500.B1500` class from this package:
 
 .. TODO: check that both versions work
 
@@ -18,9 +18,9 @@ Here is an example of the same script for quasistatic DC IV measurement using SM
            :language: python
            :linenos:
 
-    .. tab-item:: Raw SCPI commands
+    .. tab-item:: Raw FLEX commands
 
-        .. literalinclude:: ../../../examples/iv_sweep_raw_scpi.py
+        .. literalinclude:: ../../../examples/iv_sweep_raw_flex.py
            :language: python
            :linenos:
 
@@ -38,14 +38,14 @@ Also, you don't need to worry about parsing the data results, which can be quite
            :lineno-match:
 
 
-    .. tab-item:: Raw SCPI commands
+    .. tab-item:: Raw FLEX commands
 
-        .. literalinclude:: ../../../examples/iv_sweep_raw_scpi.py
+        .. literalinclude:: ../../../examples/iv_sweep_raw_flex.py
            :language: python
            :lines: 44-50
            :lineno-match:
 
-Note that ordinal number (1, 2, 3, etc.) is used to specify the required SMUs, contrary to raw SCPI where you need to specify slot number (see smth:section for details).
+Note that ordinal number (1, 2, 3, etc.) is used to specify the required SMUs, contrary to raw FLEX where you need to specify slot number (see smth:section for details).
 
 .. tab-set::
 
@@ -57,9 +57,9 @@ Note that ordinal number (1, 2, 3, etc.) is used to specify the required SMUs, c
            :lineno-match:
 
 
-    .. tab-item:: Raw SCPI commands
+    .. tab-item:: Raw FLEX commands
 
-        .. literalinclude:: ../../../examples/iv_sweep_raw_scpi.py
+        .. literalinclude:: ../../../examples/iv_sweep_raw_flex.py
            :language: python
            :lines: 16-17
            :lineno-match:

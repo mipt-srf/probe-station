@@ -40,7 +40,6 @@ See :doc:`Installation <getting-started/installation>` page for instructions on 
    learning-package/structure
    learning-package/hardware
    learning-package/how-it-works
-   learning-package/why-not-raw-scpi
    learning-package/advanced-usage
    learning-package/dependencies
    learning-package/wgfmu

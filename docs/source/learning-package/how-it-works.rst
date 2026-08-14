@@ -1,8 +1,6 @@
 Software
 ========
 
-As with other instruments, B1500 can be controlled via SCPI commands. 
-
 .. Про remote usb
 
 Details
@@ -15,7 +13,7 @@ WGFMU specifics
 
 Contrary to all other units, 
 
-Under the hood, it also sends SCPI commands, but the formatting is a bit different. In general you can reverse engineer the commands using keysight IO. That will probably increase the speed of measurements for some cases. Additionally, that will probably allow you to use internal program memory for WGFMU commands as well that can be helpful when extremely small delays are required (e.g. if you need to measure retention on ucs scale after fast high-voltage write pulse produced by SPGU)
+Under the hood, it also sends FLEX commands, but the formatting is a bit different. In general you can reverse engineer the commands using keysight IO. That will probably increase the speed of measurements for some cases. Additionally, that will probably allow you to use internal program memory for WGFMU commands as well that can be helpful when extremely small delays are required (e.g. if you need to measure retention on ucs scale after fast high-voltage write pulse produced by SPGU)
 
 .. important::
 
