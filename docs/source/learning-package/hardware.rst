@@ -32,6 +32,13 @@ In our setup, there are following installed units (starting from bottom to top, 
    Rear view of our B1500A. Slot numbers are printed on the left edge of each
    slot, counting upwards from slot 1 at the bottom. The B1510A HPSMU uses slots 3 and 4.
 
+Difference between "new" and "old" probe stations
+-------------------------------------------------
+
+"Old" probe station has an additional (2nd) WGFMU unit in slot 3, so there are 4 available WGFMU channels in total. Comparing to the "new" probe station, all units except SPGU and WGFMU are located 1 slot higher. E.g. SMUs are located in slots 4, 6, 7, 8 instead of 3, 5, 6, 7 on the "new" probe station.
+
+This is important in case your scripts hardcode slot numbers of the units. E.g. in the core of the Matlab codebase, there is a hardcoded config that maps SMU numbers to slot numbers. That config must be changed if you migrate the codebase from one station to another. In this package, available units and their slot numbers are queried from the instrument itself, so you don't need to worry about that.
+
 
 SMU naming conventions
 ======================
