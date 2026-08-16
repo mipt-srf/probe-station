@@ -22,18 +22,24 @@ logger.addHandler(logging.NullHandler())
 class SmuFetIdsTimeProcedure(BaseProcedure):
     """Measure drain and gate current of a FET at specified bias voltages."""
 
-    gate_voltage = FloatParameter("Gate voltage", units="V", default=10.0)
-    drain_voltage = FloatParameter("Drain voltage", units="V", default=10.0)
+    gate_voltage = FloatParameter("Gate voltage", units="V", default=10.0, minimum=-200, maximum=200, step=0.1)
+    drain_voltage = FloatParameter("Drain voltage", units="V", default=10.0, minimum=-200, maximum=200, step=0.1)
 
-    gate_channel = IntegerParameter("Gate channel", default=4)
-    drain_channel = IntegerParameter("Drain channel", default=1)
+    gate_channel = IntegerParameter("Gate channel", default=4, minimum=1, maximum=4, step=1)
+    drain_channel = IntegerParameter("Drain channel", default=1, minimum=1, maximum=4, step=1)
 
     advanced_config = BooleanParameter("Advanced config", default=False)
-    averaging = IntegerParameter("Averaging", default=10, minimum=1, maximum=1023, group_by="advanced_config")
-    source_channel = IntegerParameter("Source channel", default=3, group_by="advanced_config")
-    base_channel = IntegerParameter("Base channel", default=2, group_by="advanced_config")
-    source_voltage = FloatParameter("Source voltage", units="V", default=0.0, group_by="advanced_config")
-    base_voltage = FloatParameter("Base voltage", units="V", default=0.0, group_by="advanced_config")
+    averaging = IntegerParameter("Averaging", default=10, minimum=1, maximum=1023, step=10, group_by="advanced_config")
+    source_channel = IntegerParameter(
+        "Source channel", default=3, minimum=1, maximum=4, step=1, group_by="advanced_config"
+    )
+    base_channel = IntegerParameter("Base channel", default=2, minimum=1, maximum=4, step=1, group_by="advanced_config")
+    source_voltage = FloatParameter(
+        "Source voltage", units="V", default=0.0, minimum=-200, maximum=200, step=0.1, group_by="advanced_config"
+    )
+    base_voltage = FloatParameter(
+        "Base voltage", units="V", default=0.0, minimum=-200, maximum=200, step=0.1, group_by="advanced_config"
+    )
 
     DATA_COLUMNS: ClassVar[list[str]] = ["Drain Current", "Gate Current"]
 
@@ -46,8 +52,8 @@ class SmuFetIdsTimeProcedure(BaseProcedure):
         self.b1500.clear_wgfmu()
         self.b1500.initialize_wgfmu()
         self.b1500.clear_buffer()
-        self.b1500.rsu1.set_output(RSUOutputMode.SMU)
-        self.b1500.rsu2.set_output(RSUOutputMode.SMU)
+        self.b1500.rsus[1].set_output(RSUOutputMode.SMU)
+        self.b1500.rsus[2].set_output(RSUOutputMode.SMU)
 
     def execute(self):
         logger.info(f"Starting the {self.__class__}")
@@ -71,13 +77,13 @@ class SmuFetIdsTimeProcedure(BaseProcedure):
             source_smu.force("voltage", 0, self.source_voltage, max_compliance(source_smu, abs(self.source_voltage)))
             base_smu.force("voltage", 0, self.base_voltage, max_compliance(base_smu, abs(self.base_voltage)))
 
-            tuples = drain_smu.measure_point()
-            logger.debug(f"Drain SMU measurement: {tuples}")
-            drain_current = tuples[1][1]
+            result = drain_smu.measure_iv(current_range=0, voltage_range=0)
+            logger.debug(f"Drain SMU measurement: {result}")
+            drain_current = result.current
 
-            tuples = gate_smu.measure_point()
-            logger.debug(f"Gate SMU measurement: {tuples}")
-            gate_current = tuples[1][1]
+            result = gate_smu.measure_iv(current_range=0, voltage_range=0)
+            logger.debug(f"Gate SMU measurement: {result}")
+            gate_current = result.current
 
             logger.info(f"Drain current: {drain_current:.6e} A, Gate current: {gate_current:.6e} A")
 

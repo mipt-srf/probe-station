@@ -28,32 +28,58 @@ class QscvProcedureBase(BaseProcedure):
     so both run under identical conditions. Not launched on its own.
     """
 
-    first_voltage = FloatParameter("First voltage", units="V", default=-3)
-    second_voltage = FloatParameter("Second voltage", units="V", default=3)
-    step_voltage = FloatParameter("Sweep step voltage", units="V", default=0.1)
-    c_voltage = FloatParameter("Capacitance measurement voltage", units="V", default=0.1)
-    hold_time = FloatParameter("Hold time", units="s", default=5)
+    first_voltage = FloatParameter("First voltage", units="V", default=-3, minimum=-200, maximum=200, step=0.1)
+    second_voltage = FloatParameter("Second voltage", units="V", default=3, minimum=-200, maximum=200, step=0.1)
+    step_voltage = FloatParameter("Sweep step voltage", units="V", default=0.1, minimum=1e-3, maximum=100, step=0.01)
+    c_voltage = FloatParameter(
+        "Capacitance measurement voltage", units="V", default=0.1, minimum=1e-3, maximum=100, step=0.01
+    )
+    hold_time = FloatParameter("Hold time", units="s", default=5, minimum=0, maximum=655.35, step=1)
     # QSR current measurement range code: -9=10pA, -10=100pA, -11=1nA, -12=10nA,
     # -13=100nA, -14=1uA. Must cover ~C*cvoltage/cinteg or the sweep aborts
     # (Error 242); -11 suits tiny gate caps, larger devices need a wider range.
-    current_range = IntegerParameter("Current range code", default=-11, minimum=-14, maximum=-9)
+    current_range = IntegerParameter("Current range code", default=-11, minimum=-14, maximum=-9, step=1)
 
     advanced_config = BooleanParameter("Advanced config", default=False)
-    integration_time = FloatParameter("Integration time", units="s", default=0.1, group_by="advanced_config")
-    delay_time = FloatParameter("Delay time", units="s", default=0.0, group_by="advanced_config")
+    integration_time = FloatParameter(
+        "Integration time",
+        units="s",
+        default=0.1,
+        minimum=2e-6,
+        maximum=400,
+        step=10,
+        step_type="log",
+        group_by="advanced_config",
+    )
+    delay_time = FloatParameter(
+        "Delay time", units="s", default=0.0, minimum=0, maximum=65.535, step=0.1, group_by="advanced_config"
+    )
     auto_abort = BooleanParameter("Auto abort", default=True, group_by="advanced_config")
-    current_compliance = FloatParameter("Current compliance", units="A", default=0.1, group_by="advanced_config")
-    gate_channel = IntegerParameter("Gate channel", default=4, group_by="advanced_config")
-    drain_channel = IntegerParameter("Drain channel", default=1, group_by="advanced_config")
-    source_channel = IntegerParameter("Source channel", default=3, group_by="advanced_config")
-    base_channel = IntegerParameter("Base channel", default=2, group_by="advanced_config")
+    current_compliance = FloatParameter(
+        "Current compliance",
+        units="A",
+        default=0.1,
+        minimum=1e-12,
+        maximum=1,
+        step=10,
+        step_type="log",
+        group_by="advanced_config",
+    )
+    gate_channel = IntegerParameter("Gate channel", default=4, minimum=1, maximum=4, step=1, group_by="advanced_config")
+    drain_channel = IntegerParameter(
+        "Drain channel", default=1, minimum=1, maximum=4, step=1, group_by="advanced_config"
+    )
+    source_channel = IntegerParameter(
+        "Source channel", default=3, minimum=1, maximum=4, step=1, group_by="advanced_config"
+    )
+    base_channel = IntegerParameter("Base channel", default=2, minimum=1, maximum=4, step=1, group_by="advanced_config")
 
     def startup(self):
         super().startup()
         self.b1500 = Session.acquire(timeout=60000, reset=False)
         self.b1500.clear_buffer()
-        self.b1500.rsu1.set_output(RSUOutputMode.SMU)
-        self.b1500.rsu2.set_output(RSUOutputMode.SMU)
+        self.b1500.rsus[1].set_output(RSUOutputMode.SMU)
+        self.b1500.rsus[2].set_output(RSUOutputMode.SMU)
 
     def _setup_kwargs(self):
         """QSCV setup keyword arguments shared by the sweep and the offset cal."""

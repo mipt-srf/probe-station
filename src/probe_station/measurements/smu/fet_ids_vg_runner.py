@@ -23,8 +23,8 @@ def run(
     drain_voltage=1,
     base=2,
 ):
-    b1500.rsu1.set_output(RSUOutputMode.SMU)
-    b1500.rsu2.set_output(RSUOutputMode.SMU)
+    b1500.rsus[1].set_output(RSUOutputMode.SMU)
+    b1500.rsus[2].set_output(RSUOutputMode.SMU)
 
     gate_smu = b1500.smus[gate]  # swept channel
     gate_smu.enable()

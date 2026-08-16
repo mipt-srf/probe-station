@@ -59,6 +59,11 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools.package-data]
+"probe_station.measurements" = [
+    "assets/*.svg",
+]
+
 [tool.setuptools_scm]
 write_to = "src/probe_station/_version.py"
 

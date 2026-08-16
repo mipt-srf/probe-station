@@ -23,6 +23,7 @@ from keysight_b1530a.enums import (
     WGFMUOperationMode,
 )
 from pymeasure.instruments.agilent.agilentB1500 import (
+    CMU,
     SMU,
     SPGU,
     ADCMode,
@@ -56,6 +57,7 @@ from probe_station.measurements.rsu import RSU, RSUOutputMode
 # package each one lives in.
 __all__ = [
     "B1500",
+    "CMU",
     "RSU",
     "SMU",
     "SPGU",
@@ -111,6 +113,31 @@ def _synchronized(method):
 
 class B1500(AgilentB1500):
     """Subclass of the AgilentB1500 to add WGFMU support and some custom methods."""
+
+    # --- Statically declared units ------------------------------------------
+    # Units are discovered by querying the instrument, so the ``smu1``-style
+    # attributes below are created at runtime and an IDE cannot offer them while
+    # you draft a script. These annotations restore that: they declare the units
+    # both probe stations have in common, and being annotations only they create
+    # nothing -- the objects still come from the ``initialize_*`` queries.
+    #
+    # Do not extend this list to units only one station has. The "old" station's
+    # 3rd and 4th WGFMU channels are reachable through ``wgfmus[3]``, which stays
+    # dynamic and therefore cannot promise a channel that isn't installed.
+
+    smu1: SMU
+    """High Power SMU"""
+    smu2: SMU
+    """High Resolution SMU"""
+    smu3: SMU
+    """High Resolution SMU"""
+    smu4: SMU
+    """Medium Power SMU"""
+    spgu1: SPGU
+    wgfmu1: WGFMU
+    wgfmu2: WGFMU
+    rsu1: RSU
+    rsu2: RSU
 
     def __init__(self, adapter="USB1::0x0957::0x0001::0001::0::INSTR", **kwargs):
         # Created before super().__init__(), which already drives I/O through

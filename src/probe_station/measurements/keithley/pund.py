@@ -17,22 +17,34 @@ logger.addHandler(logging.NullHandler())
 
 class KeithleyPundProcedure(BaseProcedure):
     terminal = Parameter("Terminal", default="rear")
-    first_voltage = FloatParameter("First voltage", units="V", default=-3)
-    second_voltage = FloatParameter("Second voltage", units="V", default=3)
-    rise = IntegerParameter("Rise steps", default=50)
-    hold = IntegerParameter("Hold steps", default=5)
-    space = IntegerParameter("Space steps", default=5)
-    n_cycles = IntegerParameter("PUND cycles", default=1)
+    # ``setup_source_subsystem`` fixes the source voltage range at 20 V.
+    first_voltage = FloatParameter("First voltage", units="V", default=-3, minimum=-20, maximum=20, step=0.1)
+    second_voltage = FloatParameter("Second voltage", units="V", default=3, minimum=-20, maximum=20, step=0.1)
+    rise = IntegerParameter("Rise steps", default=50, minimum=1, step=10)
+    hold = IntegerParameter("Hold steps", default=5, minimum=0, step=1)
+    space = IntegerParameter("Space steps", default=5, minimum=0, step=1)
+    n_cycles = IntegerParameter("PUND cycles", default=1, minimum=1, step=1)
     average_cycles = BooleanParameter("Average cycles", default=False)
-    int_time = FloatParameter("Integration time", units="s", default=0)
+    # Converted to NPLC against a 60 Hz line; the 2450 clamps NPLC to 0.01..10,
+    # so anything above 10/60 s is ignored and 0 falls back to the 0.01 minimum.
+    int_time = FloatParameter("Integration time", units="s", default=0, minimum=0, maximum=10 / 60, step=0.005)
     # compliance = FloatParameter("Compliance current", units="A", default=1e-4)
     autorange = BooleanParameter("Autorange", default=False)
+    # The 2450 current ranges span 10 nA to 1 A, hence the decade stepping.
     current_range = FloatParameter(
-        "Current range", units="A", default=1e-4, group_by="autorange", group_condition=False
+        "Current range",
+        units="A",
+        default=1e-4,
+        minimum=1e-9,
+        maximum=1,
+        step=10,
+        step_type="log",
+        group_by="autorange",
+        group_condition=False,
     )
     # counts = IntegerParameter("Averaging", default=1)
     do_cycle = BooleanParameter("Pre-cycle", default=False)
-    n_precycles = IntegerParameter("Pre-cycle count", default=50, group_by="do_cycle")
+    n_precycles = IntegerParameter("Pre-cycle count", default=50, minimum=1, step=10, group_by="do_cycle")
 
     DATA_COLUMNS: ClassVar[list[str]] = ["Time", "Voltage", "Current"]
 

@@ -19,7 +19,15 @@ logger.addHandler(logging.NullHandler())
 class KeithleyDcIvProcedure(KeithleyPundProcedure):
     int_time = FloatParameter("Integration time", units="s", default=2e-2)
     current_range = FloatParameter(
-        "Current range", units="A", default=1e-6, group_by="autorange", group_condition=False
+        "Current range",
+        units="A",
+        default=1e-6,
+        minimum=1e-9,
+        maximum=1,
+        step=10,
+        step_type="log",
+        group_by="autorange",
+        group_condition=False,
     )
 
     _INPUTS: ClassVar[list[str]] = [

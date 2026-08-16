@@ -17,13 +17,13 @@ logger.addHandler(logging.NullHandler())
 
 
 class SmuIvSweepProcedure(BaseProcedure):
-    first_voltage = FloatParameter("First voltage", units="V", default=-3)
-    second_voltage = FloatParameter("Second voltage", units="V", default=3)
-    top_channel = IntegerParameter("Top channel", default=4)
-    bottom_channel = IntegerParameter("Bottom channel", default=3)
-    averaging = IntegerParameter("Integration coefficient", default=127, minimum=1, maximum=127)
+    first_voltage = FloatParameter("First voltage", units="V", default=-3, minimum=-200, maximum=200, step=0.1)
+    second_voltage = FloatParameter("Second voltage", units="V", default=3, minimum=-200, maximum=200, step=0.1)
+    top_channel = IntegerParameter("Top channel", default=4, minimum=1, maximum=4, step=1)
+    bottom_channel = IntegerParameter("Bottom channel", default=3, minimum=1, maximum=4, step=1)
+    averaging = IntegerParameter("Integration coefficient", default=127, minimum=1, maximum=127, step=1)
     advanced_config = BooleanParameter("Advanced config", default=False)
-    steps = IntegerParameter("Steps", default=100, group_by="advanced_config")
+    steps = IntegerParameter("Steps", default=100, minimum=1, maximum=10001, step=10, group_by="advanced_config")
     mode = ListParameter(
         "Mode",
         default=SmuSweepMode.START_TO_STOP.name,
@@ -32,7 +32,15 @@ class SmuIvSweepProcedure(BaseProcedure):
     )
     # compliance = FloatParameter("Current compliance", units="A", default=0.1, group_by="advanced_config")
     calculate_resistance = BooleanParameter("Calculate resistance", default=False)
-    resistance_voltage = FloatParameter("Resistance voltage", units="V", default=1.0, group_by="calculate_resistance")
+    resistance_voltage = FloatParameter(
+        "Resistance voltage",
+        units="V",
+        default=1.0,
+        minimum=-200,
+        maximum=200,
+        step=0.1,
+        group_by="calculate_resistance",
+    )
 
     DATA_COLUMNS: ClassVar[list[str]] = ["Voltage", "Top Electrode Current", "Time"]
 
@@ -40,8 +48,8 @@ class SmuIvSweepProcedure(BaseProcedure):
         super().startup()
         self.b1500 = Session.acquire(timeout=60000, reset=False)
         self.b1500.clear_buffer()
-        self.b1500.rsu1.set_output(RSUOutputMode.SMU)
-        self.b1500.rsu2.set_output(RSUOutputMode.SMU)
+        self.b1500.rsus[1].set_output(RSUOutputMode.SMU)
+        self.b1500.rsus[2].set_output(RSUOutputMode.SMU)
 
     def execute(self):
         logger.info(f"Starting the {self.__class__}")

@@ -9,7 +9,11 @@ from pymeasure.experiment import (
 
 from probe_station.measurements.pymeasure_base import BaseProcedure
 from probe_station.measurements.session import Session
-from probe_station.measurements.wgfmu._waveforms import SweepMode, WaveformShape
+from probe_station.measurements.wgfmu._waveforms import (
+    WGFMU_TIMING_RESOLUTION,
+    SweepMode,
+    WaveformShape,
+)
 
 
 class WgfmuProcedure(BaseProcedure):
@@ -41,30 +45,50 @@ class WgfmuBaseProcedure(WgfmuProcedure):
     """
 
     mode = ListParameter("Mode", default=SweepMode.DEFAULT.name, choices=[e.name for e in SweepMode])
-    pulse_time = FloatParameter("Pulse time", units="s", default=1e-5)
+    pulse_time = FloatParameter(
+        "Pulse time", units="s", default=1e-5, minimum=WGFMU_TIMING_RESOLUTION, step=10, step_type="log"
+    )
 
-    top_voltage_first = FloatParameter("Top electrode voltage (first)", units="V", default=5.0)
-    top_voltage_second = FloatParameter("Top electrode voltage (second)", units="V", default=-5.0)
+    top_voltage_first = FloatParameter(
+        "Top electrode voltage (first)", units="V", default=5.0, minimum=-10, maximum=10, step=0.1
+    )
+    top_voltage_second = FloatParameter(
+        "Top electrode voltage (second)", units="V", default=-5.0, minimum=-10, maximum=10, step=0.1
+    )
 
-    top = IntegerParameter("Top channel", default=2)
+    top = IntegerParameter("Top channel", default=2, minimum=1, maximum=2, step=1)
 
     enable_bottom = BooleanParameter("Enable bottom bias and measurement", default=False)
 
     bottom_voltage_first = FloatParameter(
-        "Bottom electrode voltage (first)", units="V", default=-5.0, group_by="enable_bottom"
+        "Bottom electrode voltage (first)",
+        units="V",
+        default=-5.0,
+        minimum=-10,
+        maximum=10,
+        step=0.1,
+        group_by="enable_bottom",
     )
     bottom_voltage_second = FloatParameter(
-        "Bottom electrode voltage (second)", units="V", default=5.0, group_by="enable_bottom"
+        "Bottom electrode voltage (second)",
+        units="V",
+        default=5.0,
+        minimum=-10,
+        maximum=10,
+        step=0.1,
+        group_by="enable_bottom",
     )
-    bottom = IntegerParameter("Bottom channel", default=1, group_by="enable_bottom")
+    bottom = IntegerParameter("Bottom channel", default=1, minimum=1, maximum=2, step=1, group_by="enable_bottom")
 
     advanced_config = BooleanParameter("Advanced config", default=False)
 
-    steps = IntegerParameter("Steps per pulse", default=100, group_by="advanced_config")
+    steps = IntegerParameter("Steps per pulse", default=100, minimum=1, step=10, group_by="advanced_config")
     waveform_shape = ListParameter(
         "Waveform shape",
         default=WaveformShape.STAIRCASE.name,
         choices=[e.name for e in WaveformShape],
         group_by="advanced_config",
     )
-    rise_to_hold_ratio = FloatParameter("Rise to hold time ratio", default=1, group_by="advanced_config")
+    rise_to_hold_ratio = FloatParameter(
+        "Rise to hold time ratio", default=1, minimum=0, step=10, step_type="log", group_by="advanced_config"
+    )

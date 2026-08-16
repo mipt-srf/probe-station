@@ -15,7 +15,7 @@ logger.addHandler(logging.NullHandler())
 
 
 class WgfmuCyclingProcedure(WgfmuBaseProcedure):
-    repetitions = IntegerParameter("Number of cycles", default=1e3)
+    repetitions = IntegerParameter("Number of cycles", default=1e3, minimum=1)
 
     def execute(self):
         seq_top = get_sequence(

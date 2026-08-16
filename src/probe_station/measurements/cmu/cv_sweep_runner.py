@@ -32,8 +32,8 @@ def run(b1500: B1500, first_bias=-3, second_bias=3, avg_per_point=1, ac_voltage=
     """
     if not 1 <= avg_per_point <= MAX_AVG_PER_POINT:
         raise ValueError(f"avg_per_point must be between 1 and {MAX_AVG_PER_POINT}, got {avg_per_point}")
-    b1500.rsu1.set_output(RSUOutputMode.SMU)
-    b1500.rsu2.set_output(RSUOutputMode.SMU)
+    b1500.rsus[1].set_output(RSUOutputMode.SMU)
+    b1500.rsus[2].set_output(RSUOutputMode.SMU)
     cmu = b1500.cmu
     b1500.time_stamp = True
     cmu.set_scuu_path(SCUUPath.CMU)
