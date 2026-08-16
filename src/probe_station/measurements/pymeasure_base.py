@@ -311,9 +311,12 @@ def load_results(path: str | Path, procedure_classes: dict[str, type[Procedure]]
 
     A procedure run as a standalone script records its class as living in
     ``__main__``, so Pymeasure cannot reconstruct it from the header (it raises
-    ``AttributeError`` or ``ImportError``). In that case we resolve the class by
-    its bare name (see :func:`_resolve_procedure_class`) and reload with it
-    imported from its real module.
+    ``AttributeError``). A procedure whose module has since been moved or
+    renamed fails differently: Pymeasure swallows the ``ImportError`` and hands
+    back an :class:`~pymeasure.experiment.procedure.UnknownProcedure`, whose
+    ``parameters`` and ``metadata`` are empty. In both cases we resolve the
+    class by its bare name (see :func:`_resolve_procedure_class`) and reload
+    with it imported from its real module.
 
     :param path: Path to the ``.csv`` result file.
     :param procedure_classes: Optional explicit ``name -> class`` registry,
@@ -327,6 +330,10 @@ def load_results(path: str | Path, procedure_classes: dict[str, type[Procedure]]
         if procedure_cls is None:
             raise
         results = Results.load(str(path), procedure_class=procedure_cls)
+    if type(results.procedure) is UnknownProcedure:
+        procedure_cls = _resolve_procedure_class(_read_procedure_class_name(path), procedure_classes)
+        if procedure_cls is not None:
+            results = Results.load(str(path), procedure_class=procedure_cls)
     return canonicalize_columns(results)
 
 
