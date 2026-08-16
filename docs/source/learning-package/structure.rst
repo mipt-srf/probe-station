@@ -20,19 +20,11 @@ This part contains the main functionality of the package. It contains functional
 B1500 class
 -----------
 
-B1500 class is the main class that is responsible for working with Agilent B1500. It contains methods for configuring the instrument, running measurements and retrieving data. You should use this class if you want to implement your own measurement script. It can be imported using
+B1500 class is the main class that is responsible for working with Agilent B1500. It contains methods for configuring the instrument, running measurements and retrieving data. You should use this class if you want to implement your own measurement script.
 
-.. code-block:: python
+.. seealso::
 
-    from probe_station.measurements.b1500 import B1500
-
-or simply
-
-.. code-block:: python
-
-    from probe_station import B1500
-
-Basically, this class is a thin wrapper around :class:`~pymeasure.instruments.agilent.agilentB1500.AgilentB1500` class from Pymeasure package. It is designed to add additional WGFMU functionality implemented in `keysight_b1530a <https://github.com/ilev-sergey/keysight-b1530a>`__ package. You can find more information about :class:`~pymeasure.instruments.agilent.agilentB1500.AgilentB1500` class in its documentation and on this :ref:`page <explanation/b1500:b1500>` WGFMU specifics :doc:`here <wgfmu>`.
+      :ref:`B1500 class <learning-package/b1500-class:B1500 class>`
 
 Launcher
 --------

@@ -35,7 +35,7 @@ Querying the instrument is also different from common SCPI commands. Instead of 
 
 .. seealso::
 
-   :ref:`Querying <explanation/b1500:querying>` for explaination of how querying logic is implemented in Pymeasure and how to use it in practice.
+   :ref:`Querying <learning-package/b1500-class:querying>` for explaination of how querying logic is implemented in Pymeasure and how to use it in practice.
 
    :ref:`Programming Guide page 4-129 <programming-guide>` for details on ``*LRN?`` command.
 

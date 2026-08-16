@@ -14,8 +14,8 @@ Each unit is inserted into a slot and connected to the mainframe (see :ref:`the 
 
 In our setup, there are following installed units (starting from bottom to top, from slot 1 to slot 8):
 
-* HV-SPGU (High Voltage Semiconductor Pulse Generator Unit)
-* WGFMU (Waveform Generator/Fast Measurement Unit)
+* HV-SPGU (High Voltage Semiconductor Pulse Generator Unit, 2 channels)
+* WGFMU (Waveform Generator/Fast Measurement Unit, 2 channels)
 * HPSMU (High Power Source Measure Unit)
 * HRSMU (High Resolution Source Measure Unit)
 * HRSMU (High Resolution Source Measure Unit)

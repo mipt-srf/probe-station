@@ -43,8 +43,8 @@ See :doc:`Installation <getting-started/installation>` page for instructions on 
    learning-package/advanced-usage
    learning-package/dependencies
    learning-package/wgfmu
+   learning-package/b1500-class
    explanation/connection
-   explanation/b1500
    explanation/b1500-specifics
 
 .. toctree::

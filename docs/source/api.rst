@@ -9,6 +9,10 @@ B1500
    :members:
    :show-inheritance:
 
+.. autoclass:: probe_station.measurements.rsu.RSU
+   :members:
+   :show-inheritance:
+
 .. autofunction:: probe_station.measurements.launcher.main
 
 .. autoclass:: probe_station.measurements.pymeasure_base.BaseProcedure

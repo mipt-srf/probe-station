@@ -45,7 +45,7 @@ Here is a full version if you want to see the whole script at once. We will go t
 
   It is not a strict requirement, since you should always configure all the parameters you need for your measurement anyway, but it is a good practice to improve reproducibility. However, you often want to avoid resetting when doing multiple measurements in a row (see :ref:`creating experiments <learning-package/advanced-usage:creating complex experiments>`).
 
-* Next, setup the :ref:`data format <explanation/b1500:Data formatting>` that is used when retrieving the data from the instrument.
+* Next, setup the :ref:`data format <learning-package/b1500-class:Data formatting>` that is used when retrieving the data from the instrument.
 
   .. literalinclude:: ../../../examples/iv_sweep_b1500.py
     :language: python
@@ -59,7 +59,7 @@ Here is a full version if you want to see the whole script at once. We will go t
     :language: python
     :lines: 20-25
 
-* Next, we setup the :ref:`selectors <learning-package/how-it-works:Switching between units>`. Here, we enable SMU/SPGU selector and select SMU output for both selector output channels. Note, that :ref:`enums <explanation/b1500:Enums>` are used for better readability.
+* Next, we setup the :ref:`selectors <learning-package/how-it-works:Switching between units>`. Here, we enable SMU/SPGU selector and select SMU output for both selector output channels. Note, that :ref:`enums <learning-package/b1500-class:Enums>` are used for better readability.
 
   .. literalinclude:: ../../../examples/iv_sweep_b1500.py
     :language: python
@@ -95,7 +95,7 @@ Here is a full version if you want to see the whole script at once. We will go t
     :language: python
     :lines: 42-43
 
-* Setup ADC settings. See :ref:`ADC mode <explanation/b1500:ADC mode>` for details.
+* Setup ADC settings. See :ref:`ADC mode <learning-package/b1500-class:ADC mode>` for details.
 
   .. literalinclude:: ../../../examples/iv_sweep_b1500.py
     :language: python
