@@ -1,7 +1,9 @@
 #Procedure: <probe_station.measurements.cv_sweep.CmuCvSweepProcedure>
 #Parameters:
+#	AC voltage: 0.1 V
 #	Averages per point: 1
 #	First voltage: -3.2 V
+#	Frequency: 10000 Hz
 #	Second voltage: 3.2 V
 #Metadata:
 #	End time: 2026-07-13 18:44:56.190250
