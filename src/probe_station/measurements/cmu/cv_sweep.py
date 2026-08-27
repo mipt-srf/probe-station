@@ -7,6 +7,7 @@ from pymeasure.experiment import (
 )
 
 from probe_station.logging_setup import setup_file_logging
+from probe_station.measurements.b1500_helpers import to_cp_rp
 from probe_station.measurements.cmu.cv_sweep_runner import PLOT_POINTS, run
 from probe_station.measurements.pymeasure_base import BaseProcedure, BaseWindow, run_app
 from probe_station.measurements.session import Session
@@ -49,7 +50,12 @@ class CmuCvSweepProcedure(BaseProcedure):
         )
         total_steps = 2 * PLOT_POINTS  # LINEAR_DOUBLE sweep: forward + backward
 
-        for i, (_, Cp, Rp, _ac, dc_measured, _dc_forced) in enumerate(self.b1500.iter_output(total_steps, 6)):
+        # Per step, the 6 values are: time, the impedance pair, AC level,
+        # measured DC bias and forced DC bias. Which pair the CMU returns
+        # depends on the data format, so it is read as records and converted.
+        for i, records in enumerate(self.b1500.iter_records(total_steps, 6)):
+            Cp, Rp = to_cp_rp(records[1:3], self.frequency)
+            dc_measured = records[4][3]
             self.emit("progress", (i + 1) / total_steps * 100)
             self.emit("results", {"Voltage": dc_measured, "Capacitance": Cp, "Resistance": Rp})
             if self.should_stop():

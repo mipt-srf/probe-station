@@ -7,7 +7,7 @@ from probe_station.measurements.b1500 import (
     RSUOutputMode,
     SweepMode,
 )
-from probe_station.measurements.b1500_helpers import connect_instrument, max_compliance, parse_data
+from probe_station.measurements.b1500_helpers import connect_instrument, max_compliance
 
 
 def run(
@@ -98,7 +98,7 @@ def run(
 
 
 def get_data(b1500: B1500):
-    data = parse_data(b1500.read())
+    data = b1500.read_all_values()
 
     times = data[::5]
     currents = data[1::5]

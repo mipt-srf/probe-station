@@ -19,7 +19,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from probe_station.measurements.b1500 import B1500, RSUOutputMode
-from probe_station.measurements.b1500_helpers import connect_instrument, parse_data
+from probe_station.measurements.b1500_helpers import connect_instrument
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
@@ -186,7 +186,7 @@ def measure_offset(b1500: B1500, **setup):
     _setup_qscv(b1500, offset_cancel=False, **setup)  # QSZ 0 while measuring the offset.
     b1500.write("QSZ 2")  # Trigger the open-terminal offset measurement.
     b1500.ask("*OPC?")  # Wait for completion; consumes the "1" reply before the data.
-    offset = parse_data(b1500.read())[-1]  # Single capacitance value, in F.
+    offset = b1500.read_all_values()[-1]  # Single capacitance value, in F.
     b1500.write("QSZ 1")  # Enable offset cancel for subsequent sweeps.
     b1500.check_errors()
     logger.info("Open-terminal capacitance offset: %.4e F (%.3f pF); offset cancel enabled.", offset, offset * 1e12)

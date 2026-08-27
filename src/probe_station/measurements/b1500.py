@@ -228,29 +228,65 @@ class B1500(AgilentB1500):
     def clear_wgfmu(self):
         clear()
 
-    def iter_output(self, total_steps: int, values_per_step: int):
-        """Read sweep output step-by-step (B1500 guide section 1-19).
+    # --- Data reading -------------------------------------------------------
+    # Every value is decoded by the formatting class pymeasure installs in
+    # ``data_format``, so all implemented formats work: the ASCII formats
+    # (1, 11, 21) and the 8 byte binary format 14.
 
-        Yields tuples of `values_per_step` floats, one tuple per sweep step.
-        Call after send_trigger() has been issued.
+    def _require_data_format(self):
+        """Return the active data formatting class, or raise if none is set."""
+        if self._data_format is None:
+            raise ValueError("No data format set. Call data_format() before reading data.")
+        return self._data_format
 
-        Uses read_bytes instead of read() to avoid waiting for end-of-message (EOM),
-        enabling real-time per-step readout when FMT mode 1 is active.
-        Reads until comma/newline delimiters so token byte length does not need to be known.
+    def _value_reader(self, data_format):
+        """Return a callable that reads and decodes one measurement value.
+
+        Reads are sized per value instead of waiting for end-of-message (EOM),
+        which is what enables the real-time per-step readout of
+        :meth:`iter_records`.
         """
         resource = self.adapter.connection
+
+        if data_format.binary:
+            size = data_format.size
+
+            def next_record():
+                # break_on_termchar must stay off: a binary value is a fixed
+                # number of bytes and may carry a termination character as
+                # payload, so only the byte count delimits it.
+                return data_format.format_single(resource.read_bytes(size))
+
+            return next_record
+
         buf = bytearray()
 
-        def next_value() -> float:
+        def next_record():
             while True:
                 for i, byte in enumerate(buf):
                     if byte in (ord(","), ord("\r"), ord("\n")):
                         token = buf[:i].decode("ascii")
                         del buf[: i + 1]
                         if token:
-                            return float(token[3:])
+                            return data_format.format_single(token)
                         break  # empty token (e.g. \n after \r), keep scanning
                 buf.extend(resource.read_bytes(16, break_on_termchar=True))
+
+        return next_record
+
+    def iter_records(self, total_steps: int, values_per_step: int):
+        """Read sweep output step-by-step (B1500 guide section 1-19).
+
+        Yields tuples of `values_per_step` ``(status, channel, data_name, value)``
+        records, one tuple per sweep step. Call after send_trigger() has been
+        issued. Use :meth:`iter_output` when only the values are needed.
+
+        The data names identify the returned quantities, which matters for the
+        MFCMU: the ``IMP`` command has no effect under the binary format 14, so
+        the instrument reports resistance/reactance or conductance/susceptance
+        regardless of the requested measurement mode.
+        """
+        next_record = self._value_reader(self._require_data_format())
 
         # Hold the I/O lock for the whole sweep so nothing else (e.g. a Session
         # liveness probe issuing *IDN?) can interleave traffic on the shared
@@ -258,4 +294,38 @@ class B1500(AgilentB1500):
         # closed (procedure returns early on stop), or raises.
         with self._io_lock:
             for _ in range(total_steps):
-                yield tuple(next_value() for _ in range(values_per_step))
+                yield tuple(next_record() for _ in range(values_per_step))
+
+    def iter_output(self, total_steps: int, values_per_step: int):
+        """Read sweep output step-by-step as plain floats.
+
+        Yields tuples of `values_per_step` floats, one tuple per sweep step.
+        Call after send_trigger() has been issued.
+        """
+        for records in self.iter_records(total_steps, values_per_step):
+            yield tuple(value for *_, value in records)
+
+    def read_values(self, count: int) -> list[float]:
+        """Read `count` measurement values from the output buffer as floats.
+
+        :param count: Number of values (measurement channels and sweep sources,
+            depending on the data output settings) of one measurement point.
+        """
+        return [value for *_, value in self.read_channels(count)]
+
+    def read_all_records(self) -> list[tuple]:
+        """Read the whole output buffer as ``(status, channel, data_name, value)`` records.
+
+        Binary data carries no terminator, so the number of values in the buffer
+        is queried (``NUB?``) to read the exact number of bytes; ASCII data is
+        read up to its end-of-message. Wait for the measurement to finish before
+        calling this, otherwise not all data is in the buffer yet.
+        """
+        data_format = self._require_data_format()
+        if data_format.binary:
+            return list(self.read_channels(self.number_of_data))
+        return [data_format.format_single(element) for element in self.read().split(",")]
+
+    def read_all_values(self) -> list[float]:
+        """Read every value currently in the output buffer as floats."""
+        return [value for *_, value in self.read_all_records()]
