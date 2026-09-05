@@ -15,6 +15,8 @@ B1500
 
 .. autofunction:: probe_station.measurements.launcher.main
 
+.. autofunction:: probe_station.logging_setup.setup_file_logging
+
 .. autoclass:: probe_station.measurements.pymeasure_base.BaseProcedure
 
 .. autoclass:: probe_station.analysis.dataset.Dataset
