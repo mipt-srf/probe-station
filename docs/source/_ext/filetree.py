@@ -29,9 +29,9 @@ if TYPE_CHECKING:
 #: Patterns dropped from the filesystem fallback; git already ignores these.
 DEFAULT_EXCLUDE = ("__pycache__", "*.pyc", ".*")
 
-TEE = "├── "  # noqa: RUF003 - box-drawing characters are the point
-ELBOW = "└── "  # noqa: RUF003
-PIPE = "│   "  # noqa: RUF003
+TEE = "├── "  # box-drawing characters are the point
+ELBOW = "└── "
+PIPE = "│   "
 BLANK = "    "
 
 
@@ -47,8 +47,8 @@ def _insert(tree: _Tree, parts: Iterable[str]) -> None:
 def _tracked_paths(root: Path, target: Path) -> list[PurePosixPath] | None:
     """Return target-relative paths of git-tracked files, or None if unavailable."""
     try:
-        result = subprocess.run(  # noqa: S603
-            ["git", "ls-files", "-z", "--", str(target)],  # noqa: S607 - git resolved from PATH by design
+        result = subprocess.run(
+            ["git", "ls-files", "-z", "--", str(target)],  # git resolved from PATH by design
             cwd=root,
             capture_output=True,
             check=True,
@@ -76,7 +76,7 @@ def _walked_paths(target: Path, exclude: tuple[str, ...]) -> list[PurePosixPath]
     return paths
 
 
-def _render(  # noqa: PLR0913 - a plain recursive walk, each argument is one axis of it
+def _render(  # a plain recursive walk, each argument is one axis of it
     tree: _Tree,
     prefix: str,
     url_prefix: PurePosixPath,

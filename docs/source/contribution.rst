@@ -23,7 +23,7 @@ Dependencies are split into optional extras, so that you install only what you n
 * ``tests`` - `pytest <https://docs.pytest.org/>`__ and coverage plugins, see `Running tests`_.
 * ``docs`` - Sphinx and its extensions, see `Building documentation`_.
 
-The ``dev`` dependency group (Ruff, IPython kernel) is not an extra and is installed by ``uv sync`` by default.
+The ``dev`` dependency group (Ruff, pre-commit, IPython kernel) is not an extra and is installed by ``uv sync`` by default.
 
 .. _local-sources:
 
@@ -69,11 +69,11 @@ The code is formatted and linted with `Ruff <https://docs.astral.sh/ruff/>`__, c
     uv run ruff check --fix
     uv run ruff format
 
-Linting is also run in CI, so it's convenient to install the `pre-commit <https://pre-commit.com/>`__ hooks that run both of the commands above for every commit:
+Linting is also run in CI, so it's convenient to install the `pre-commit <https://pre-commit.com/>`__ hooks, which run both of the commands above for every commit, and additionally trim trailing whitespace and check the documentation with `sphinx-lint <https://github.com/sphinx-contrib/sphinx-lint>`__:
 
 .. code-block:: console
 
-    uvx pre-commit install
+    uv run pre-commit install
 
 Running tests
 =============
@@ -140,6 +140,7 @@ Writing pages
 * The structure follows `Diátaxis <https://diataxis.fr/>`__, so before adding a page, decide whether it explains **how to use** the package (tutorials and how-to guides) or **how it works** (reference and explanation pages), and place it accordingly.
 * ``default_role`` is set to ``any``, so a single-backtick reference resolves to any matching target, and `intersphinx <https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html>`__ extension extends this to the documentation of Python, NumPy, SciPy, Matplotlib, pandas, Pymeasure, PyVISA and ``keysight-b1530a``. Because of this, referring to a class as :class:`~pymeasure.instruments.agilent.agilentB1500.AgilentB1500` links to the corresponding project.
 * Section labels are generated automatically by `autosectionlabel <https://www.sphinx-doc.org/en/master/usage/extensions/autosectionlabel.html>`__ extension and prefixed with the document name, so sections are referenced as ``:ref:`explanation/connection:visa```.
+* Markup mistakes that Sphinx renders silently instead of reporting - a role missing its closing backtick, a hyperlink missing its trailing underscore - are caught by `sphinx-lint <https://github.com/sphinx-contrib/sphinx-lint>`__, which runs as a pre-commit hook (see `Code style`_).
 
 Executed code
 -------------

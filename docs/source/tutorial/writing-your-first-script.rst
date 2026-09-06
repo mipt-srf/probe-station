@@ -106,7 +106,7 @@ Here is a full version if you want to see the whole script at once. We will go t
   .. literalinclude:: ../../../examples/iv_sweep_b1500.py
     :language: python
     :lines: 47-55
-    
+
 * Clear timer before the measurement, so that the measurement time will be measured from this point.
 
   .. literalinclude:: ../../../examples/iv_sweep_b1500.py
@@ -134,7 +134,7 @@ Here is a full version if you want to see the whole script at once. We will go t
   Alternatively, you can use :meth:`check_idle <probe_station.measurements.b1500.B1500.check_idle>` method to wait for the measurement to finish before reading the data.
 
   .. code-block:: python
-    
+
     b1500.send_trigger()
     b1500.check_idle()
     b1500.force_gnd()
@@ -174,7 +174,7 @@ And also configure the measurement settings for the second SMU:
   smu_top.meas_op_mode = MeasOpMode.CURRENT
   smu_top.meas_range_current = 0
   smu_top.adc_type = ADCType.HRADC
-  
+
   + smu_bottom.meas_op_mode = MeasOpMode.CURRENT
   + smu_bottom.meas_range_current = 0
   + smu_bottom.adc_type = ADCType.HRADC
@@ -184,4 +184,3 @@ After that, additional columns will be present in the data, corresponding to the
 .. seealso::
 
     `fet_ids_vds_runner.py <https://github.com/mipt-srf/probe-station/blob/master/src/probe_station/measurements/smu/fet_ids_vds_runner.py>`__ as an example of measuring current from multiple channels in parallel
-

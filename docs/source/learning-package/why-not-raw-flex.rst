@@ -2,7 +2,7 @@
 Why not raw FLEX commands?
 ##########################
 
-Using :class:`~probe_station.measurements.b1500.B1500` class you can communicate with B1500 device through Python methods, without direct usage of :ref:`FLEX <explanation/b1500-specifics:flex commands>` commands and :ref:`VISA <explanation/connection:visa>` API. 
+Using :class:`~probe_station.measurements.b1500.B1500` class you can communicate with B1500 device through Python methods, without direct usage of :ref:`FLEX <explanation/b1500-specifics:flex commands>` commands and :ref:`VISA <explanation/connection:visa>` API.
 
 Here is an example of the same script for quasistatic DC IV measurement using SMU written with raw FLEX commands and using :class:`~probe_station.measurements.b1500.B1500` class from this package:
 
@@ -13,7 +13,7 @@ Here is an example of the same script for quasistatic DC IV measurement using SM
 .. tab-set::
 
     .. tab-item:: B1500 class
-       
+
         .. literalinclude:: ../../../examples/iv_sweep_b1500.py
            :language: python
            :linenos:
@@ -26,12 +26,12 @@ Here is an example of the same script for quasistatic DC IV measurement using SM
 
 Even though you probably won't understand every single line of the script at first, it is clear that using class methods makes the script much more readable and easier to understand and modify.
 
-Also, you don't need to worry about parsing the data results, which can be quite painful when using binary format. 
+Also, you don't need to worry about parsing the data results, which can be quite painful when using binary format.
 
 .. tab-set::
 
     .. tab-item:: B1500 class
-       
+
         .. literalinclude:: ../../../examples/iv_sweep_b1500.py
            :language: python
            :lines: 60-65
@@ -50,7 +50,7 @@ Note that ordinal number (1, 2, 3, etc.) is used to specify the required SMUs, c
 .. tab-set::
 
     .. tab-item:: B1500 class
-       
+
         .. literalinclude:: ../../../examples/iv_sweep_b1500.py
            :language: python
            :lines: 22-23

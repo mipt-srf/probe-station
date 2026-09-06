@@ -29,4 +29,3 @@ Keysight IO
 Alternatively, as a more general approach that you can use for any script communicating using :ref:`VISA <explanation/connection:visa>` or :ref:`SICL <explanation/connection:physical and network layers>`, you can use `Keysight IO Monitor <https://helpfiles.keysight.com/IO_Libraries_Suite/English/IOLS_Linux/IOMonitor/Content/Welcome.htm>`__.
 
 .. добавь скринов: Keysight IO кнопка, запуск мониторинга, запуск скрипта, появившивеся логи, опицонально их созранение
-

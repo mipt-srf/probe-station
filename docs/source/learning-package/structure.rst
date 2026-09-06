@@ -45,7 +45,7 @@ Each script has ``runner`` in its name and contains commands for running a speci
 
 If script uses multiple units simultaneously, the corresponding folder is named after the unit that is used as a main one.
 
-.. Is it the right place? 
+.. Is it the right place?
 
 Measurement GUI
 ---------------

@@ -36,7 +36,7 @@ Initialization
 * :ref:`Data format <data_formatting>` for retrieving data is set using
 
   .. code-block:: python
-    
+
       b.data_format(output_format=1, mode=1)
 
 .. link to __init__
@@ -93,11 +93,11 @@ Each unit can be accessed using either corresponding collection or using an attr
 
 .. admonition:: Autocompletion
     :collapsible: closed
-    
+
     Both forms are autocompleted in IDEs.
-    
+
     Collections are typed, so ``.smus[1]`` will be correctly autocompleted by default even if collection is empty.
-    
+
     Because exact initialized units are known only in runtime, they are not hinted in IDEs. So, the units that both probe stations have in common (``smu1`` to ``smu4``, ``spgu1``, ``wgfmu1``, ``wgfmu2``, ``rsu1``, ``rsu2``) are additionally declared as static attributes on :class:`~probe_station.measurements.b1500.B1500` to provide autocompletion support.
 
 Collections are also the form to use when the channel number is a variable rather than a literal, which is usually the case in measurement code:

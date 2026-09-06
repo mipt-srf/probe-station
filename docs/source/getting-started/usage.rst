@@ -120,7 +120,7 @@ Also, parameters that were used for the measurements as well as metadata can be 
 .. jupyter-execute::
 
     ds.metadata
-    
+
 .. jupyter-execute::
 
     ds.metadata["start_time"].value
@@ -166,7 +166,7 @@ There are also other methods that might be useful for processing multiple files 
 .. warning::
 
     Since the type of handler that should be used for specific datafile is determined in run time, the IDE autocompletion and type hints don't work very well. You might want to look at corresponding handler docs (:class:`~probe_station.analysis.handlers.cv.Cv`, :class:`~probe_station.analysis.handlers.iv.Iv`, :class:`~probe_station.analysis.handlers.fet_ids_vds.FetIdsVds`) yourself to see which methods are available.
-    
+
     You can also see available methods and properties from code.
 
     .. jupyter-execute::
@@ -188,4 +188,3 @@ Supported measurements from Matlab codebase are represented by :class:`~probe_st
    also how to see available methods
 
 Despite that utils for Matlab datafiles processing it's still a part of the package as well, I would recommend to switch to using package's measurements as they are implemented as part of the ecosystem and can be easier processed in the future.
-
