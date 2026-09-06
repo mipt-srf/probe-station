@@ -13,6 +13,8 @@ B1500
    :members:
    :show-inheritance:
 
+.. autofunction:: probe_station.measurements.b1500_helpers.connect_instrument
+
 .. autofunction:: probe_station.measurements.launcher.main
 
 .. autofunction:: probe_station.logging_setup.setup_file_logging
