@@ -30,7 +30,9 @@ logger.addHandler(logging.NullHandler())
 REPOSITORY_URL = "https://github.com/mipt-srf/probe-station"
 DOCUMENTATION_URL = "https://probe-station.readthedocs.io"
 
-# Monochrome brand marks from Simple Icons (CC0), tinted at load time.
+# Monochrome SVG marks, tinted at load time: brand marks from Simple Icons
+# (CC0) and the button glyphs, drawn as SVG rather than emoji because
+# Windows 7 has no font that can render those.
 ASSETS_DIR = Path(__file__).parent / "assets"
 
 # Name of the in-flight action (e.g. "Вжух"), or None if idle. Read by the
@@ -90,8 +92,11 @@ class ActionRunner(QThread):
 
 
 class ModernButton(QPushButton):
-    def __init__(self, text, color="#4CAF50"):
+    def __init__(self, text, color="#4CAF50", icon_name=None, icon_size=20):
         super().__init__(text)
+        if icon_name is not None:
+            self.setIcon(load_svg_icon(icon_name, color="#ffffff"))
+            self.setIconSize(QSize(icon_size, icon_size))
         self.setStyleSheet(f"""
             QPushButton {{
                 background-color: {color};
@@ -205,24 +210,27 @@ class Launcher(QWidget):
         separator.setStyleSheet("background-color: #555555; height: 2px;")
         layout.addWidget(separator)
 
-        # Script buttons.  4th element is the launch ``kind``:
+        # Script buttons: (icon, label, module, color[, kind]).  ``kind`` is:
         # "subprocess" (default) | "in_process" | "notebook".
         scripts = [
             [
                 (
-                    "📊 IV Sweep (SMU)",
+                    "chart",
+                    "IV Sweep (SMU)",
                     "probe_station.measurements.smu.iv_sweep",
                     "#D1B122",
                     "in_process",
                 ),
                 (
-                    "📊 Fast IV Sweep (WGFMU)",
+                    "chart",
+                    "Fast IV Sweep (WGFMU)",
                     "probe_station.measurements.wgfmu.iv_sweep",
                     "#2196F3",
                     "in_process",
                 ),
                 (
-                    "📊 IV Sweep (SPGU) - experimental",
+                    "chart",
+                    "IV Sweep (SPGU) - experimental",
                     "probe_station.measurements.spgu.cycling_with_current",
                     "#4CAF50",
                     "in_process",
@@ -230,29 +238,33 @@ class Launcher(QWidget):
             ],
             [
                 (
-                    "🔄 Cycling (WGFMU)",
+                    "cycle",
+                    "Cycling (WGFMU)",
                     "probe_station.measurements.wgfmu.cycling",
                     "#2196F3",
                     "in_process",
                 ),
-                ("🔄 Cycling (SPGU)", "probe_station.measurements.spgu.cycling", "#4CAF50", "in_process"),
+                ("cycle", "Cycling (SPGU)", "probe_station.measurements.spgu.cycling", "#4CAF50", "in_process"),
             ],
             # A nested list lays its buttons out in a single horizontal row.
             [
                 (
-                    "📊 CV Sweep\n(CMU)",
+                    "chart",
+                    "CV Sweep\n(CMU)",
                     "probe_station.measurements.cmu.cv_sweep",
                     "#C224BA",
                     "in_process",
                 ),
                 (
-                    "📊 Quasi-static CV Sweep\n(SMU) - experimental",
+                    "chart",
+                    "Quasi-static CV Sweep\n(SMU) - experimental",
                     "probe_station.measurements.smu.quasistatic_cv",
                     "#D1B122",
                     "in_process",
                 ),
                 (
-                    "🛠 Offset Cancel\n(open tips)",
+                    "tune",
+                    "Offset Cancel\n(open tips)",
                     "probe_station.measurements.smu.quasistatic_cv_offset",
                     "#D1B122",
                     "in_process",
@@ -260,41 +272,45 @@ class Launcher(QWidget):
             ],
             [
                 (
-                    "📊 Ids (Vg) (SMU)",
+                    "chart",
+                    "Ids (Vg) (SMU)",
                     "probe_station.measurements.smu.fet_ids_vg",
                     "#D1B122",
                     "in_process",
                 ),
                 (
-                    "📊 Ids (Vds) (SMU)",
+                    "chart",
+                    "Ids (Vds) (SMU)",
                     "probe_station.measurements.smu.fet_ids_vds",
                     "#D1B122",
                     "in_process",
                 ),
                 (
-                    "📊 Ids (Vg) (WGFMU)",
+                    "chart",
+                    "Ids (Vg) (WGFMU)",
                     "probe_station.measurements.wgfmu.fet_ids_vg",
                     "#2196F3",
                     "in_process",
                 ),
                 (
-                    "📊 Ids @ DC bias (WGFMU) - experimental",
+                    "chart",
+                    "Ids @ DC bias (WGFMU) - experimental",
                     "probe_station.measurements.wgfmu.fet_ids_dc",
                     "#2196F3",
                     "in_process",
                 ),
             ],
-            ("✨ Вжух", "probe_station.measurements.magic", "#575656FF", "action"),
+            ("sparkles", "Вжух", "probe_station.measurements.magic", "#575656FF", "action"),
         ]
 
         def make_button(script_data):
-            if len(script_data) == 4:
-                name, module, color, kind = script_data
+            if len(script_data) == 5:
+                icon_name, name, module, color, kind = script_data
             else:
-                name, module, color = script_data
+                icon_name, name, module, color = script_data
                 kind = "subprocess"
 
-            button = ModernButton(name, color)
+            button = ModernButton(name, color, icon_name)
             button.clicked.connect(lambda checked, m=module, k=kind: self.run_script(m, k))
             return button
 
@@ -314,7 +330,7 @@ class Launcher(QWidget):
         reader_separator.setStyleSheet("background-color: #555555; height: 2px;")
         layout.addWidget(reader_separator)
 
-        open_data_button = ModernButton("📁 Open data…", "#575656FF")
+        open_data_button = ModernButton("Open data…", "#575656FF", "folder")
         open_data_button.clicked.connect(self.open_data)
         layout.addWidget(open_data_button)
 
